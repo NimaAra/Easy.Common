@@ -1,2 +1,2 @@
 # Easy.Common
-A setup useful methods used across Easy.* projects.
+A set of useful methods used across Easy.* projects.
