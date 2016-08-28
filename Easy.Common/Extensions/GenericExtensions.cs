@@ -30,7 +30,7 @@ namespace Easy.Common.Extensions
         }
 
         /// <summary>
-        /// Returns an uninitialized instance of the <typeparamref name="{T}"/> without calling any of its constructor(s).
+        /// Returns an uninitialized instance of the <typeparamref name="T"/> without calling any of its constructor(s).
         /// <see href="https://msdn.microsoft.com/en-us/library/system.runtime.serialization.formatterservices.getuninitializedobject.aspx"/>
         /// </summary>
         /// <remarks>
@@ -41,7 +41,7 @@ namespace Easy.Common.Extensions
         /// since creating an empty instance of an immutable type serves no purpose.
         /// </remarks>
         /// <typeparam name="T">Generic Type</typeparam>
-        /// <returns>An instance of type <typeparam name="{T}"/> 
+        /// <returns>An instance of type <typeparamref name="T"/> 
         /// with all its <c>non-static</c> fields initialized to its default value.
         /// </returns>
         public static T GetUninitializedInstance<T>()
@@ -87,7 +87,7 @@ namespace Easy.Common.Extensions
         /// <summary>
         /// Performs a deep copy of the object using the by generating IL.
         /// Only the first call for a certain type will have impact on performance; After the first call, the compiled IL is executed.
-        /// <see cref="http://whizzodev.blogspot.co.uk/2008/06/object-deep-cloning-using-il-in-c.html"/>
+        /// <see href="http://whizzodev.blogspot.co.uk/2008/06/object-deep-cloning-using-il-in-c.html"/>
         /// </summary>    
         /// <typeparam name="T">The type of object being cloned.</typeparam>    
         /// <param name="myObject">The object instance to clone.</param>    

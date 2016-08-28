@@ -3,6 +3,9 @@
     using System;
     using System.IO;
 
+    /// <summary>
+    /// Provides a set of useful methods for working with <see cref="FileInfo"/> and <see cref="DirectoryInfo"/>.
+    /// </summary>
     public static class FileAndDirectoryInfoExtensions
     {
         /// <summary>

@@ -5,7 +5,7 @@
 
     /// <summary>
     /// Helps with the creation of predicates.
-    /// <see cref="http://www.albahari.com/nutshell/predicatebuilder.aspx"/>
+    /// <see href="http://www.albahari.com/nutshell/predicatebuilder.aspx"/>
     /// </summary>
     public static class PredicateBuilder
     {

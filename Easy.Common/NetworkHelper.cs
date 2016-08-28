@@ -11,7 +11,7 @@
     {
         /// <summary>
         /// Returns the LocalHost Fully Qualified Domain Name
-        /// <see cref="http://stackoverflow.com/questions/804700/how-to-find-fqdn-of-local-machine-in-c-net"/>
+        /// <see href="http://stackoverflow.com/questions/804700/how-to-find-fqdn-of-local-machine-in-c-net"/>
         /// </summary>
         /// <returns>The localhost Fully Qualified Domain Name</returns>
         public static string GetFQDN()

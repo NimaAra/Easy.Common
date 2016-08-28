@@ -54,7 +54,7 @@
             };
 
         /// <summary>
-        /// It avoids materializing any attribute instances. <see cref="http://stackoverflow.com/a/2282254/1226568"/>
+        /// It avoids materializing any attribute instances. <see href="http://stackoverflow.com/a/2282254/1226568"/>
         /// </summary>
         /// <typeparam name="T">Type of <c>Attribute</c> which has decorated the properties.</typeparam>
         /// <param name="type">Type of <c>Object</c> which has properties decorated with <typeparamref name="T"/>.</param>

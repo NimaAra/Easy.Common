@@ -79,7 +79,7 @@
         /// <exception cref="ArgumentNullException">
         ///     Thrown when <paramref name="value"/> is null
         /// </exception>
-        /// <returns> The <see cref="T"/>.</returns>
+        /// <returns> The <typeparamref name="T"/>.</returns>
         [DebuggerStepThrough]
         public static T NotNull<T>(T value, string argName) where T : class
         {
@@ -97,7 +97,7 @@
         /// <param name="right">Right <see langword="object"/>.</param>
         /// <param name="message">Message for the exception</param>
         /// <exception cref="ArgumentException">
-        ///     Thrown when <paramref cref="left"/> not equal to <paramref cref="right"/>
+        ///     Thrown when <paramref name="left"/> not equal to <paramref name="right"/>
         /// </exception>
         /// <remarks>Null values will cause an exception to be thrown</remarks>
         [DebuggerStepThrough]
@@ -114,7 +114,7 @@
         /// <param name="right">Second Value to Compare</param>
         /// <param name="message">Message for the exception</param>
         /// <exception cref="ArgumentException">
-        ///     Thrown when <paramref cref="left"/> equal to <paramref cref="right"/>
+        ///     Thrown when <paramref name="left"/> equal to <paramref name="right"/>
         /// </exception>
         /// <remarks>Null values will cause an exception to be thrown</remarks>
         [DebuggerStepThrough]
@@ -151,7 +151,7 @@
         /// <param name="message">Message for the exception</param>
         /// <returns>Value to return if it is not null, empty or whitespace.</returns>
         /// <exception cref="ArgumentException">
-        ///     Thrown when <paramref cref="value"/> is null or empty or whitespace.
+        ///     Thrown when <paramref name="value"/> is null or empty or whitespace.
         /// </exception>
         [DebuggerStepThrough]
         public static string NotNullOrEmptyOrWhiteSpace(string value, string message = "String must not be null, empty or whitespace.")
@@ -169,7 +169,7 @@
         ///     Thrown when <paramref name="directoryInfo"/> is null.
         /// </exception>
         /// <exception cref="DirectoryNotFoundException">
-        ///     Thrown when <paramref cref="directoryInfo"/> is not found.
+        ///     Thrown when <paramref name="directoryInfo"/> is not found.
         /// </exception>
         /// <exception cref="IOException">
         ///     A device such as a disk drive is not ready.

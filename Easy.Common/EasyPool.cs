@@ -38,10 +38,10 @@
         public uint TotalRegistrations => (uint)Pools.Count;
 
         /// <summary>
-        /// Registers with the pool the function to create a new instance of <typeparamref name="{T}"/> 
+        /// Registers with the pool the function to create a new instance of <typeparamref name="T"/> 
         /// and the <paramref name="maximumCount"/> of objects to create in the pool.
         /// </summary>
-        /// <param name="factory">The factory used to create a new instance of <typeparamref name="{T}"/></param>
+        /// <param name="factory">The factory used to create a new instance of <typeparamref name="T"/></param>
         /// <param name="maximumCount">The maximum number of objects to store in the pool</param>
         public void Register<T>(Func<T> factory, uint maximumCount) where T : class, IPoolableObject
         {
@@ -54,9 +54,9 @@
         }
 
         /// <summary>
-        /// Returns an object of type <typeparamref name="{T}"/> from the pool.
+        /// Returns an object of type <typeparamref name="T"/> from the pool.
         /// </summary>
-        /// <returns>Object of type <typeparamref name="{T}"/></returns>
+        /// <returns>Object of type <typeparamref name="T"/></returns>
         public T Get<T>() where T : class, IPoolableObject
         {
             Pool pool;
@@ -74,9 +74,9 @@
         }
 
         /// <summary>
-        /// Puts an object of type <typeparamref name="{T}"/> back in the pool.
+        /// Puts an object of type <typeparamref name="T"/> back in the pool.
         /// </summary>
-        /// <param name="item">Object of type <typeparamref name="{T}"/></param>
+        /// <param name="item">Object of type <typeparamref name="T"/></param>
         public void Put<T>(T item) where T : class, IPoolableObject
         {
             Ensure.NotNull(item, nameof(item));
@@ -91,7 +91,7 @@
         }
 
         /// <summary>
-        /// Returns the total number of instances of the <typeparamref name="{T}"/>
+        /// Returns the total number of instances of the <typeparamref name="T"/>
         /// currently in the pool.
         /// </summary>
         public uint GetCountOfObjectsInThePool<T>() where T : class, IPoolableObject

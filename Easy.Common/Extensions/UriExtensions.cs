@@ -4,6 +4,9 @@
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
 
+    /// <summary>
+    /// Provides a set of helper methods for working with <see cref="Uri"/>.
+    /// </summary>
     public static class UriExtensions
     {
         private static readonly Regex QueryStringRegex = new Regex(@"[?|&]([\w\.-]+)=([^?|^&]+)", RegexOptions.Compiled);

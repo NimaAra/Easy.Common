@@ -104,7 +104,7 @@
         /// <param name="format">The <paramref name="format"/> as string. </param>
         /// <param name="args">The arguments. </param>
         /// <returns>The formatted string. </returns>
-        /// <exception cref="ArgumentException"> Thrown when <paramref cref="format"/> is null or empty or whitespace.</exception>
+        /// <exception cref="ArgumentException"> Thrown when <paramref name="format"/> is null or empty or whitespace.</exception>
         [DebuggerStepThrough]
         public static string FormatWith(this string format, params object[] args)
         {
@@ -117,7 +117,7 @@
         /// <param name="provider">The format provider. </param>
         /// <param name="args">The arguments. </param>
         /// <returns>The formatted string. </returns>
-        /// <exception cref="ArgumentException"> Thrown when <paramref cref="format"/> is null or empty or whitespace.</exception>
+        /// <exception cref="ArgumentException"> Thrown when <paramref name="format"/> is null or empty or whitespace.</exception>
         [DebuggerStepThrough]
         public static string FormatWith(this string format, IFormatProvider provider, params object[] args)
         {

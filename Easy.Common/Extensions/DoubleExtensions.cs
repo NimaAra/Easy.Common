@@ -2,6 +2,9 @@
 {
     using System;
 
+    /// <summary>
+    /// Provides a set of helper methods for working with <see cref="double"/>.
+    /// </summary>
     public static class DoubleExtensions
     {
         /// <summary>

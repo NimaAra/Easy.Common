@@ -5,6 +5,9 @@
     using System.DirectoryServices;
     using System.Text.RegularExpressions;
 
+    /// <summary>
+    /// Provides methods for obtaining user roles and details from <c>ActiveDirectory</c>.
+    /// </summary>
     public static class ActiveDirectoryHelper
     {
         private static readonly Regex Parser = new Regex("CN=(?<CN>[^,]*)", RegexOptions.Compiled);
