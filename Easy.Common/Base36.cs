@@ -37,7 +37,7 @@
         /// <returns>Decoded <paramref name="input"/> as long.</returns> 
         public static long Decode(string input)
         {
-            Ensure.NotNull(input, "input");
+            Ensure.NotNull(input, nameof(input));
 
             var reversed = input.ToLower().Reverse();
             long result = 0;

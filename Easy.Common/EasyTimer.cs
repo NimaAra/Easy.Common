@@ -5,7 +5,7 @@
     /// <summary>
     /// A helper class which provides JavaScript style timers, setInterval and SetTimeout
     /// </summary>
-    public class EasyTimer
+    public static class EasyTimer
     {
         /// <summary>
         /// Executes a timer which invokes <paramref name="action"/> after the specified <paramref name="interval"/> 
