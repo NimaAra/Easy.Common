@@ -39,6 +39,7 @@
         {
             using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
             {
+                // can be any address
                 socket.Connect("10.0.2.4", 65530);
                 var endPoint = socket.LocalEndPoint as IPEndPoint;
                 // ReSharper disable once PossibleNullReferenceException

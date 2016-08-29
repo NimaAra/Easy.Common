@@ -76,21 +76,21 @@
         /// <returns>Flag indicating if the parsing was successful.</returns>
         public static bool TryParseAsBool(this string value, out bool result)
         {
-            value = Ensure.NotNullOrEmptyOrWhiteSpace(value);
+            Ensure.NotNullOrEmptyOrWhiteSpace(value);
 
-            var compPolicy = StringComparison.OrdinalIgnoreCase;
+            const StringComparison CompPolicy = StringComparison.OrdinalIgnoreCase;
 
-            if (value.Equals("true", compPolicy)
-                || value.Equals("yes", compPolicy)
-                || value.Equals("1", compPolicy))
+            if (value.Equals("true", CompPolicy)
+                || value.Equals("yes", CompPolicy)
+                || value.Equals("1", CompPolicy))
             {
                 result = true;
                 return true;
             }
 
-            if (value.Equals("false", compPolicy)
-                || value.Equals("no", compPolicy)
-                || value.Equals("0", compPolicy))
+            if (value.Equals("false", CompPolicy)
+                || value.Equals("no", CompPolicy)
+                || value.Equals("0", CompPolicy))
             {
                 result = false;
                 return true;

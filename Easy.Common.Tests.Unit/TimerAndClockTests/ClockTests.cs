@@ -49,7 +49,6 @@
                 localNowFromClock.DayOfWeek.ShouldBe(localNowFromDateTime.DayOfWeek);
                 localNowFromClock.Hour.ShouldBe(localNowFromDateTime.Hour);
                 localNowFromClock.Minute.ShouldBe(localNowFromDateTime.Minute);
-                localNowFromClock.Second.ShouldBe(localNowFromDateTime.Second);
             }
         }
 

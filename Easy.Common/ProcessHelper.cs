@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Threading.Tasks;
+    using Easy.Common.Extensions;
 
     /// <summary>
     /// Provides a set of methods to help work with a <see cref="Process"/>.
@@ -34,7 +35,7 @@
             process.OutputDataReceived += (sender, args) =>
             {
                 if (args?.Data == null) { return; }
-                Console.WriteLine(args.Data);
+                args.Data.Print();
             };
             process.ErrorDataReceived += (sender, args) =>
             {
@@ -49,7 +50,7 @@
                     errMsg += "No data available";
                 }
 
-                Console.WriteLine(errMsg);
+                errMsg.Print();
             };
 
             process.Exited += (sender, args) =>

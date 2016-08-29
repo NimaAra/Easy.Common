@@ -126,7 +126,7 @@
             {
                 Array.ForEach(properties, prop =>
                 {
-                    if (prop != null) { hash = hash * GetHashCodeInternal(prop); }
+                    if (!prop.Equals(default(T))) { hash = hash * GetHashCodeInternal(prop); }
                 });
 
                 return hash;
@@ -138,7 +138,7 @@
             var hash = 31;
             const int Prime = 486187739;
 
-            if (param != null)
+            if (!param.Equals(default(T)))
             {
                 unchecked
                 {
@@ -148,5 +148,4 @@
             return hash;
         }
     }
-
 }
