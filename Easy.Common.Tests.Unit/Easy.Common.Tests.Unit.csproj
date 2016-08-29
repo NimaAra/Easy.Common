@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assembly\GettingAssemblyFrameworkVersionTests.cs" />
+    <Compile Include="ByteExtensions\ComparingByteArraysTests.cs" />
     <Compile Include="ConfigReader\Context.cs" />
     <Compile Include="ConfigReader\UsingConfigReaderWithCustomConfigurationFile.cs" />
     <Compile Include="ConfigReader\UsingConfigReaderWithDefaultApplicationConfigurationFile.cs" />
