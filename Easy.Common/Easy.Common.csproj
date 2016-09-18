@@ -53,7 +53,7 @@
     <Compile Include="EasyPool.cs" />
     <Compile Include="EasyTimer.cs" />
     <Compile Include="Ensure.cs" />
-    <Compile Include="EnumerableExtensions.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Equatable.cs" />
     <Compile Include="Extensions\AssemblyExtensions.cs" />
     <Compile Include="Extensions\ByteExtensions.cs" />
@@ -83,6 +83,7 @@
     <Compile Include="ProcessHelper.cs" />
     <Compile Include="ProducerConsumerQueue.cs" />
     <Compile Include="StringBuilderCache.cs" />
+    <Compile Include="SubArray.cs" />
     <Compile Include="TimerClock.cs" />
     <Compile Include="UnitConvertor.cs" />
   </ItemGroup>

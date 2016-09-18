@@ -1,5 +1,5 @@
 ﻿// ReSharper disable PossibleMultipleEnumeration
-namespace Easy.Common
+namespace Easy.Common.Extensions
 {
     using System;
     using System.Collections.Generic;
@@ -13,24 +13,23 @@ namespace Easy.Common
     public static class EnumerableExtensions
     {
         /// <summary>
-        /// Convenience method for retrieving a specific page of items within a collection.
+        /// Convenience method for retrieving a specific page of items within the given <paramref name="sequence"/>.
         /// </summary>
         /// <typeparam name="T">The type of element in the sequence</typeparam>
         /// <param name="sequence">The sequence of elements</param>
-        /// <param name="pageIndex">The index for the page</param>
+        /// <param name="pageIndex">The 0-based index for the page</param>
         /// <param name="pageSize">The size of the elements in the page</param>
         /// <returns>The returned paged sequence</returns>
-        public static IEnumerable<T> GetPage<T>(this IEnumerable<T> sequence, int pageIndex, int pageSize)
+        [DebuggerStepThrough]
+        public static IEnumerable<T> GetPage<T>(this IEnumerable<T> sequence, uint pageIndex, uint pageSize)
         {
-            Ensure.That<ArgumentException>(pageIndex >= 0, "The page index cannot be negative.");
-            Ensure.That<ArgumentException>(pageSize > 0, "The page size must be greater than zero.");
-
-            return sequence.Skip(pageIndex * pageSize).Take(pageSize);
+            return sequence.Skip((int)pageIndex * (int)pageSize).Take((int)pageSize);
         }
 
         /// <summary>
         /// Converts an Enumerable into a read-only collection
         /// </summary>
+        [DebuggerStepThrough]
         public static IEnumerable<T> ToReadOnlyCollection<T>(this IEnumerable<T> sequence)
         {
             Ensure.NotNull(sequence, nameof(sequence));
@@ -40,6 +39,7 @@ namespace Easy.Common
         /// <summary>
         /// Validates that the <paramref name="sequence"/> is not null and contains items.
         /// </summary>
+        [DebuggerStepThrough]
         public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> sequence)
         {
             return sequence != null && sequence.Any();
@@ -52,6 +52,7 @@ namespace Easy.Common
         /// <param name="sequence">The sequence of data to separate by the given <paramref name="separator"/></param>
         /// <param name="separator">The string to use for separating each items in the <paramref name="sequence"/>.</param>
         /// <returns>The string containing the data in the <paramref name="sequence"/> separated by the <paramref name="separator"/>.</returns>
+        [DebuggerStepThrough]
         public static string ToStringSeparated<T>(this IEnumerable<T> sequence, string separator)
         {
             Ensure.NotNull(sequence, nameof(sequence));
@@ -74,6 +75,7 @@ namespace Easy.Common
         /// <param name="sequence">The sequence of data to separate by the given <paramref name="delimiter"/></param>
         /// <param name="delimiter">The character to use for separating each items in the <paramref name="sequence"/>.</param>
         /// <returns>The string containing the data in the <paramref name="sequence"/> separated by the <paramref name="delimiter"/>.</returns>
+        [DebuggerStepThrough]
         public static string ToCharSeparated<T>(this IEnumerable<T> sequence, char delimiter)
         {
             return ToStringSeparated(sequence, delimiter.ToString());
@@ -85,6 +87,7 @@ namespace Easy.Common
         /// <typeparam name="T"></typeparam>
         /// <param name="sequence"></param>
         /// <returns></returns>
+        [DebuggerStepThrough]
         public static string ToCommaSeparated<T>(this IEnumerable<T> sequence)
         {
             return ToCharSeparated(sequence, ',');
@@ -110,9 +113,10 @@ namespace Easy.Common
         /// Count property and the ElementAt LINQ method. The ElementAt LINQ method itself contains 
         /// optimizations for <see cref="IList{T}"/>.
         /// </summary>
+        [DebuggerStepThrough]
         public static T SelectRandom<T>(this IEnumerable<T> sequence)
         {
-            var random = new Random();
+            var random = new Random(Guid.NewGuid().GetHashCode());
 
             // Optimization for ICollection<T>
             var collection = sequence as ICollection<T>;
@@ -138,6 +142,7 @@ namespace Easy.Common
         /// <summary>
         /// Randomizes a <paramref name="sequence"/>.
         /// </summary>
+        [DebuggerStepThrough]
         public static IEnumerable<T> Randomize<T>(this IEnumerable<T> sequence)
         {
             return sequence.OrderBy(s => Guid.NewGuid());
@@ -158,6 +163,7 @@ namespace Easy.Common
         /// <param name="exceptionPredicate">The predicate specifying which exception(s) to handle.</param>
         /// <param name="actionToExecuteOnException">The action to which the handled exception will be passed to.</param>
         /// <returns></returns>
+        [DebuggerStepThrough]
         public static IEnumerable<T> HandleExceptionWhenYieldReturning<T>(this IEnumerable<T> sequence, Func<Exception, bool> exceptionPredicate, Action<Exception> actionToExecuteOnException)
         {
             Ensure.NotNull(exceptionPredicate, nameof(exceptionPredicate));

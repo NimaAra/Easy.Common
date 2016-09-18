@@ -78,6 +78,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringBuilderCache\StringBuilderCacheTests.cs" />
     <Compile Include="String\StringExtensionTests.cs" />
+    <Compile Include="SubArray\SubArrayTests.cs" />
     <Compile Include="TaskExtensions\TaskExceptionsTests.cs" />
     <Compile Include="TaskExtensions\TaskWaitAllOrFailTests.cs" />
     <Compile Include="TimerAndClockTests\ClockTests.cs" />

@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
@@ -15,6 +17,7 @@
         private readonly BlockingCollection<T> _queue;
         private readonly CancellationTokenSource _shutDownCancellationTokenSource;
         private bool _isShutdownRequested;
+        private readonly Task[] _tasks;
 
         /// <summary>
         /// Creates an unbounded instance of <see cref="ProducerConsumerQueue{T}"/>
@@ -46,7 +49,7 @@
             _queue = boundedCapacity == -1 ? new BlockingCollection<T>() : new BlockingCollection<T>(boundedCapacity);
             _shutDownCancellationTokenSource = new CancellationTokenSource();
 
-            SetupConsumer(consumer, maxConcurrencyLevel);
+            _tasks = SetupConsumer(consumer, maxConcurrencyLevel).ToArray();
         }
 
         /// <summary>
@@ -148,27 +151,27 @@
         /// Marks the <see cref="ProducerConsumerQueue{T}"/> instance as not accepting 
         /// any new items. Any outstanding items will be consumed for as long as <paramref name="waitFor"/>.
         /// </summary>
-        /// <param name="waitFor">
-        /// The maximum time to wait for any pending items to be processed.
-        /// </param>
-        public async Task ShutdownAsync(TimeSpan waitFor)
+        /// <param name="waitFor">The maximum time to wait for any pending items to be processed.</param>
+        /// <returns>Flag indicating whether all the workers were shutdown and dismantled in time.</returns>
+        public bool Shutdown(TimeSpan waitFor)
         {
             Volatile.Write(ref _isShutdownRequested, true);
             _queue.CompleteAdding();
-            await Task.Delay(waitFor);
-
+            var finishedInTime = Task.WaitAll(_tasks, waitFor);
+            
             _shutDownCancellationTokenSource.Cancel();
             _shutDownCancellationTokenSource.Dispose();
             _queue.Dispose();
+            return finishedInTime;
         }
         
-        private void SetupConsumer(Action<T> consumer, uint maximumConcurrencyLevel)
+        private IEnumerable<Task> SetupConsumer(Action<T> consumer, uint maximumConcurrencyLevel)
         {
             var cToken = _shutDownCancellationTokenSource.Token;
 
             for (var i = 0; i < maximumConcurrencyLevel; i++)
             {
-                Task.Factory.StartNew(() =>
+                yield return Task.Factory.StartNew(() =>
                 {
                     foreach (var item in _queue.GetConsumingEnumerable(cToken))
                     {
@@ -188,7 +191,7 @@
     }
 
     /// <summary>
-    /// The <see cref="System.Exception"/> thrown by the <see cref="ProducerConsumerQueue{T}"/>.
+    /// The <see cref="Exception"/> thrown by the <see cref="ProducerConsumerQueue{T}"/>.
     /// </summary>
     [Serializable]
     public sealed class ProducerConsumerQueueException : Exception

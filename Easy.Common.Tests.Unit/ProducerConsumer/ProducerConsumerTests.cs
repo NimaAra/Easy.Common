@@ -91,9 +91,7 @@
 
             10.Times(n => queue.Add(_getData(n)));
 
-            Thread.Sleep(100);
-
-            queue.ShutdownAsync(TimeSpan.Zero).Wait();
+            queue.Shutdown(100.Milliseconds()).ShouldBeTrue();
             consumed.Count.ShouldBe(10);
             exceptionThrown.ShouldBeNull();
         }
@@ -120,11 +118,11 @@
 
             10.Times(n => queue.Add(_getData(n)));
 
-            Thread.Sleep(100);
+            Thread.Sleep(100.Milliseconds());
 
             queue.PendingCount.ShouldBe<uint>(9);
 
-            queue.ShutdownAsync(TimeSpan.Zero).Wait();
+            queue.Shutdown(600.Milliseconds()).ShouldBeFalse();
             consumed.Count.ShouldBe(0);
             exceptionThrown.ShouldBeFalse();
         }
@@ -157,7 +155,7 @@
             Thread.Sleep(100);
 
             queue.PendingCount.ShouldBe<uint>(0);
-            queue.ShutdownAsync(TimeSpan.Zero).Wait();
+            queue.Shutdown(500.Milliseconds()).ShouldBeFalse();
             consumed.Count.ShouldBe(9);
             exceptionThrown.ShouldBeFalse();
         }
@@ -242,7 +240,7 @@
         }
 
         [Test]
-        public async Task DisposedQueueShouldNotAllowAddingNewItems()
+        public void DisposedQueueShouldNotAllowAddingNewItems()
         {
             var consumed = new List<MyClass>();
             Action<MyClass> consumer = x => { consumed.Add(x); };
@@ -261,7 +259,7 @@
                 queue.Add(_getData(i));
             }
 
-            await queue.ShutdownAsync(TimeSpan.FromSeconds(5));
+            queue.Shutdown(TimeSpan.FromSeconds(5)).ShouldBeTrue();
 
             Thread.Sleep(50.Milliseconds());
             consumed.Count.ShouldBe(WorkItems);
@@ -274,7 +272,7 @@
         }
 
         [Test]
-        public async Task DisposedQueueShouldCancelConsumersCorrectly()
+        public void DisposedQueueShouldCancelConsumersCorrectly()
         {
             Exception exceptionThrown = null;
             var consumed = new List<int>();
@@ -296,11 +294,8 @@
             queue.Add(4);
             queue.Add(5);
 
-            Thread.Sleep(350);
+            queue.Shutdown(500.Milliseconds()).ShouldBeTrue();
 
-            await queue.ShutdownAsync(TimeSpan.Zero);
-
-            Thread.Sleep(100);
             consumed.Count.ShouldBeGreaterThanOrEqualTo(2);
 
             Thread.Sleep(1.Seconds());
@@ -308,7 +303,7 @@
         }
 
         [Test]
-        public async Task ShutdownQueueAfterSomeAddsShouldResultInTheProcessOfAllAddedItemsBeforeDisposal()
+        public void ShutdownQueueAfterSomeAddsShouldResultInTheProcessOfAllAddedItemsBeforeDisposal()
         {
             var consumed = new List<MyClass>();
 
@@ -323,7 +318,7 @@
 
             5.Times(n => { queue.Add(_getData(n)); });
 
-            await queue.ShutdownAsync(10.Seconds());
+            queue.Shutdown(10.Seconds()).ShouldBeTrue();
 
             Action afterDisposedEnqueues = () => 3.Times(n => { queue.Add(_getData(n)); });
             afterDisposedEnqueues.ShouldNotThrow();

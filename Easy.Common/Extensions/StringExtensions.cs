@@ -23,6 +23,9 @@
         /// </summary>
         private static readonly Regex SlugRegex = new Regex(@"(^[a-z0-9])([a-z0-9_-]+)*([a-z0-9])$", RegexOptions.Compiled);
 
+        private static readonly char[] InvalidFileNameCharacters = Path.GetInvalidFileNameChars();
+        private static readonly char[] InvalidPathCharacters = Path.GetInvalidPathChars();
+
         /// <summary>
         /// A nicer way of calling <see cref="string.IsNullOrEmpty(string)"/>
         /// </summary>
@@ -35,7 +38,7 @@
         }
 
         /// <summary>
-        /// A nicer way of calling the inverse of <see cref="string.IsNullOrEmpty(string)"/>
+        /// A nice way of calling the inverse of <see cref="string.IsNullOrEmpty(string)"/>
         /// </summary>
         /// <param name="value">The string to test.</param>
         /// <returns><see langword="true"/> if the format parameter is not null or an empty string (""); otherwise, <see langword="false"/>.</returns>
@@ -481,6 +484,14 @@
             if (SlugRegex.IsMatch(value)) { return value; }
 
             return GenerateSlug(value, maxLength);
+        }
+
+        /// <summary>
+        /// Ensures the given <paramref name="input"/> can be used as a file name.
+        /// </summary>
+        public static bool IsValidFileName(this string input)
+        {
+            return input.IsNotNullOrEmptyOrWhiteSpace() && input.IndexOfAny(InvalidFileNameCharacters) == -1;
         }
     }
 }

@@ -25,7 +25,7 @@
         [TestCase(null, false)]
         public void When_checking_a_string_is_not_null_or_empty(string input, bool result)
         {
-            input.IsNotNullOrEmpty().ShouldBe(result);
+            EnumerableExtensions.IsNotNullOrEmpty(input).ShouldBe(result);
         }
 
         [TestCase("abc", false)]
@@ -378,6 +378,32 @@
             compressedContent.ShouldNotBeNullOrWhiteSpace();
 
             compressedContent.Decompress().ShouldBe(Content);
+        }
+
+        [Test]
+        public void When_checking_a_string_is_a_valid_file_name()
+        {
+            "A".IsValidFileName().ShouldBeTrue();
+            "MyFile".IsValidFileName().ShouldBeTrue();
+            "MyFile.txt".IsValidFileName().ShouldBeTrue();
+            "MyFile.txt ".IsValidFileName().ShouldBeTrue();
+            " MyFile.txt".IsValidFileName().ShouldBeTrue();
+            "My File.txt".IsValidFileName().ShouldBeTrue();
+            "My-File.txt".IsValidFileName().ShouldBeTrue();
+            "My-%File.txt".IsValidFileName().ShouldBeTrue();
+            "My-!File.txt".IsValidFileName().ShouldBeTrue();
+
+            "".IsValidFileName().ShouldBeFalse();
+            " ".IsValidFileName().ShouldBeFalse();
+            "  ".IsValidFileName().ShouldBeFalse();
+            "/".IsValidFileName().ShouldBeFalse();
+            "\\".IsValidFileName().ShouldBeFalse();
+            "MyFile/".IsValidFileName().ShouldBeFalse();
+            "\\MyFile".IsValidFileName().ShouldBeFalse();
+            "MyFile>".IsValidFileName().ShouldBeFalse();
+            "<MyFile>".IsValidFileName().ShouldBeFalse();
+            "<MyFile".IsValidFileName().ShouldBeFalse();
+            "<".IsValidFileName().ShouldBeFalse();
         }
     }
 }
