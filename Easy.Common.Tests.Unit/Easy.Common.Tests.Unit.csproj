@@ -40,6 +40,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -69,6 +70,7 @@
     <Compile Include="FileAndDirectoryExtensions\DirectoryIsHiddenTests.cs" />
     <Compile Include="FileAndDirectoryExtensions\FileIsHiddenTests.cs" />
     <Compile Include="GenericExtensions\IsDefaultTests.cs" />
+    <Compile Include="RestClient\RestClientTests.cs" />
     <Compile Include="IntExtensions\Int16ExtensionTests.cs" />
     <Compile Include="IntExtensions\Int32ExtensionTests.cs" />
     <Compile Include="IntExtensions\Int64ExtensionTests.cs" />

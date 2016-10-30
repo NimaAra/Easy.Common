@@ -69,6 +69,10 @@
 
                 double endTimestamp = Stopwatch.GetTimestamp();
 
+                /* FYI
+                * var durationInMsec = (endTimestamp - _startTimestamp.Value) / Stopwatch.Frequency * 1000;
+                * var durationInSec = (endTimestamp - _startTimestamp.Value) / Stopwatch.Frequency;
+                */            
                 var durationInTicks = (endTimestamp - _startTimestamp.Value) / Stopwatch.Frequency * TicksMultiplier;
                 if (durationInTicks >= _maxIdleTime)
                 {

@@ -32,6 +32,6 @@
             
             var weeks = Number.Weeks();
             weeks.TotalDays.ShouldBe(Number * 7);
-        } 
+        }
     }
 }
