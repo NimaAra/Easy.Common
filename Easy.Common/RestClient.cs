@@ -26,10 +26,11 @@
         public RestClient(
             IDictionary<string, string> defaultRequestHeaders = null,
             HttpMessageHandler handler = null,
+            bool disposeHandler = true,
             TimeSpan? timeout = null,
             ulong? maxResponseContentBufferSize = null)
         {
-            _client = handler == null ? new HttpClient() : new HttpClient(handler);
+            _client = handler == null ? new HttpClient() : new HttpClient(handler, disposeHandler);
             
             AddDefaultHeaders(defaultRequestHeaders);
             AddRequestTimeout(timeout);
@@ -111,6 +112,15 @@
         public void CancelPendingRequests()
         {
             _client.CancelPendingRequests();
+        }
+
+        /// <summary>
+        /// Releases the unmanaged resources and disposes of the managed resources used by the <see cref="HttpClient"/>.
+        /// </summary>
+        public void Dispose()
+        {
+            _client.Dispose();
+            lock (_endpoints) { _endpoints.Clear(); }
         }
 
         private void AddDefaultHeaders(IDictionary<string, string> headers)

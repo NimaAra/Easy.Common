@@ -70,6 +70,8 @@
     <Compile Include="FileAndDirectoryExtensions\DirectoryIsHiddenTests.cs" />
     <Compile Include="FileAndDirectoryExtensions\FileIsHiddenTests.cs" />
     <Compile Include="GenericExtensions\IsDefaultTests.cs" />
+    <Compile Include="Guid\GuidExtensionsTests.cs" />
+    <Compile Include="Guid\GuidHelperTests.cs" />
     <Compile Include="RestClient\RestClientTests.cs" />
     <Compile Include="IntExtensions\Int16ExtensionTests.cs" />
     <Compile Include="IntExtensions\Int32ExtensionTests.cs" />

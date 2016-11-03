@@ -9,7 +9,7 @@
     /// <summary>
     /// Specifies the contract to be implemented by a rest client.
     /// </summary>
-    public interface IRestClient
+    public interface IRestClient : IDisposable
     {
         /// <summary>
         /// Gets the headers which should be sent with each request.

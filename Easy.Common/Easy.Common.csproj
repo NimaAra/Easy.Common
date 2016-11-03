@@ -70,6 +70,8 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\UriExtensions.cs" />
     <Compile Include="Extensions\XmlExtensions.cs" />
+    <Compile Include="GuidExtensions.cs" />
+    <Compile Include="GuidHelper.cs" />
     <Compile Include="HashHelper.cs" />
     <Compile Include="Interfaces\IClock.cs" />
     <Compile Include="Interfaces\IConfigReader.cs" />

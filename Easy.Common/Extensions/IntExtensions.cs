@@ -5,7 +5,7 @@
     using System.Diagnostics;
 
     /// <summary>
-    /// Extension methods for <see cref="long"/>
+    /// Extension methods for <see cref="long"/>.
     /// </summary>
     public static class Int64Extensions
     {

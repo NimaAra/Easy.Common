@@ -493,5 +493,20 @@
         {
             return input.IsNotNullOrEmptyOrWhiteSpace() && input.IndexOfAny(InvalidFileNameCharacters) == -1;
         }
+
+        /// <summary>
+        /// Returns a <see cref="Guid"/> from a <c>Base64</c> encoded <paramref name="input"/>.
+        /// <example>
+        /// DRfscsSQbUu8bXRqAvcWQA== or DRfscsSQbUu8bXRqAvcWQA depending on <paramref name="trimmed"/>.
+        /// </example>
+        /// <remarks>
+        /// See: <see href="https://blog.codinghorror.com/equipping-our-ascii-armor/"/>
+        /// </remarks>
+        /// </summary>
+        public static Guid ToGuid(this string input, bool trimmed = true)
+        {
+            return trimmed ? new Guid(Convert.FromBase64String(input + "==")) 
+                : new Guid(Convert.FromBase64String(input));
+        }
     }
 }
