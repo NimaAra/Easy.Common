@@ -37,7 +37,7 @@
             var shortCodeGuid = defaultGuid.AsShortCode();
 
             shortCodeGuid.ShouldNotBeNullOrWhiteSpace();
-            shortCodeGuid.Length.ShouldBe(16);
+            shortCodeGuid.Length.ShouldBeGreaterThanOrEqualTo(15);
         }
 
         [Test]

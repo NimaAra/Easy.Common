@@ -24,7 +24,7 @@
         }
 
         /// <summary>
-        /// Generates a 16 character, <see cref="Guid"/> based string with very little chance of collision. 
+        /// Generates a maximum of 16 character, <see cref="Guid"/> based string with very little chance of collision. 
         /// <example>3c4ebc5f5f2c4edc</example>.
         /// <remarks>
         /// The result of this method is <c>URL</c> safe.
