@@ -78,6 +78,7 @@
     <Compile Include="Interfaces\IObjectPool.cs" />
     <Compile Include="Interfaces\ITimerClock.cs" />
     <Compile Include="Interfaces\IRestClient.cs" />
+    <Compile Include="CustomHttpContents.cs" />
     <Compile Include="KeyedCollectionEx.cs" />
     <Compile Include="LockHelper.cs" />
     <Compile Include="MimeMappings.cs" />

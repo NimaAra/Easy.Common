@@ -72,6 +72,8 @@
     <Compile Include="GenericExtensions\IsDefaultTests.cs" />
     <Compile Include="Guid\GuidExtensionsTests.cs" />
     <Compile Include="Guid\GuidHelperTests.cs" />
+    <Compile Include="RestClient\XMLContentTests.cs" />
+    <Compile Include="RestClient\JSONContentTests.cs" />
     <Compile Include="RestClient\RestClientTests.cs" />
     <Compile Include="IntExtensions\Int16ExtensionTests.cs" />
     <Compile Include="IntExtensions\Int32ExtensionTests.cs" />
