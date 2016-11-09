@@ -71,5 +71,4 @@
             return !Equals(left, right);
         }
     }
-
 }

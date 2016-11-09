@@ -163,5 +163,41 @@
             enumerator.Current.ShouldBe(5);
             enumerator.MoveNext().ShouldBeFalse();
         }
+
+        [Test]
+        public void When_comparing_two_equal_sub_arrays()
+        {
+            var srcArray = new[] {1, 2, 3, 4, 5};
+
+            var subOne = new SubArray<int>(srcArray, 0, 3);
+            var subTwo = new SubArray<int>(srcArray, 0, 3);
+
+            subOne.Equals(subTwo).ShouldBeTrue();
+            subOne.Equals((object)subTwo).ShouldBeTrue();
+
+            (subOne == subTwo).ShouldBeTrue();
+            (subOne != subTwo).ShouldBeFalse();
+
+            subOne.GetHashCode().ShouldBe(subTwo.GetHashCode());
+            subOne.ToString().ShouldBe(subTwo.ToString());
+        }
+
+        [Test]
+        public void When_comparing_two_different_sub_arrays()
+        {
+            var srcArray = new[] { 1, 2, 3, 4, 5 };
+
+            var subOne = new SubArray<int>(srcArray, 0, 3);
+            var subTwo = new SubArray<int>(srcArray, 1, 3);
+
+            subOne.Equals(subTwo).ShouldBeFalse();
+            subOne.Equals((object)subTwo).ShouldBeFalse();
+
+            (subOne == subTwo).ShouldBeFalse();
+            (subOne != subTwo).ShouldBeTrue();
+
+            subOne.GetHashCode().ShouldNotBe(subTwo.GetHashCode());
+            subOne.ToString().ShouldNotBe(subTwo.ToString());
+        }
     }
 }

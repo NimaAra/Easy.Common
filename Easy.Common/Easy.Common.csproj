@@ -90,6 +90,7 @@
     <Compile Include="RestClient.cs" />
     <Compile Include="StringBuilderCache.cs" />
     <Compile Include="SubArray.cs" />
+    <Compile Include="ThreadLocalDisposable.cs" />
     <Compile Include="TimerClock.cs" />
     <Compile Include="UnitConvertor.cs" />
   </ItemGroup>

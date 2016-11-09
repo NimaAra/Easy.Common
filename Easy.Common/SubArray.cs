@@ -8,7 +8,7 @@
     /// An object which represents a portion (segment) of an array.
     /// </summary>
     /// <typeparam name="T">The type of the array.</typeparam>
-    public sealed class SubArray<T> : IEnumerable<T>
+    public struct SubArray<T> : IEnumerable<T>, IEquatable<SubArray<T>>
     {
         /// <summary>
         /// The segment representing a portion of the array.
@@ -62,6 +62,62 @@
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+    #region  Equality
+
+        /// <summary>
+        /// Determines whether the specified <paramref name="other"/> structure is equal to the current instance.
+        /// </summary>
+        public bool Equals(SubArray<T> other)
+        {
+            return Segment.Equals(other.Segment);
+        }
+
+        /// <summary>
+        /// Determines whether the specified other structure is equal to the current instance.
+        /// </summary>
+        public override bool Equals(object obj)
+        {
+            return obj is SubArray<T> && Equals((SubArray<T>)obj);
+        }
+
+        /// <summary>
+        /// Provides the equality operator override.
+        /// </summary>
+        /// <returns></returns>
+        public static bool operator ==(SubArray<T> left, SubArray<T> right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        /// Provides the in-equality operator override.
+        /// </summary>
+        /// <returns></returns>
+        public static bool operator !=(SubArray<T> left, SubArray<T> right)
+        {
+            return !left.Equals(right);
+        }
+
+        /// <summary>
+        /// Returns the hash code for the current instance.
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return Segment.GetHashCode();
+        }
+
+    #endregion
+
+        /// <summary>
+        /// Obtains the <see cref="string"/> representation of this instance.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"Offset: {Segment.Offset.ToString()} | Count: {Segment.Count.ToString()} | Segment: {Segment.ToString()}";
         }
     }
 }

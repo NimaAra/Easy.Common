@@ -60,7 +60,9 @@
             {
                 client.SendAsync(new HttpRequestMessage(HttpMethod.Get, endpoint));
 
-                ServicePointManager.FindServicePoint(endpoint).ConnectionLeaseTimeout.ShouldBe((int)1.Minutes().TotalMilliseconds);
+                ServicePointManager.FindServicePoint(endpoint)
+                    .ConnectionLeaseTimeout
+                    .ShouldBe((int)1.Minutes().TotalMilliseconds);
 
                 client.Endpoints.Length.ShouldBe(1);
                 client.Endpoints[0].ShouldBe(endpoint);
@@ -94,7 +96,7 @@
                     }
                 };
 
-                server.ListenAsync();
+                await server.ListenAsync();
 
                 var request = new HttpRequestMessage
                 {
@@ -132,7 +134,7 @@
                     }
                 };
 
-                server.ListenAsync();
+                await server.ListenAsync();
 
                 var request = new HttpRequestMessage
                 {
@@ -170,7 +172,7 @@
                     }
                 };
 
-                server.ListenAsync();
+                await server.ListenAsync();
 
                 var request = new HttpRequestMessage
                 {
@@ -187,13 +189,13 @@
         }
 
         [Test]
-        public void When_sending_a_request_with_cancellation_and_completion_option()
+        public async Task When_sending_a_request_with_cancellation_and_completion_option()
         {
             var endpoint = new Uri("http://localhost:4/api/");
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
-                server.ListenAsync();
+                await server.ListenAsync();
 
                 var request = new HttpRequestMessage
                 {
@@ -209,13 +211,13 @@
         }
 
         [Test]
-        public void When_sending_a_request_with_cancellation()
+        public async Task When_sending_a_request_with_cancellation()
         {
             var endpoint = new Uri("http://localhost:5/api/");
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
-                server.ListenAsync();
+                await server.ListenAsync();
 
                 var request = new HttpRequestMessage
                 {
@@ -230,13 +232,13 @@
         }
 
         [Test]
-        public void When_sending_a_request_then_cancelling_all_pending_requests()
+        public async Task When_sending_a_request_then_cancelling_all_pending_requests()
         {
             var endpoint = new Uri("http://localhost:6/api/");
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
-                server.ListenAsync();
+                await server.ListenAsync();
 
                 var request = new HttpRequestMessage
                 {
@@ -246,7 +248,9 @@
                 request.Headers.Add("Foo", "Bar");
 
                 var copy = client;
+#pragma warning disable 4014
                 Task.Delay(1.Seconds()).ContinueWith(_ => copy.CancelPendingRequests());
+#pragma warning restore 4014
                 Should.Throw<TaskCanceledException>(async () => await client.SendAsync(request));
             }
         }
@@ -314,9 +318,10 @@
             }
         }
 
-        internal void ListenAsync()
+        internal Task ListenAsync()
         {
             ListenAsyncImpl();
+            return Task.FromResult(false);
         }
 
         public void Dispose()
