@@ -54,7 +54,25 @@
             };
 
         /// <summary>
-        /// It avoids materializing any attribute instances. <see href="http://stackoverflow.com/a/2282254/1226568"/>
+        /// Returns the <c>instance</c> property of the given <paramref name="type"/> regardless of it's access modifier.
+        /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property.</remarks>
+        /// </summary>
+        [DebuggerStepThrough]
+        public static PropertyInfo GetInstanceProperty(this Type type, string propertyName)
+        {
+            Ensure.NotNull(type, nameof(type));
+            Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
+
+            var prop = type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                .FirstOrDefault(p => p.Name.Equals(propertyName, StringComparison.Ordinal));
+
+            Ensure.That<InvalidOperationException>(prop != null, "Unable to find property: " + propertyName);
+            return prop;
+        }
+
+        /// <summary>
+        /// Returns the properties marked with an attribute of type <typeparamref name="T"/>.
+        /// <remarks>It avoids materializing any attribute instances. <see href="http://stackoverflow.com/a/2282254/1226568"/></remarks>
         /// </summary>
         /// <typeparam name="T">Type of <c>Attribute</c> which has decorated the properties.</typeparam>
         /// <param name="type">Type of <c>Object</c> which has properties decorated with <typeparamref name="T"/>.</param>
@@ -90,7 +108,6 @@
 
                 result[attr] = property;
             }
-
             return result;
         }
 

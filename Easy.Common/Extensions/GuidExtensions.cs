@@ -1,4 +1,4 @@
-﻿namespace Easy.Common
+﻿namespace Easy.Common.Extensions
 {
     using System;
 

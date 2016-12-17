@@ -1,4 +1,4 @@
-﻿namespace Easy.Common.Tests.Unit.String
+﻿namespace Easy.Common.Tests.Unit.StringExtensions
 {
     using System;
     using Easy.Common.Extensions;

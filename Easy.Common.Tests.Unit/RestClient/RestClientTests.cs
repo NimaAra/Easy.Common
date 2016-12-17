@@ -293,7 +293,6 @@
         }
     }
 
-    // [ToDo] - Improve.
     internal sealed class SimpleHttpListener : IDisposable
     {
         private readonly HttpListener _listener;
