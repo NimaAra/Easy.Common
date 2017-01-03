@@ -17,7 +17,10 @@
         public static Action<TInstance, TProperty> CreateSetter<TInstance, TProperty>(string propertyName, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
-            var propInfo = typeof(TInstance).GetInstanceProperty(propertyName);
+
+            PropertyInfo propInfo;
+            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
+            Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName);
             return CreateSetter<TInstance, TProperty>(propInfo, includeNonPublic);
         }
 
@@ -37,7 +40,10 @@
         public static Func<TInstance, TProperty> CreateGetter<TInstance, TProperty>(string propertyName, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
-            var propInfo = typeof(TInstance).GetInstanceProperty(propertyName);
+
+            PropertyInfo propInfo;
+            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
+            Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName);
             return CreateGetter<TInstance, TProperty>(propInfo, includeNonPublic);
         }
 
@@ -105,7 +111,10 @@
         public static Action<TInstance, object> CreateSetter<TInstance>(string propertyName, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
-            var propInfo = typeof(TInstance).GetInstanceProperty(propertyName);
+
+            PropertyInfo propInfo;
+            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
+            Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName);
             return CreateSetter<TInstance>(propInfo, includeNonPublic);
         }
 
@@ -133,7 +142,10 @@
         public static Func<TInstance, object> CreateGetter<TInstance>(string propertyName, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
-            var propInfo = typeof(TInstance).GetInstanceProperty(propertyName);
+
+            PropertyInfo propInfo;
+            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
+            Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName);
             return CreateGetter<TInstance>(propInfo, includeNonPublic);
         }
 

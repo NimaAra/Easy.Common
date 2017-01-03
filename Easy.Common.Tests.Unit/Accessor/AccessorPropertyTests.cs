@@ -96,13 +96,15 @@
             var instance = new Person();
             instance.Name.ShouldBeNull();
 
-            var nameProp = typeof(Person).GetInstanceProperty("Name");
+            PropertyInfo nameProp;
+            typeof(Person).TryGetInstanceProperty("Name", out nameProp).ShouldBeTrue();
 
             var nameSetter = Accessor.CreateSetter(nameProp);
             nameSetter(instance, "A");
             instance.Name.ShouldBe("A");
 
-            var jobProp = typeof(Person).GetInstanceProperty("Job");
+            PropertyInfo jobProp;
+            typeof(Person).TryGetInstanceProperty("Job", out jobProp).ShouldBeTrue();
             var jobSetter = Accessor.CreateSetter(jobProp, true);
             jobSetter(instance, "job");
             instance.GetJob().ShouldBe("job");
@@ -157,7 +159,8 @@
 
             instance.Name.ShouldBe("Foo");
 
-            var nameProp = typeof(Person).GetInstanceProperty("Name");
+            PropertyInfo nameProp;
+            typeof(Person).TryGetInstanceProperty("Name", out nameProp).ShouldBeTrue();
 
             var nameGetter = Accessor.CreateGetter(nameProp);
             nameGetter(instance);
@@ -166,7 +169,8 @@
 
             instance.GetJob().ShouldBeNull();
 
-            var jobProp = typeof(Person).GetInstanceProperty("Job");
+            PropertyInfo jobProp;
+            typeof(Person).TryGetInstanceProperty("Job", out jobProp).ShouldBeTrue();
             var jobSetter = Accessor.CreateSetter(jobProp, true);
 
             jobSetter(instance, "Baz");

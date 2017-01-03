@@ -1,6 +1,7 @@
 ﻿namespace Easy.Common
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Dynamic;
     using System.Linq;
@@ -9,7 +10,7 @@
     /// Provides an abstraction for an object to be used dynamically as a key value pair
     /// where the property is the key and value is an object.
     /// </summary>
-    public sealed class DynamicDictionary : DynamicObject
+    public sealed class DynamicDictionary : DynamicObject, IEnumerable<KeyValuePair<string, object>>
     {
         private readonly Dictionary<string, object> _dictionary;
 
@@ -51,6 +52,22 @@
             }
 
             set { _dictionary[key] = value; }
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the keys and values of this instance.
+        /// </summary>
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        {
+            return _dictionary.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the keys and values of this instance.
+        /// </summary>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _dictionary.GetEnumerator();
         }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)

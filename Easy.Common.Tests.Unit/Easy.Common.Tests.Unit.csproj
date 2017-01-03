@@ -107,6 +107,7 @@
     <Compile Include="TypeExtensions\GettingAllPropertiesWithAttributes.cs" />
     <Compile Include="TypeExtensions\GettingArgumentTypeOfGenericTypeTests.cs" />
     <Compile Include="TypeExtensions\GettingParentPropertiesWithAttributes.cs" />
+    <Compile Include="TypeExtensions\GettingPropertiesTests.cs" />
     <Compile Include="TypeExtensions\GettingUninitializedInstanceTests.cs" />
     <Compile Include="XML\ParsingXmlTests.cs" />
   </ItemGroup>
