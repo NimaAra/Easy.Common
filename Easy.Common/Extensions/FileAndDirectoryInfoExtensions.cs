@@ -1,7 +1,9 @@
 ﻿namespace Easy.Common.Extensions
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Text;
 
     /// <summary>
     /// Provides a set of useful methods for working with <see cref="FileInfo"/> and <see cref="DirectoryInfo"/>.
@@ -27,16 +29,6 @@
                 length += nextdir.Exists ? nextdir.GetSizeInByte() : 0;
             }
             return length;
-        }
-
-        /// <summary>
-        /// Returns the size in bytes of a file at the given <paramref name="filePath"/>.
-        /// </summary>
-        /// <param name="filePath">The path to the file to get the size of.</param>
-        /// <returns>The size of <paramref name="filePath"/> in bytes.</returns>
-        public static long FileSize(this string filePath)
-        {
-            return new FileInfo(filePath).Length;
         }
 
         /// <summary>
@@ -80,6 +72,40 @@
             {
                 var errMsg = "Unable to rename the file: {0} to: {1}".FormatWith(fileInfo.FullName, newName);
                 throw new InvalidOperationException(errMsg);
+            }
+        }
+
+        /// <summary>
+        /// Lazily reads all the lines in the <paramref name="fileInfo"/> without requiring a file lock.
+        /// <remarks>
+        /// This method is preferred over the <see cref="File.ReadAllLines(string)"/> which requires a file lock
+        /// which may result <see cref="IOException"/> if the file is opened exclusively by another process such as <c>Excel</c>.
+        /// </remarks>
+        /// </summary>
+        public static IEnumerable<string> ReadAllLines(this FileInfo fileInfo)
+        {
+            return fileInfo.ReadAllLines(Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Lazily reads all the lines in the <paramref name="fileInfo"/> without requiring a file lock.
+        /// <remarks>
+        /// This method is preferred over the <see cref="File.ReadAllLines(string)"/> which requires a file lock
+        /// which may result <see cref="IOException"/> if the file is opened exclusively by another process such as <c>Excel</c>.
+        /// </remarks>
+        /// </summary>
+        public static IEnumerable<string> ReadAllLines(this FileInfo fileInfo, Encoding encoding)
+        {
+            Ensure.NotNull(fileInfo, nameof(fileInfo));
+            Ensure.NotNull(encoding, nameof(encoding));
+
+            using (var stream = File.Open(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var reader = new StreamReader(stream, encoding))
+            {
+                while (!reader.EndOfStream)
+                {
+                    yield return reader.ReadLine();
+                }
             }
         }
     }

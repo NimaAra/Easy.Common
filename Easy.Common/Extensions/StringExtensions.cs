@@ -495,6 +495,14 @@
         }
 
         /// <summary>
+        /// Ensures the given <paramref name="input"/> can be used as a path.
+        /// </summary>
+        public static bool IsValidPathName(this string input)
+        {
+            return input.IsNotNullOrEmptyOrWhiteSpace() && input.IndexOfAny(InvalidPathCharacters) == -1;
+        }
+
+        /// <summary>
         /// Returns a <see cref="Guid"/> from a <c>Base64</c> encoded <paramref name="input"/>.
         /// <example>
         /// DRfscsSQbUu8bXRqAvcWQA== or DRfscsSQbUu8bXRqAvcWQA depending on <paramref name="trimmed"/>.
@@ -507,6 +515,43 @@
         {
             return trimmed ? new Guid(Convert.FromBase64String(input + "==")) 
                 : new Guid(Convert.FromBase64String(input));
+        }
+
+        /// <summary>
+        /// Converts <c>API</c> to <c>[aA][pP][iI]</c>.
+        /// <remarks>
+        /// This should be used as much faster alternative to adding <see cref="RegexOptions.IgnoreCase"/> 
+        /// or using the <c>(?i)</c> for example <c>(?i)API(?-i)</c>
+        /// </remarks>
+        /// </summary>
+        public static string ToCaseIncensitiveRegexArgument(this string input)
+        {
+            var builder = StringBuilderCache.Acquire();
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < input.Length; i++)
+            {
+                var currChar = input[i];
+
+                if (!char.IsLetter(currChar))
+                {
+                    builder.Append(currChar);
+                    continue;
+                }
+
+                builder.Append('[');
+
+                if (char.IsUpper(currChar))
+                {
+                    builder.Append(currChar).Append(char.ToLower(currChar));
+                }
+                else
+                {
+                    builder.Append(currChar).Append(char.ToUpper(currChar));
+                }
+                builder.Append(']');
+            }
+
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
     }
 }

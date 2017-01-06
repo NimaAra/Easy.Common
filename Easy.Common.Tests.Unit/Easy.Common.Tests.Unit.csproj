@@ -75,8 +75,8 @@
     <Compile Include="EnumerablesTests\HandlingExceptionsWhenYieldReturningDoesNotThrow.cs" />
     <Compile Include="EnumerablesTests\HandlingExceptionsWhenYieldReturningThrows.cs" />
     <Compile Include="FileAndDirectoryExtensions\Context.cs" />
-    <Compile Include="FileAndDirectoryExtensions\DirectoryIsHiddenTests.cs" />
-    <Compile Include="FileAndDirectoryExtensions\FileIsHiddenTests.cs" />
+    <Compile Include="FileAndDirectoryExtensions\DirectoryInfoTests.cs" />
+    <Compile Include="FileAndDirectoryExtensions\FileInfoTests.cs" />
     <Compile Include="GenericExtensions\IsDefaultTests.cs" />
     <Compile Include="Guid\GuidExtensionsTests.cs" />
     <Compile Include="Guid\GuidHelperTests.cs" />

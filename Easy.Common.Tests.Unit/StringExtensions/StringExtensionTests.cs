@@ -1,6 +1,7 @@
 ﻿namespace Easy.Common.Tests.Unit.StringExtensions
 {
     using System;
+    using System.Text.RegularExpressions;
     using Easy.Common.Extensions;
     using NUnit.Framework;
     using Shouldly;
@@ -261,12 +262,10 @@
         [Test]
         public void When_truncating_strings()
         {
-            string nullStr = null;
-            Should.Throw<ArgumentNullException>(() => nullStr.Truncate(1))
+            Should.Throw<ArgumentNullException>(() => ((string)null).Truncate(1))
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: input");
 
-            string nullSuffix = null;
-            Should.Throw<ArgumentNullException>(() => "someText".Truncate(2, nullSuffix))
+            Should.Throw<ArgumentNullException>(() => "someText".Truncate(2, null))
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: suffix");
 
             string.Empty.Truncate(1).ShouldBe(string.Empty);
@@ -293,8 +292,7 @@
         [Test]
         public void When_removing_new_lines()
         {
-            string nullStr = null;
-            Should.Throw<ArgumentNullException>(() => nullStr.RemoveNewLines())
+            Should.Throw<ArgumentNullException>(() => ((string)null).RemoveNewLines())
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: input");
 
             string.Empty.RemoveNewLines().ShouldBe(string.Empty);
@@ -313,8 +311,7 @@
         [Test]
         public void When_checking_if_a_string_is_a_palindrome()
         {
-            string nullStr = null;
-            Should.Throw<ArgumentNullException>(() => nullStr.IsPalindrome())
+            Should.Throw<ArgumentNullException>(() => ((string)null).IsPalindrome())
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: input");
 
             string.Empty.IsPalindrome().ShouldBeTrue();
@@ -342,8 +339,7 @@
         {
             string result;
 
-            string nullStr = null;
-            Should.Throw<ArgumentNullException>(() => nullStr.TryExtractValueFromTag("foo", out result))
+            Should.Throw<ArgumentNullException>(() => ((string)null).TryExtractValueFromTag("foo", out result))
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: input");
 
             string.Empty.TryExtractValueFromTag("foo", out result).ShouldBeFalse();
@@ -404,6 +400,46 @@
             "<MyFile>".IsValidFileName().ShouldBeFalse();
             "<MyFile".IsValidFileName().ShouldBeFalse();
             "<".IsValidFileName().ShouldBeFalse();
+        }
+
+        [Test]
+        public void When_checking_a_string_is_a_valid_path_name()
+        {
+            "A".IsValidPathName().ShouldBeTrue();
+            "MyFile".IsValidPathName().ShouldBeTrue();
+            "MyFile.txt".IsValidPathName().ShouldBeTrue();
+            "MyFile.txt ".IsValidPathName().ShouldBeTrue();
+            " MyFile.txt".IsValidPathName().ShouldBeTrue();
+            "My File.txt".IsValidPathName().ShouldBeTrue();
+            "My-File.txt".IsValidPathName().ShouldBeTrue();
+            "My-%File.txt".IsValidPathName().ShouldBeTrue();
+            "My-!File.txt".IsValidPathName().ShouldBeTrue();
+            "My-!File.txt/Foo".IsValidPathName().ShouldBeTrue();
+            "/".IsValidPathName().ShouldBeTrue();
+            "\\".IsValidPathName().ShouldBeTrue();
+            "foo\\bar".IsValidPathName().ShouldBeTrue();
+            "MyFile/".IsValidPathName().ShouldBeTrue();
+            "\\MyFile".IsValidPathName().ShouldBeTrue();
+
+            "".IsValidPathName().ShouldBeFalse();
+            " ".IsValidPathName().ShouldBeFalse();
+            "  ".IsValidPathName().ShouldBeFalse();
+            "MyFile>".IsValidPathName().ShouldBeFalse();
+            "<MyFile>".IsValidPathName().ShouldBeFalse();
+            "<MyFile".IsValidPathName().ShouldBeFalse();
+            "<".IsValidPathName().ShouldBeFalse();
+        }
+
+        [Test]
+        public void When_converting_input_to_case_incensitive_regex_argument()
+        {
+            const string SampleInput = "this is some stuff fOo-bar";
+            const string Argument = "foo-bar";
+            var caseIncensitiveArgument = Argument.ToCaseIncensitiveRegexArgument();
+
+            caseIncensitiveArgument.ShouldBe("[fF][oO][oO]-[bB][aA][rR]");
+            Regex.IsMatch(SampleInput, Argument).ShouldBeFalse();
+            Regex.IsMatch(SampleInput, caseIncensitiveArgument).ShouldBeTrue();
         }
     }
 }

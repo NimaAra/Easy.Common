@@ -4,55 +4,77 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Dynamic;
-    using System.Linq;
-
+    
     /// <summary>
     /// Provides an abstraction for an object to be used dynamically as a key value pair
-    /// where the property is the key and value is an object.
+    /// where the property is the key and value is an <see cref="object"/>.
     /// </summary>
-    public sealed class DynamicDictionary : DynamicObject, IEnumerable<KeyValuePair<string, object>>
+    public sealed class DynamicDictionary : DynamicObject, IDictionary<string, object>
     {
-        private readonly Dictionary<string, object> _dictionary;
+        private readonly IDictionary<string, object> _dictionary;
 
         /// <summary>
         /// Creates a new instance of <see cref="DynamicDictionary"/>.
         /// </summary>
-        /// <param name="ignoreCase">The flag indicating whether keys should be treated regardless of the case.</param>
+        /// <param name="ignoreCase">
+        /// The flag indicating whether keys should be treated regardless of the case.
+        /// </param>
         public DynamicDictionary(bool ignoreCase = true)
         {
             _dictionary = new Dictionary<string, object>(
-                ignoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture);
+                ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
         }
 
         /// <summary>
-        /// Gets the number of elements in the instance.
+        /// Add the given <paramref name="item"/> to this instance.
         /// </summary>
-        public int Count => _dictionary.Count;
-
-        /// <summary>
-        /// Gets the keys in the instance.
-        /// </summary>
-        public string[] Keys => _dictionary.Keys.ToArray();
-
-        /// <summary>
-        /// Gets the values in the instance.
-        /// </summary>
-        public object[] Values => _dictionary.Values.ToArray();
-
-        /// <summary>
-        /// Gets or sets the object stored against the given <paramref name="key"/>.
-        /// </summary>
-        public object this[string key]
+        /// <param name="item"></param>
+        public void Add(KeyValuePair<string, object> item)
         {
-            get
-            {
-                object result;
-                _dictionary.TryGetValue(key, out result);
-                return result;
-            }
-
-            set { _dictionary[key] = value; }
+            _dictionary.Add(item);
         }
+
+        /// <summary>
+        /// Removes all the items from this instance.
+        /// </summary>
+        public void Clear()
+        {
+            _dictionary.Clear();
+        }
+
+        /// <summary>
+        /// Determines whether this instance contains the given <paramref name="item"/>.
+        /// </summary>
+        public bool Contains(KeyValuePair<string, object> item)
+        {
+            return _dictionary.Contains(item);
+        }
+
+        /// <summary>
+        /// Copies the elements of this instance to the given <paramref name="array"/>, starting at a particular <paramref name="array"/>.
+        /// </summary>
+        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
+        {
+            _dictionary.CopyTo(array, arrayIndex);
+        }
+
+        /// <summary>
+        /// Removes the given <paramref name="item"/> from this instance.
+        /// </summary>
+        public bool Remove(KeyValuePair<string, object> item)
+        {
+            return _dictionary.Remove(item);
+        }
+
+        /// <summary>
+        /// Gets the number of elements contained in this instance.
+        /// </summary>
+        public int Count => _dictionary.Keys.Count;
+
+        /// <summary>
+        /// Determines whether this instance is <c>Read-Only</c>.
+        /// </summary>
+        public bool IsReadOnly => _dictionary.IsReadOnly;
 
         /// <summary>
         /// Returns an enumerator that iterates through the keys and values of this instance.
@@ -67,23 +89,113 @@
         /// </summary>
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _dictionary.GetEnumerator();
+            return GetEnumerator();
         }
+
+        /// <summary>
+        /// Determines whether this instance contains an element with the given <paramref name="key"/>.
+        /// </summary>
+        public bool ContainsKey(string key)
+        {
+            return _dictionary.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// Adds an element for the given <paramref name="key"/> and associated <paramref name="value"/> to this instance.
+        /// </summary>
+        public void Add(string key, object value)
+        {
+            _dictionary.Add(key, value);
+        }
+
+        /// <summary>
+        /// Removes the element with the given <paramref name="key"/> from this instance.
+        /// </summary>
+        public bool Remove(string key)
+        {
+            return _dictionary.Remove(key);
+        }
+
+        /// <summary>
+        /// Attempts to get the value associated to the given <paramref name="key"/>.
+        /// </summary>
+        public bool TryGetValue(string key, out object value)
+        {
+            return _dictionary.TryGetValue(key, out value);
+        }
+
+        /// <summary>
+        /// Gets or sets the value stored against the given <paramref name="key"/>.
+        /// <remarks>If the given <paramref name="key"/> does not exist, <c>NULL</c> is returned.</remarks>
+        /// </summary>
+        public object this[string key]
+        {
+            get
+            {
+                object result;
+                _dictionary.TryGetValue(key, out result);
+                return result;
+            }
+
+            set { _dictionary[key] = value; }
+        }
+
+        /// <summary>
+        /// Gets an <see cref="ICollection{String}"/> containing the keys of this instance.
+        /// </summary>
+        public ICollection<string> Keys => _dictionary.Keys;
+
+        /// <summary>
+        /// Gets an <see cref="ICollection{Object}"/> containing the values of this instance.
+        /// </summary>
+        public ICollection<object> Values => _dictionary.Values;
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            if (!_dictionary.TryGetValue(binder.Name, out result))
+            if (_dictionary.ContainsKey(binder.Name))
+            {
+                result = _dictionary[binder.Name];
+                return true;
+            }
+
+            if (base.TryGetMember(binder, out result))
             {
                 return true;
             }
 
+            // always return null if not found.
+            result = null;
             return true;
         }
 
-        public override bool TrySetMember(SetMemberBinder binder, object value)
+        public override bool TrySetMember(SetMemberBinder binder, object result)
         {
-            _dictionary[binder.Name] = value;
+            if (!_dictionary.ContainsKey(binder.Name)) { _dictionary.Add(binder.Name, result); }
+            else { _dictionary[binder.Name] = result; }
             return true;
+        }
+
+        public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
+        {
+            if (_dictionary.ContainsKey(binder.Name) && _dictionary[binder.Name] is Delegate)
+            {
+                var del = (Delegate)_dictionary[binder.Name];
+                result = del.DynamicInvoke(args);
+                return true;
+            }
+
+            return base.TryInvokeMember(binder, args, out result);
+        }
+
+        public override bool TryDeleteMember(DeleteMemberBinder binder)
+        {
+            if (_dictionary.ContainsKey(binder.Name))
+            {
+                _dictionary.Remove(binder.Name);
+                return true;
+            }
+
+            return base.TryDeleteMember(binder);
         }
     }
 }

@@ -4,9 +4,11 @@
     using System.Collections.ObjectModel;
 
     /// <summary>
-    /// A dictionary of TItem whose TKey can be defined as a delegate at the time of initialization.
-    /// <example>var myDic = new KeyedCollectionEx&lt;int, Person>(p => p.Name);</example>
-    /// <remarks>This class is not thread-safe.</remarks>
+    /// A dictionary of <see cref="TItem"/> whose <see cref="TKey"/> can be defined as a delegate at the time of initialization. 
+    /// <remarks>
+    /// This class is not thread-safe.
+    /// <para><code>var myDic = new KeyedCollectionEx&lt;int, Person>(p => p.Name);</code></para>
+    /// </remarks> 
     /// </summary>
     /// <typeparam name="TKey">Key to be used as the HashKey</typeparam>
     /// <typeparam name="TItem">Item to be stored as Value</typeparam>

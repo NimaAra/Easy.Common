@@ -4,7 +4,7 @@
     using Shouldly;
 
     [TestFixture]
-    public class DirectoryIsHiddenTests : Context
+    public class DirectoryInfoTests : Context
     {
         [OneTimeSetUp]
         public void SetUp()

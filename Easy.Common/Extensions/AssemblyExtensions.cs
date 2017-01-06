@@ -27,7 +27,14 @@
                 return ".NET 2, 3 or 3.5";
             }
 
-            return targetFrameAttribute.FrameworkDisplayName.Replace(".NET Framework", ".NET");
+            var result = targetFrameAttribute.FrameworkDisplayName;
+
+            if (result == null)
+            {
+                result = targetFrameAttribute.FrameworkName;
+            }
+
+            return result.Replace(".NETFramework", ".NET").Replace(".NET Framework", ".NET");
         }
 
         /// <summary>

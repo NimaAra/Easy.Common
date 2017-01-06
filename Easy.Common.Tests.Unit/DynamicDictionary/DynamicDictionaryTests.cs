@@ -1,6 +1,8 @@
 ﻿namespace Easy.Common.Tests.Unit.DynamicDictionary
 {
+    using System;
     using System.Collections.Generic;
+    using Easy.Common.Extensions;
     using NUnit.Framework;
     using Shouldly;
     using DynamicDictionary = Easy.Common.DynamicDictionary;
@@ -13,7 +15,7 @@
         {
             var dic = new DynamicDictionary();
             dic.Count.ShouldBe(0);
-            
+
             dic["A"] = "A";
             dic["B"] = "B";
             dic["C"] = "C";
@@ -29,8 +31,8 @@
             dic["D"].ShouldBe(1);
             dic["d"].ShouldBe(1);
 
-            dic.Keys.ShouldBe(new [] {"A", "B", "C", "D"});
-            dic.Values.ShouldBe(new object [] {"A", "B", "C", 1});
+            dic.Keys.ShouldBe(new[] { "A", "B", "C", "D" });
+            dic.Values.ShouldBe(new object[] { "A", "B", "C", 1 });
 
             dic["non-existent"].ShouldBeNull();
         }
@@ -46,7 +48,10 @@
             dic["C"] = "C";
             dic["D"] = 1;
 
-            ((int)dic.Count).ShouldBe(4);
+            Func<int> someFunc = () => 1234;
+            dic.action = someFunc;
+
+            ((int)dic.Count).ShouldBe(5);
             ((string)dic["A"]).ShouldBe("A");
             ((string)dic["a"]).ShouldBe("A");
             ((string)dic["B"]).ShouldBe("B");
@@ -56,13 +61,16 @@
             ((int)dic["D"]).ShouldBe(1);
             ((int)dic["d"]).ShouldBe(1);
 
+            ((int)dic.action()).ShouldBe(1234);
+            ((int)dic.ACTION()).ShouldBe(1234);
+
             ((string)dic.A).ShouldBe("A");
             ((string)dic.a).ShouldBe("A");
             ((int)dic.D).ShouldBe(1);
             ((int)dic.d).ShouldBe(1);
 
-            ((string[])dic.Keys).ShouldBe(new[] { "A", "B", "C", "D" });
-            ((object[])dic.Values).ShouldBe(new object[] { "A", "B", "C", 1 });
+            ((ICollection<string>)dic.Keys).ShouldBe(new[] { "A", "B", "C", "D", "action" });
+            ((ICollection<object>)dic.Values).ShouldBe(new object[] { "A", "B", "C", 1, someFunc });
 
             ((string)dic["non-existent"]).ShouldBeNull();
 
@@ -198,6 +206,61 @@
                     pair.Value.ShouldBe(66);
                 }
             }
+        }
+
+        [Test]
+        public void When_getting_a_model_as_dynamic_dictionary()
+        {
+            var model = new Child { Name = "Foo", Age = 10 };
+            var dicWithInherittedProp = model.ToDynamic();
+
+            dicWithInherittedProp.ShouldNotBeNull();
+            dicWithInherittedProp.Count.ShouldBe(3);
+            dicWithInherittedProp["OriginalName"].ShouldBe("PaPa");
+            dicWithInherittedProp["Name"].ShouldBe("Foo");
+            dicWithInherittedProp["Age"].ShouldBe(10);
+
+            var dicWithDeclaredProp = model.ToDynamic(false);
+
+            dicWithDeclaredProp.ShouldNotBeNull();
+            dicWithDeclaredProp.Count.ShouldBe(2);
+            dicWithDeclaredProp["OriginalName"].ShouldBeNull();
+            dicWithDeclaredProp["Name"].ShouldBe("Foo");
+            dicWithDeclaredProp["Age"].ShouldBe(10);
+        }
+
+        [Test]
+        public void When_getting_a_model_as_dynamic()
+        {
+            var model = new Child { Name = "Foo", Age = 10 };
+            dynamic dicWithInherittedProp = model.ToDynamic();
+
+            ((DynamicDictionary)dicWithInherittedProp).ShouldNotBeNull();
+            ((DynamicDictionary)dicWithInherittedProp).Count.ShouldBe(3);
+
+            ((string)dicWithInherittedProp["OriginalName"]).ShouldBe("PaPa");
+            ((string)dicWithInherittedProp["Name"]).ShouldBe("Foo");
+            ((int)dicWithInherittedProp["Age"]).ShouldBe(10);
+
+            dynamic dicWithDeclaredProp = model.ToDynamic(false);
+
+            ((DynamicDictionary)dicWithDeclaredProp).ShouldNotBeNull();
+            ((DynamicDictionary)dicWithDeclaredProp).Count.ShouldBe(2);
+
+            ((string)dicWithDeclaredProp["OriginalName"]).ShouldBeNull();
+            ((string)dicWithDeclaredProp["Name"]).ShouldBe("Foo");
+            ((int)dicWithDeclaredProp["Age"]).ShouldBe(10);
+        }
+
+        private class Base
+        {
+            public string OriginalName => "PaPa";
+        }
+
+        private sealed class Child : Base
+        {
+            public string Name { get; set; }
+            public int Age { get; set; }
         }
     }
 }

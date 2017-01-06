@@ -80,11 +80,22 @@
         public static IEnumerable<PropertyInfo> GetInstanceProperties(this Type type, bool inherit = true)
         {
             Ensure.NotNull(type, nameof(type));
+            return GetInstanceProperties(type.GetTypeInfo(), inherit);
+        }
+
+        /// <summary>
+        /// Returns all <c>instance</c> properties of the given <paramref name="typeInfo"/> regardless of it's access modifier.
+        /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property.</remarks>
+        /// </summary>
+        [DebuggerStepThrough]
+        public static IEnumerable<PropertyInfo> GetInstanceProperties(this TypeInfo typeInfo, bool inherit = true)
+        {
+            Ensure.NotNull(typeInfo, nameof(typeInfo));
 
             var flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
             if (!inherit) { flags = flags | BindingFlags.DeclaredOnly; }
 
-            return type.GetProperties(flags);
+            return typeInfo.GetProperties(flags);
         }
 
         /// <summary>
@@ -104,7 +115,7 @@
         }
 
         /// <summary>
-        /// Returns a mapping of <typeparamref name="T"/> attribute to <see cref="PropertyInfo"/> for a given <paramref name="type"/>
+        /// Returns a mapping of <typeparamref name="T"/> attribute to <see cref="PropertyInfo"/> for a given <paramref name="type"/>.
         /// </summary>
         /// <typeparam name="T">Type of attribute which will be used as the key</typeparam>
         /// <param name="type">Type whose properties will be mapped to the <typeparamref name="T"/> attributes</param>
@@ -119,7 +130,7 @@
             var result = new Dictionary<T, PropertyInfo>(properties.Length);
             foreach (var property in properties)
             {
-                var attributes = property.GetCustomAttributes<T>();
+                var attributes = property.GetCustomAttributes<T>(inherit);
                 var attr = attributes.FirstOrDefault();
                 if (attr == null) { continue; }
 
@@ -129,7 +140,7 @@
         }
 
         /// <summary>
-        /// Tries to get attributes of type <typeparamref name="T"/> defined on the given <paramref name="type"/>
+        /// Tries to get attributes of type <typeparamref name="T"/> defined on the given <paramref name="type"/>.
         /// </summary>
         /// <typeparam name="T">The type of the attribute to get</typeparam>
         /// <param name="type">The type on which the attribute has been defined</param>
@@ -153,11 +164,11 @@
 
         /// <summary>
         /// Tries to get the generic type arguments for the given <paramref name="type"/>.
-        /// <example>For a type of List{int} the generic type is int</example>
+        /// <example>For a type of <see cref="List{Int32}"/> the generic type is <see cref="int"/>.</example>
         /// </summary>
         /// <param name="type">The type for which generic type should be retrieved</param>
         /// <param name="genericArguments">The result</param>
-        /// <returns><c>True</c> if generic types can be retrieved otherwise <c>False</c></returns>
+        /// <returns><see langword="true"/> if generic types can be retrieved otherwise <see langword="false"/></returns>
         [DebuggerStepThrough]
         public static bool TryGetGenericArguments(this Type type, out Type[] genericArguments)
         {

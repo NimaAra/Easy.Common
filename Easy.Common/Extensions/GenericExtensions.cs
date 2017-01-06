@@ -20,13 +20,28 @@ namespace Easy.Common.Extensions
         private static LocalBuilder _localBuilder;
 
         /// <summary>
-        /// Returns <c>True</c> if <paramref name="obj"/> has the default value of <typeparamref name="T"/>.
+        /// Converts the given <paramref name="object"/> to a <see cref="DynamicDictionary"/>.
         /// </summary>
-        /// <param name="obj">The object to check for default.</param>
-        /// <returns><c>True</c> if <paramref name="obj"/> has default or null value otherwise <c>False</c>.</returns>
-        public static bool IsDefault<T>(this T obj)
+        public static DynamicDictionary ToDynamic<T>(this T @object, bool inherit = true)
         {
-            return EqualityComparer<T>.Default.Equals(obj, default(T));
+            var dynDic = new DynamicDictionary();
+
+            foreach (var property in @object.GetType().GetInstanceProperties(inherit))
+            {
+                dynDic.Add(property.Name, property.GetValue(@object, null));
+            }
+
+            return dynDic;
+        }
+
+        /// <summary>
+        /// Returns <c>True</c> if <paramref name="object"/> has the default value of <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="object">The object to check for default.</param>
+        /// <returns><c>True</c> if <paramref name="object"/> has default or null value otherwise <c>False</c>.</returns>
+        public static bool IsDefault<T>(this T @object)
+        {
+            return EqualityComparer<T>.Default.Equals(@object, default(T));
         }
 
         /// <summary>
