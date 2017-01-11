@@ -46,15 +46,38 @@
                 : StringComparison.InvariantCulture;
 
             reader.MoveToElement();
-
             while (reader.Read())
             {
                 while (reader.NodeType == XmlNodeType.Element
                        && reader.Name.Equals(name.LocalName, compPolicy))
                 {
-                    yield return XNode.ReadFrom(reader) as XElement;
+                    yield return (XElement)XNode.ReadFrom(reader);
                 }
             }
+        }
+        
+        /// <summary>
+        /// Converts the content of the given <paramref name="reader"/> to <see cref="DynamicDictionary"/>.
+        /// </summary>
+        public static DynamicDictionary ToDynamic(this XmlReader reader, bool ignoreCase = true)
+        {
+            Ensure.NotNull(reader, nameof(reader));
+
+            var result = new DynamicDictionary(ignoreCase);
+            var elements = new List<XElement>();
+            result["Elements"] = elements;
+
+            reader.MoveToElement();
+            while (reader.Read())
+            {
+                while (reader.NodeType == XmlNodeType.Element)
+                {
+                    var element = (XElement)XNode.ReadFrom(reader);
+                    elements.Add(element);
+                }
+            }
+
+            return result;
         }
     }
 }

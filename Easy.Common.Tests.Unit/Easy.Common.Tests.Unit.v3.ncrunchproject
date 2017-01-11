@@ -1,0 +1,22 @@
+﻿<ProjectConfiguration>
+  <Settings>
+    <HiddenComponentWarnings>
+      <Value>NUnitTestsWithSameName</Value>
+    </HiddenComponentWarnings>
+    <IgnoredTests>
+      <FixtureTestSelector>
+        <FixtureName>Easy.Common.Tests.Unit.ProducerConsumer.ProducerConsumerQueueTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Easy.Common.Tests.Unit.TaskExtensions.TaskExceptionsTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Easy.Common.Tests.Unit.TaskExtensions.TaskWaitAllOrFailTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Easy.Common.Tests.Unit.TimerAndClockTests.TimerClockTests</FixtureName>
+      </FixtureTestSelector>
+    </IgnoredTests>
+    <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
+  </Settings>
+</ProjectConfiguration>

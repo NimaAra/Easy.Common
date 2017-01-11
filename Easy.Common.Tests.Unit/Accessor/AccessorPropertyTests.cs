@@ -163,7 +163,7 @@
             typeof(Person).TryGetInstanceProperty("Name", out nameProp).ShouldBeTrue();
 
             var nameGetter = Accessor.CreateGetter(nameProp);
-            nameGetter(instance);
+            nameGetter(instance).ShouldBe("Foo");
 
             instance.Name.ShouldBe("Foo");
 
@@ -191,7 +191,7 @@
             instance.Name.ShouldBe("Foo");
 
             var nameGetter = Accessor.CreateGetter<Person>("Name");
-            nameGetter(instance);
+            nameGetter(instance).ShouldBe("Foo");
 
             instance.Name.ShouldBe("Foo");
 
@@ -206,6 +206,39 @@
             jobGetter(instance).ShouldBe("Baz");
         }
 
+        [Test]
+        public void When_getting_properties_of_unknown_instance_and_property_type_of_a_struct()
+        {
+            var instance = new Struct();
+            instance.SomeString.ShouldBeNull();
+
+            instance.SomeString = "Foo";
+
+            instance.SomeString.ShouldBe("Foo");
+
+            PropertyInfo nameProp;
+            typeof(Struct).TryGetInstanceProperty("SomeString", out nameProp).ShouldBeTrue();
+
+            var nameGetter = Accessor.CreateGetter(nameProp);
+            nameGetter(instance).ShouldBe("Foo");
+            instance.SomeString.ShouldBe("Foo");
+        }
+
+        [Test]
+        public void When_getting_properties_of_known_instance_but_unkonnown_property_type_of_a_struct()
+        {
+            var instance = new Struct();
+            instance.SomeString.ShouldBeNull();
+
+            instance.SomeString = "Foo";
+
+            instance.SomeString.ShouldBe("Foo");
+
+            var propGetter = Accessor.CreateGetter<Struct>("SomeString");
+            propGetter(instance).ShouldBe("Foo");
+            instance.SomeString.ShouldBe("Foo");
+        }
+
         private sealed class Person
         {
             public string Name { get; set; }
@@ -214,6 +247,10 @@
 
             public string GetJob() => Job;
         }
-    }
 
+        private struct Struct
+        {
+            public string SomeString { get; set; }
+        }
+    }
 }

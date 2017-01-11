@@ -3,6 +3,8 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Diagnostics;
     using System.Dynamic;
     
     /// <summary>
@@ -19,6 +21,7 @@
         /// <param name="ignoreCase">
         /// The flag indicating whether keys should be treated regardless of the case.
         /// </param>
+        [DebuggerStepThrough]
         public DynamicDictionary(bool ignoreCase = true)
         {
             _dictionary = new Dictionary<string, object>(
@@ -150,6 +153,7 @@
         /// </summary>
         public ICollection<object> Values => _dictionary.Values;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             if (_dictionary.ContainsKey(binder.Name))
@@ -168,6 +172,7 @@
             return true;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool TrySetMember(SetMemberBinder binder, object result)
         {
             if (!_dictionary.ContainsKey(binder.Name)) { _dictionary.Add(binder.Name, result); }
@@ -175,6 +180,7 @@
             return true;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             if (_dictionary.ContainsKey(binder.Name) && _dictionary[binder.Name] is Delegate)
@@ -187,6 +193,7 @@
             return base.TryInvokeMember(binder, args, out result);
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool TryDeleteMember(DeleteMemberBinder binder)
         {
             if (_dictionary.ContainsKey(binder.Name))

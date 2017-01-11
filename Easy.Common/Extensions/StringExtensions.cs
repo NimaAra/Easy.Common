@@ -23,6 +23,11 @@
         /// </summary>
         private static readonly Regex SlugRegex = new Regex(@"(^[a-z0-9])([a-z0-9_-]+)*([a-z0-9])$", RegexOptions.Compiled);
 
+        /// <summary>
+        ///  Contains <c>C#</c> characters that may be used as regular expression arguments after <c>\</c>.
+        /// </summary>
+        private static readonly char[] RegexCharacters = { 'G', 'Z', 'A', 'n', 'W', 'w', 'v', 't', 's', 'S', 'r', 'k', 'f', 'D', 'd', 'B', 'b' };
+
         private static readonly char[] InvalidFileNameCharacters = Path.GetInvalidFileNameChars();
         private static readonly char[] InvalidPathCharacters = Path.GetInvalidPathChars();
 
@@ -513,7 +518,7 @@
         /// </summary>
         public static Guid ToGuid(this string input, bool trimmed = true)
         {
-            return trimmed ? new Guid(Convert.FromBase64String(input + "==")) 
+            return trimmed ? new Guid(Convert.FromBase64String(input + "=="))
                 : new Guid(Convert.FromBase64String(input));
         }
 
@@ -526,13 +531,36 @@
         /// </summary>
         public static string ToCaseIncensitiveRegexArgument(this string input)
         {
+            if (input.IsNullOrEmptyOrWhiteSpace()) { return input; }
+
+            var patternIndexes = input.GetStartAndEndIndexes("(?<", ">").ToArray();
+            var hasPattern = patternIndexes.Length > 0;
+            var isInPattern = false;
+
             var builder = StringBuilderCache.Acquire();
             // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < input.Length; i++)
             {
+                var prev = i == 0 ? new char() : input[i - 1];
                 var currChar = input[i];
 
-                if (!char.IsLetter(currChar))
+                if (hasPattern)
+                {
+                    foreach (var pair in patternIndexes)
+                    {
+                        if (i >= pair.Key && i <= pair.Value)
+                        {
+                            isInPattern = true;
+                            break;
+                        }
+
+                        isInPattern = false;
+                    }
+                }
+
+                if (!char.IsLetter(currChar) 
+                    || (prev == '\\' && RegexCharacters.Contains(currChar))
+                    || isInPattern)
                 {
                     builder.Append(currChar);
                     continue;
@@ -542,7 +570,7 @@
 
                 if (char.IsUpper(currChar))
                 {
-                    builder.Append(currChar).Append(char.ToLower(currChar));
+                    builder.Append(char.ToLower(currChar)).Append(currChar);
                 }
                 else
                 {
@@ -550,8 +578,34 @@
                 }
                 builder.Append(']');
             }
-
             return StringBuilderCache.GetStringAndRelease(builder);
+        }
+
+        /// <summary>
+        /// Returns the all the start and end indexes of the occurrences of the 
+        /// given <paramref name="startTag"/> and <paramref name="endTag"/> 
+        /// in the given <paramref name="input"/>.
+        /// </summary>
+        /// <param name="input">The input to search.</param>
+        /// <param name="startTag">The starting tag e.g. <c>&lt;div></c>.</param>
+        /// <param name="endTag">The ending tag e.g. <c>&lt;/div></c>.</param>
+        /// <returns>
+        /// A sequence <see cref="KeyValuePair{TKey,TValue}"/> where the key is 
+        /// the starting position and value is the end position.
+        /// </returns>
+        [DebuggerStepThrough]
+        public static IEnumerable<KeyValuePair<int, int>> GetStartAndEndIndexes(this string input, string startTag, string endTag)
+        {
+            var startIdx = 0;
+            int endIdx;
+
+            while ((startIdx = input.IndexOf(startTag, startIdx, StringComparison.Ordinal)) != -1
+                && (endIdx = input.IndexOf(endTag, startIdx, StringComparison.Ordinal)) != -1)
+            {
+                var result = new KeyValuePair<int, int>(startIdx, endIdx);
+                startIdx = endIdx;
+                yield return result;
+            }
         }
     }
 }

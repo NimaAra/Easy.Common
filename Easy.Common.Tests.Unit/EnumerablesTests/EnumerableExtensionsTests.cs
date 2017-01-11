@@ -15,7 +15,8 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
         public void When_getting_pages_from_a_sequence()
         {
             var collection = Enumerable.Range(1, 25).ToList();
-            collection.ShouldBe(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 });
+            collection.ShouldBe(new[]
+                {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25});
 
             const uint PageSize = 3;
 
@@ -100,7 +101,11 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
         public void When_selecting_a_random_element_from_a_sequence()
         {
             var collection = Enumerable.Range(1, 50).ToList();
-            collection.ShouldBe(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50 });
+            collection.ShouldBe(new[]
+            {
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+                29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50
+            });
             Assert.That(collection, Is.Ordered);
 
             var firstElement = collection.First();
@@ -115,7 +120,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
 
             var sequence = collection.Skip(0);
             Assert.That(sequence, Is.Ordered);
-            
+
             firstRandomElement = sequence.SelectRandom();
             secondRandomElement = sequence.SelectRandom();
 
@@ -126,9 +131,13 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
         public void When_randomizing_a_collection()
         {
             var collection = Enumerable.Range(1, 50).ToList();
-            collection.ShouldBe(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50 });
+            collection.ShouldBe(new[]
+            {
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+                29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50
+            });
             Assert.That(collection, Is.Ordered);
-            
+
             var randomized = collection.Randomize().ToList();
             Assert.That(randomized, Is.Not.Ordered);
         }
@@ -193,6 +202,22 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
             Enumerable.Empty<int>().IsNotNullOrEmpty().ShouldBeFalse();
 
             ((IEnumerable<int>) null).IsNotNullOrEmpty().ShouldBeFalse();
+        }
+
+        [Test]
+        public void When_getting_distinct_elements_by_given_key_default_comparer()
+        {
+            string[] source = {"one", "two", "three", "four", "five"};
+            var distinct = source.DistinctBy(word => word.Length);
+            distinct.ShouldBe(new[] {"one", "three", "four"});
+        }
+
+        [Test]
+        public void When_getting_distinct_elements_by_given_key_with_comparer()
+        {
+            string[] source = {"one", "two", "three", "four", "five"};
+            var distinct = source.DistinctBy(word => word.Length, EqualityComparer<int>.Default);
+            distinct.ShouldBe(new[] {"one", "three", "four"});
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace Easy.Common
 {
     using System;
+    using System.Diagnostics;
     using System.Text;
 
     /// <summary>
@@ -19,6 +20,7 @@
         /// Acquires a cached instance of <see cref="StringBuilder"/> if one exists otherwise a new instance.
         /// </summary>
         /// <returns>An instance of <see cref="StringBuilder"/></returns>
+        [DebuggerStepThrough]
         public static StringBuilder Acquire()
         {
             var result = _cache;
@@ -34,6 +36,7 @@
         /// </summary>
         /// <param name="builder">The <see cref="StringBuilder"/></param>
         /// <returns>The string representation of the <paramref name="builder"/></returns>
+        [DebuggerStepThrough]
         public static string GetStringAndRelease(StringBuilder builder)
         {
             var result = builder.ToString();

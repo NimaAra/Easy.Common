@@ -149,6 +149,33 @@ namespace Easy.Common.Extensions
         }
 
         /// <summary>
+        /// Returns all the distinct elements of the given source where <c>distictness</c> is determined
+        /// via a projection and the default <see cref="IEqualityComparer{T}"/> for the <paramref name="sequence"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, Func<T, TKey> selector)
+        {
+            return sequence.DistinctBy(selector, null);
+        }
+
+        /// <summary>
+        /// Returns all the distinct elements of the given source where <c>distictness</c> is determined
+        /// via a projection and the <paramref name="comparer"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, Func<T, TKey> selector, IEqualityComparer<TKey> comparer)
+        {
+            var keys = new HashSet<TKey>(comparer);
+            foreach (var item in sequence)
+            {
+                if (keys.Add(selector(item)))
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        /// <summary>
         /// Allows exception handling when yield returning an IEnumerable
         /// <example>
         /// myList.HandleExceptionWhenYieldReturning{int}(e => 

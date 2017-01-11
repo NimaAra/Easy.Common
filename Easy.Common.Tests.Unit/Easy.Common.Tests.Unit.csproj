@@ -52,6 +52,8 @@
   <ItemGroup>
     <Compile Include="Accessor\AccessorCreateInstanceTests.cs" />
     <Compile Include="Accessor\AccessorPropertyTests.cs" />
+    <Compile Include="Accessor\GenericAccessorTests.cs" />
+    <Compile Include="Accessor\ObjectAccessorTests.cs" />
     <Compile Include="Assembly\GettingAssemblyFrameworkVersionTests.cs" />
     <Compile Include="ByteExtensions\ComparingByteArraysTests.cs" />
     <Compile Include="ConfigReader\Context.cs" />
@@ -102,6 +104,8 @@
     <Compile Include="TypeExtensions\CheckingATypeImplementsTests.cs" />
     <Compile Include="TypeExtensions\CheckingATypeIsSimpleTests.cs" />
     <Compile Include="TypeExtensions\CheckingIfTypeIsASequenceTests.cs" />
+    <Compile Include="TypeExtensions\CheckingTypeCodesTests.cs" />
+    <Compile Include="TypeExtensions\CheckingTypeIsNumeric.cs" />
     <Compile Include="TypeExtensions\Context.cs" />
     <Compile Include="TypeExtensions\GettingAllInstancePropertiesWithAttributes.cs" />
     <Compile Include="TypeExtensions\GettingAllPropertiesWithAttributes.cs" />
@@ -110,6 +114,7 @@
     <Compile Include="TypeExtensions\GettingPropertiesTests.cs" />
     <Compile Include="TypeExtensions\GettingUninitializedInstanceTests.cs" />
     <Compile Include="XML\ParsingXmlTests.cs" />
+    <Compile Include="XML\XmlToDynamicTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

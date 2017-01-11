@@ -213,7 +213,7 @@
         {
             var model = new Child { Name = "Foo", Age = 10 };
             var dicWithInherittedProp = model.ToDynamic();
-
+            
             dicWithInherittedProp.ShouldNotBeNull();
             dicWithInherittedProp.Count.ShouldBe(3);
             dicWithInherittedProp["OriginalName"].ShouldBe("PaPa");

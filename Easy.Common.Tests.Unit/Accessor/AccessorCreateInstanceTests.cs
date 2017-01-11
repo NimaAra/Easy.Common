@@ -11,6 +11,19 @@
     internal sealed class AccessorCreateInstanceTests
     {
         [Test]
+        public void When_creating_an_instance_of_object_with_default_constructor()
+        {
+            var publicCtor = typeof(Zero).GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+            publicCtor.Length.ShouldBe(1);
+
+            var instanceBuilder = Accessor.CreateInstanceBuilder<Zero>(publicCtor[0]);
+            var instance = instanceBuilder(new object[] { "Zero" });
+
+            instance.ShouldNotBeNull();
+            instance.Name.ShouldBe("Zero");
+        }
+
+        [Test]
         public void When_creating_an_instance_of_object_with_one_parameter_public_constructor()
         {
             var publicCtor = typeof(One).GetConstructors(BindingFlags.Public | BindingFlags.Instance);
@@ -95,6 +108,11 @@
             instance.Name.ShouldBe("Child");
             instance.Age.ShouldBe(10);
             instance.GetJob().ShouldBe("SomeJob");
+        }
+
+        private sealed class Zero
+        {
+            public string Name => "Zero";
         }
 
         private sealed class One

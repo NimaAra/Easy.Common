@@ -1,6 +1,8 @@
 ﻿namespace Easy.Common.Tests.Unit.StringExtensions
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Text.RegularExpressions;
     using Easy.Common.Extensions;
     using NUnit.Framework;
@@ -433,13 +435,61 @@
         [Test]
         public void When_converting_input_to_case_incensitive_regex_argument()
         {
-            const string SampleInput = "this is some stuff fOo-bar";
-            const string Argument = "foo-bar";
+            const string SampleInput = "this is some STUFF fOo-bar";
+            const string Argument = "foo-bAr";
             var caseIncensitiveArgument = Argument.ToCaseIncensitiveRegexArgument();
 
             caseIncensitiveArgument.ShouldBe("[fF][oO][oO]-[bB][aA][rR]");
             Regex.IsMatch(SampleInput, Argument).ShouldBeFalse();
             Regex.IsMatch(SampleInput, caseIncensitiveArgument).ShouldBeTrue();
+
+            ((string)null).ToCaseIncensitiveRegexArgument().ShouldBeNull();
+            string.Empty.ToCaseIncensitiveRegexArgument().ShouldBe(string.Empty);
+            " ".ToCaseIncensitiveRegexArgument().ShouldBe(" ");
+
+            "a".ToCaseIncensitiveRegexArgument().ShouldBe("[aA]");
+            "ab".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]");
+            "aB".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]");
+
+            "ab\\S".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]\\S");
+            "ab\\SS".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]\\S[sS]");
+            "ab\\Ss".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]\\S[sS]");
+
+            "ab\\m".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]\\[mM]");
+
+            "\\D".ToCaseIncensitiveRegexArgument().ShouldBe("\\D");
+            "\\DX\\Q".ToCaseIncensitiveRegexArgument().ShouldBe("\\D[xX]\\[qQ]");
+
+            "(?<name>ab\\SX)".ToCaseIncensitiveRegexArgument().ShouldBe("(?<name>[aA][bB]\\S[xX])");
+            "(?<name>ab\\SX)(?<foo>A)".ToCaseIncensitiveRegexArgument().ShouldBe("(?<name>[aA][bB]\\S[xX])(?<foo>[aA])");
+            "(?<name>ab\\SX)(<foo>A)".ToCaseIncensitiveRegexArgument().ShouldBe("(?<name>[aA][bB]\\S[xX])(<[fF][oO][oO]>[aA])");
+            "(?<name>ab\\SX)(?<fooA)".ToCaseIncensitiveRegexArgument().ShouldBe("(?<name>[aA][bB]\\S[xX])(?<[fF][oO][oO][aA])");
+        }
+
+        [Test]
+        public void When_gettingIndexes()
+        {
+            const string StartTag = "(?<";
+            const string EndTag = ">";
+
+            var result = "(?<name>ab\\SX)".GetStartAndEndIndexes(StartTag, EndTag).ToArray();
+            result.ShouldNotBeEmpty();
+            result.Length.ShouldBe(1);
+            result[0].ShouldBe(new KeyValuePair<int, int>(0, 7));
+
+            result = "(?<nameab\\SX)".GetStartAndEndIndexes(StartTag, EndTag).ToArray();
+            result.ShouldBeEmpty();
+
+            result = "(?<name>ab\\SX)(?<foo>ab\\SX)".GetStartAndEndIndexes(StartTag, EndTag).ToArray();
+            result.ShouldNotBeEmpty();
+            result.Length.ShouldBe(2);
+            result[0].ShouldBe(new KeyValuePair<int, int>(0, 7));
+            result[1].ShouldBe(new KeyValuePair<int, int>(14, 20));
+
+            result = "<div>foo</div>".GetStartAndEndIndexes("<div>", "</div>").ToArray();
+            result.ShouldNotBeEmpty();
+            result.Length.ShouldBe(1);
+            result[0].ShouldBe(new KeyValuePair<int, int>(0, 8));
         }
     }
 }
