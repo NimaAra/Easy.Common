@@ -3,7 +3,6 @@ namespace Easy.Common.Tests.Unit.Accessor
     using System;
     using NUnit.Framework;
     using Shouldly;
-    using Accessor = Easy.Common.Accessor;
 
     [TestFixture]
     public sealed class GenericAccessorTests
@@ -12,8 +11,11 @@ namespace Easy.Common.Tests.Unit.Accessor
         public void When_creating_generic_accessor_with_default_flags()
         {
             var parent = new Parent();
-            var parentAccessor = Accessor.CreateAccessor<Parent>();
-            parentAccessor.ShouldBeOfType<GenericAccessor<Parent>>();
+            var parentAccessor = AccessorBuilder.Build<Parent>();
+            parentAccessor.ShouldBeOfType<Accessor<Parent>>();
+            parentAccessor.Type.ShouldBe(typeof(Parent));
+            parentAccessor.IgnoreCase.ShouldBe(false);
+            parentAccessor.IncludesNonPublic.ShouldBe(false);
 
             parentAccessor.ShouldNotBeNull();
             parentAccessor.Properties.ShouldNotBeNull();
@@ -34,8 +36,11 @@ namespace Easy.Common.Tests.Unit.Accessor
             parentAccessor[parent, "Age"].ShouldBe(10);
 
             var child = new Child();
-            var childAccessor = Accessor.CreateAccessor<Child>();
-            childAccessor.ShouldBeOfType<GenericAccessor<Child>>();
+            var childAccessor = AccessorBuilder.Build<Child>();
+            childAccessor.ShouldBeOfType<Accessor<Child>>();
+            childAccessor.Type.ShouldBe(typeof(Child));
+            childAccessor.IgnoreCase.ShouldBe(false);
+            childAccessor.IncludesNonPublic.ShouldBe(false);
 
             childAccessor.ShouldNotBeNull();
             childAccessor.Properties.ShouldNotBeNull();
@@ -63,8 +68,11 @@ namespace Easy.Common.Tests.Unit.Accessor
         public void When_creating_generic_accessor_with_custom_flags()
         {
             var parent = new Parent();
-            var parentAccessor = Accessor.CreateAccessor<Parent>(true, true);
-            parentAccessor.ShouldBeOfType<GenericAccessor<Parent>>();
+            var parentAccessor = AccessorBuilder.Build<Parent>(true, true);
+            parentAccessor.ShouldBeOfType<Accessor<Parent>>();
+            parentAccessor.Type.ShouldBe(typeof(Parent));
+            parentAccessor.IgnoreCase.ShouldBe(true);
+            parentAccessor.IncludesNonPublic.ShouldBe(true);
 
             parentAccessor.ShouldNotBeNull();
             parentAccessor.Properties.ShouldNotBeNull();
@@ -96,8 +104,11 @@ namespace Easy.Common.Tests.Unit.Accessor
             parentAccessor[parent, "naME"].ShouldBe("Foo Foo");
 
             var child = new Child();
-            var childAccessor = Accessor.CreateAccessor<Child>(true, true);
-            childAccessor.ShouldBeOfType<GenericAccessor<Child>>();
+            var childAccessor = AccessorBuilder.Build<Child>(true, true);
+            childAccessor.ShouldBeOfType<Accessor<Child>>();
+            childAccessor.Type.ShouldBe(typeof(Child));
+            childAccessor.IgnoreCase.ShouldBe(true);
+            childAccessor.IncludesNonPublic.ShouldBe(true);
 
             childAccessor.ShouldNotBeNull();
             childAccessor.Properties.ShouldNotBeNull();
@@ -124,12 +135,44 @@ namespace Easy.Common.Tests.Unit.Accessor
         [Test]
         public void When_using_parent_accessor_to_access_child_properties()
         {
-            var parentAccessor = Accessor.CreateAccessor<Parent>();
+            var parentAccessor = AccessorBuilder.Build<Parent>();
+            parentAccessor.ShouldBeOfType<Accessor<Parent>>();
+            parentAccessor.Type.ShouldBe(typeof(Parent));
+            parentAccessor.IgnoreCase.ShouldBe(false);
+            parentAccessor.IncludesNonPublic.ShouldBe(false);
 
             var child = new Child();
 
-            Should.Throw<InvalidOperationException>(() => { var ignore = parentAccessor[child, "ChildName"]; })
-                .Message.ShouldBe("Unable to find property: ChildName.");
+            Should.Throw<NullReferenceException>(() => { var ignore = parentAccessor[child, "ChildName"]; })
+                .Message.ShouldBe("Object reference not set to an instance of an object.");
+        }
+
+        [Test]
+        public void When_testing_public_members()
+        {
+            var accessor = AccessorBuilder.Build<Parent>();
+            accessor.ShouldBeOfType<Accessor<Parent>>();
+            accessor.Type.ShouldBe(typeof(Parent));
+            accessor.IgnoreCase.ShouldBe(false);
+            accessor.IncludesNonPublic.ShouldBe(false);
+
+            accessor.Properties.ShouldNotBeNull();
+            accessor.Properties.Length.ShouldBe(2);
+
+            var instance = new Parent();
+
+            accessor[instance, "Name"] = "John";
+            instance.Name.ShouldBe("John");
+
+            accessor.Get(instance, "Name").ShouldBe("John");
+            accessor.Set(instance, "Age", (object)10);
+
+            accessor.Get<int>(instance, "Age").ShouldBe(10);
+
+            accessor.Set(instance, "Name", "Bobby");
+            accessor.Get<string>(instance, "Name").ShouldBe("Bobby");
+            accessor.Set(instance, "Name", "Joey");
+            accessor.Get<string>(instance, "Name").ShouldBe("Joey");
         }
 
         private class Parent

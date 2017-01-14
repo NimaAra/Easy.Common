@@ -47,9 +47,8 @@
     <Compile Include="..\Version.cs">
       <Link>Properties\Version.cs</Link>
     </Compile>
+    <Compile Include="Accessor\AccessorBuilder.cs" />
     <Compile Include="Accessor\Accessor.cs" />
-    <Compile Include="Accessor\GenericAccessor.cs" />
-    <Compile Include="Accessor\ObjectAccessor.cs" />
     <Compile Include="ActiveDirectoryHelper.cs" />
     <Compile Include="ApplicationHelper.cs" />
     <Compile Include="Base36.cs" />
@@ -67,6 +66,7 @@
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DoubleExtensions.cs" />
+    <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\FileAndDirectoryInfoExtensions.cs" />
     <Compile Include="Extensions\GenericExtensions.cs" />
     <Compile Include="Extensions\IntExtensions.cs" />

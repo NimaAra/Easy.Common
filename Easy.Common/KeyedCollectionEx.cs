@@ -4,7 +4,7 @@
     using System.Collections.ObjectModel;
 
     /// <summary>
-    /// A dictionary of <see cref="TItem"/> whose <see cref="TKey"/> can be defined as a delegate at the time of initialization. 
+    /// A dictionary of <typeparamref name="TItem"/> whose <typeparamref name="TKey"/> can be defined as a delegate at the time of initialization. 
     /// <remarks>
     /// This class is not thread-safe.
     /// <para><code>var myDic = new KeyedCollectionEx&lt;int, Person>(p => p.Name);</code></para>

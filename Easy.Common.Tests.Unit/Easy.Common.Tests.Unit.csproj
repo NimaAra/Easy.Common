@@ -76,6 +76,7 @@
     <Compile Include="EnumerablesTests\EnumerableExtensionsTests.cs" />
     <Compile Include="EnumerablesTests\HandlingExceptionsWhenYieldReturningDoesNotThrow.cs" />
     <Compile Include="EnumerablesTests\HandlingExceptionsWhenYieldReturningThrows.cs" />
+    <Compile Include="ExpressionExtensions\ExpressionExtensionsTests.cs" />
     <Compile Include="FileAndDirectoryExtensions\Context.cs" />
     <Compile Include="FileAndDirectoryExtensions\DirectoryInfoTests.cs" />
     <Compile Include="FileAndDirectoryExtensions\FileInfoTests.cs" />

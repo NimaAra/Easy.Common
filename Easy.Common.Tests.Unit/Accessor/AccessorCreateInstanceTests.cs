@@ -4,7 +4,6 @@
     using System.Reflection;
     using NUnit.Framework;
     using Shouldly;
-    using Accessor = Easy.Common.Accessor;
 
     [TestFixture]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
@@ -16,7 +15,7 @@
             var publicCtor = typeof(Zero).GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             publicCtor.Length.ShouldBe(1);
 
-            var instanceBuilder = Accessor.CreateInstanceBuilder<Zero>(publicCtor[0]);
+            var instanceBuilder = AccessorBuilder.BuildInstanceCreator<Zero>(publicCtor[0]);
             var instance = instanceBuilder(new object[] { "Zero" });
 
             instance.ShouldNotBeNull();
@@ -29,7 +28,7 @@
             var publicCtor = typeof(One).GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             publicCtor.Length.ShouldBe(2);
 
-            var instanceBuilder = Accessor.CreateInstanceBuilder<One>(publicCtor[0]);
+            var instanceBuilder = AccessorBuilder.BuildInstanceCreator<One>(publicCtor[0]);
             var instance = instanceBuilder(new object[] { "One" });
 
             instance.ShouldNotBeNull();
@@ -43,7 +42,7 @@
             var publicCtor = typeof(One).GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             publicCtor.Length.ShouldBe(2);
 
-            var instanceBuilder = Accessor.CreateInstanceBuilder<One>(publicCtor[1]);
+            var instanceBuilder = AccessorBuilder.BuildInstanceCreator<One>(publicCtor[1]);
             var instance = instanceBuilder(new object[] { "One", 1 });
 
             instance.ShouldNotBeNull();
@@ -57,7 +56,7 @@
             var publicCtor = typeof(Two).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance);
             publicCtor.Length.ShouldBe(1);
 
-            var instanceBuilder = Accessor.CreateInstanceBuilder<Two>(publicCtor[0]);
+            var instanceBuilder = AccessorBuilder.BuildInstanceCreator<Two>(publicCtor[0]);
             var instance = instanceBuilder(new object[] { "Two" });
 
             instance.ShouldNotBeNull();
@@ -70,7 +69,7 @@
             var publicCtor = typeof(Three).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance);
             publicCtor.Length.ShouldBe(1);
 
-            var instanceBuilder = Accessor.CreateInstanceBuilder<Three>(publicCtor[0]);
+            var instanceBuilder = AccessorBuilder.BuildInstanceCreator<Three>(publicCtor[0]);
             var instance = instanceBuilder(new object[] { "Two" });
 
             instance.ShouldNotBeNull();
@@ -83,7 +82,7 @@
             var publicCtor = typeof(Four).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance);
             publicCtor.Length.ShouldBe(1);
 
-            var instanceBuilder = Accessor.CreateInstanceBuilder<Four>(publicCtor[0]);
+            var instanceBuilder = AccessorBuilder.BuildInstanceCreator<Four>(publicCtor[0]);
             var instance = instanceBuilder(new object[] { "Child", "Base" });
 
             instance.ShouldNotBeNull();
@@ -99,7 +98,7 @@
             var publicCtor = typeof(ValueType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             publicCtor.Length.ShouldBe(1);
 
-            var instanceBuilder = Accessor.CreateInstanceBuilder<ValueType>(publicCtor[0]);
+            var instanceBuilder = AccessorBuilder.BuildInstanceCreator<ValueType>(publicCtor[0]);
             var instance = instanceBuilder(new object[] { "Child", 10 });
 
             instance.ShouldNotBeNull();

@@ -1,262 +1,186 @@
-﻿ // ReSharper disable once CheckNamespace
+ // ReSharper disable once CheckNamespace
 namespace Easy.Common
 {
     using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq.Expressions;
+    using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
-    using System.Reflection.Emit;
-    using Easy.Common.Extensions;
 
     /// <summary>
-    /// Provides a very fast and efficient property setter and getter access as well as object creation.
+    /// An abstraction for gaining fast access to all of the <see cref="PropertyInfo"/> of the given <see cref="Type"/>.
     /// </summary>
-    public static class Accessor
+    public class Accessor
     {
         /// <summary>
-        /// Creates an <see cref="ObjectAccessor"/> which provides easy access to all of the <see cref="PropertyInfo"/> of the given <paramref name="type"/>.
+        /// Gets the <see cref="StringComparer"/> used by the <see cref="Accessor"/> to find the properties on the given instance. 
         /// </summary>
+        protected StringComparer Comparer;
+
+        private readonly Dictionary<string, Func<object, object>> _objectGettersCache;
+        private readonly Dictionary<string, Action<object, object>> _objectSettersCache;
+
         [DebuggerStepThrough]
-        public static ObjectAccessor CreateAccessor(Type type, bool ignoreCase = false, bool includeNonPublic = false)
+        internal Accessor(IReflect type, bool ignoreCase, bool includeNonPublic)
         {
-            Ensure.NotNull(type, nameof(type));
-            return new ObjectAccessor(type, ignoreCase, includeNonPublic);
-        }
+            Type = type;
+            IgnoreCase = ignoreCase;
+            IncludesNonPublic = includeNonPublic;
 
-        /// <summary>
-        /// Creates an <see cref="GenericAccessor{TInstance}"/> which provides easy access to all of the <see cref="PropertyInfo"/> of the given <typeparamref name="{TInstance}"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static GenericAccessor<TInstance> CreateAccessor<TInstance>(bool ignoreCase = false, bool includeNonPublic = false) where TInstance : class
-        {
-            return new GenericAccessor<TInstance>(ignoreCase, includeNonPublic);
-        }
+            Comparer = IgnoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
 
-        /// <summary>
-        /// Creates a property setter for a given instance type of <typeparamref name="TInstance"/> and property type of <typeparamref name="TProperty"/> with the name of <paramref name="propertyName"/>.
-        /// <remarks>
-        /// The setters for a <typeparamref name="{TInstance}"/> of <see lang="struct"/> are 
-        /// intentionally not supported as changing the values of immutable types is a bad practice.
-        /// </remarks>
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Action<TInstance, TProperty> CreateSetter<TInstance, TProperty>(string propertyName, bool includeNonPublic = false) where TInstance : class
-        {
-            Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
-
-            PropertyInfo propInfo;
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
-            ThrowIfNotFound(found, propertyName);
-            return CreateSetter<TInstance, TProperty>(propInfo, includeNonPublic);
-        }
-
-        /// <summary>
-        /// Creates a property setter for a given instance type of <typeparamref name="TInstance"/> and property type of <typeparamref name="TProperty"/>.
-        /// <remarks>
-        /// The setters for a <typeparamref name="{TInstance}"/> of <see lang="struct"/> are 
-        /// intentionally not supported as changing the values of immutable types is a bad practice.
-        /// </remarks>
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Action<TInstance, TProperty> CreateSetter<TInstance, TProperty>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
-        {
-            Ensure.NotNull(propertyInfo, nameof(propertyInfo));
-            var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
-            return (Action<TInstance, TProperty>)Delegate.CreateDelegate(typeof(Action<TInstance, TProperty>), setMethod);
-        }
-
-        /// <summary>
-        /// Creates a property getter for a given instance type of <typeparamref name="TInstance"/> and property type of <typeparamref name="TProperty"/> with the name of <paramref name="propertyName"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Func<TInstance, TProperty> CreateGetter<TInstance, TProperty>(string propertyName, bool includeNonPublic = false) where TInstance : class
-        {
-            Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
-
-            PropertyInfo propInfo;
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
-            ThrowIfNotFound(found, propertyName);
-            return CreateGetter<TInstance, TProperty>(propInfo, includeNonPublic);
-        }
-
-        /// <summary>
-        /// Creates a property getter for a given instance type of <typeparamref name="TInstance"/> and property type of <typeparamref name="TProperty"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Func<TInstance, TProperty> CreateGetter<TInstance, TProperty>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
-        {
-            Ensure.NotNull(propertyInfo, nameof(propertyInfo));
-            var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
-            return (Func<TInstance, TProperty>)Delegate.CreateDelegate(typeof(Func<TInstance, TProperty>), getMethod);
-        }
-
-        /// <summary>
-        /// Creates a property setter for when both the instance and property type are unknown.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Action<object, object> CreateSetter(PropertyInfo propertyInfo, bool includeNonPublic = false)
-        {
-            Ensure.NotNull(propertyInfo, nameof(propertyInfo));
-            var instanceType = propertyInfo.ReflectedType;
-
-            var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
-            var typeofObject = typeof(object);
-
-            var instance = Expression.Parameter(typeofObject, "instance");
-            var value = Expression.Parameter(typeofObject, "value");
-
-            // value as T is slightly faster than (T)value, so if it's not a value type, use that
-            // ReSharper disable once PossibleNullReferenceException
-            var instanceCast = !instanceType.GetTypeInfo().IsValueType
-                ? Expression.TypeAs(instance, instanceType)
-                : Expression.Convert(instance, instanceType);
-
-            var valueCast = !propertyInfo.PropertyType.GetTypeInfo().IsValueType
-                ? Expression.TypeAs(value, propertyInfo.PropertyType)
-                : Expression.Convert(value, propertyInfo.PropertyType);
-
-            return Expression.Lambda<Action<object, object>>(
-                Expression.Call(instanceCast, setMethod, valueCast), instance, value).Compile();
-        }
-
-        /// <summary>
-        /// Creates a property getter for when both the instance and property type are unknown.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Func<object, object> CreateGetter(PropertyInfo propertyInfo, bool includeNonPublic = false)
-        {
-            Ensure.NotNull(propertyInfo, nameof(propertyInfo));
-            var instanceType = propertyInfo.ReflectedType;
-            var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
-            var typeofObject = typeof(object);
-
-            var instance = Expression.Parameter(typeofObject, "instance");
-            // ReSharper disable once PossibleNullReferenceException
-            var isValueType = instanceType.GetTypeInfo().IsValueType;
-            var instanceCast = !isValueType
-                ? Expression.TypeAs(instance, instanceType)
-                : Expression.Convert(instance, instanceType);
-
-            return Expression.Lambda<Func<object, object>>(
-                Expression.TypeAs(Expression.Call(instanceCast, getMethod), typeofObject), instance).Compile();
-        }
-
-        /// <summary>
-        /// Creates a property setter for a given instance type of <typeparamref name="TInstance"/> and property name of <paramref name="propertyName"/>.
-        /// <remarks>
-        /// The setters for a <typeparamref name="{TInstance}"/> of <see lang="struct"/> are 
-        /// intentionally not supported as changing the values of immutable types is a bad practice.
-        /// </remarks>
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Action<TInstance, object> CreateSetter<TInstance>(string propertyName, bool includeNonPublic = false) where TInstance : class
-        {
-            Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
-
-            PropertyInfo propInfo;
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
-            ThrowIfNotFound(found, propertyName);
-            return CreateSetter<TInstance>(propInfo, includeNonPublic);
-        }
-
-        /// <summary>
-        /// Creates a property setter for a given instance type of <typeparamref name="TInstance"/> and property of <paramref name="propertyInfo"/>.
-        /// <remarks>
-        /// The setters for a <typeparamref name="{TInstance}"/> of <see lang="struct"/> are 
-        /// intentionally not supported as changing the values of immutable types is a bad practice.
-        /// </remarks>
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Action<TInstance, object> CreateSetter<TInstance>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
-        {
-            Ensure.NotNull(propertyInfo, nameof(propertyInfo));
-            var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
-
-            var instance = Expression.Parameter(typeof(TInstance), "instance");
-            var value = Expression.Parameter(typeof(object), "value");
-            var isValueType = propertyInfo.PropertyType.GetTypeInfo().IsValueType;
-            var valueCast = !isValueType
-                ? Expression.TypeAs(value, propertyInfo.PropertyType)
-                : Expression.Convert(value, propertyInfo.PropertyType);
-
-            return Expression.Lambda<Action<TInstance, object>>(
-                Expression.Call(instance, setMethod, valueCast), instance, value).Compile();
-        }
-
-        /// <summary>
-        /// Creates a property getter for a given instance type of <typeparamref name="TInstance"/> and property name of <paramref name="propertyName"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Func<TInstance, object> CreateGetter<TInstance>(string propertyName, bool includeNonPublic = false)
-        {
-            Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
-
-            PropertyInfo propInfo;
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
-            ThrowIfNotFound(found, propertyName);
-            return CreateGetter<TInstance>(propInfo, includeNonPublic);
-        }
-
-        /// <summary>
-        /// Creates a property getter for a given instance type of <typeparamref name="TInstance"/> and property of <paramref name="propertyInfo"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Func<TInstance, object> CreateGetter<TInstance>(PropertyInfo propertyInfo, bool includeNonPublic = false)
-        {
-            Ensure.NotNull(propertyInfo, nameof(propertyInfo));
-            var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
-
-            var instance = Expression.Parameter(typeof(TInstance), "instance");
-            return Expression.Lambda<Func<TInstance, object>>(
-                Expression.TypeAs(Expression.Call(instance, getMethod), typeof(object)), instance).Compile();
-        }
-
-        /// <summary>
-        /// Creates a delegate for building an instance of the <typeparamref name="TInstance"/> from its <paramref name="constructor"/>.
-        /// <remarks>The order of arguments passed to the delegate should match the order set by the constructor.</remarks>
-        /// <exception cref="IndexOutOfRangeException">Thrown if the count parameters passed to the constructor does not match the required constructor parameter count.</exception>
-        /// <exception cref="InvalidCastException">Thrown if parameters passed to the constructor are of invalid type.</exception>
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Func<object[], TInstance> CreateInstanceBuilder<TInstance>(ConstructorInfo constructor)
-        {
-            Ensure.NotNull(constructor, nameof(constructor));
-            var type = constructor.ReflectedType;
-
-            var ctroParams = constructor.GetParameters();
-
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var dynamicMethod = new DynamicMethod("Create_" + constructor.Name, type, new[] { typeof(object[]) }, type, true);
-            var ilGen = dynamicMethod.GetILGenerator();
-
-            // Cast each argument of the input object array to the appropriate type.
-            for (var i = 0; i < ctroParams.Length; i++)
+            var flags = BindingFlags.Public | BindingFlags.Instance;
+            if (includeNonPublic)
             {
-                ilGen.Emit(OpCodes.Ldarg_0); // Push Object array
-                ilGen.Emit(OpCodes.Ldc_I4, i); // Push the index to access
-                ilGen.Emit(OpCodes.Ldelem_Ref); // Push the element at the previously loaded index
-
-                // Cast the object to the appropriate ctor Parameter Type
-                var paramType = ctroParams[i].ParameterType;
-                var isValueType = paramType.GetTypeInfo().IsValueType;
-                ilGen.Emit(isValueType ? OpCodes.Unbox_Any : OpCodes.Castclass, paramType);
+                flags = flags | BindingFlags.NonPublic;
             }
 
-            // Call the ctor, all values on the stack are passed to the ctor
-            ilGen.Emit(OpCodes.Newobj, constructor);
-            // Return the new object
-            ilGen.Emit(OpCodes.Ret);
+            Properties = Type.GetProperties(flags);
 
-            return (Func<object[], TInstance>)dynamicMethod.CreateDelegate(typeof(Func<object[], TInstance>));
+            _objectGettersCache = new Dictionary<string, Func<object, object>>(Properties.Length, Comparer);
+            _objectSettersCache = new Dictionary<string, Action<object, object>>(Properties.Length, Comparer);
+
+            foreach (var prop in Properties)
+            {
+                _objectGettersCache[prop.Name] = AccessorBuilder.BuildGetter(prop, IncludesNonPublic);
+                _objectSettersCache[prop.Name] = AccessorBuilder.BuildSetter(prop, IncludesNonPublic);
+            }
         }
 
-        [DebuggerStepThrough]
-        internal static void ThrowIfNotFound(bool found, string propertyName)
+        /// <summary>
+        /// Gets or sets the value of the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
+        /// </summary>
+        public object this[object instance, string propertyName]
         {
-            if (!found)
+            get
             {
-                throw new InvalidOperationException("Unable to find property: " + propertyName + ".");
+                Func<object, object> getter;
+                _objectGettersCache.TryGetValue(propertyName, out getter);
+                // ReSharper disable once PossibleNullReferenceException
+                return getter(instance);
             }
+
+            set
+            {
+                Action<object, object> setter;
+                _objectSettersCache.TryGetValue(propertyName, out setter);
+                // ReSharper disable once PossibleNullReferenceException
+                setter(instance, value);
+            }
+        }
+
+        /// <summary>
+        /// Gets the type of the object this instance supports.
+        /// </summary>
+        public IReflect Type { get; }
+
+        /// <summary>
+        /// Gets the flag indicating whether property names should be treated in a case sensitive manner.
+        /// </summary>
+        public bool IgnoreCase { get; }
+
+        /// <summary>
+        /// Gets the flag indicating whether non-public properties should be supported by this instance.
+        /// </summary>
+        public bool IncludesNonPublic { get; }
+
+        /// <summary>
+        /// Gets the properties to which this instance can provide access to.
+        /// </summary>
+        public PropertyInfo[] Properties { get; }
+    }
+
+    /// <summary>
+    /// An abstraction for gaining fast access to all of the <see cref="PropertyInfo"/> of the given <typeparamref name="TInstance"/>.
+    /// </summary>
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+    public sealed class Accessor<TInstance> : Accessor where TInstance : class
+    {
+        private readonly ConcurrentDictionary<string, object> _genericInstanceGettersCache, _genericInstanceSettersCache;
+        private readonly Dictionary<string, Func<TInstance, object>> _genericPropertiesGetters;
+        private readonly Dictionary<string, Action<TInstance, object>> _genericPropertiesSetters;
+
+        internal Accessor(bool ignoreCase, bool includeNonPublic)
+            : base(typeof(TInstance), ignoreCase, includeNonPublic)
+        {
+            _genericPropertiesGetters = new Dictionary<string, Func<TInstance, object>>(Properties.Length, Comparer);
+            _genericPropertiesSetters = new Dictionary<string, Action<TInstance, object>>(Properties.Length, Comparer);
+            _genericInstanceGettersCache = new ConcurrentDictionary<string, object>(Comparer);
+            _genericInstanceSettersCache = new ConcurrentDictionary<string, object>(Comparer);
+
+            foreach (var prop in Properties) {
+                var propName = prop.Name;
+
+                _genericPropertiesGetters[propName] = AccessorBuilder.BuildGetter<TInstance>(prop, IncludesNonPublic);
+                _genericPropertiesSetters[propName] = AccessorBuilder.BuildSetter<TInstance>(prop, IncludesNonPublic);
+            }
+        }
+        
+        /// <summary>
+        /// Gets the value of the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
+        /// </summary>
+        public object Get(TInstance instance, string propertyName)
+        {
+            Func<TInstance, object> getter;
+            _genericPropertiesGetters.TryGetValue(propertyName, out getter);
+            // ReSharper disable once PossibleNullReferenceException
+            return getter(instance);
+        }
+
+        /// <summary>
+        /// Sets the value of the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
+        /// </summary>
+        public void Set(TInstance instance, string propertyName, object propValue)
+        {
+            Action<TInstance, object> setter;
+            _genericPropertiesSetters.TryGetValue(propertyName, out setter);
+            // ReSharper disable once PossibleNullReferenceException
+            setter(instance, propValue);
+        }
+
+        /// <summary>
+        /// Gets the value of a property selected by the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
+        /// </summary>
+        public TProperty Get<TProperty>(TInstance instance, string propertyName)
+        {
+            var cache = _genericInstanceGettersCache;
+
+            Func<TInstance, TProperty> getter;
+            object tmpGetter;
+            if (!cache.TryGetValue(propertyName, out tmpGetter))
+            {
+                getter = AccessorBuilder.BuildGetter<TInstance, TProperty>(propertyName, IncludesNonPublic);
+                cache[propertyName] = getter;
+            }
+            else
+            {
+                getter = (Func<TInstance, TProperty>)tmpGetter;
+            }
+
+            return getter(instance);
+        }
+
+        /// <summary>
+        /// Sets the value of the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
+        /// </summary>
+        public void Set<TProperty>(TInstance instance, string propertyName, TProperty value)
+        {
+            var cache = _genericInstanceSettersCache;
+
+            Action<TInstance, TProperty> setter;
+            object tmpSetter;
+            if (!cache.TryGetValue(propertyName, out tmpSetter))
+            {
+                setter = AccessorBuilder.BuildSetter<TInstance, TProperty>(propertyName, IncludesNonPublic);
+                cache[propertyName] = setter;
+            }
+            else
+            {
+                setter = (Action<TInstance, TProperty>)tmpSetter;
+            }
+
+            setter(instance, value);
         }
     }
 }

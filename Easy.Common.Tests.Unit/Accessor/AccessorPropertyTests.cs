@@ -5,7 +5,6 @@
     using Easy.Common.Extensions;
     using NUnit.Framework;
     using Shouldly;
-    using Accessor = Easy.Common.Accessor;
 
     [TestFixture]
     public class AccessorPropertyTests
@@ -16,46 +15,46 @@
             string nullStr = null;
             PropertyInfo nullPropInfo = null;
 
-            Should.Throw<ArgumentException>(() => Accessor.CreateSetter<Person, string>(nullStr))
+            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person, string>(nullStr))
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
-            Should.Throw<ArgumentException>(() => Accessor.CreateSetter<Person, string>(nullPropInfo))
+            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person, string>(nullPropInfo))
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
 
-            Should.Throw<ArgumentException>(() => Accessor.CreateGetter<Person, string>(nullStr))
+            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person, string>(nullStr))
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
-            Should.Throw<ArgumentException>(() => Accessor.CreateGetter<Person, string>(nullPropInfo))
+            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person, string>(nullPropInfo))
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
 
-            Should.Throw<ArgumentException>(() => Accessor.CreateSetter<Person>(nullStr))
+            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person>(nullStr))
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
-            Should.Throw<ArgumentException>(() => Accessor.CreateSetter<Person>(nullPropInfo))
+            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person>(nullPropInfo))
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
 
-            Should.Throw<ArgumentException>(() => Accessor.CreateGetter<Person>(nullStr))
+            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person>(nullStr))
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
-            Should.Throw<ArgumentException>(() => Accessor.CreateGetter<Person>(nullPropInfo))
+            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person>(nullPropInfo))
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
 
-            Should.Throw<ArgumentException>(() => Accessor.CreateSetter(nullPropInfo))
+            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter(nullPropInfo))
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
 
-            Should.Throw<ArgumentException>(() => Accessor.CreateGetter(nullPropInfo))
+            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter(nullPropInfo))
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
         }
 
         [Test]
         public void When_getting_getters_class()
         {
-            var nameGetterOne = Accessor.CreateGetter<Person, string>("Name");
-            var nameGetterTwo = Accessor.CreateGetter<Person, string>("Name");
+            var nameGetterOne = AccessorBuilder.BuildGetter<Person, string>("Name");
+            var nameGetterTwo = AccessorBuilder.BuildGetter<Person, string>("Name");
 
             nameGetterOne.ShouldNotBeSameAs(nameGetterTwo);
 
-            var jobGetter = Accessor.CreateGetter<Person, string>("Job", true);
+            var jobGetter = AccessorBuilder.BuildGetter<Person, string>("Job", true);
 
             jobGetter.ShouldNotBe(nameGetterOne);
             jobGetter.ShouldNotBe(nameGetterTwo);
@@ -64,12 +63,12 @@
         [Test]
         public void When_getting_setters_class()
         {
-            var nameSetterOne = Accessor.CreateSetter<Person, string>("Name");
-            var nameSetterTwo = Accessor.CreateSetter<Person, string>("Name");
+            var nameSetterOne = AccessorBuilder.BuildSetter<Person, string>("Name");
+            var nameSetterTwo = AccessorBuilder.BuildSetter<Person, string>("Name");
 
             nameSetterOne.ShouldNotBeSameAs(nameSetterTwo);
 
-            var jobSetter = Accessor.CreateSetter<Person, string>("Job", true);
+            var jobSetter = AccessorBuilder.BuildSetter<Person, string>("Job", true);
 
             jobSetter.ShouldNotBe(nameSetterOne);
             jobSetter.ShouldNotBe(nameSetterTwo);
@@ -81,11 +80,11 @@
             var instance = new Person();
             instance.Name.ShouldBeNull();
 
-            var nameSetter = Accessor.CreateSetter<Person, string>("Name");
+            var nameSetter = AccessorBuilder.BuildSetter<Person, string>("Name");
             nameSetter(instance, "A");
             instance.Name.ShouldBe("A");
 
-            var jobSetter = Accessor.CreateSetter<Person, string>("Job", true);
+            var jobSetter = AccessorBuilder.BuildSetter<Person, string>("Job", true);
             jobSetter(instance, "job");
             instance.GetJob().ShouldBe("job");
         }
@@ -99,13 +98,13 @@
             PropertyInfo nameProp;
             typeof(Person).TryGetInstanceProperty("Name", out nameProp).ShouldBeTrue();
 
-            var nameSetter = Accessor.CreateSetter(nameProp);
+            var nameSetter = AccessorBuilder.BuildSetter(nameProp);
             nameSetter(instance, "A");
             instance.Name.ShouldBe("A");
 
             PropertyInfo jobProp;
             typeof(Person).TryGetInstanceProperty("Job", out jobProp).ShouldBeTrue();
-            var jobSetter = Accessor.CreateSetter(jobProp, true);
+            var jobSetter = AccessorBuilder.BuildSetter(jobProp, true);
             jobSetter(instance, "job");
             instance.GetJob().ShouldBe("job");
         }
@@ -116,11 +115,11 @@
             var instance = new Person();
             instance.Name.ShouldBeNull();
 
-            var nameSetter = Accessor.CreateSetter<Person>("Name");
+            var nameSetter = AccessorBuilder.BuildSetter<Person>("Name");
             nameSetter(instance, "A");
             instance.Name.ShouldBe("A");
 
-            var jobSetter = Accessor.CreateSetter<Person>("Job", true);
+            var jobSetter = AccessorBuilder.BuildSetter<Person>("Job", true);
             jobSetter(instance, "job");
             instance.GetJob().ShouldBe("job");
         }
@@ -135,17 +134,17 @@
 
             instance.Name.ShouldBe("Foo");
 
-            var nameGetter = Accessor.CreateGetter<Person, string>("Name");
+            var nameGetter = AccessorBuilder.BuildGetter<Person, string>("Name");
             nameGetter(instance);
 
             instance.Name.ShouldBe("Foo");
 
-            var jobSetter = Accessor.CreateSetter<Person, string>("Job", true);
+            var jobSetter = AccessorBuilder.BuildSetter<Person, string>("Job", true);
             jobSetter(instance, "Baz");
 
             instance.GetJob().ShouldBe("Baz");
 
-            var jobGetter = Accessor.CreateGetter<Person, string>("Job", true);
+            var jobGetter = AccessorBuilder.BuildGetter<Person, string>("Job", true);
             jobGetter(instance).ShouldBe("Baz");
         }
 
@@ -162,7 +161,7 @@
             PropertyInfo nameProp;
             typeof(Person).TryGetInstanceProperty("Name", out nameProp).ShouldBeTrue();
 
-            var nameGetter = Accessor.CreateGetter(nameProp);
+            var nameGetter = AccessorBuilder.BuildGetter(nameProp);
             nameGetter(instance).ShouldBe("Foo");
 
             instance.Name.ShouldBe("Foo");
@@ -171,12 +170,12 @@
 
             PropertyInfo jobProp;
             typeof(Person).TryGetInstanceProperty("Job", out jobProp).ShouldBeTrue();
-            var jobSetter = Accessor.CreateSetter(jobProp, true);
+            var jobSetter = AccessorBuilder.BuildSetter(jobProp, true);
 
             jobSetter(instance, "Baz");
             instance.GetJob().ShouldBe("Baz");
 
-            var jobGetter = Accessor.CreateGetter(jobProp, true);
+            var jobGetter = AccessorBuilder.BuildGetter(jobProp, true);
             jobGetter(instance).ShouldBe("Baz");
         }
 
@@ -190,19 +189,19 @@
 
             instance.Name.ShouldBe("Foo");
 
-            var nameGetter = Accessor.CreateGetter<Person>("Name");
+            var nameGetter = AccessorBuilder.BuildGetter<Person>("Name");
             nameGetter(instance).ShouldBe("Foo");
 
             instance.Name.ShouldBe("Foo");
 
             instance.GetJob().ShouldBeNull();
 
-            var jobSetter = Accessor.CreateSetter<Person>("Job", true);
+            var jobSetter = AccessorBuilder.BuildSetter<Person>("Job", true);
 
             jobSetter(instance, "Baz");
             instance.GetJob().ShouldBe("Baz");
 
-            var jobGetter = Accessor.CreateGetter<Person>("Job", true);
+            var jobGetter = AccessorBuilder.BuildGetter<Person>("Job", true);
             jobGetter(instance).ShouldBe("Baz");
         }
 
@@ -219,7 +218,7 @@
             PropertyInfo nameProp;
             typeof(Struct).TryGetInstanceProperty("SomeString", out nameProp).ShouldBeTrue();
 
-            var nameGetter = Accessor.CreateGetter(nameProp);
+            var nameGetter = AccessorBuilder.BuildGetter(nameProp);
             nameGetter(instance).ShouldBe("Foo");
             instance.SomeString.ShouldBe("Foo");
         }
@@ -234,7 +233,7 @@
 
             instance.SomeString.ShouldBe("Foo");
 
-            var propGetter = Accessor.CreateGetter<Struct>("SomeString");
+            var propGetter = AccessorBuilder.BuildGetter<Struct>("SomeString");
             propGetter(instance).ShouldBe("Foo");
             instance.SomeString.ShouldBe("Foo");
         }

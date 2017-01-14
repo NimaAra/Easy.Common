@@ -153,6 +153,9 @@
         /// </summary>
         public ICollection<object> Values => _dictionary.Values;
 
+        /// <summary>
+        /// Attempts to get the member.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
@@ -172,6 +175,9 @@
             return true;
         }
 
+        /// <summary>
+        /// Attempts to set the member.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool TrySetMember(SetMemberBinder binder, object result)
         {
@@ -180,6 +186,9 @@
             return true;
         }
 
+        /// <summary>
+        /// Attempts to invoke the member.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
@@ -193,6 +202,9 @@
             return base.TryInvokeMember(binder, args, out result);
         }
 
+        /// <summary>
+        /// Attempts to delete the member.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool TryDeleteMember(DeleteMemberBinder binder)
         {
