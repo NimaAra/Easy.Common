@@ -43,8 +43,9 @@ namespace Easy.Common
 
             foreach (var prop in Properties)
             {
-                _objectGettersCache[prop.Name] = AccessorBuilder.BuildGetter(prop, IncludesNonPublic);
-                _objectSettersCache[prop.Name] = AccessorBuilder.BuildSetter(prop, IncludesNonPublic);
+                var propName = prop.Name;
+                _objectGettersCache[propName] = AccessorBuilder.BuildGetter(prop, IncludesNonPublic);
+                _objectSettersCache[propName] = AccessorBuilder.BuildSetter(prop, IncludesNonPublic);
             }
         }
 
@@ -98,22 +99,21 @@ namespace Easy.Common
     public sealed class Accessor<TInstance> : Accessor where TInstance : class
     {
         private readonly ConcurrentDictionary<string, object> _genericInstanceGettersCache, _genericInstanceSettersCache;
-        private readonly Dictionary<string, Func<TInstance, object>> _genericPropertiesGetters;
-        private readonly Dictionary<string, Action<TInstance, object>> _genericPropertiesSetters;
+        private readonly Dictionary<string, Func<TInstance, object>> _genericPropertiesGettersCache;
+        private readonly Dictionary<string, Action<TInstance, object>> _genericPropertiesSettersCache;
 
         internal Accessor(bool ignoreCase, bool includeNonPublic)
             : base(typeof(TInstance), ignoreCase, includeNonPublic)
         {
-            _genericPropertiesGetters = new Dictionary<string, Func<TInstance, object>>(Properties.Length, Comparer);
-            _genericPropertiesSetters = new Dictionary<string, Action<TInstance, object>>(Properties.Length, Comparer);
+            _genericPropertiesGettersCache = new Dictionary<string, Func<TInstance, object>>(Properties.Length, Comparer);
+            _genericPropertiesSettersCache = new Dictionary<string, Action<TInstance, object>>(Properties.Length, Comparer);
             _genericInstanceGettersCache = new ConcurrentDictionary<string, object>(Comparer);
             _genericInstanceSettersCache = new ConcurrentDictionary<string, object>(Comparer);
 
             foreach (var prop in Properties) {
                 var propName = prop.Name;
-
-                _genericPropertiesGetters[propName] = AccessorBuilder.BuildGetter<TInstance>(prop, IncludesNonPublic);
-                _genericPropertiesSetters[propName] = AccessorBuilder.BuildSetter<TInstance>(prop, IncludesNonPublic);
+                _genericPropertiesGettersCache[propName] = AccessorBuilder.BuildGetter<TInstance>(prop, IncludesNonPublic);
+                _genericPropertiesSettersCache[propName] = AccessorBuilder.BuildSetter<TInstance>(prop, IncludesNonPublic);
             }
         }
         
@@ -123,7 +123,7 @@ namespace Easy.Common
         public object Get(TInstance instance, string propertyName)
         {
             Func<TInstance, object> getter;
-            _genericPropertiesGetters.TryGetValue(propertyName, out getter);
+            _genericPropertiesGettersCache.TryGetValue(propertyName, out getter);
             // ReSharper disable once PossibleNullReferenceException
             return getter(instance);
         }
@@ -134,7 +134,7 @@ namespace Easy.Common
         public void Set(TInstance instance, string propertyName, object propValue)
         {
             Action<TInstance, object> setter;
-            _genericPropertiesSetters.TryGetValue(propertyName, out setter);
+            _genericPropertiesSettersCache.TryGetValue(propertyName, out setter);
             // ReSharper disable once PossibleNullReferenceException
             setter(instance, propValue);
         }
