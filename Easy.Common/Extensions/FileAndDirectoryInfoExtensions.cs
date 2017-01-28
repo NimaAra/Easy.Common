@@ -102,8 +102,10 @@
         }
 
         /// <summary>
+        /// Enumerates every directory inside the <paramref name="directory"/> without throwing <see cref="UnauthorizedAccessException"/>.
         /// </summary>
         public static IEnumerable<DirectoryInfo> EnumerateDirectoriesSafe(this DirectoryInfo directory,
+            string searchPattern, SearchOption option = SearchOption.AllDirectories, bool throwOnPathTooLong = false)
         {
             try
             {
@@ -111,6 +113,7 @@
                 if (option == SearchOption.AllDirectories)
                 {
                     directories = directory.EnumerateDirectories()
+                        .SelectMany(d => d.EnumerateDirectoriesSafe(searchPattern, option, throwOnPathTooLong));
                 }
 
                 return directories.Concat(directory.EnumerateDirectories(searchPattern));
@@ -122,8 +125,10 @@
         }
 
         /// <summary>
+        /// Enumerates every file inside the <paramref name="directory"/> without throwing <see cref="UnauthorizedAccessException"/>.
         /// </summary>
         public static IEnumerable<FileInfo> EnumerateFilesSafe(this DirectoryInfo directory,
+            string searchPattern, SearchOption option = SearchOption.AllDirectories, bool throwOnPathTooLong = false)
         {
             try
             {
@@ -131,6 +136,7 @@
                 if (option == SearchOption.AllDirectories)
                 {
                     files = directory.EnumerateDirectories()
+                        .SelectMany(d => d.EnumerateFilesSafe(searchPattern, option, throwOnPathTooLong));
                 }
 
                 return files.Concat(directory.EnumerateFiles(searchPattern));
