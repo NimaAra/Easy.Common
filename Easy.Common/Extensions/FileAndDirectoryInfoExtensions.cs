@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
 
     /// <summary>
@@ -17,17 +18,8 @@
         /// <returns>The size of <paramref name="directoryInfo"/> in bytes.</returns>
         public static long GetSizeInByte(this DirectoryInfo directoryInfo)
         {
-            long length = 0;
-
-            foreach (var nextfile in directoryInfo.GetFiles())
-            {
-                length += nextfile.Exists ? nextfile.Length : 0;
-            }
-
-            foreach (var nextdir in directoryInfo.GetDirectories())
-            {
-                length += nextdir.Exists ? nextdir.GetSizeInByte() : 0;
-            }
+            var length = directoryInfo.GetFiles().Sum(file => file.Exists ? file.Length : 0);
+            length += directoryInfo.GetDirectories().Sum(dir => dir.Exists ? dir.GetSizeInByte() : 0);
             return length;
         }
 
@@ -106,6 +98,46 @@
                 {
                     yield return reader.ReadLine();
                 }
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        public static IEnumerable<DirectoryInfo> EnumerateDirectoriesSafe(this DirectoryInfo directory,
+        {
+            try
+            {
+                var directories = Enumerable.Empty<DirectoryInfo>();
+                if (option == SearchOption.AllDirectories)
+                {
+                    directories = directory.EnumerateDirectories()
+                }
+
+                return directories.Concat(directory.EnumerateDirectories(searchPattern));
+            }
+            catch (Exception ex) when (ex is UnauthorizedAccessException || (ex is PathTooLongException && !throwOnPathTooLong))
+            {
+                return Enumerable.Empty<DirectoryInfo>();
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        public static IEnumerable<FileInfo> EnumerateFilesSafe(this DirectoryInfo directory,
+        {
+            try
+            {
+                var files = Enumerable.Empty<FileInfo>();
+                if (option == SearchOption.AllDirectories)
+                {
+                    files = directory.EnumerateDirectories()
+                }
+
+                return files.Concat(directory.EnumerateFiles(searchPattern));
+            }
+            catch (Exception ex) when (ex is UnauthorizedAccessException || (ex is PathTooLongException && !throwOnPathTooLong))
+            {
+                return Enumerable.Empty<FileInfo>();
             }
         }
     }

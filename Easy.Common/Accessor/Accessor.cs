@@ -31,7 +31,7 @@ namespace Easy.Common
             Comparer = IgnoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
 
             var flags = BindingFlags.Public | BindingFlags.Instance;
-            if (includeNonPublic)
+            if (IncludesNonPublic)
             {
                 flags = flags | BindingFlags.NonPublic;
             }
