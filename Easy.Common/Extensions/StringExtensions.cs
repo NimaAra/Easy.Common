@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.IO.Compression;
     using System.Linq;
@@ -18,13 +19,7 @@
     public static class StringExtensions
     {
         /// <summary>
-        /// A regular expression for validating slugs.
-        /// Does not allow leading or trailing hyphens or whitespace
-        /// </summary>
-        private static readonly Regex SlugRegex = new Regex(@"(^[a-z0-9])([a-z0-9_-]+)*([a-z0-9])$", RegexOptions.Compiled);
-
-        /// <summary>
-        ///  Contains <c>C#</c> characters that may be used as regular expression arguments after <c>\</c>.
+        ///  Contains characters that may be used as regular expression arguments after <c>\</c>.
         /// </summary>
         private static readonly char[] RegexCharacters = { 'G', 'Z', 'A', 'n', 'W', 'w', 'v', 't', 's', 'S', 'r', 'k', 'f', 'D', 'd', 'B', 'b' };
 
@@ -77,11 +72,8 @@
 
         /// <summary>
         /// Parses a string as Boolean, valid inputs are: true|false|yes|no|1|0.
-        /// Input is parsed as Case Insensitive
+        /// <remarks>Input is parsed as Case Insensitive.</remarks>
         /// </summary>
-        /// <param name="value">Input String to parse</param>
-        /// <param name="result">The result</param>
-        /// <returns>Flag indicating if the parsing was successful.</returns>
         public static bool TryParseAsBool(this string value, out bool result)
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(value);
@@ -141,33 +133,21 @@
         [DebuggerStepThrough]
         public static string NullIfEmpty(this string value)
         {
-            if (value == string.Empty) { return null; }
-            return value;
-        }
-
-        /// <summary>
-        /// Separates a PascalCase string
-        /// </summary>
-        /// <example> "ThisIsPascalCase".SeparatePascalCase(); // returns "This Is Pascal Case" </example>
-        /// <param name="value">The format to split</param>
-        /// <returns>The original string separated on each uppercase character.</returns>
-        public static string SeparatePascalCase(this string value)
-        {
-            Ensure.NotNullOrEmptyOrWhiteSpace(value);
-            return Regex.Replace(value, "([A-Z])", " $1").Trim();
+            return value == string.Empty ? null : value;
         }
 
         /// <summary>
         /// Tries to extract the value between the tag <paramref name="tagName"/> from the <paramref name="input"/>.
-        /// This method is case insensitive.
+        /// <remarks>This method is case insensitive.</remarks>
         /// </summary>
-        /// <param name="input">The input string</param>
-        /// <param name="tagName">The tag whose value will be returned e.g <c>span, img</c></param>
-        /// <param name="value">The extracted value</param>
-        /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
+        /// <param name="input">The input string.</param>
+        /// <param name="tagName">The tag whose value will be returned e.g <c>span, img</c>.</param>
+        /// <param name="value">The extracted value.</param>
+        /// <returns><c>True</c> if successful otherwise <c>False</c>.</returns>
         public static bool TryExtractValueFromTag(this string input, string tagName, out string value)
         {
             Ensure.NotNull(input, nameof(input));
+            Ensure.NotNull(tagName, nameof(tagName));
 
             var pattern = "<{0}[^>]*>(.*)</{0}>".FormatWith(tagName);
             var match = Regex.Match(input, pattern, RegexOptions.IgnoreCase);
@@ -291,12 +271,24 @@
         }
 
         /// <summary>
-        /// Converts string to a title case.
-        /// <example>This Is A Title Case.</example>
+        /// Separates a PascalCase string.
+        /// </summary>
+        /// <example> "ThisIsPascalCase".SeparatePascalCase(); // returns "This Is Pascal Case" </example>
+        /// <param name="value">The format to split</param>
+        /// <returns>The original string separated on each uppercase character.</returns>
+        public static string SeparatePascalCase(this string value)
+        {
+            Ensure.NotNullOrEmptyOrWhiteSpace(value);
+            return Regex.Replace(value, "([A-Z])", " $1").Trim();
+        }
+
+        /// <summary>
+        /// Converts string to Pascal Case
+        /// <example>This Is A Pascal Case String.</example>
         /// </summary>
         /// <param name="input">The given input.</param>
-        /// <returns>The given <paramref name="input"/> converted to TitleCase.</returns>
-        public static string ToTitleCase(this string input)
+        /// <returns>The given <paramref name="input"/> converted to Pascal Case.</returns>
+        public static string ToPascalCase(this string input)
         {
             Ensure.NotNull(input, nameof(input));
 
@@ -332,45 +324,59 @@
         }
 
         /// <summary>
-        /// Credit goes to http://stackoverflow.com/questions/2920744/url-slugify-alrogithm-in-cs.
+        /// Generates a slug.
+        /// <remarks>
+        /// Credit goes to <see href="http://stackoverflow.com/questions/2920744/url-slugify-alrogithm-in-cs"/>.
+        /// </remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static string GenerateSlug(this string value, int? maxLength = null)
+        public static string GenerateSlug(this string value, uint? maxLength = null)
         {
-            // prepare string, remove accents, lower case and convert hyphens to whitespace
-            var result = RemoveAccent(value).Replace("-", " ").ToLowerInvariant();
+            // prepare string, remove diacritics, lower case and convert hyphens to whitespace
+            var result = RemoveDiacritics(value).Replace("-", " ").ToLowerInvariant();
 
             result = Regex.Replace(result, @"[^a-z0-9\s-]", string.Empty); // remove invalid characters
             result = Regex.Replace(result, @"\s+", " ").Trim(); // convert multiple spaces into one space
 
             if (maxLength.HasValue)
             {
-                result = result.Substring(0, result.Length <= maxLength ? result.Length : maxLength.Value).Trim();
+                result = result.Substring(0, result.Length <= maxLength ? result.Length : (int)maxLength.Value).Trim();
             }
             return Regex.Replace(result, @"\s", "-");
         }
 
         /// <summary>
-        /// Removes accent from the <paramref name="value"/>
+        /// Removes the diacritics from the given <paramref name="input"/> 
         /// </summary>
-        /// <returns>The string with accent removed</returns>
+        /// <remarks>
+        /// Credit goes to <see href="http://stackoverflow.com/a/249126"/>.
+        /// </remarks>
         [DebuggerStepThrough]
-        public static string RemoveAccent(this string value)
+        public static string RemoveDiacritics(this string input)
         {
-            var bytes = Encoding.GetEncoding("Cyrillic").GetBytes(value);
-            return Encoding.ASCII.GetString(bytes);
+            var normalizedString = input.Normalize(NormalizationForm.FormD);
+            var stringBuilder = StringBuilderCache.Acquire();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return StringBuilderCache.GetStringAndRelease(stringBuilder).Normalize(NormalizationForm.FormC);
         }
 
         /// <summary>
-        /// متدی برای تبدیل اعداد انگلیسی به فارسی
+        /// A method to convert English digits to Persian numbers.
         /// </summary>
-        /// <param name="input">The given input.</param>
-        /// <returns>The given <paramref name="input"/> as a Persian number.</returns>
         public static string ToPersianNumber(this string input)
         {
             Ensure.NotNull(input, nameof(input));
-
-            return input.Replace("0", "۰")
+            return input
+                .Replace("0", "۰")
                 .Replace("1", "۱")
                 .Replace("2", "۲")
                 .Replace("3", "۳")
@@ -392,7 +398,6 @@
         public static IEnumerable<XElement> GetElements(this string xmlInput, XName name, bool ignoreCase = true)
         {
             Ensure.NotNull(xmlInput, nameof(xmlInput));
-
             return xmlInput.GetElements(name, new XmlReaderSettings(), ignoreCase);
         }
 
@@ -472,23 +477,6 @@
 
                 return Encoding.UTF8.GetString(buffer);
             }
-        }
-
-        /// <summary>
-        /// Slugifies a string.
-        /// </summary>
-        /// <param name="value">The string to slugify.</param>
-        /// <param name="maxLength">An optional maximum length of the generated slug</param>
-        /// <returns>A URL safe slug representation of the input <paramref name="value"/>.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="value" /> is null.</exception>
-        public static string ToSlug(this string value, int? maxLength = null)
-        {
-            Ensure.NotNull(value, nameof(value));
-
-            // if it's already a valid slug, return it
-            if (SlugRegex.IsMatch(value)) { return value; }
-
-            return GenerateSlug(value, maxLength);
         }
 
         /// <summary>

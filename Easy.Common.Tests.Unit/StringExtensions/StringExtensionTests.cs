@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Text.RegularExpressions;
     using Easy.Common.Extensions;
@@ -28,7 +29,7 @@
         [TestCase(null, false)]
         public void When_checking_a_string_is_not_null_or_empty(string input, bool result)
         {
-            EnumerableExtensions.IsNotNullOrEmpty(input).ShouldBe(result);
+            input.IsNotNullOrEmpty().ShouldBe(result);
         }
 
         [TestCase("abc", false)]
@@ -249,16 +250,18 @@
             "thisIsAPascalCasedString".SeparatePascalCase().ShouldBe("this Is A Pascal Cased String");
             "thisIsAPascalcasedString".SeparatePascalCase().ShouldBe("this Is A Pascalcased String");
             "This_IsA_PascalCasedString".SeparatePascalCase().ShouldBe("This_ Is A_ Pascal Cased String");
-            "This Is A Pascal Cased String".SeparatePascalCase().ShouldBe("This  Is  A  Pascal  Cased  String");
+            "This IS A Pascal Cased String".SeparatePascalCase().ShouldBe("This  I S  A  Pascal  Cased  String");
+            "This Is A Pascal Cased String.".SeparatePascalCase().ShouldBe("This  Is  A  Pascal  Cased  String.");
         }
 
         [Test]
-        public void When_converting_string_to_title_case()
+        public void When_converting_string_to_pascal_case()
         {
-            "This Is A Pascal Cased String".ToTitleCase().ShouldBe("This Is A Pascal Cased String");
-            "This is A pascal Cased string".ToTitleCase().ShouldBe("This Is A Pascal Cased String");
-            "This is A pascal CasedString".ToTitleCase().ShouldBe("This Is A Pascal Casedstring");
-            "this is a pascal cased string".ToTitleCase().ShouldBe("This Is A Pascal Cased String");
+            "This Is A Pascal Cased String".ToPascalCase().ShouldBe("This Is A Pascal Cased String");
+            "This is A pascal Cased string".ToPascalCase().ShouldBe("This Is A Pascal Cased String");
+            "This is A pascal CasedString".ToPascalCase().ShouldBe("This Is A Pascal Casedstring");
+            "this IS a pascal cased string".ToPascalCase().ShouldBe("This IS A Pascal Cased String");
+            "this is a pascal cased string.".ToPascalCase().ShouldBe("This Is A Pascal Cased String.");
         }
 
         [Test]
@@ -337,7 +340,7 @@
         }
 
         [Test]
-        public void When_extracing_value_from_tag()
+        public void When_extracting_value_from_tag()
         {
             string result;
 
@@ -490,6 +493,56 @@
             result.ShouldNotBeEmpty();
             result.Length.ShouldBe(1);
             result[0].ShouldBe(new KeyValuePair<int, int>(0, 8));
+        }
+
+        [Test]
+        public void When_generating_slug()
+        {
+            "Foo".GenerateSlug().ShouldBe("foo");
+            "FooIsBar".GenerateSlug().ShouldBe("fooisbar");
+            "Foo Is Not Bar".GenerateSlug().ShouldBe("foo-is-not-bar");
+            "Foo/maybe=Bar".GenerateSlug().ShouldBe("foomaybebar");
+            @"Foo\maybe=-Bar".GenerateSlug().ShouldBe("foomaybe-bar");
+
+            "Foo".GenerateSlug(0).ShouldBeEmpty();
+            "Foo".GenerateSlug(2).ShouldBe("fo");
+            "FooIsBar".GenerateSlug(4).ShouldBe("fooi");
+            "Foo Is Not Bar".GenerateSlug(6).ShouldBe("foo-is");
+        }
+
+        [Test]
+        public void When_converting_english_digits_to_persinal_numbers()
+        {
+            "0".ToPersianNumber().ShouldBe("۰");
+            "1".ToPersianNumber().ShouldBe("۱");
+
+            "A123456c789032/5- X".ToPersianNumber().ShouldBe("A۱۲۳۴۵۶c۷۸۹۰۳۲/۵- X");
+        }
+
+        [Test]
+        public void When_splitting_and_trimming_string()
+        {
+            var result = "hello body okay foo thERE".SplitAndTrim(' ');
+            result.ShouldNotBeNull();
+            result.Length.ShouldBe(5);
+            result.ShouldBe(new [] {"hello", "body", "okay", "foo", "thERE"});
+        }
+
+        [Test]
+        public void When_getting_null_if_string_is_empty()
+        {
+            "foo".NullIfEmpty().ShouldBe("foo");
+            "-".NullIfEmpty().ShouldBe("-");
+            " ".NullIfEmpty().ShouldBe(" ");
+            string.Empty.NullIfEmpty().ShouldBeNull();
+            ((string)null).NullIfEmpty().ShouldBeNull();
+        }
+
+        [Test]
+        public void When_formatting_string_with_format_provider()
+        {
+            "{0}-{1}-{2:yyyy-MMM-dd}".FormatWith(new CultureInfo("fr-FR"), "foo", "bar", DateTime.Now)
+                .ShouldBe("foo-bar-2017-févr.-03");
         }
     }
 }

@@ -16,7 +16,7 @@
             Ensure.NotNullOrEmptyOrWhiteSpace(fileName);
 
             var extension = Path.GetExtension(fileName);
-            var safeFileName = Path.GetFileNameWithoutExtension(fileName).ToSlug();
+            var safeFileName = Path.GetFileNameWithoutExtension(fileName).GenerateSlug();
             return Path.Combine(Path.GetDirectoryName(fileName), safeFileName + extension);
         }
 

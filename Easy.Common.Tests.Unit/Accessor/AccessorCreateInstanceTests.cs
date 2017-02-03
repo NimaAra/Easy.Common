@@ -1,12 +1,10 @@
 ﻿namespace Easy.Common.Tests.Unit.Accessor
 {
-    using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
     using NUnit.Framework;
     using Shouldly;
 
     [TestFixture]
-    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     internal sealed class AccessorCreateInstanceTests
     {
         [Test]
@@ -15,11 +13,17 @@
             var publicCtor = typeof(Zero).GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             publicCtor.Length.ShouldBe(1);
 
-            var instanceBuilder = AccessorBuilder.BuildInstanceCreator<Zero>(publicCtor[0]);
-            var instance = instanceBuilder(new object[] { "Zero" });
+            var instanceBuilderOne = AccessorBuilder.BuildInstanceCreator<Zero>(publicCtor[0]);
+            var instanceOne = instanceBuilderOne(new object[] { "Zero" });
 
-            instance.ShouldNotBeNull();
-            instance.Name.ShouldBe("Zero");
+            instanceOne.ShouldNotBeNull();
+            instanceOne.Name.ShouldBe("Zero");
+
+            var instanceBuilderTwo = AccessorBuilder.BuildInstanceCreator<Zero>();
+            var instanceTwo = instanceBuilderTwo();
+
+            instanceTwo.ShouldNotBeNull();
+            instanceTwo.Name.ShouldBe("Zero");
         }
 
         [Test]
@@ -93,20 +97,32 @@
         }
 
         [Test]
-        public void When_creating_an_instance_of_a_struct()
+        public void When_creating_an_instance_of_a_struct_with_constructor()
         {
-            var publicCtor = typeof(ValueType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            var publicCtor = typeof(ValueTypeWithCtor).GetConstructors(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             publicCtor.Length.ShouldBe(1);
 
-            var instanceBuilder = AccessorBuilder.BuildInstanceCreator<ValueType>(publicCtor[0]);
+            var instanceBuilder = AccessorBuilder.BuildInstanceCreator<ValueTypeWithCtor>(publicCtor[0]);
             var instance = instanceBuilder(new object[] { "Child", 10 });
 
             instance.ShouldNotBeNull();
-            instance.ShouldBeOfType<ValueType>();
-            instance.ShouldBeAssignableTo<ValueType>();
+            instance.ShouldBeOfType<ValueTypeWithCtor>();
+            instance.ShouldBeAssignableTo<ValueTypeWithCtor>();
             instance.Name.ShouldBe("Child");
             instance.Age.ShouldBe(10);
             instance.GetJob().ShouldBe("SomeJob");
+        }
+
+        [Test]
+        public void When_creating_an_instance_of_a_struct_with_default_constructor()
+        {
+            var instanceBuilder = AccessorBuilder.BuildInstanceCreator<ValueTypeDefaultCtor>();
+            var instance = instanceBuilder();
+
+            instance.ShouldNotBeNull();
+            instance.ShouldBeOfType<ValueTypeDefaultCtor>();
+            instance.ShouldBeAssignableTo<ValueTypeDefaultCtor>();
+            instance.Name.ShouldBe("Foo");
         }
 
         private sealed class Zero
@@ -158,9 +174,9 @@
             }
         }
 
-        private struct ValueType
+        private struct ValueTypeWithCtor
         {
-            public ValueType(string name, int age)
+            public ValueTypeWithCtor(string name, int age)
             {
                 Name = name;
                 Age = age;
@@ -172,6 +188,11 @@
             private string Job { get; set; }
 
             public string GetJob() => Job;
+        }
+
+        private struct ValueTypeDefaultCtor
+        {
+            public string Name => "Foo";
         }
     }
 }

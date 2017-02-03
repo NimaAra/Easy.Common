@@ -212,6 +212,37 @@ namespace Easy.Common
         }
 
         /// <summary>
+        /// Builds a delegate for creating an instance of the <typeparamref name="TInstance"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static Func<TInstance> BuildInstanceCreator<TInstance>() where TInstance : new()
+        {
+            var type = typeof(TInstance);
+
+            var dynamicMethod = new DynamicMethod("Build_" + type.Name, type, new Type[0], typeof(AccessorBuilder).Module, true);
+            var ilGen = dynamicMethod.GetILGenerator();
+
+            var defaultCtor = type.GetConstructor(Type.EmptyTypes);
+            if (defaultCtor != null)
+            {
+                // Call the ctor, all values on the stack are passed to the ctor
+                ilGen.Emit(OpCodes.Newobj, defaultCtor);
+            }
+            else
+            {
+                var builder = ilGen.DeclareLocal(type);
+                ilGen.Emit(OpCodes.Ldloca, builder);
+                ilGen.Emit(OpCodes.Initobj, type);
+                ilGen.Emit(OpCodes.Ldloc, builder);
+            }
+
+            // Return the new object
+            ilGen.Emit(OpCodes.Ret);
+
+            return (Func<TInstance>)dynamicMethod.CreateDelegate(typeof(Func<TInstance>));
+        }
+
+        /// <summary>
         /// Builds a delegate for creating an instance of the <typeparamref name="TInstance"/> from its <paramref name="constructor"/>.
         /// <remarks>The order of arguments passed to the delegate should match the order set by the constructor.</remarks>
         /// <exception cref="IndexOutOfRangeException">Thrown if the count parameters passed to the constructor does not match the required constructor parameter count.</exception>
@@ -221,12 +252,11 @@ namespace Easy.Common
         public static Func<object[], TInstance> BuildInstanceCreator<TInstance>(ConstructorInfo constructor)
         {
             Ensure.NotNull(constructor, nameof(constructor));
-            var type = constructor.ReflectedType;
+            var type = typeof(TInstance);
 
             var ctroParams = constructor.GetParameters();
 
-            // ReSharper disable once AssignNullToNotNullAttribute
-            var dynamicMethod = new DynamicMethod("Create_" + constructor.Name, type, new[] { typeof(object[]) }, type, true);
+            var dynamicMethod = new DynamicMethod("Build_" + type.Name, type, new[] { typeof(object[]) }, typeof(AccessorBuilder).Module, true);
             var ilGen = dynamicMethod.GetILGenerator();
 
             // Cast each argument of the input object array to the appropriate type.

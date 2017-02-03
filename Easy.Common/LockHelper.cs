@@ -17,7 +17,7 @@
         public static void LockFreeUpdate<T>(ref T field, Func<T, T> updater) where T : class
         {
             var spinner = new SpinWait();
-
+            
             while (true)
             {
                 var snapshot = field;
@@ -51,7 +51,7 @@
         /// </summary>
         /// <param name="field">The variable to be updated</param>
         /// <param name="updater">The functions that provides the updated value</param>
-        public static void LockFreeUpdate(ref Int32 field, Func<Int32, Int32> updater)
+        public static void LockFreeUpdate(ref int field, Func<int, int> updater)
         {
             var spinner = new SpinWait();
 
@@ -69,7 +69,7 @@
         /// </summary>
         /// <param name="field">The variable to be updated</param>
         /// <param name="newValue">The new value to replace the value at <paramref name="field"/></param>
-        public static void LockFreeUpdate(ref Int32 field, Int32 newValue)
+        public static void LockFreeUpdate(ref int field, int newValue)
         {
             var spinner = new SpinWait();
 
@@ -87,7 +87,7 @@
         /// </summary>
         /// <param name="field">The variable to be updated</param>
         /// <param name="updater">The functions that provides the updated value</param>
-        public static void LockFreeUpdate(ref Int64 field, Func<Int64, Int64> updater)
+        public static void LockFreeUpdate(ref long field, Func<long, long> updater)
         {
             var spinner = new SpinWait();
 
@@ -105,7 +105,7 @@
         /// </summary>
         /// <param name="field">The variable to be updated</param>
         /// <param name="newValue">The new value to replace the value at <paramref name="field"/></param>
-        public static void LockFreeUpdate(ref Int64 field, Int64 newValue)
+        public static void LockFreeUpdate(ref long field, long newValue)
         {
             var spinner = new SpinWait();
 
@@ -141,7 +141,7 @@
         /// </summary>
         /// <param name="field">The variable to be updated</param>
         /// <param name="newValue">The new value to replace the value at <paramref name="field"/></param>
-        public static void LockFreeUpdate(ref Single field, Single newValue)
+        public static void LockFreeUpdate(ref float field, float newValue)
         {
             var spinner = new SpinWait();
 
@@ -159,7 +159,7 @@
         /// </summary>
         /// <param name="field">The variable to be updated</param>
         /// <param name="updater">The functions that provides the updated value</param>
-        public static void LockFreeUpdate(ref Double field, Func<Double, Double> updater)
+        public static void LockFreeUpdate(ref double field, Func<double, double> updater)
         {
             var spinner = new SpinWait();
 
@@ -177,7 +177,7 @@
         /// </summary>
         /// <param name="field">The variable to be updated</param>
         /// <param name="newValue">The new value to replace the value at <paramref name="field"/></param>
-        public static void LockFreeUpdate(ref Double field, Double newValue)
+        public static void LockFreeUpdate(ref double field, double newValue)
         {
             var spinner = new SpinWait();
 
