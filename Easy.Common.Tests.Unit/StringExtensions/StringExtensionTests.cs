@@ -541,7 +541,7 @@
         [Test]
         public void When_formatting_string_with_format_provider()
         {
-            "{0}-{1}-{2:yyyy-MMM-dd}".FormatWith(new CultureInfo("fr-FR"), "foo", "bar", DateTime.Now)
+            "{0}-{1}-{2:yyyy-MMM-dd}".FormatWith(new CultureInfo("fr-FR"), "foo", "bar", new DateTime(2017, 02, 03))
                 .ShouldBe("foo-bar-2017-févr.-03");
         }
     }

@@ -88,6 +88,7 @@
     <Compile Include="KeyedCollectionEx.cs" />
     <Compile Include="LockHelper.cs" />
     <Compile Include="MimeMappings.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="NetworkHelper.cs" />
     <Compile Include="PathHelper.cs" />
     <Compile Include="PredicateBuilder.cs" />

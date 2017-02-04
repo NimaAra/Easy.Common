@@ -1,16 +1,12 @@
 ﻿namespace Easy.Common
 {
     using System;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Provides a set of methods to help work with <see cref="Guid"/>.
     /// </summary>
     public static class GuidHelper
     {
-        [DllImport("rpcrt4.dll", SetLastError = true)]
-        private static extern int UuidCreateSequential(out Guid guid);
-
         // see: 
         // ReSharper disable once InconsistentNaming
         /// <summary>
@@ -25,7 +21,7 @@
             const int RpcSOk = 0;
 
             Guid guid;
-            var result = UuidCreateSequential(out guid);
+            var result = NativeMethods.UuidCreateSequential(out guid);
             return result == RpcSOk ? guid : Guid.NewGuid();
         }
 

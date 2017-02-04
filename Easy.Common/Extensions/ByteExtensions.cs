@@ -1,15 +1,10 @@
 ﻿namespace Easy.Common.Extensions
 {
-    using System.Runtime.InteropServices;
-
     /// <summary>
     /// Provides a set of helper methods for working with <see cref="byte"/>.
     /// </summary>
     public static class ByteExtensions
     {
-        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int memcmp(byte[] b1, byte[] b2, long count);
-
         /// <summary>
         /// Compares the given <paramref name="left"/> with <paramref name="right"/>.
         /// </summary>
@@ -21,7 +16,7 @@
             
             // Validate buffers are the same length.
             // This also ensures that the count does not exceed the length of either buffer.  
-            return left.Length == right.Length && memcmp(left, right, left.Length) == 0;
+            return left.Length == right.Length && NativeMethods.MemCopy(left, right, left.Length) == 0;
         }
     }
 }

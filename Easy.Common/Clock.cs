@@ -2,7 +2,6 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Runtime.InteropServices;
     using System.Threading;
     using Easy.Common.Interfaces;
 
@@ -23,9 +22,6 @@
         private readonly ThreadLocal<double> _startTimestamp =
             new ThreadLocal<double>(() => Stopwatch.GetTimestamp(), false);
 
-        [DllImport("Kernel32.dll", CallingConvention = CallingConvention.Winapi)]
-        private static extern void GetSystemTimePreciseAsFileTime(out long filetime);
-
         /// <summary>
         /// Creates an instance of the <see cref="Clock"/>.
         /// </summary>
@@ -34,7 +30,7 @@
             try
             {
                 long preciseTime;
-                GetSystemTimePreciseAsFileTime(out preciseTime);
+                NativeMethods.GetSystemTimePreciseAsFileTime(out preciseTime);
                 IsPrecise = true;
             }
             catch (EntryPointNotFoundException)
@@ -63,7 +59,7 @@
                 if (IsPrecise)
                 {
                     long preciseTime;
-                    GetSystemTimePreciseAsFileTime(out preciseTime);
+                    NativeMethods.GetSystemTimePreciseAsFileTime(out preciseTime);
                     return DateTime.FromFileTimeUtc(preciseTime);
                 }
 

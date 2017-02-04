@@ -15,7 +15,7 @@
     /// <para><see href="http://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/"/></para>
     /// <para><see href="http://byterot.blogspot.co.uk/2016/07/singleton-httpclient-dns.html"/></para>
     /// </summary>
-    public class RestClient : IRestClient
+    public sealed class RestClient : IRestClient
     {
         private readonly HttpClient _client;
         private readonly HashSet<Uri> _endpoints;

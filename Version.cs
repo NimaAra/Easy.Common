@@ -1,4 +1,7 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: ComVisible(false)]
 
 [assembly: AssemblyTitle("Easy.Common")]
 [assembly: AssemblyCopyright("Copyright © 2017")]
