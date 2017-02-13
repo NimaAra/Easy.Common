@@ -71,12 +71,12 @@
         }
 
         /// <summary>
-        /// Parses a string as Boolean, valid inputs are: true|false|yes|no|1|0.
-        /// <remarks>Input is parsed as Case Insensitive.</remarks>
+        /// Parses a string as Boolean, valid inputs are: <c>true|false|yes|no|1|0</c>.
+        /// <remarks>Input is parsed as Case-Insensitive.</remarks>
         /// </summary>
         public static bool TryParseAsBool(this string value, out bool result)
         {
-            Ensure.NotNullOrEmptyOrWhiteSpace(value);
+            Ensure.NotNull(value, nameof(value));
 
             const StringComparison CompPolicy = StringComparison.OrdinalIgnoreCase;
 

@@ -132,17 +132,26 @@
             result.ShouldBeFalse();
         }
 
-        [TestCase(null)]
+        [Test]
+        public void When_parsing_null_string_as_boolean()
+        {
+            Should.Throw<ArgumentNullException>(() =>
+            {
+                bool result;
+                ((string) null).TryParseAsBool(out result).ShouldBeFalse();
+                result.ShouldBeFalse();
+            })
+            .Message.ShouldBe("Value cannot be null.\r\nParameter name: value");
+        }
+
         [TestCase("")]
         [TestCase(" ")]
         [TestCase("  ")]
         public void When_parsing_invalid_string_as_boolean(string input)
         {
             bool result;
-            Func<string, bool> parseFunc = str => str.TryParseAsBool(out result);
-
-            Should.Throw<ArgumentException>(() => parseFunc(input))
-                .Message.ShouldBe("String must not be null, empty or whitespace.");
+            input.TryParseAsBool(out result).ShouldBeFalse();
+            result.ShouldBeFalse();
         }
 
         [TestCase("abc", "b", true)]

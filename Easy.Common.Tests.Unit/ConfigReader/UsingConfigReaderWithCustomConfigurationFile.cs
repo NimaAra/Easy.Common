@@ -170,17 +170,8 @@
             ConfigReader.TryRead("bool-invalid-number", out boolVal).ShouldBeFalse();
             boolVal.ShouldBeFalse();
 
-            Should.Throw<ArgumentException>(() =>
-            {
-                ConfigReader.TryRead("bool-invalid-empty", out boolVal).ShouldBeFalse();
-            })
-            .Message.ShouldBe("String must not be null, empty or whitespace.");
-
-            Should.Throw<ArgumentException>(() =>
-            {
-                ConfigReader.TryRead("bool-invalid-space", out boolVal).ShouldBeFalse();
-            })
-            .Message.ShouldBe("String must not be null, empty or whitespace.");
+            ConfigReader.TryRead("bool-invalid-empty", out boolVal).ShouldBeFalse();
+            ConfigReader.TryRead("bool-invalid-space", out boolVal).ShouldBeFalse();
 
             string[] csvVal;
             ConfigReader.TryReadStringAsCsv("pipe-delimited", "|", out csvVal).ShouldBeTrue();
