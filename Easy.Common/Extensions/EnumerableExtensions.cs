@@ -59,13 +59,14 @@ namespace Easy.Common.Extensions
 
             if (!sequence.Any()) { return string.Empty; }
 
-            var characterSeparated = new StringBuilder();
+            var builder = StringBuilderCache.Acquire();
             foreach (var item in sequence)
             {
-                characterSeparated.AppendFormat("{0}{1}", item, separator);
+                builder.AppendFormat("{0}{1}", item, separator);
             }
 
-            return characterSeparated.ToString(0, characterSeparated.Length - separator.Length);
+            builder.Remove(builder.Length - separator.Length, separator.Length);
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         /// <summary>
@@ -103,7 +104,6 @@ namespace Easy.Common.Extensions
         public static void ForEach<T>(this IEnumerable<T> sequence, Action<T> action)
         {
             Ensure.NotNull(action, nameof(action));
-
             foreach (var item in sequence) { action(item); }
         }
 
@@ -117,7 +117,18 @@ namespace Easy.Common.Extensions
         public static T SelectRandom<T>(this IEnumerable<T> sequence)
         {
             var random = new Random(Guid.NewGuid().GetHashCode());
+            return sequence.SelectRandom(random);
+        }
 
+        /// <summary>
+        /// Selects a random element from an Enumerable with only one pass (O(N) complexity); 
+        /// It contains optimizations for arguments that implement ICollection{T} by using the 
+        /// Count property and the ElementAt LINQ method. The ElementAt LINQ method itself contains 
+        /// optimizations for <see cref="IList{T}"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static T SelectRandom<T>(this IEnumerable<T> sequence, Random random)
+        {
             // Optimization for ICollection<T>
             var collection = sequence as ICollection<T>;
             if (collection != null)
@@ -145,7 +156,28 @@ namespace Easy.Common.Extensions
         [DebuggerStepThrough]
         public static IEnumerable<T> Randomize<T>(this IEnumerable<T> sequence)
         {
-            return sequence.OrderBy(s => Guid.NewGuid());
+            Ensure.NotNull(sequence, nameof(sequence));
+            var random = new Random(Guid.NewGuid().GetHashCode());
+            return Randomize(sequence, random);
+        }
+
+        /// <summary>
+        /// Randomizes a <paramref name="sequence"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static IEnumerable<T> Randomize<T>(this IEnumerable<T> sequence, Random random)
+        {
+            Ensure.NotNull(sequence, nameof(sequence));
+            Ensure.NotNull(random, nameof(random));
+
+            var buffer = sequence.ToList();
+            for (var i = 0; i < buffer.Count; i++)
+            {
+                var j = random.Next(i, buffer.Count);
+                yield return buffer[j];
+
+                buffer[j] = buffer[i];
+            }
         }
 
         /// <summary>

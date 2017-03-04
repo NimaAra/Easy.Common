@@ -14,7 +14,13 @@
             ConfigReader = new ConfigReader();
         }
 
-        protected void Given_a_config_reader_with_custom_configuration_file()
+        protected void Given_a_config_reader_with_a_given_mapped_config()
+        {
+            var configFile = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigReader", "Configuration.config"));
+            ConfigReader = new ConfigReader(configFile);
+        }
+
+        protected void Given_a_config_reader_with_custom_configuration_file_with_specified_settings()
         {
             var configFile = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigReader", "Configuration.config"));
             ConfigReader = new ConfigReader(configFile, "add", "key", "format");

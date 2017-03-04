@@ -12,12 +12,16 @@
         [OneTimeSetUp]
         public void SetUp()
         {
-            Given_a_config_reader_with_custom_configuration_file();
+            Given_a_config_reader_with_custom_configuration_file_with_specified_settings();
         }
 
         [Test]
         public void Run()
         {
+            ConfigReader.ConfigFile.ShouldNotBeNull();
+            ConfigReader.ConfigFile.Exists.ShouldBeTrue();
+            ConfigReader.ConfigFile.Name.ShouldBe("Configuration.config");
+
             ConfigReader.Settings.ShouldNotBeNull();
             ConfigReader.Settings.Count.ShouldBe(58);
 

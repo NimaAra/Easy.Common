@@ -15,6 +15,10 @@
         [Test]
         public void Run()
         {
+            ConfigReader.ConfigFile.ShouldNotBeNull();
+            ConfigReader.ConfigFile.Exists.ShouldBeTrue();
+            ConfigReader.ConfigFile.Name.ShouldStartWith("Easy.Common.Tests.Unit.dll.config");
+
             ConfigReader.Settings.ShouldNotBeNull();
             ConfigReader.Settings.Count.ShouldBe(3);
 
