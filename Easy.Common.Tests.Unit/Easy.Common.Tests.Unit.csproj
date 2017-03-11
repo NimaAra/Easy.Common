@@ -82,6 +82,7 @@
     <Compile Include="FileAndDirectoryExtensions\Context.cs" />
     <Compile Include="FileAndDirectoryExtensions\DirectoryInfoTests.cs" />
     <Compile Include="FileAndDirectoryExtensions\FileInfoTests.cs" />
+    <Compile Include="GenericExtensions\GettingPropertyNamesTests.cs" />
     <Compile Include="GenericExtensions\IsDefaultTests.cs" />
     <Compile Include="Guid\GuidExtensionsTests.cs" />
     <Compile Include="Guid\GuidHelperTests.cs" />
@@ -116,7 +117,7 @@
     <Compile Include="TypeExtensions\GettingArgumentTypeOfGenericTypeTests.cs" />
     <Compile Include="TypeExtensions\GettingParentPropertiesWithAttributes.cs" />
     <Compile Include="TypeExtensions\GettingPropertiesTests.cs" />
-    <Compile Include="TypeExtensions\GettingUninitializedInstanceTests.cs" />
+    <Compile Include="GenericExtensions\GettingUninitializedInstanceTests.cs" />
     <Compile Include="XML\ParsingXmlTests.cs" />
     <Compile Include="XML\XmlToDynamicTests.cs" />
   </ItemGroup>

@@ -3,6 +3,8 @@ namespace Easy.Common.Extensions
 {
     using System;
     using System.Collections.Generic;
+    using System.Dynamic;
+    using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
     using System.Runtime.Serialization;
@@ -62,6 +64,24 @@ namespace Easy.Common.Extensions
         public static T GetUninitializedInstance<T>()
         {
             return (T)FormatterServices.GetUninitializedObject(typeof(T));
+        }
+
+        /// <summary>
+        /// Gets all the private, public, inherited instance property names for the given <paramref name="@object"/>.
+        /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property names.</remarks>
+        /// </summary>
+        public static string[] GetPropertyNames<T>(this T @object, bool inherit = true, bool includePrivate = true)
+        {
+            var expando = @object as IDynamicMetaObjectProvider;
+            if (expando != null)
+            {
+                var dic = (IDictionary<string, object>)expando;
+                return dic.Keys.ToArray();
+            }
+
+            return @object.GetType()
+                .GetInstanceProperties(inherit, includePrivate)
+                .Select(p => p.Name).ToArray();
         }
 
         /// <summary>    

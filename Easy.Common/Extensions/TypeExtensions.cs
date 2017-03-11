@@ -73,26 +73,27 @@
         }
 
         /// <summary>
-        /// Returns all <c>instance</c> properties of the given <paramref name="type"/> regardless of it's access modifier.
+        /// Returns all <c>instance</c> properties of the given <paramref name="type"/>.
         /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property.</remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<PropertyInfo> GetInstanceProperties(this Type type, bool inherit = true)
+        public static IEnumerable<PropertyInfo> GetInstanceProperties(this Type type, bool inherit = true, bool includePrivate = true)
         {
             Ensure.NotNull(type, nameof(type));
-            return GetInstanceProperties(type.GetTypeInfo(), inherit);
+            return GetInstanceProperties(type.GetTypeInfo(), inherit, includePrivate);
         }
 
         /// <summary>
-        /// Returns all <c>instance</c> properties of the given <paramref name="typeInfo"/> regardless of it's access modifier.
+        /// Returns all <c>instance</c> properties of the given <paramref name="typeInfo"/>.
         /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property.</remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<PropertyInfo> GetInstanceProperties(this TypeInfo typeInfo, bool inherit = true)
+        public static IEnumerable<PropertyInfo> GetInstanceProperties(this TypeInfo typeInfo, bool inherit, bool includePrivate)
         {
             Ensure.NotNull(typeInfo, nameof(typeInfo));
 
-            var flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            var flags = BindingFlags.Instance | BindingFlags.Public;
+            if (includePrivate) { flags = flags | BindingFlags.NonPublic; }
             if (!inherit) { flags = flags | BindingFlags.DeclaredOnly; }
 
             return typeInfo.GetProperties(flags);

@@ -1,4 +1,4 @@
-﻿namespace Easy.Common.Tests.Unit.TypeExtensions
+﻿namespace Easy.Common.Tests.Unit.GenericExtensions
 {
     using System;
     using NUnit.Framework;
