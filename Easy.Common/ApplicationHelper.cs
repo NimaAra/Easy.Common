@@ -48,7 +48,8 @@
                     $"Id: {p.Id}",
                     $"Name: {p.ProcessName}",
                     $"Started: {p.StartTime:yyyy-MM-dd HH:mm:ss.fff}",
-                    $"Loaded In: {GetProcessStartupDuration()}",
+                    $"Loaded In: {GetProcessStartupDuration().ToString()}",
+                    $"Debug Enabled: {IsDebugBuild.ToString()}",
                     $"Module Name: {p.MainModule.ModuleName}",
                     $"Module File Name: {p.MainModule.FileName}",
                     $"Product Name: {pVerInfo.ProductName}",
@@ -69,9 +70,9 @@
                      .OrderByDescending(o => o.GlobalAssemblyCache)
                      .ForEach(x =>
                      {
-                         details.AppendFormat("\t{0:D2}.Name: {1}{2}", counter, x.FullName, Environment.NewLine);
-                         details.AppendFormat("\t{0:D2}.Optimized: {1}{2}", counter, x.IsOptimized(), Environment.NewLine);
-                         details.AppendFormat("\t\t {0} - Is GAC: {1}{2}", x.GetFrameworkVersion(), x.GlobalAssemblyCache, Environment.NewLine);
+                         details.AppendFormat("\t{0:D2}.Name: {1}{2}", counter.ToString(), x.FullName, Environment.NewLine);
+                         details.AppendFormat("\t{0:D2}.Optimized: {1}{2}", counter.ToString(), x.IsOptimized().ToString(), Environment.NewLine);
+                         details.AppendFormat("\t\t {0} - Is GAC: {1}{2}", x.GetFrameworkVersion(), x.GlobalAssemblyCache.ToString(), Environment.NewLine);
                          details.AppendFormat("\t\t Location: {0}{1}", x.Location, Environment.NewLine);
                          counter++;
                      });
@@ -81,13 +82,13 @@
             new[]
             {
                 $"OS Version: {Environment.OSVersion}",
-                $"64Bit OS: {Environment.Is64BitOperatingSystem}",
-                $"64Bit Process: {Environment.Is64BitProcess}",
+                $"64Bit OS: {Environment.Is64BitOperatingSystem.ToString()}",
+                $"64Bit Process: {Environment.Is64BitProcess.ToString()}",
                 $"Runtime: {Environment.Version}",
                 $"FQDN: {NetworkHelper.GetFQDN()}",
                 $"Machine Name: {Environment.MachineName}",
                 $"Processor: {GetProcessorName()}",
-                $"Processor Count: {Environment.ProcessorCount}",
+                $"Processor Count: {Environment.ProcessorCount.ToString()}",
                 $"Running as: {Environment.UserDomainName}\\{Environment.UserName}",
                 $"Current Directory: {Environment.CurrentDirectory}"
             }

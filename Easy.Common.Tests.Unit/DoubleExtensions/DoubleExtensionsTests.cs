@@ -35,10 +35,10 @@
                 .Message.ShouldStartWith("Invalid double value, are you sure it's not NaN, Max/Min, Epsilon or infinity? Value: ");
 
             Should.Throw<ArgumentException>(() => double.PositiveInfinity.GetDecimalPlaces())
-                .Message.ShouldStartWith("Invalid double value, are you sure it's not NaN, Max/Min, Epsilon or infinity? Value: Infinity");
+                .Message.ShouldStartWith("Invalid double value, are you sure it's not NaN, Max/Min, Epsilon or infinity? Value: ∞");
 
             Should.Throw<ArgumentException>(() => double.NegativeInfinity.GetDecimalPlaces())
-                .Message.ShouldStartWith("Invalid double value, are you sure it's not NaN, Max/Min, Epsilon or infinity? Value: -Infinity");
+                .Message.ShouldStartWith("Invalid double value, are you sure it's not NaN, Max/Min, Epsilon or infinity? Value: -∞");
 
             Should.Throw<ArgumentException>(() => double.NaN.GetDecimalPlaces())
                 .Message.ShouldStartWith("Invalid double value, are you sure it's not NaN, Max/Min, Epsilon or infinity? Value: NaN");
