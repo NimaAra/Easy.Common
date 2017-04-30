@@ -72,7 +72,6 @@
             queue.WorkerCount.ShouldBe<uint>(2);
             queue.PendingCount.ShouldBe<uint>(0);
             queue.PendingItems.ShouldBeEmpty();
-
         }
 
         [Test]
@@ -90,8 +89,10 @@
             };
 
             10.Times(n => queue.Add(_getData(n)));
+            queue.CompleteAdding();
 
-            queue.Shutdown(100.Milliseconds()).ShouldBeTrue();
+            queue.Completion.Wait(100.Milliseconds()).ShouldBeTrue();
+
             consumed.Count.ShouldBe(10);
             exceptionThrown.ShouldBeNull();
         }
@@ -122,7 +123,7 @@
 
             queue.PendingCount.ShouldBe<uint>(9);
 
-            queue.Shutdown(600.Milliseconds()).ShouldBeFalse();
+            queue.Completion.Wait(600.Milliseconds()).ShouldBeFalse();
             consumed.Count.ShouldBe(0);
             exceptionThrown.ShouldBeFalse();
         }
@@ -155,7 +156,7 @@
             Thread.Sleep(100);
 
             queue.PendingCount.ShouldBe<uint>(0);
-            queue.Shutdown(500.Milliseconds()).ShouldBeFalse();
+            queue.Completion.Wait(500.Milliseconds()).ShouldBeFalse();
             consumed.Count.ShouldBe(9);
             exceptionThrown.ShouldBeFalse();
         }
@@ -258,8 +259,9 @@
             {
                 queue.Add(_getData(i));
             }
+            queue.CompleteAdding();
 
-            queue.Shutdown(TimeSpan.FromSeconds(5)).ShouldBeTrue();
+            queue.Completion.Wait(5.Seconds()).ShouldBeTrue();
 
             Thread.Sleep(50.Milliseconds());
             consumed.Count.ShouldBe(WorkItems);
@@ -293,8 +295,9 @@
             queue.Add(3);
             queue.Add(4);
             queue.Add(5);
+            queue.CompleteAdding();
 
-            queue.Shutdown(500.Milliseconds()).ShouldBeTrue();
+            queue.Completion.Wait(500.Milliseconds()).ShouldBeTrue();
 
             consumed.Count.ShouldBeGreaterThanOrEqualTo(2);
 
@@ -317,8 +320,9 @@
             };
 
             5.Times(n => { queue.Add(_getData(n)); });
+            queue.CompleteAdding();
 
-            queue.Shutdown(10.Seconds()).ShouldBeTrue();
+            queue.Completion.Wait(10.Seconds()).ShouldBeTrue();
 
             Action afterDisposedEnqueues = () => 3.Times(n => { queue.Add(_getData(n)); });
             afterDisposedEnqueues.ShouldNotThrow();
@@ -335,7 +339,7 @@
         [Test]
         public void ThrownExceptionBySingleWorkerShouldBePublishedCorrectly()
         {
-            Exception e = null;
+            Exception exception = null;
             var consumed = new List<MyClass>();
 
             Action<MyClass> consumer = x =>
@@ -351,25 +355,25 @@
             var queue = new ProducerConsumerQueue<MyClass>(consumer, 1);
             queue.OnException += (sender, args) =>
             {
-                e = args;
+                exception = args;
             };
 
             queue.Add(_getData(0));
 
             Thread.Sleep(50);
             consumed.Count.ShouldBe(1);
-            e.ShouldBeNull("Because no exception has occurred yet.");
+            exception.ShouldBeNull("Because no exception has occurred yet.");
 
             queue.Add(_getData(1));
 
             Thread.Sleep(50);
             consumed.Count.ShouldBe(1);
 
-            e.ShouldNotBeNull("Because an exception must have occurred.");
-            e.ShouldBeOfType<ProducerConsumerQueueException>()
+            exception.ShouldNotBeNull("Because an exception must have occurred.");
+            exception.ShouldBeOfType<ProducerConsumerQueueException>()
                 .Message.ShouldBe("Exception occurred.");
 
-            e.InnerException
+            exception.InnerException
                 .ShouldBeOfType<InvalidDataException>()
                 .Message.ShouldBe("Something went wrong");
         }
@@ -399,6 +403,72 @@
 
             exceptions.ShouldContain(e => e is InvalidDataException && e.Message.Equals("Something went wrong for: 0"));
             exceptions.ShouldContain(e => e is InvalidDataException && e.Message.Equals("Something went wrong for: 1"));
+        }
+
+        [Test]
+        public void When_waiting_for_consumption_to_complete()
+        {
+            var exceptions = new List<Exception>();
+            var numbers = new List<int>();
+            Action<int> work = n =>
+            {
+                Thread.Sleep(50.Milliseconds());
+                numbers.Add(n);
+            };
+
+            using (var pcq = new ProducerConsumerQueue<int>(work, 1))
+            {
+                pcq.OnException += (sender, exception) => exceptions.Add(exception);
+
+                pcq.Add(1);
+                pcq.Add(2);
+                pcq.Add(3);
+                pcq.CompleteAdding();
+
+                pcq.Completion.Result.ShouldBeTrue();
+
+                numbers.ShouldBe(new[] { 1, 2, 3 });
+                exceptions.ShouldBeEmpty();
+
+                pcq.Capacity.ShouldBe(-1);
+                pcq.PendingCount.ShouldBe((uint)0);
+                pcq.PendingItems.ShouldBeEmpty();
+            }
+        }
+
+        [Test]
+        public void When_disposing_while_items_still_in_queue()
+        {
+            var exceptions = new List<Exception>();
+            var numbers = new List<int>();
+            Action<int> work = n =>
+            {
+                Thread.Sleep(500.Milliseconds());
+                numbers.Add(n);
+            };
+
+            var pcq = new ProducerConsumerQueue<int>(work, 1);
+            pcq.OnException += (sender, exception) => exceptions.Add(exception);
+
+            pcq.Add(1);
+            pcq.Add(2);
+            pcq.Add(3);
+
+            pcq.Dispose();
+
+            pcq.Completion.Result.ShouldBeFalse();
+
+            numbers.ShouldBe(new[] { 1 });
+            exceptions.ShouldBeEmpty();
+
+            Should.Throw<ObjectDisposedException>(() => pcq.Capacity.ShouldBe(-1))
+                .Message.ShouldBe("The collection has been disposed.\r\nObject name: 'BlockingCollection'.");
+
+            Should.Throw<ObjectDisposedException>(() => pcq.PendingCount.ShouldBe((uint)2))
+                .Message.ShouldBe("The collection has been disposed.\r\nObject name: 'BlockingCollection'.");
+
+            Should.Throw<ObjectDisposedException>(() => pcq.PendingItems.ShouldBe(new[] { 2, 3 }))
+                .Message.ShouldBe("The collection has been disposed.\r\nObject name: 'BlockingCollection'.");
         }
 
         private class MyClass

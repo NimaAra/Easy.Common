@@ -2,8 +2,6 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
@@ -12,29 +10,27 @@
     /// An implementation of the <c>Producer/Consumer</c> pattern using <c>TPL</c>.
     /// </summary>
     /// <typeparam name="T">Type of the item to produce/consume</typeparam>
-    public sealed class ProducerConsumerQueue<T>
+    public sealed class ProducerConsumerQueue<T> : IDisposable
     {
         private readonly BlockingCollection<T> _queue;
-        private readonly CancellationTokenSource _shutDownCancellationTokenSource;
-        private bool _isShutdownRequested;
-        private readonly Task[] _tasks;
 
         /// <summary>
-        /// Creates an unbounded instance of <see cref="ProducerConsumerQueue{T}"/>
+        /// Creates an unbounded instance of <see cref="ProducerConsumerQueue{T}"/>.
         /// </summary>
-        /// <param name="consumer">The action to be executed when consuming the item.</param>
-        /// <param name="maxConcurrencyLevel">Maximum number of consumers.</param>
+        /// <param name="consumer">The action to be executed when consuming the queued items</param>
+        /// <param name="maxConcurrencyLevel">Maximum number of consumers</param>
         public ProducerConsumerQueue(Action<T> consumer, uint maxConcurrencyLevel)
             : this(consumer, maxConcurrencyLevel, -1) { }
 
         /// <summary>
-        /// Creates an instance of <see cref="ProducerConsumerQueue{T}"/>
+        /// Creates an instance of <see cref="ProducerConsumerQueue{T}"/>.
         /// </summary>
-        /// <param name="consumer">The action to be executed when consuming the item.</param>
-        /// <param name="maxConcurrencyLevel">Maximum number of consumers.</param>
-        /// <param name="boundedCapacity">The bounded capacity of the queue.
-        /// Any more items added will block until there is more space available.
-        /// For unbounded enter a negative number</param>
+        /// <param name="consumer">The action to be executed when consuming the queued items</param>
+        /// <param name="maxConcurrencyLevel">Maximum number of consumers</param>
+        /// <param name="boundedCapacity">
+        /// The bounded capacity of the queue. Any more items added will block the publisher 
+        /// until there is more space available. For an unbounded queue, enter a negative number.
+        /// </param>
         public ProducerConsumerQueue(Action<T> consumer, uint maxConcurrencyLevel, uint boundedCapacity)
             : this(consumer, maxConcurrencyLevel, (int)boundedCapacity) { }
 
@@ -46,10 +42,9 @@
 
             WorkerCount = maxConcurrencyLevel;
 
-            _queue = boundedCapacity == -1 ? new BlockingCollection<T>() : new BlockingCollection<T>(boundedCapacity);
-            _shutDownCancellationTokenSource = new CancellationTokenSource();
+            _queue = boundedCapacity < 0 ? new BlockingCollection<T>() : new BlockingCollection<T>(boundedCapacity);
 
-            _tasks = SetupConsumer(consumer, maxConcurrencyLevel).ToArray();
+            Completion = Configure(consumer);
         }
 
         /// <summary>
@@ -70,18 +65,18 @@
         /// <summary>
         /// Gets the pending items in the queue. 
         /// <remarks>
-        /// Note, the items are valid as the snapshot at the time of invocation.
+        /// Note, the items are valid as a snapshot at the time of invocation.
         /// </remarks>
         /// </summary>
         public T[] PendingItems => _queue.ToArray();
 
         /// <summary>
-        /// Gets whether <see cref="ProducerConsumerQueue{T}"/> has started to shutdown.
+        /// Gets the <see cref="Task"/> which completes when all the consumers have finished their work.
         /// </summary>
-        public bool ShutdownRequested => Volatile.Read(ref _isShutdownRequested);
+        public Task<bool> Completion { get; }
 
         /// <summary>
-        /// Thrown when an error occurs during consumption of the work.
+        /// Thrown when an error occurs during the consumption or publication of items.
         /// </summary>
         public event EventHandler<ProducerConsumerQueueException> OnException;
 
@@ -89,56 +84,77 @@
         /// Adds the specified item to the <see cref="ProducerConsumerQueue{T}"/>. 
         /// This method blocks if the queue is full and until there is more room.
         /// </summary>
-        /// <param name="item">The item to be added.</param>
+        /// <param name="item">The item to be added to the collection. The value can be a null reference.</param>
         public void Add(T item)
+        {
+            Add(item, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Adds the specified item to the <see cref="ProducerConsumerQueue{T}"/>. 
+        /// This method blocks if the queue is full and until there is more room.
+        /// </summary>
+        /// <param name="item">The item to be added to the collection. The value can be a null reference.</param>
+        /// <param name="cancellationToken">The cancellation token to observe.</param>
+        public void Add(T item, CancellationToken cancellationToken)
         {
             try
             {
-                _queue.Add(item);
-            }
-            catch (Exception e)
+                _queue.Add(item, cancellationToken);
+            } catch (Exception e)
             {
                 OnException?.Invoke(this, new ProducerConsumerQueueException("Exception occurred when adding item.", e));
             }
         }
 
         /// <summary>
-        /// Attempts to add the specified item to the <see cref="ProducerConsumerQueue{T}"/>.
+        /// Tries to add the specified item to the <see cref="ProducerConsumerQueue{T}"/>.
         /// </summary>
         /// <param name="item">The item to be added.</param>
         /// <returns>
-        /// <c>True</c> if item could be added; otherwise <c>False</c>. 
-        /// If the item is a duplicate, and the underlying collection does 
-        /// not accept duplicate items, then an InvalidOperationException is thrown.
+        /// <c>True</c> if <paramref name="item"/> could be added to the collection within the specified time, 
+        /// otherwise <c>False</c>. If the item is a duplicate, and the underlying collection does 
+        /// not accept duplicate items, then an <see cref="InvalidOperationException"/> is thrown wrapped 
+        /// in a <see cref="ProducerConsumerQueueException"/>.
         /// </returns>
         public bool TryAdd(T item)
         {
-            try
-            {
-                return _queue.TryAdd(item);
-            }
-            catch (Exception e)
-            {
-                OnException?.Invoke(this, new ProducerConsumerQueueException("Exception occurred when adding item.", e));
-                return false;
-            }
+            return TryAdd(item, TimeSpan.Zero, CancellationToken.None);
         }
 
         /// <summary>
-        /// Attempts to add the specified item to the <see cref="ProducerConsumerQueue{T}"/>.
+        /// Tries to add the specified item to the <see cref="ProducerConsumerQueue{T}"/> within the specified time period.
         /// </summary>
         /// <param name="item">The item to be added.</param>
-        /// <param name="timeout">
-        /// A <c>TimeSpan</c> that represents the time to wait before giving up.
-        /// </param>
+        /// <param name="timeout">Represents the time to wait.</param>
         /// <returns>
-        /// <c>True</c> if the item could be added to the collection within the specified time span; otherwise, <c>False</c>.
+        /// <c>True</c> if <paramref name="item"/> could be added to the collection within the specified time, 
+        /// otherwise <c>False</c>. If the item is a duplicate, and the underlying collection does 
+        /// not accept duplicate items, then an <see cref="InvalidOperationException"/> is thrown wrapped 
+        /// in a <see cref="ProducerConsumerQueueException"/>.
         /// </returns>
         public bool TryAdd(T item, TimeSpan timeout)
         {
+            return TryAdd(item, timeout, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Tries to add the specified item to the <see cref="ProducerConsumerQueue{T}"/> within the specified time period.
+        /// </summary>
+        /// <param name="item">The item to be added.</param>
+        /// <param name="timeout">Represents the time to wait.</param>
+        /// <param name="cancellationToken">The cancellation token to observe.</param>
+        /// <returns>
+        /// <c>True</c> if <paramref name="item"/> could be added to the collection within the specified time, 
+        /// otherwise <c>False</c>. If the item is a duplicate, and the underlying collection does 
+        /// not accept duplicate items, then an <see cref="InvalidOperationException"/> is thrown wrapped 
+        /// in a <see cref="ProducerConsumerQueueException"/>.
+        /// </returns>
+        public bool TryAdd(T item, TimeSpan timeout, CancellationToken cancellationToken)
+        {
             try
             {
-                return _queue.TryAdd(item, timeout);
+                return _queue.TryAdd(item, (int)timeout.TotalMilliseconds, cancellationToken);
             }
             catch (Exception e)
             {
@@ -148,45 +164,57 @@
         }
 
         /// <summary>
-        /// Marks the <see cref="ProducerConsumerQueue{T}"/> instance as not accepting 
-        /// any new items. Any outstanding items will be consumed for as long as <paramref name="waitFor"/>.
+        /// Marks the <see cref="ProducerConsumerQueue{T}"/> instance as not accepting any new items.
         /// </summary>
-        /// <param name="waitFor">The maximum time to wait for any pending items to be processed.</param>
-        /// <returns>Flag indicating whether all the workers were shutdown and dismantled in time.</returns>
-        public bool Shutdown(TimeSpan waitFor)
+        public void CompleteAdding()
         {
-            Volatile.Write(ref _isShutdownRequested, true);
             _queue.CompleteAdding();
-            var finishedInTime = Task.WaitAll(_tasks, waitFor);
-            
-            _shutDownCancellationTokenSource.Cancel();
-            _shutDownCancellationTokenSource.Dispose();
-            _queue.Dispose();
-            return finishedInTime;
         }
-        
-        private IEnumerable<Task> SetupConsumer(Action<T> consumer, uint maximumConcurrencyLevel)
-        {
-            var cToken = _shutDownCancellationTokenSource.Token;
 
-            for (var i = 0; i < maximumConcurrencyLevel; i++)
+        /// <summary>
+        /// Releases all the resources used by this instance.
+        /// </summary>
+        public void Dispose()
+        {
+            _queue?.Dispose();
+        }
+
+        private Task<bool> Configure(Action<T> consumer)
+        {
+            var scheduler = TaskScheduler.Default;
+            var tasks = new Task[WorkerCount];
+            for (var i = 0; i < WorkerCount; i++)
             {
-                yield return Task.Factory.StartNew(() =>
+                tasks[i] = Task.Factory.StartNew(() =>
                 {
-                    foreach (var item in _queue.GetConsumingEnumerable(cToken))
+                    foreach (var item in _queue.GetConsumingEnumerable())
                     {
-                        cToken.ThrowIfCancellationRequested();
                         try
                         {
                             consumer(item);
-                        }
-                        catch (Exception e)
+                        } catch (Exception e)
                         {
                             OnException?.Invoke(this, new ProducerConsumerQueueException("Exception occurred.", e));
                         }
                     }
-                }, cToken, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+                }, CancellationToken.None, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, scheduler);
             }
+
+            var tcs = new TaskCompletionSource<bool>();
+            
+            var workersDone = Task.WhenAll(tasks);
+
+            workersDone.ContinueWith(task =>
+            {
+                tcs.SetResult(false);
+            }, TaskContinuationOptions.NotOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
+
+            workersDone.ContinueWith(task =>
+            {
+                tcs.SetResult(true);
+            }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
+
+            return tcs.Task;
         }
     }
 
