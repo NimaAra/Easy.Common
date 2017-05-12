@@ -44,8 +44,16 @@ namespace Easy.Common
             foreach (var prop in Properties)
             {
                 var propName = prop.Name;
-                _objectGettersCache[propName] = AccessorBuilder.BuildGetter(prop, IncludesNonPublic);
-                _objectSettersCache[propName] = AccessorBuilder.BuildSetter(prop, IncludesNonPublic);
+             
+                if (prop.CanRead)
+                {
+                    _objectGettersCache[propName] = AccessorBuilder.BuildGetter(prop, IncludesNonPublic);
+                }
+             
+                if (prop.CanWrite)
+                {
+                    _objectSettersCache[propName] = AccessorBuilder.BuildSetter(prop, IncludesNonPublic);
+                }
             }
         }
 
@@ -57,16 +65,22 @@ namespace Easy.Common
             get
             {
                 Func<object, object> getter;
-                _objectGettersCache.TryGetValue(propertyName, out getter);
-                // ReSharper disable once PossibleNullReferenceException
+                if (!_objectGettersCache.TryGetValue(propertyName, out getter))
+                {
+                    throw new ArgumentException(instance.GetType().FullName + "." + propertyName + " has no getter");
+                }
+
                 return getter(instance);
             }
 
             set
             {
                 Action<object, object> setter;
-                _objectSettersCache.TryGetValue(propertyName, out setter);
-                // ReSharper disable once PossibleNullReferenceException
+                if (!_objectSettersCache.TryGetValue(propertyName, out setter))
+                {
+                    throw new ArgumentException(instance.GetType().FullName + "." + propertyName + " has no setter");
+                }
+
                 setter(instance, value);
             }
         }
@@ -112,8 +126,16 @@ namespace Easy.Common
 
             foreach (var prop in Properties) {
                 var propName = prop.Name;
-                _genericPropertiesGettersCache[propName] = AccessorBuilder.BuildGetter<TInstance>(prop, IncludesNonPublic);
-                _genericPropertiesSettersCache[propName] = AccessorBuilder.BuildSetter<TInstance>(prop, IncludesNonPublic);
+             
+                if (prop.CanRead)
+                {
+                    _genericPropertiesGettersCache[propName] = AccessorBuilder.BuildGetter<TInstance>(prop, IncludesNonPublic);
+                }
+             
+                if (prop.CanWrite)
+                {
+                    _genericPropertiesSettersCache[propName] = AccessorBuilder.BuildSetter<TInstance>(prop, IncludesNonPublic);
+                }
             }
         }
         
@@ -123,8 +145,11 @@ namespace Easy.Common
         public object Get(TInstance instance, string propertyName)
         {
             Func<TInstance, object> getter;
-            _genericPropertiesGettersCache.TryGetValue(propertyName, out getter);
-            // ReSharper disable once PossibleNullReferenceException
+            if (!_genericPropertiesGettersCache.TryGetValue(propertyName, out getter))
+            {
+                throw new ArgumentException(typeof(TInstance).FullName + "." + propertyName + " has no getter");
+            }
+
             return getter(instance);
         }
 
@@ -134,8 +159,11 @@ namespace Easy.Common
         public void Set(TInstance instance, string propertyName, object propValue)
         {
             Action<TInstance, object> setter;
-            _genericPropertiesSettersCache.TryGetValue(propertyName, out setter);
-            // ReSharper disable once PossibleNullReferenceException
+            if (!_genericPropertiesSettersCache.TryGetValue(propertyName, out setter))
+            {
+                throw new ArgumentException(typeof(TInstance).FullName + "." + propertyName + " has no setter");
+            }
+
             setter(instance, propValue);
         }
 
@@ -144,20 +172,13 @@ namespace Easy.Common
         /// </summary>
         public TProperty Get<TProperty>(TInstance instance, string propertyName)
         {
-            var cache = _genericInstanceGettersCache;
-
-            Func<TInstance, TProperty> getter;
             object tmpGetter;
-            if (!cache.TryGetValue(propertyName, out tmpGetter))
+            if (!_genericInstanceGettersCache.TryGetValue(propertyName, out tmpGetter))
             {
-                getter = AccessorBuilder.BuildGetter<TInstance, TProperty>(propertyName, IncludesNonPublic);
-                cache[propertyName] = getter;
-            }
-            else
-            {
-                getter = (Func<TInstance, TProperty>)tmpGetter;
+                throw new ArgumentException(typeof(TInstance).FullName + "." + propertyName + " has no getter");
             }
 
+            var getter = (Func<TInstance, TProperty>)tmpGetter;
             return getter(instance);
         }
 
@@ -166,20 +187,13 @@ namespace Easy.Common
         /// </summary>
         public void Set<TProperty>(TInstance instance, string propertyName, TProperty value)
         {
-            var cache = _genericInstanceSettersCache;
-
-            Action<TInstance, TProperty> setter;
             object tmpSetter;
-            if (!cache.TryGetValue(propertyName, out tmpSetter))
+            if (!_genericInstanceSettersCache.TryGetValue(propertyName, out tmpSetter))
             {
-                setter = AccessorBuilder.BuildSetter<TInstance, TProperty>(propertyName, IncludesNonPublic);
-                cache[propertyName] = setter;
-            }
-            else
-            {
-                setter = (Action<TInstance, TProperty>)tmpSetter;
+                throw new ArgumentException(typeof(TInstance).FullName + "." + propertyName + " has no setter");
             }
 
+            var setter = (Action<TInstance, TProperty>)tmpSetter;
             setter(instance, value);
         }
     }
