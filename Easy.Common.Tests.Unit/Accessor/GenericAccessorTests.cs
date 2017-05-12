@@ -1,17 +1,20 @@
 namespace Easy.Common.Tests.Unit.Accessor
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using NUnit.Framework;
     using Shouldly;
+    using Accessor = Easy.Common.Accessor;
 
     [TestFixture]
+    [SuppressMessage("ReSharper", "RedundantTypeArgumentsOfMethod")]
     public sealed class GenericAccessorTests
     {
         [Test]
         public void When_creating_generic_accessor_with_default_flags()
         {
             var parent = new Parent();
-            var parentAccessor = AccessorBuilder.Build<Parent>();
+            var parentAccessor = Accessor.Build<Parent>();
             parentAccessor.ShouldBeOfType<Accessor<Parent>>();
             parentAccessor.Type.ShouldBe(typeof(Parent));
             parentAccessor.IgnoreCase.ShouldBe(false);
@@ -36,7 +39,7 @@ namespace Easy.Common.Tests.Unit.Accessor
             parentAccessor[parent, "Age"].ShouldBe(10);
 
             var child = new Child();
-            var childAccessor = AccessorBuilder.Build<Child>();
+            var childAccessor = Accessor.Build<Child>();
             childAccessor.ShouldBeOfType<Accessor<Child>>();
             childAccessor.Type.ShouldBe(typeof(Child));
             childAccessor.IgnoreCase.ShouldBe(false);
@@ -68,7 +71,7 @@ namespace Easy.Common.Tests.Unit.Accessor
         public void When_creating_generic_accessor_with_custom_flags()
         {
             var parent = new Parent();
-            var parentAccessor = AccessorBuilder.Build<Parent>(true, true);
+            var parentAccessor = Accessor.Build<Parent>(true, true);
             parentAccessor.ShouldBeOfType<Accessor<Parent>>();
             parentAccessor.Type.ShouldBe(typeof(Parent));
             parentAccessor.IgnoreCase.ShouldBe(true);
@@ -104,7 +107,7 @@ namespace Easy.Common.Tests.Unit.Accessor
             parentAccessor[parent, "naME"].ShouldBe("Foo Foo");
 
             var child = new Child();
-            var childAccessor = AccessorBuilder.Build<Child>(true, true);
+            var childAccessor = Accessor.Build<Child>(true, true);
             childAccessor.ShouldBeOfType<Accessor<Child>>();
             childAccessor.Type.ShouldBe(typeof(Child));
             childAccessor.IgnoreCase.ShouldBe(true);
@@ -135,7 +138,7 @@ namespace Easy.Common.Tests.Unit.Accessor
         [Test]
         public void When_using_parent_accessor_to_access_child_properties()
         {
-            var parentAccessor = AccessorBuilder.Build<Parent>();
+            var parentAccessor = Accessor.Build<Parent>();
             parentAccessor.ShouldBeOfType<Accessor<Parent>>();
             parentAccessor.Type.ShouldBe(typeof(Parent));
             parentAccessor.IgnoreCase.ShouldBe(false);
@@ -143,14 +146,17 @@ namespace Easy.Common.Tests.Unit.Accessor
 
             var child = new Child();
 
-            Should.Throw<NullReferenceException>(() => { var ignore = parentAccessor[child, "ChildName"]; })
-                .Message.ShouldBe("Object reference not set to an instance of an object.");
+            Should.Throw<ArgumentException>(() => { var ignore = parentAccessor[child, "ChildName"]; })
+                .Message.ShouldBe("Type: `Easy.Common.Tests.Unit.Accessor.GenericAccessorTests+Child` does not have a property named: `ChildName` that supports reading.");
+
+            Should.Throw<ArgumentException>(() => { parentAccessor[child, "ChildName"] = "foo"; })
+                .Message.ShouldBe("Type: `Easy.Common.Tests.Unit.Accessor.GenericAccessorTests+Child` does not have a property named: `ChildName` that supports writing.");
         }
 
         [Test]
         public void When_testing_public_members()
         {
-            var accessor = AccessorBuilder.Build<Parent>();
+            var accessor = Accessor.Build<Parent>();
             accessor.ShouldBeOfType<Accessor<Parent>>();
             accessor.Type.ShouldBe(typeof(Parent));
             accessor.IgnoreCase.ShouldBe(false);
@@ -164,17 +170,69 @@ namespace Easy.Common.Tests.Unit.Accessor
             accessor[instance, "Name"] = "John";
             instance.Name.ShouldBe("John");
 
-            accessor.Get(instance, "Name").ShouldBe("John");
-            accessor.Set(instance, "Age", (object)10);
+            accessor.TryGet(instance, "Name", out object result1).ShouldBeTrue();
+            result1.ShouldBe("John");
 
-            accessor.Get<int>(instance, "Age").ShouldBe(10);
+            accessor.TrySet(instance, "Age", (object)10).ShouldBeTrue();
 
-            accessor.Set(instance, "Name", "Bobby");
-            accessor.Get<string>(instance, "Name").ShouldBe("Bobby");
-            accessor.Set(instance, "Name", "Joey");
-            accessor.Get<string>(instance, "Name").ShouldBe("Joey");
+            accessor.TryGet<int>(instance, "Age", out int result2).ShouldBeTrue();
+            result2.ShouldBe(10);
+
+            accessor.TrySet(instance, "Name", "Bobby").ShouldBeTrue();
+            
+            accessor.TryGet<string>(instance, "Name", out string result3).ShouldBeTrue();
+            result3.ShouldBe("Bobby");
+            
+            accessor.TrySet(instance, "Name", "Joey").ShouldBeTrue();
+            
+            accessor.TryGet<string>(instance, "Name", out string result4).ShouldBeTrue();
+            result4.ShouldBe("Joey");
         }
 
+        [Test]
+        public void When_testing_special_cases()
+        {
+            var accessor = Accessor.Build<SpecialCase>();
+            accessor.ShouldBeOfType<Accessor<SpecialCase>>();
+            accessor.Type.ShouldBe(typeof(SpecialCase));
+            accessor.IgnoreCase.ShouldBe(false);
+            accessor.Properties.Length.ShouldBe(2);
+            accessor.Properties.ShouldContain(x => x.Name == "GetterOnly");
+            accessor.Properties.ShouldContain(x => x.Name == "SetterOnly");
+
+            var instance = new SpecialCase();
+
+            Should.Throw<ArgumentException>(() => { var ignore = accessor[instance, "SetterOnly"]; })
+                .Message.ShouldBe("Type: `Easy.Common.Tests.Unit.Accessor.GenericAccessorTests+SpecialCase` does not have a property named: `SetterOnly` that supports reading.");
+
+            Should.Throw<ArgumentException>(() => accessor[instance, "GetterOnly"] = "bar")
+                .Message.ShouldBe("Type: `Easy.Common.Tests.Unit.Accessor.GenericAccessorTests+SpecialCase` does not have a property named: `GetterOnly` that supports writing.");
+
+            accessor.TrySet(instance, "GetterOnly", (object) "Baz").ShouldBeFalse();
+
+            accessor.TryGet(instance, "SetterOnly", out object tmpResult1).ShouldBeFalse();
+            tmpResult1.ShouldBeNull();
+
+            accessor.TryGet<string>(instance, "SetterOnly", out string tmpResult2).ShouldBeFalse();
+            tmpResult2.ShouldBeNull();
+
+            accessor.TrySet<string>(instance, "GetterOnly", "Boo").ShouldBeFalse();
+
+            accessor[instance, "SetterOnly"] = "Foo";
+            accessor[instance, "GetterOnly"].ShouldBe("Foo");
+
+            accessor.TrySet(instance, "SetterOnly", (object)"Baz").ShouldBeTrue();
+
+            accessor.TryGet(instance, "GetterOnly", out object result1).ShouldBeTrue();
+            result1.ShouldBe("Baz");
+
+            accessor.TrySet<string>(instance, "SetterOnly", "Boo");
+            
+            accessor.TryGet<string>(instance, "GetterOnly", out string result2).ShouldBeTrue();
+            result2.ShouldBe("Boo");
+        }
+
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private class Parent
         {
             public string Name { get; set; }
@@ -184,9 +242,20 @@ namespace Easy.Common.Tests.Unit.Accessor
             public string GetJob() => Job;
         }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private sealed class Child : Parent
         {
             public string ChildName { get; set; } = "Bar";
+        }
+
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        private sealed class SpecialCase
+        {
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public string GetterOnly => _stuff;
+
+            private string _stuff;
+            public string SetterOnly { set => _stuff = value; }
         }
     }
 }

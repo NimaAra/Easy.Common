@@ -2,90 +2,73 @@
 namespace Easy.Common
 {
     using System;
-    using System.Diagnostics;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Reflection.Emit;
     using Easy.Common.Extensions;
 
     /// <summary>
-    /// Provides a very fast and efficient property setter and getter access as well as object creation.
+    /// Provides a very fast and efficient property setter and getter access as well
+    /// as object creation.
     /// </summary>
     public static class AccessorBuilder
     {
         /// <summary>
-        /// Builds an <see cref="AccessorBuilder"/> which provides easy access to all of the <see cref="PropertyInfo"/> of the given <paramref name="type"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Accessor Build(Type type, bool ignoreCase = false, bool includeNonPublic = false)
-        {
-            Ensure.NotNull(type, nameof(type));
-            return new Accessor(type, ignoreCase, includeNonPublic);
-        }
-
-        /// <summary>
-        /// Builds an <see cref="Accessor{TInstance}"/> which provides easy access to all of the <see cref="PropertyInfo"/> of the given <typeparamref name="TInstance"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Accessor<TInstance> Build<TInstance>(bool ignoreCase = false, bool includeNonPublic = false) where TInstance : class
-        {
-            return new Accessor<TInstance>(ignoreCase, includeNonPublic);
-        }
-
-        /// <summary>
-        /// Builds a property setter for a given instance type of <typeparamref name="TInstance"/> and property type of <typeparamref name="TProperty"/> with the name of <paramref name="propertyName"/>.
+        /// Builds a property setter for a given instance type of <typeparamref name="TInstance"/> 
+        /// and property type of <typeparamref name="TProperty"/> with the name of <paramref name="propertyName"/>.
         /// <remarks>
         /// The setters for a <typeparamref name="TInstance"/> of <see lang="struct"/> are 
         /// intentionally not supported as changing the values of immutable types is a bad practice.
         /// </remarks>
         /// </summary>
-        [DebuggerStepThrough]
         public static Action<TInstance, TProperty> BuildSetter<TInstance, TProperty>(string propertyName, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
-            PropertyInfo propInfo;
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
+            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo);
             Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName + ".");
             return BuildSetter<TInstance, TProperty>(propInfo, includeNonPublic);
         }
 
         /// <summary>
-        /// Builds a property setter for a given instance type of <typeparamref name="TInstance"/> and property type of <typeparamref name="TProperty"/>.
+        /// Builds a property setter for a given instance type of <typeparamref name="TInstance"/> 
+        /// and property type of <typeparamref name="TProperty"/>.
         /// <remarks>
         /// The setters for a <typeparamref name="TInstance"/> of <see lang="struct"/> are 
         /// intentionally not supported as changing the values of immutable types is a bad practice.
         /// </remarks>
         /// </summary>
-        [DebuggerStepThrough]
         public static Action<TInstance, TProperty> BuildSetter<TInstance, TProperty>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
+            Ensure.That(propertyInfo.CanWrite, $"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support writing.");
+
             var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
             return (Action<TInstance, TProperty>)Delegate.CreateDelegate(typeof(Action<TInstance, TProperty>), setMethod);
         }
 
         /// <summary>
-        /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> and property type of <typeparamref name="TProperty"/> with the name of <paramref name="propertyName"/>.
+        /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> 
+        /// and property type of <typeparamref name="TProperty"/> with the name of <paramref name="propertyName"/>.
         /// </summary>
-        [DebuggerStepThrough]
         public static Func<TInstance, TProperty> BuildGetter<TInstance, TProperty>(string propertyName, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
-            PropertyInfo propInfo;
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
+            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo);
             Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName + ".");
             return BuildGetter<TInstance, TProperty>(propInfo, includeNonPublic);
         }
 
         /// <summary>
-        /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> and property type of <typeparamref name="TProperty"/>.
+        /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> 
+        /// and property type of <typeparamref name="TProperty"/>.
         /// </summary>
-        [DebuggerStepThrough]
         public static Func<TInstance, TProperty> BuildGetter<TInstance, TProperty>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
+            Ensure.That(propertyInfo.CanRead, $"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support reading.");
+
             var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
             return (Func<TInstance, TProperty>)Delegate.CreateDelegate(typeof(Func<TInstance, TProperty>), getMethod);
         }
@@ -93,11 +76,12 @@ namespace Easy.Common
         /// <summary>
         /// Builds a property setter for when both the instance and property type are unknown.
         /// </summary>
-        [DebuggerStepThrough]
         public static Action<object, object> BuildSetter(PropertyInfo propertyInfo, bool includeNonPublic = false)
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
+            
             var instanceType = propertyInfo.ReflectedType;
+            Ensure.That(propertyInfo.CanWrite, $"Property: `{propertyInfo.Name}` of type: `{instanceType?.FullName}` does not support writing.");
 
             var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
             var typeofObject = typeof(object);
@@ -106,7 +90,6 @@ namespace Easy.Common
             var value = Expression.Parameter(typeofObject, "value");
 
             // value as T is slightly faster than (T)value, so if it's not a value type, use that
-            // ReSharper disable once PossibleNullReferenceException
             var instanceCast = !instanceType.GetTypeInfo().IsValueType
                 ? Expression.TypeAs(instance, instanceType)
                 : Expression.Convert(instance, instanceType);
@@ -122,16 +105,17 @@ namespace Easy.Common
         /// <summary>
         /// Builds a property getter for when both the instance and property type are unknown.
         /// </summary>
-        [DebuggerStepThrough]
         public static Func<object, object> BuildGetter(PropertyInfo propertyInfo, bool includeNonPublic = false)
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
+            
             var instanceType = propertyInfo.ReflectedType;
+            Ensure.That(propertyInfo.CanRead, $"Property: `{propertyInfo.Name}` of type: `{instanceType?.FullName}` does not support reading.");
+            
             var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
             var typeofObject = typeof(object);
 
             var instance = Expression.Parameter(typeofObject, "instance");
-            // ReSharper disable once PossibleNullReferenceException
             var isValueType = instanceType.GetTypeInfo().IsValueType;
             var instanceCast = !isValueType
                 ? Expression.TypeAs(instance, instanceType)
@@ -142,34 +126,35 @@ namespace Easy.Common
         }
 
         /// <summary>
-        /// Builds a property setter for a given instance type of <typeparamref name="TInstance"/> and property name of <paramref name="propertyName"/>.
+        /// Builds a property setter for a given instance type of <typeparamref name="TInstance"/> 
+        /// and property name of <paramref name="propertyName"/>.
         /// <remarks>
         /// The setters for a <typeparamref name="TInstance"/> of <see lang="struct"/> are 
         /// intentionally not supported as changing the values of immutable types is a bad practice.
         /// </remarks>
         /// </summary>
-        [DebuggerStepThrough]
         public static Action<TInstance, object> BuildSetter<TInstance>(string propertyName, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
-            PropertyInfo propInfo;
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
+            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo);
             Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName + ".");
             return BuildSetter<TInstance>(propInfo, includeNonPublic);
         }
 
         /// <summary>
-        /// Builds a property setter for a given instance type of <typeparamref name="TInstance"/> and property of <paramref name="propertyInfo"/>.
+        /// Builds a property setter for a given instance type of <typeparamref name="TInstance"/> 
+        /// and property of <paramref name="propertyInfo"/>.
         /// <remarks>
         /// The setters for a <typeparamref name="TInstance"/> of <see lang="struct"/> are 
         /// intentionally not supported as changing the values of immutable types is a bad practice.
         /// </remarks>
         /// </summary>
-        [DebuggerStepThrough]
         public static Action<TInstance, object> BuildSetter<TInstance>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
+            Ensure.That(propertyInfo.CanWrite, $"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support writing.");
+
             var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
 
             var instance = Expression.Parameter(typeof(TInstance), "instance");
@@ -184,26 +169,27 @@ namespace Easy.Common
         }
 
         /// <summary>
-        /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> and property name of <paramref name="propertyName"/>.
+        /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> 
+        /// and property name of <paramref name="propertyName"/>.
         /// </summary>
-        [DebuggerStepThrough]
         public static Func<TInstance, object> BuildGetter<TInstance>(string propertyName, bool includeNonPublic = false)
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
-            PropertyInfo propInfo;
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out propInfo);
+            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo);
             Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName + ".");
             return BuildGetter<TInstance>(propInfo, includeNonPublic);
         }
 
         /// <summary>
-        /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> and property of <paramref name="propertyInfo"/>.
+        /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> 
+        /// and property of <paramref name="propertyInfo"/>.
         /// </summary>
-        [DebuggerStepThrough]
         public static Func<TInstance, object> BuildGetter<TInstance>(PropertyInfo propertyInfo, bool includeNonPublic = false)
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
+            Ensure.That(propertyInfo.CanRead, $"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support reading.");
+
             var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
 
             var instance = Expression.Parameter(typeof(TInstance), "instance");
@@ -214,7 +200,6 @@ namespace Easy.Common
         /// <summary>
         /// Builds a delegate for creating an instance of the <typeparamref name="TInstance"/>.
         /// </summary>
-        [DebuggerStepThrough]
         public static Func<TInstance> BuildInstanceCreator<TInstance>() where TInstance : new()
         {
             var type = typeof(TInstance);
@@ -243,12 +228,19 @@ namespace Easy.Common
         }
 
         /// <summary>
-        /// Builds a delegate for creating an instance of the <typeparamref name="TInstance"/> from its <paramref name="constructor"/>.
-        /// <remarks>The order of arguments passed to the delegate should match the order set by the constructor.</remarks>
-        /// <exception cref="IndexOutOfRangeException">Thrown if the count parameters passed to the constructor does not match the required constructor parameter count.</exception>
-        /// <exception cref="InvalidCastException">Thrown if parameters passed to the constructor are of invalid type.</exception>
+        /// Builds a delegate for creating an instance of the <typeparamref name="TInstance"/> 
+        /// from its <paramref name="constructor"/>.
+        /// <remarks>
+        /// The order of arguments passed to the delegate should match the order set by the constructor.
+        /// </remarks>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Thrown if the count parameters passed to the constructor does not match the required 
+        /// constructor parameter count.
+        /// </exception>
+        /// <exception cref="InvalidCastException">
+        /// Thrown if parameters passed to the constructor are of invalid type.
+        /// </exception>
         /// </summary>
-        [DebuggerStepThrough]
         public static Func<object[], TInstance> BuildInstanceCreator<TInstance>(ConstructorInfo constructor)
         {
             Ensure.NotNull(constructor, nameof(constructor));

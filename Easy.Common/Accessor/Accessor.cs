@@ -5,7 +5,6 @@ namespace Easy.Common
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
 
     /// <summary>
@@ -14,7 +13,29 @@ namespace Easy.Common
     public class Accessor
     {
         /// <summary>
-        /// Gets the <see cref="StringComparer"/> used by the <see cref="Accessor"/> to find the properties on the given instance. 
+        /// Builds an <see cref="Accessor"/> which provides easy access to all of 
+        /// the <see cref="PropertyInfo"/> of the given <paramref name="type"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static Accessor Build(Type type, bool ignoreCase = false, bool includeNonPublic = false)
+        {
+            Ensure.NotNull(type, nameof(type));
+            return new Accessor(type, ignoreCase, includeNonPublic);
+        }
+
+        /// <summary>
+        /// Builds an <see cref="Accessor{TInstance}"/> which provides easy access to all of 
+        /// the <see cref="PropertyInfo"/> of the given <typeparamref name="TInstance"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static Accessor<TInstance> Build<TInstance>(bool ignoreCase = false, bool includeNonPublic = false) where TInstance : class
+        {
+            return new Accessor<TInstance>(ignoreCase, includeNonPublic);
+        }
+        
+        /// <summary>
+        /// Gets the <see cref="StringComparer"/> used by the <see cref="Accessor"/> to find 
+        /// the properties on the given instance. 
         /// </summary>
         protected StringComparer Comparer;
 
@@ -58,16 +79,16 @@ namespace Easy.Common
         }
 
         /// <summary>
-        /// Gets or sets the value of the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
+        /// Gets or sets the value of the given <paramref name="propertyName"/> for 
+        /// the given <paramref name="instance"/>.
         /// </summary>
         public object this[object instance, string propertyName]
         {
             get
             {
-                Func<object, object> getter;
-                if (!_objectGettersCache.TryGetValue(propertyName, out getter))
+                if (!_objectGettersCache.TryGetValue(propertyName, out Func<object, object> getter))
                 {
-                    throw new ArgumentException(instance.GetType().FullName + "." + propertyName + " has no getter");
+                    throw new ArgumentException($"Type: `{instance.GetType().FullName}` does not have a property named: `{propertyName}` that supports reading.");
                 }
 
                 return getter(instance);
@@ -75,10 +96,9 @@ namespace Easy.Common
 
             set
             {
-                Action<object, object> setter;
-                if (!_objectSettersCache.TryGetValue(propertyName, out setter))
+                if (!_objectSettersCache.TryGetValue(propertyName, out Action<object, object> setter))
                 {
-                    throw new ArgumentException(instance.GetType().FullName + "." + propertyName + " has no setter");
+                    throw new ArgumentException($"Type: `{instance.GetType().FullName}` does not have a property named: `{propertyName}` that supports writing.");
                 }
 
                 setter(instance, value);
@@ -107,17 +127,16 @@ namespace Easy.Common
     }
 
     /// <summary>
-    /// An abstraction for gaining fast access to all of the <see cref="PropertyInfo"/> of the given <typeparamref name="TInstance"/>.
+    /// An abstraction for gaining fast access to all of the <see cref="PropertyInfo"/> of 
+    /// the given <typeparamref name="TInstance"/>.
     /// </summary>
-    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public sealed class Accessor<TInstance> : Accessor where TInstance : class
     {
         private readonly ConcurrentDictionary<string, object> _genericInstanceGettersCache, _genericInstanceSettersCache;
         private readonly Dictionary<string, Func<TInstance, object>> _genericPropertiesGettersCache;
         private readonly Dictionary<string, Action<TInstance, object>> _genericPropertiesSettersCache;
 
-        internal Accessor(bool ignoreCase, bool includeNonPublic)
-            : base(typeof(TInstance), ignoreCase, includeNonPublic)
+        internal Accessor(bool ignoreCase, bool includeNonPublic) : base(typeof(TInstance), ignoreCase, includeNonPublic)
         {
             _genericPropertiesGettersCache = new Dictionary<string, Func<TInstance, object>>(Properties.Length, Comparer);
             _genericPropertiesSettersCache = new Dictionary<string, Action<TInstance, object>>(Properties.Length, Comparer);
@@ -140,61 +159,89 @@ namespace Easy.Common
         }
         
         /// <summary>
-        /// Gets the value of the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
+        /// Attempts to get the value of the given <paramref name="propertyName"/> for 
+        /// the given <paramref name="instance"/>.
         /// </summary>
-        public object Get(TInstance instance, string propertyName)
+        public bool TryGet(TInstance instance, string propertyName, out object value)
         {
-            Func<TInstance, object> getter;
-            if (!_genericPropertiesGettersCache.TryGetValue(propertyName, out getter))
+            if (!_genericPropertiesGettersCache.TryGetValue(propertyName, out Func<TInstance, object> getter))
             {
-                throw new ArgumentException(typeof(TInstance).FullName + "." + propertyName + " has no getter");
+                value = null;
+                return false;
             }
 
-            return getter(instance);
+            value = getter(instance);
+            return true;
         }
 
         /// <summary>
-        /// Sets the value of the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
+        /// Attempts to set the value of the given <paramref name="propertyName"/> for 
+        /// the given <paramref name="instance"/>.
         /// </summary>
-        public void Set(TInstance instance, string propertyName, object propValue)
+        public bool TrySet(TInstance instance, string propertyName, object value)
         {
-            Action<TInstance, object> setter;
-            if (!_genericPropertiesSettersCache.TryGetValue(propertyName, out setter))
+            if (!_genericPropertiesSettersCache.TryGetValue(propertyName, out Action<TInstance, object> setter))
             {
-                throw new ArgumentException(typeof(TInstance).FullName + "." + propertyName + " has no setter");
+                return false;
             }
 
-            setter(instance, propValue);
-        }
-
-        /// <summary>
-        /// Gets the value of a property selected by the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
-        /// </summary>
-        public TProperty Get<TProperty>(TInstance instance, string propertyName)
-        {
-            object tmpGetter;
-            if (!_genericInstanceGettersCache.TryGetValue(propertyName, out tmpGetter))
-            {
-                throw new ArgumentException(typeof(TInstance).FullName + "." + propertyName + " has no getter");
-            }
-
-            var getter = (Func<TInstance, TProperty>)tmpGetter;
-            return getter(instance);
-        }
-
-        /// <summary>
-        /// Sets the value of the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
-        /// </summary>
-        public void Set<TProperty>(TInstance instance, string propertyName, TProperty value)
-        {
-            object tmpSetter;
-            if (!_genericInstanceSettersCache.TryGetValue(propertyName, out tmpSetter))
-            {
-                throw new ArgumentException(typeof(TInstance).FullName + "." + propertyName + " has no setter");
-            }
-
-            var setter = (Action<TInstance, TProperty>)tmpSetter;
             setter(instance, value);
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to get the value of a property selected by the given <paramref name="propertyName"/> 
+        /// for the given <paramref name="instance"/>.
+        /// </summary>
+        public bool TryGet<TProperty>(TInstance instance, string propertyName, out TProperty value)
+        {
+            var cache = _genericInstanceGettersCache;
+
+            Func<TInstance, TProperty> getter;
+            if (!cache.TryGetValue(propertyName, out object tmpGetter))
+            {
+                var propInfo = Array.Find(Properties, p => Comparer.Compare(p.Name, propertyName) == 0);
+                if (propInfo == null || !propInfo.CanRead)
+                {
+                    value = default(TProperty);
+                    return false;
+                }
+                
+                getter = AccessorBuilder.BuildGetter<TInstance, TProperty>(propInfo, IncludesNonPublic);
+                cache[propertyName] = getter;
+            }
+            else
+            {
+                getter = (Func<TInstance, TProperty>)tmpGetter;
+            }
+
+            value = getter(instance);
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to set the value of the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
+        /// </summary>
+        public bool TrySet<TProperty>(TInstance instance, string propertyName, TProperty value)
+        {
+            var cache = _genericInstanceSettersCache;
+
+            Action<TInstance, TProperty> setter;
+            if (!cache.TryGetValue(propertyName, out object tmpSetter))
+            {
+                var propInfo = Array.Find(Properties, p => Comparer.Compare(p.Name, propertyName) == 0);
+                if (propInfo == null || !propInfo.CanWrite) { return false; }
+                
+                setter = AccessorBuilder.BuildSetter<TInstance, TProperty>(propInfo, IncludesNonPublic);
+                cache[propertyName] = setter;
+            }
+            else
+            {
+                setter = (Action<TInstance, TProperty>)tmpSetter;
+            }
+
+            setter(instance, value);
+            return true;
         }
     }
 }
