@@ -47,8 +47,10 @@
     <Compile Include="..\Version.cs">
       <Link>Properties\Version.cs</Link>
     </Compile>
-    <Compile Include="Accessor\AccessorBuilder.cs" />
-    <Compile Include="Accessor\Accessor.cs" />
+    <Compile Include="Accessors\AccessorBuilder.cs" />
+    <Compile Include="Accessors\Accessor.cs" />
+    <Compile Include="Accessors\GenericAccessor.cs" />
+    <Compile Include="Accessors\ObjectAccessor.cs" />
     <Compile Include="ActiveDirectoryHelper.cs" />
     <Compile Include="ApplicationHelper.cs" />
     <Compile Include="Base36.cs" />

@@ -51,10 +51,10 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Accessor\AccessorCreateInstanceTests.cs" />
-    <Compile Include="Accessor\AccessorPropertyTests.cs" />
-    <Compile Include="Accessor\GenericAccessorTests.cs" />
-    <Compile Include="Accessor\ObjectAccessorTests.cs" />
+    <Compile Include="Accessors\AccessorCreateInstanceTests.cs" />
+    <Compile Include="Accessors\AccessorPropertyTests.cs" />
+    <Compile Include="Accessors\GenericAccessorTests.cs" />
+    <Compile Include="Accessors\ObjectAccessorTests.cs" />
     <Compile Include="Assembly\GettingAssemblyFrameworkVersionTests.cs" />
     <Compile Include="ByteExtensions\ComparingByteArraysTests.cs" />
     <Compile Include="ConfigReader\Context.cs" />

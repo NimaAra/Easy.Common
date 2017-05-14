@@ -6,7 +6,7 @@ namespace Easy.Common
     using System.Reflection;
     using System.Reflection.Emit;
     using Easy.Common.Extensions;
-
+    
     /// <summary>
     /// Provides a very fast and efficient property setter and getter access as well
     /// as object creation.

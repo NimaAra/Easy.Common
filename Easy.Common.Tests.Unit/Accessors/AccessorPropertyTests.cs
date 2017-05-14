@@ -1,4 +1,4 @@
-﻿namespace Easy.Common.Tests.Unit.Accessor
+﻿namespace Easy.Common.Tests.Unit.Accessors
 {
     using System;
     using System.Reflection;
