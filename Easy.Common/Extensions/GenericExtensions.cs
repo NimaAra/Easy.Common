@@ -67,8 +67,9 @@ namespace Easy.Common.Extensions
         }
 
         /// <summary>
-        /// Gets all the private, public, inherited instance property names for the given <paramref name="@object"/>.
+        /// Gets all the private, public, inherited instance property names for the given <paramref name="object"/>.
         /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property names.</remarks>
+        /// <param name="object">Object to get properties from</param>
         /// </summary>
         public static string[] GetPropertyNames<T>(this T @object, bool inherit = true, bool includePrivate = true)
         {
@@ -90,21 +91,21 @@ namespace Easy.Common.Extensions
         /// After the first call, the compiled IL is executed.    
         /// </summary>    
         /// <typeparam name="T">Type of object to clone</typeparam>    
-        /// <param name="myObject">Object to clone</param>    
+        /// <param name="object">Object to clone</param>    
         /// <returns>Cloned object</returns>    
-        public static T CloneShallowUsingIl<T>(this T myObject)
+        public static T CloneShallowUsingIl<T>(this T @object)
         {
             Delegate myExec;
             if (!CachedIlShallow.TryGetValue(typeof(T), out myExec))
             {
                 // Create ILGenerator (both DM declarations work)
                 var dymMethod = new DynamicMethod("DoClone", typeof(T), new[] { typeof(T) }, Assembly.GetExecutingAssembly().ManifestModule, true);
-                var cInfo = myObject.GetType().GetConstructor(new Type[] { });
+                var cInfo = @object.GetType().GetConstructor(new Type[] { });
                 var generator = dymMethod.GetILGenerator();
 
                 generator.Emit(OpCodes.Newobj, cInfo);
                 generator.Emit(OpCodes.Stloc_0);
-                foreach (FieldInfo field in myObject.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+                foreach (FieldInfo field in @object.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
                 {
                     generator.Emit(OpCodes.Ldloc_0);
                     generator.Emit(OpCodes.Ldarg_0);
@@ -116,7 +117,7 @@ namespace Easy.Common.Extensions
                 myExec = dymMethod.CreateDelegate(typeof(Func<T, T>));
                 CachedIlShallow.Add(typeof(T), myExec);
             }
-            return ((Func<T, T>)myExec)(myObject);
+            return ((Func<T, T>)myExec)(@object);
         }
 
         /// <summary>
