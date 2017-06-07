@@ -70,6 +70,8 @@ namespace Easy.Common.Extensions
         /// Gets all the private, public, inherited instance property names for the given <paramref name="object"/>.
         /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property names.</remarks>
         /// <param name="object">Object to get properties from</param>
+        /// <param name="inherit">The flag indicating whether inherited properties should be included or not</param>
+        /// <param name="includePrivate">The flag indicating whether private properties should be included or not</param>
         /// </summary>
         public static string[] GetPropertyNames<T>(this T @object, bool inherit = true, bool includePrivate = true)
         {
