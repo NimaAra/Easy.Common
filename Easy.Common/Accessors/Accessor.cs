@@ -10,6 +10,12 @@ namespace Easy.Common
     /// </summary>
     public abstract class Accessor
     {
+        /// <summary>
+        /// Creates an instance of the <see cref="Accessor"/> class.
+        /// </summary>
+        /// <param name="type">The type of the object to access.</param>
+        /// <param name="ignoreCase">The flag indicating whether property names should be treated case insensitively</param>
+        /// <param name="includeNonPublic">The flag indicating whether non-public properties should be accessible or not</param>
         protected Accessor(IReflect type, bool ignoreCase, bool includeNonPublic)
         {
             Type = type;
