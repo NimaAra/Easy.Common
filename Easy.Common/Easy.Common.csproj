@@ -1,115 +1,39 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FE82ADDA-6940-4F0C-8D84-A128379D456A}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Easy.Common</RootNamespace>
+    <Description>A set of useful methods used across Easy.* projects.</Description>
+    <Copyright>2017 Nima Ara</Copyright>
+    <AssemblyTitle>Easy Common</AssemblyTitle>
+    <VersionPrefix>0.0.0</VersionPrefix>
+    <Authors>Nima Ara</Authors>
+    <TargetFramework>net45</TargetFramework>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>Easy.Common</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <PackageId>Easy.Common</PackageId>
+    <PackageTags>Easy;Common</PackageTags>
+    <PackageProjectUrl>https://github.com/NimaAra/Easy.Common</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/NimaAra/Easy.Common/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/NimaAra/Easy.Common</RepositoryUrl>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+  
+  <PropertyGroup>
+    <TargetFramework>net45</TargetFramework>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <FileVersion>0.0.0.0</FileVersion>
+    <PackageReleaseNotes>-</PackageReleaseNotes>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Easy.Common.XML</DocumentationFile>
-    <Prefer32Bit>false</Prefer32Bit>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\net45\Easy.Common.xml</DocumentationFile>
   </PropertyGroup>
+  
   <ItemGroup>
-    <Reference Include="System" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <Compile Include="..\Version.cs">
-      <Link>Properties\Version.cs</Link>
-    </Compile>
-    <Compile Include="Accessors\AccessorBuilder.cs" />
-    <Compile Include="Accessors\Accessor.cs" />
-    <Compile Include="Accessors\GenericAccessor.cs" />
-    <Compile Include="Accessors\ObjectAccessor.cs" />
-    <Compile Include="ActiveDirectoryHelper.cs" />
-    <Compile Include="ApplicationHelper.cs" />
-    <Compile Include="Base36.cs" />
-    <Compile Include="Base64.cs" />
-    <Compile Include="Clock.cs" />
-    <Compile Include="ConfigReader.cs" />
-    <Compile Include="CountryCodesMapping.cs" />
-    <Compile Include="DynamicDictionary.cs" />
-    <Compile Include="EasyPool.cs" />
-    <Compile Include="Ensure.cs" />
-    <Compile Include="Extensions\EnumerableExtensions.cs" />
-    <Compile Include="Equatable.cs" />
-    <Compile Include="Extensions\AssemblyExtensions.cs" />
-    <Compile Include="Extensions\ByteExtensions.cs" />
-    <Compile Include="Extensions\DateTimeExtensions.cs" />
-    <Compile Include="Extensions\DictionaryExtensions.cs" />
-    <Compile Include="Extensions\DoubleExtensions.cs" />
-    <Compile Include="Extensions\ExpressionExtensions.cs" />
-    <Compile Include="Extensions\FileAndDirectoryInfoExtensions.cs" />
-    <Compile Include="Extensions\GenericExtensions.cs" />
-    <Compile Include="Extensions\IntExtensions.cs" />
-    <Compile Include="Extensions\RandomExtensionsTests.cs" />
-    <Compile Include="Extensions\StreamExtensions.cs" />
-    <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Extensions\TaskExtensions.cs" />
-    <Compile Include="Extensions\TypeExtensions.cs" />
-    <Compile Include="Extensions\UriExtensions.cs" />
-    <Compile Include="Extensions\XmlExtensions.cs" />
-    <Compile Include="Extensions\GuidExtensions.cs" />
-    <Compile Include="GuidHelper.cs" />
-    <Compile Include="HashHelper.cs" />
-    <Compile Include="Interfaces\IClock.cs" />
-    <Compile Include="Interfaces\IConfigReader.cs" />
-    <Compile Include="Interfaces\IObjectPool.cs" />
-    <Compile Include="Interfaces\ITimerClock.cs" />
-    <Compile Include="Interfaces\IRestClient.cs" />
-    <Compile Include="CustomHttpContents.cs" />
-    <Compile Include="KeyedCollectionEx.cs" />
-    <Compile Include="LockHelper.cs" />
-    <Compile Include="MimeMappings.cs" />
-    <Compile Include="NativeMethods.cs" />
-    <Compile Include="NetworkHelper.cs" />
-    <Compile Include="PathHelper.cs" />
-    <Compile Include="PredicateBuilder.cs" />
-    <Compile Include="ProcessHelper.cs" />
-    <Compile Include="ProducerConsumerQueue.cs" />
-    <Compile Include="RestClient.cs" />
-    <Compile Include="StringBuilderCache.cs" />
-    <Compile Include="SubArray.cs" />
-    <Compile Include="ThreadLocalDisposable.cs" />
-    <Compile Include="TimerClock.cs" />
-    <Compile Include="UnitConvertor.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  
 </Project>

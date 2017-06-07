@@ -1,17 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Easy.Common", "Easy.Common\Easy.Common.csproj", "{FE82ADDA-6940-4F0C-8D84-A128379D456A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Easy.Common.Tests.Unit", "Easy.Common.Tests.Unit\Easy.Common.Tests.Unit.csproj", "{A1429C3D-CADF-4881-8562-617DDDC2CA04}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BD2C4344-9BC2-484D-B2D6-3803E1AEA3D4}"
-	ProjectSection(SolutionItems) = preProject
-		Easy.Common\Easy.Common.nuspec = Easy.Common\Easy.Common.nuspec
-		Version.cs = Version.cs
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

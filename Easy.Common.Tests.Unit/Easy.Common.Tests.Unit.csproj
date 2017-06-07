@@ -1,184 +1,55 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A1429C3D-CADF-4881-8562-617DDDC2CA04}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Easy.Common.Tests.Unit</RootNamespace>
-    <AssemblyName>Easy.Common.Tests.Unit</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFramework>net452</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NSubstitute" Version="2.0.3" />
+    <PackageReference Include="NUnit" Version="3.7.1" />
+    <PackageReference Include="Shouldly" Version="2.8.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Easy.Common\Easy.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="NSubstitute, Version=1.10.0.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
-      <HintPath>..\packages\NSubstitute.1.10.0.0\lib\net45\NSubstitute.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="nunit.framework, Version=3.5.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.5.0\lib\net45\nunit.framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Shouldly, Version=2.8.2.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shouldly.2.8.2\lib\net451\Shouldly.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Accessors\AccessorCreateInstanceTests.cs" />
-    <Compile Include="Accessors\AccessorPropertyTests.cs" />
-    <Compile Include="Accessors\GenericAccessorTests.cs" />
-    <Compile Include="Accessors\ObjectAccessorTests.cs" />
-    <Compile Include="Assembly\GettingAssemblyFrameworkVersionTests.cs" />
-    <Compile Include="ByteExtensions\ComparingByteArraysTests.cs" />
-    <Compile Include="ConfigReader\Context.cs" />
-    <Compile Include="ConfigReader\MappingValuesToAGivenValue.cs" />
-    <Compile Include="ConfigReader\UsingConfigReaderWithCustomConfigurationFile.cs" />
-    <Compile Include="ConfigReader\UsingConfigReaderWithDefaultApplicationConfigurationFile.cs" />
-    <Compile Include="CountryCodes\CountryCodesTests.cs" />
-    <Compile Include="DictionaryExtensions\DictionaryExtensionsTests.cs" />
-    <Compile Include="DoubleExtensions\DoubleExtensionsTests.cs" />
-    <Compile Include="DynamicDictionary\DynamicDictionaryTests.cs" />
-    <Compile Include="EasyPool\EasyPoolMainOperationsTests.cs" />
-    <Compile Include="EasyPool\TestPoolableObject.cs" />
-    <Compile Include="Ensure\EnsuringCollectionNotNullOrEmptyTest.cs" />
-    <Compile Include="Ensure\EnsuringEqualTests.cs" />
-    <Compile Include="Ensure\EnsuringExistsTests.cs" />
-    <Compile Include="Ensure\EnsuringNotEqualTests.cs" />
-    <Compile Include="Ensure\EnsuringNotNullTests.cs" />
-    <Compile Include="Ensure\EnsuringNotTests.cs" />
-    <Compile Include="Ensure\EnsuringThatTests.cs" />
-    <Compile Include="EnumerablesTests\Context.cs" />
-    <Compile Include="EnumerablesTests\EnumerableExtensionsTests.cs" />
-    <Compile Include="EnumerablesTests\HandlingExceptionsWhenYieldReturningDoesNotThrow.cs" />
-    <Compile Include="EnumerablesTests\HandlingExceptionsWhenYieldReturningThrows.cs" />
-    <Compile Include="ExpressionExtensions\ExpressionExtensionsTests.cs" />
-    <Compile Include="FileAndDirectoryExtensions\Context.cs" />
-    <Compile Include="FileAndDirectoryExtensions\DirectoryInfoTests.cs" />
-    <Compile Include="FileAndDirectoryExtensions\FileInfoTests.cs" />
-    <Compile Include="GenericExtensions\GettingPropertyNamesTests.cs" />
-    <Compile Include="GenericExtensions\IsDefaultTests.cs" />
-    <Compile Include="Guid\GuidExtensionsTests.cs" />
-    <Compile Include="Guid\GuidHelperTests.cs" />
-    <Compile Include="HashHelper\HashHelperTests.cs" />
-    <Compile Include="RandomExtensions\RandomExtensionsTests.cs" />
-    <Compile Include="RestClient\XMLContentTests.cs" />
-    <Compile Include="RestClient\JSONContentTests.cs" />
-    <Compile Include="RestClient\RestClientTests.cs" />
-    <Compile Include="IntExtensions\Int16ExtensionTests.cs" />
-    <Compile Include="IntExtensions\Int32ExtensionTests.cs" />
-    <Compile Include="IntExtensions\Int64ExtensionTests.cs" />
-    <Compile Include="KeyedCollectionEx\KeyedCollectionExTests.cs" />
-    <Compile Include="PredicateBuilder\PredicateBuilderTests.cs" />
-    <Compile Include="ProducerConsumer\ProducerConsumerTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StringBuilderCache\StringBuilderCacheTests.cs" />
-    <Compile Include="StringExtensions\StringExtensionTests.cs" />
-    <Compile Include="SubArray\SubArrayTests.cs" />
-    <Compile Include="TaskExtensions\TaskExceptionsTests.cs" />
-    <Compile Include="TaskExtensions\TaskWaitAllOrFailTests.cs" />
-    <Compile Include="ThreadLocal\ThreadLocalDisposableTests.cs" />
-    <Compile Include="TimerAndClockTests\ClockTests.cs" />
-    <Compile Include="TimerAndClockTests\TimerClockTests.cs" />
-    <Compile Include="TypeExtensions\CheckingATypeForDefaultConstructorTests.cs" />
-    <Compile Include="TypeExtensions\CheckingATypeImplementsTests.cs" />
-    <Compile Include="TypeExtensions\CheckingATypeIsSimpleTests.cs" />
-    <Compile Include="TypeExtensions\CheckingIfTypeIsASequenceTests.cs" />
-    <Compile Include="TypeExtensions\CheckingTypeCodesTests.cs" />
-    <Compile Include="TypeExtensions\CheckingTypeIsNumeric.cs" />
-    <Compile Include="TypeExtensions\Context.cs" />
-    <Compile Include="TypeExtensions\GettingAllInstancePropertiesWithAttributes.cs" />
-    <Compile Include="TypeExtensions\GettingAllPropertiesWithAttributes.cs" />
-    <Compile Include="TypeExtensions\GettingArgumentTypeOfGenericTypeTests.cs" />
-    <Compile Include="TypeExtensions\GettingParentPropertiesWithAttributes.cs" />
-    <Compile Include="TypeExtensions\GettingPropertiesTests.cs" />
-    <Compile Include="GenericExtensions\GettingUninitializedInstanceTests.cs" />
-    <Compile Include="XML\ParsingXmlTests.cs" />
-    <Compile Include="XML\XmlToDynamicTests.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config">
+    <None Update="Assembly\DotNet2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ConfigReader\Configuration.config">
+    <None Update="Assembly\DotNet3.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
+    <None Update="Assembly\DotNet35.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assembly\DotNet4.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assembly\DotNet45.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assembly\DotNet451.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assembly\DotNet452.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assembly\DotNet46.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assembly\DotNet461.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ConfigReader\Configuration.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="XML\Sample.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Assembly\DotNet2.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assembly\DotNet3.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assembly\DotNet35.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assembly\DotNet4.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assembly\DotNet45.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assembly\DotNet451.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assembly\DotNet452.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assembly\DotNet46.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assembly\DotNet461.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="XML\Sample.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Easy.Common\Easy.Common.csproj">
-      <Project>{fe82adda-6940-4f0c-8d84-a128379d456a}</Project>
-      <Name>Easy.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
