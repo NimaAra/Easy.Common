@@ -29,7 +29,7 @@
             using (var adSearch = new DirectorySearcher(dirEntry))
             {
                 /*
-                    You can get more details
+                    You can limit the scope of the search:
                  
                     adSearch.PropertiesToLoad.Add("sn");
                     adSearch.PropertiesToLoad.Add("cn");
@@ -54,7 +54,6 @@
                         array[i] = vals[i] as string;
                     }
                 }
-
                 return result;
             }
         }
@@ -75,7 +74,7 @@
                 {
                     var result = search.FindOne();
 
-                    if (result == null) continue;
+                    if (result == null) { continue; }
 
                     using (var obUser = new DirectoryEntry(result.Path))
                     {
@@ -86,7 +85,7 @@
                             using (var obGpEntry = new DirectoryEntry(obGroup))
                             {
                                 var x = Parser.Match(obGpEntry.Name);
-                                if (!x.Success) continue;
+                                if (!x.Success) { continue; }
 
                                 var grp = x.Groups["CN"].Value;
                                 yield return grp;
