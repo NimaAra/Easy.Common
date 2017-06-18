@@ -25,6 +25,7 @@
         {
             Segment = new ArraySegment<T>(array, offset, count);
         }
+
         /// <summary>
         /// Gets the number of elements in the range.
         /// </summary>
