@@ -5,7 +5,8 @@
     using System.Threading;
 
     /// <summary>
-    /// A class similar to <see cref="ThreadLocal{T}"/> with the ability to dispose the <typeparamref name="T"/>.
+    /// A class similar to <see cref="ThreadLocal{T}"/> with the ability to dispose 
+    /// all the underlying <typeparamref name="T"/>s.
     /// <para><see href="http://stackoverflow.com/a/7670762/1226568"/>.</para>
     /// </summary>
     public sealed class ThreadLocalDisposable<T> : IDisposable where T : IDisposable
