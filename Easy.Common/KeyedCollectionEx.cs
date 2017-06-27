@@ -1,6 +1,7 @@
 ﻿namespace Easy.Common
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
 
     /// <summary>
@@ -19,8 +20,23 @@
         /// <summary>
         /// Creates an instance of the <see cref="KeyedCollectionEx{TKey,TItem}"/>.
         /// </summary>
-        /// <param name="keySelector">The selector used to select the key for the collection</param>
+        /// <param name="keySelector">The selector used to select the key for the collection.</param>
         public KeyedCollectionEx(Func<TItem, TKey> keySelector)
+        {
+            _getKeyForItemFunc = Ensure.NotNull(keySelector, nameof(keySelector));
+        }
+
+        /// <summary>
+        /// Creates an instance of the <see cref="KeyedCollectionEx{TKey,TItem}"/>.
+        /// </summary>
+        /// <param name="keySelector">The selector used to select the key for the collection.</param>
+        /// <param name="comparer">
+        /// The implementation of the <see cref="IEqualityComparer{T}"/> generic 
+        /// interface to use when comparing keys, or null to use the default equality 
+        /// comparer for the type of the key, obtained from <see cref="EqualityComparer{T}.Default"/>.
+        /// </param>
+        public KeyedCollectionEx(Func<TItem, TKey> keySelector, IEqualityComparer<TKey> comparer) 
+            : base(comparer)
         {
             _getKeyForItemFunc = Ensure.NotNull(keySelector, nameof(keySelector));
         }
