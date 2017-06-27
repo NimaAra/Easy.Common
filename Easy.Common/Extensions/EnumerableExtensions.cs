@@ -5,7 +5,6 @@ namespace Easy.Common.Extensions
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Text;
 
     /// <summary>
     /// Extension methods for <see cref="System.Collections.Generic.IEnumerable{T}"/>
@@ -205,6 +204,26 @@ namespace Easy.Common.Extensions
                     yield return item;
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns a <see cref="HashSet{T}"/> from the given <paramref name="sequence"/> 
+        /// eliminating any duplicate values.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence)
+        {
+            return new HashSet<T>(sequence, EqualityComparer<T>.Default);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="HashSet{T}"/> from the given <paramref name="sequence"/> 
+        /// eliminating any duplicate values.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence, IEqualityComparer<T> comparer)
+        {
+            return new HashSet<T>(sequence, comparer);
         }
 
         /// <summary>

@@ -63,7 +63,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
         [Test]
         public void When_converting_an_enumerable_to_a_read_only_collection()
         {
-            var intArray = new[] {1, 2, 3, 4, 5};
+            var intArray = new[] { 1, 2, 3, 4, 5 };
             var readOnlyIntSequence = intArray.ToReadOnlyCollection();
 
             readOnlyIntSequence.Count().ShouldBe(intArray.Length);
@@ -73,12 +73,12 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
             Action convertBackToOriginalArray = () =>
             {
                 // ReSharper disable once UnusedVariable
-                var originalIntArray = (int[]) localCopy;
+                var originalIntArray = (int[])localCopy;
             };
 
             convertBackToOriginalArray.ShouldThrow<InvalidCastException>();
 
-            var intList = new List<int> {1, 2, 3, 4, 5};
+            var intList = new List<int> { 1, 2, 3, 4, 5 };
             readOnlyIntSequence = intList.ToReadOnlyCollection();
 
             readOnlyIntSequence.Count().ShouldBe(intList.Count);
@@ -87,7 +87,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
             Action convertBackToOriginalList = () =>
             {
                 // ReSharper disable once UnusedVariable
-                var originalIntArray = (int[]) readOnlyIntSequence;
+                var originalIntArray = (int[])readOnlyIntSequence;
             };
 
             convertBackToOriginalList.ShouldThrow<InvalidCastException>();
@@ -153,7 +153,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
 
             Action actionOnNullString = () =>
             {
-                ((string) null).ToCommaSeparated();
+                ((string)null).ToCommaSeparated();
             };
 
             actionOnNullString.ShouldThrow<ArgumentNullException>();
@@ -170,7 +170,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
 
             Action actionOnNullString = () =>
             {
-                ((string) null).ToCharSeparated('|');
+                ((string)null).ToCharSeparated('|');
             };
 
             actionOnNullString.ShouldThrow<ArgumentNullException>();
@@ -187,7 +187,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
 
             Action actionOnNullString = () =>
             {
-                ((string) null).ToStringSeparated("@|@");
+                ((string)null).ToStringSeparated("@|@");
             };
 
             actionOnNullString.ShouldThrow<ArgumentNullException>();
@@ -201,23 +201,93 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
 
             Enumerable.Empty<int>().IsNotNullOrEmpty().ShouldBeFalse();
 
-            ((IEnumerable<int>) null).IsNotNullOrEmpty().ShouldBeFalse();
+            ((IEnumerable<int>)null).IsNotNullOrEmpty().ShouldBeFalse();
         }
 
         [Test]
         public void When_getting_distinct_elements_by_given_key_default_comparer()
         {
-            string[] source = {"one", "two", "three", "four", "five"};
+            string[] source = { "one", "two", "three", "four", "five" };
             var distinct = source.DistinctBy(word => word.Length);
-            distinct.ShouldBe(new[] {"one", "three", "four"});
+            distinct.ShouldBe(new[] { "one", "three", "four" });
         }
 
         [Test]
         public void When_getting_distinct_elements_by_given_key_with_comparer()
         {
-            string[] source = {"one", "two", "three", "four", "five"};
+            string[] source = { "one", "two", "three", "four", "five" };
             var distinct = source.DistinctBy(word => word.Length, EqualityComparer<int>.Default);
-            distinct.ShouldBe(new[] {"one", "three", "four"});
+            distinct.ShouldBe(new[] { "one", "three", "four" });
+        }
+
+        [Test]
+        public void When_converting_sequence_to_hashset_with_default_comparer()
+        {
+            var sequence = new[] { "A", "B", "C", "B", "C", "C", "D" };
+
+            sequence.Count(x => x == "A").ShouldBe(1);
+            sequence.Count(x => x == "B").ShouldBe(2);
+            sequence.Count(x => x == "C").ShouldBe(3);
+            sequence.Count(x => x == "D").ShouldBe(1);
+
+            var hashSet = sequence.ToHashSet();
+            
+            hashSet.Count.ShouldBe(4);
+            
+            hashSet.Count(x => x == "A").ShouldBe(1);
+            hashSet.Count(x => x == "B").ShouldBe(1);
+            hashSet.Count(x => x == "C").ShouldBe(1);
+            hashSet.Count(x => x == "D").ShouldBe(1);
+
+            hashSet.Contains("A").ShouldBeTrue();
+            hashSet.Contains("a").ShouldBeFalse();
+
+            hashSet.Contains("B").ShouldBeTrue();
+            hashSet.Contains("b").ShouldBeFalse();
+
+            hashSet.Contains("C").ShouldBeTrue();
+            hashSet.Contains("c").ShouldBeFalse();
+
+            hashSet.Contains("D").ShouldBeTrue();
+            hashSet.Contains("d").ShouldBeFalse();
+
+            hashSet.Contains("E").ShouldBeFalse();
+            hashSet.Contains("e").ShouldBeFalse();
+        }
+
+        [Test]
+        public void When_converting_sequence_to_hashset_with_non_default_comparer()
+        {
+            var sequence = new[] { "A", "B", "C", "B", "C", "C", "D" };
+
+            sequence.Count(x => x == "A").ShouldBe(1);
+            sequence.Count(x => x == "B").ShouldBe(2);
+            sequence.Count(x => x == "C").ShouldBe(3);
+            sequence.Count(x => x == "D").ShouldBe(1);
+
+            var hashSet = sequence.ToHashSet(StringComparer.OrdinalIgnoreCase);
+            
+            hashSet.Count.ShouldBe(4);
+
+            hashSet.Count(x => x == "A").ShouldBe(1);
+            hashSet.Count(x => x == "B").ShouldBe(1);
+            hashSet.Count(x => x == "C").ShouldBe(1);
+            hashSet.Count(x => x == "D").ShouldBe(1);
+
+            hashSet.Contains("A").ShouldBeTrue();
+            hashSet.Contains("a").ShouldBeTrue();
+
+            hashSet.Contains("B").ShouldBeTrue();
+            hashSet.Contains("b").ShouldBeTrue();
+
+            hashSet.Contains("C").ShouldBeTrue();
+            hashSet.Contains("c").ShouldBeTrue();
+
+            hashSet.Contains("D").ShouldBeTrue();
+            hashSet.Contains("d").ShouldBeTrue();
+
+            hashSet.Contains("E").ShouldBeFalse();
+            hashSet.Contains("e").ShouldBeFalse();
         }
     }
 }
