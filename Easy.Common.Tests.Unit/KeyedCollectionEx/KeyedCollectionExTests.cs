@@ -106,7 +106,6 @@
         private class Person
         {
             public string Name { get; set; }
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public int Age { get; set; }
         }
     }

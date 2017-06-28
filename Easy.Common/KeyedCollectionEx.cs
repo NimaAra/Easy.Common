@@ -51,7 +51,7 @@
                 value = this[key];
                 return true;
             }
-
+            
             value = default(TItem);
             return false;
         }

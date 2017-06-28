@@ -1,15 +1,46 @@
 ﻿namespace Easy.Common.Extensions
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Linq;
 
     /// <summary>
-    /// Extension methods for <see cref="System.Collections.Generic.IDictionary{TKey, TValue}"/>
+    /// Extension methods for <see cref="System.Collections.Generic.IDictionary{TKey, TValue}"/>.
     /// </summary>
     public static class DictionaryExtensions
     {
+        /// <summary>
+        /// Adds the <paramref name="key"/> and <paramref name="value"/> to the <paramref name="dictionary"/>
+        /// if the <paramref name="key"/> does not already exists and returns the inserted value.
+        /// </summary>
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        {
+            if (!dictionary.TryGetValue(key, out TValue result))
+            {
+                dictionary[key] = value;
+                return value;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Adds the <paramref name="key"/> and the value created by <paramref name="valueCreator"/> to 
+        /// the <paramref name="dictionary"/> if the <paramref name="key"/> does not already exists 
+        /// and returns the inserted value.
+        /// </summary>
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> valueCreator)
+        {
+            if (!dictionary.TryGetValue(key, out TValue result))
+            {
+                var value = valueCreator();
+                dictionary[key] = value;
+                result = value;
+            }
+            return result;
+        }
+        
         /// <summary>
         /// Gets the value associated with the specified key or the <paramref name="defaultValue"/> if it does not exist.
         /// </summary>
@@ -19,37 +50,26 @@
         /// <returns>The value associated with the specified key or the <paramref name="defaultValue"/> if it does not exist.</returns>
         public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default(TValue))
         {
-            TValue value;
-
-            if (dictionary.TryGetValue(key, out value)) { return value; }
-
+            if (dictionary.TryGetValue(key, out TValue value)) { return value; }
             return defaultValue;
         }
 
         /// <summary>
         /// Returns a <see cref="NameValueCollection"/> as a Dictionary
         /// </summary>
-        /// <param name="namedValueCollection"></param>
-        /// <returns></returns>
         public static Dictionary<string, string> ToDictionary(this NameValueCollection namedValueCollection)
         {
             Ensure.NotNull(namedValueCollection, nameof(namedValueCollection));
-
             return namedValueCollection.AllKeys.ToDictionary(key => key, key => namedValueCollection[key]);
         }
 
         /// <summary>
         /// Returns a <see cref="ConcurrentDictionary{TKey,TValue}"/> from an <see cref="IDictionary{TKey,TValue}"/>.
         /// </summary>
-        /// <typeparam name="TKey">The dictionary key</typeparam>
-        /// <typeparam name="TValue">The dictionary value</typeparam>
-        /// <param name="source">The source <see cref="IDictionary{TKey,TValue}"/></param>
-        /// <returns>The <see cref="ConcurrentDictionary{TKey,TValue}"/></returns>
-        public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(this IDictionary<TKey, TValue> source)
+        public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
         {
-            Ensure.NotNull(source, nameof(source));
-            return new ConcurrentDictionary<TKey, TValue>(source);
+            Ensure.NotNull(dictionary, nameof(dictionary));
+            return new ConcurrentDictionary<TKey, TValue>(dictionary);
         }
     }
-
 }
