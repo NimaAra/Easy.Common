@@ -74,6 +74,7 @@
                          details.AppendFormat("\t{0:D2}.Optimized: {1}{2}", counter.ToString(), x.IsOptimized().ToString(), Environment.NewLine);
                          details.AppendFormat("\t\t {0} - Is GAC: {1}{2}", x.GetFrameworkVersion(), x.GlobalAssemblyCache.ToString(), Environment.NewLine);
                          details.AppendFormat("\t\t Location: {0}{1}", x.Location, Environment.NewLine);
+                         details.AppendFormat("\t\t CodeBase: {0}{1}", x.CodeBase, Environment.NewLine);
                          counter++;
                      });
             details.AppendLine(@"\---------------------------Assemblies----------------------------/");
