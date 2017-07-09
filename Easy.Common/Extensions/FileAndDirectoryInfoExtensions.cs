@@ -102,10 +102,11 @@
         }
 
         /// <summary>
-        /// Enumerates every directory inside the <paramref name="directory"/> without throwing <see cref="UnauthorizedAccessException"/>.
+        /// Enumerates every directory inside the <paramref name="directory"/> without 
+        /// throwing <see cref="UnauthorizedAccessException"/>.
         /// </summary>
         public static IEnumerable<DirectoryInfo> EnumerateDirectoriesSafe(this DirectoryInfo directory,
-            string searchPattern, SearchOption option = SearchOption.AllDirectories, bool throwOnPathTooLong = false)
+            string searchPattern = "*", SearchOption option = SearchOption.TopDirectoryOnly, bool throwOnPathTooLong = false)
         {
             try
             {
@@ -118,17 +119,18 @@
 
                 return directories.Concat(directory.EnumerateDirectories(searchPattern));
             }
-            catch (Exception ex) when (ex is UnauthorizedAccessException || (ex is PathTooLongException && !throwOnPathTooLong))
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is PathTooLongException && !throwOnPathTooLong)
             {
                 return Enumerable.Empty<DirectoryInfo>();
             }
         }
 
         /// <summary>
-        /// Enumerates every file inside the <paramref name="directory"/> without throwing <see cref="UnauthorizedAccessException"/>.
+        /// Enumerates every file inside the <paramref name="directory"/> without 
+        /// throwing <see cref="UnauthorizedAccessException"/>.
         /// </summary>
         public static IEnumerable<FileInfo> EnumerateFilesSafe(this DirectoryInfo directory,
-            string searchPattern, SearchOption option = SearchOption.AllDirectories, bool throwOnPathTooLong = false)
+            string searchPattern = "*", SearchOption option = SearchOption.TopDirectoryOnly, bool throwOnPathTooLong = false)
         {
             try
             {
@@ -141,7 +143,7 @@
 
                 return files.Concat(directory.EnumerateFiles(searchPattern));
             }
-            catch (Exception ex) when (ex is UnauthorizedAccessException || (ex is PathTooLongException && !throwOnPathTooLong))
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is PathTooLongException && !throwOnPathTooLong)
             {
                 return Enumerable.Empty<FileInfo>();
             }
