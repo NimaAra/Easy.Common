@@ -32,10 +32,7 @@
         /// <param name="value">The string to test.</param>
         /// <returns><see langword="true"/> if the format parameter is null or an empty string (""); otherwise, <see langword="false"/>.</returns>
         [DebuggerStepThrough]
-        public static bool IsNullOrEmpty(this string value)
-        {
-            return string.IsNullOrEmpty(value);
-        }
+        public static bool IsNullOrEmpty(this string value) => string.IsNullOrEmpty(value);
 
         /// <summary>
         /// A nice way of calling the inverse of <see cref="string.IsNullOrEmpty(string)"/>
@@ -43,10 +40,7 @@
         /// <param name="value">The string to test.</param>
         /// <returns><see langword="true"/> if the format parameter is not null or an empty string (""); otherwise, <see langword="false"/>.</returns>
         [DebuggerStepThrough]
-        public static bool IsNotNullOrEmpty(this string value)
-        {
-            return !value.IsNullOrEmpty();
-        }
+        public static bool IsNotNullOrEmpty(this string value) => !value.IsNullOrEmpty();
 
         /// <summary>
         /// A nice way of checking if a string is null, empty or whitespace 
@@ -54,10 +48,7 @@
         /// <param name="value">The string to test.</param>
         /// <returns><see langword="true"/> if the format parameter is null or an empty string (""); otherwise, <see langword="false"/>.</returns>
         [DebuggerStepThrough]
-        public static bool IsNullOrEmptyOrWhiteSpace(this string value)
-        {
-            return string.IsNullOrWhiteSpace(value);
-        }
+        public static bool IsNullOrEmptyOrWhiteSpace(this string value) => string.IsNullOrWhiteSpace(value);
 
         /// <summary>
         /// A nice way of checking the inverse of (if a string is null, empty or whitespace) 
@@ -65,10 +56,7 @@
         /// <param name="value">The string to test.</param>
         /// <returns><see langword="true"/> if the format parameter is not null or an empty string (""); otherwise, <see langword="false"/>.</returns>
         [DebuggerStepThrough]
-        public static bool IsNotNullOrEmptyOrWhiteSpace(this string value)
-        {
-            return !value.IsNullOrEmptyOrWhiteSpace();
-        }
+        public static bool IsNotNullOrEmptyOrWhiteSpace(this string value) => !value.IsNullOrEmptyOrWhiteSpace();
 
         /// <summary>
         /// Parses a string as Boolean, valid inputs are: <c>true|false|yes|no|1|0</c>.
@@ -131,10 +119,7 @@
         /// <param name="value">The string value to check.</param>
         /// <returns>Null if <paramref name="value"/> is empty or the original <paramref name="value"/>.</returns>
         [DebuggerStepThrough]
-        public static string NullIfEmpty(this string value)
-        {
-            return value == string.Empty ? null : value;
-        }
+        public static string NullIfEmpty(this string value) => value == string.Empty ? null : value;
 
         /// <summary>
         /// Tries to extract the value between the tag <paramref name="tagName"/> from the <paramref name="input"/>.
@@ -149,7 +134,7 @@
             Ensure.NotNull(input, nameof(input));
             Ensure.NotNull(tagName, nameof(tagName));
 
-            var pattern = "<{0}[^>]*>(.*)</{0}>".FormatWith(tagName);
+            var pattern = $"<{tagName}[^>]*>(.*)</{tagName}>";
             var match = Regex.Match(input, pattern, RegexOptions.IgnoreCase);
 
             if (match.Success)
@@ -179,36 +164,28 @@
         /// Checks if the <paramref name="input"/> contains the <paramref name="stringToCheckFor"/> based on the provided <paramref name="comparison"/> rules.
         /// </summary>
         public static bool Contains(this string input, string stringToCheckFor, StringComparison comparison)
-        {
-            return input.IndexOf(stringToCheckFor, comparison) >= 0;
-        }
+            => input.IndexOf(stringToCheckFor, comparison) >= 0;
 
         /// <summary>
         /// Checks that given <paramref name="input"/> matches any of the potential matches.
         /// Inspired by: http://stackoverflow.com/a/20644611/23199
         /// </summary>
-        public static bool EqualsAny(this string input, StringComparer comparer, string match1, string match2)
-        {
-            return comparer.Equals(input, match1) || comparer.Equals(input, match2);
-        }
+        public static bool EqualsAny(this string input, StringComparer comparer, string match1, string match2) 
+            => comparer.Equals(input, match1) || comparer.Equals(input, match2);
 
         /// <summary>
         /// Checks that given <paramref name="input"/> matches any of the potential matches.
         /// Inspired by: http://stackoverflow.com/a/20644611/23199
         /// </summary>
         public static bool EqualsAny(this string input, StringComparer comparer, string match1, string match2, string match3)
-        {
-            return comparer.Equals(input, match1) || comparer.Equals(input, match2) || comparer.Equals(input, match3);
-        }
+            => comparer.Equals(input, match1) || comparer.Equals(input, match2) || comparer.Equals(input, match3);
 
         /// <summary>
         /// Checks that given <paramref name="input"/> is in a list of potential <paramref name="matches"/>.
         /// Inspired by: http://stackoverflow.com/a/20644611/23199
         /// </summary>
-        public static bool EqualsAny(this string input, StringComparer comparer, params string[] matches)
-        {
-            return matches.Any(x => comparer.Equals(x, input));
-        }
+        public static bool EqualsAny(this string input, StringComparer comparer, params string[] matches) 
+            => matches.Any(x => comparer.Equals(x, input));
 
         /// <summary>
         /// Checks to see if the given input is a valid palindrome or not.
@@ -318,10 +295,7 @@
         /// <param name="input">The input string.</param>
         /// <param name="args">The arguments.</param>
         [DebuggerStepThrough]
-        public static void Print(this string input, params object[] args)
-        {
-            Console.WriteLine(input, args);
-        }
+        public static void Print(this string input, params object[] args) => Console.WriteLine(input, args);
 
         /// <summary>
         /// Generates a slug.
@@ -570,7 +544,7 @@
         }
 
         /// <summary>
-        /// Returns the all the start and end indexes of the occurrences of the 
+        /// Returns all the start and end indexes of the occurrences of the 
         /// given <paramref name="startTag"/> and <paramref name="endTag"/> 
         /// in the given <paramref name="input"/>.
         /// </summary>

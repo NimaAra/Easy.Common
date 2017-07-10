@@ -61,8 +61,7 @@
             }
             else
             {
-                var errMsg = "Unable to rename the file: {0} to: {1}".FormatWith(fileInfo.FullName, newName);
-                throw new InvalidOperationException(errMsg);
+                throw new InvalidOperationException($"Unable to rename the file: {fileInfo.FullName} to: {newName}");
             }
         }
 
