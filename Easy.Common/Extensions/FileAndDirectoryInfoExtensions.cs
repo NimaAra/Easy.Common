@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -16,6 +17,7 @@
         /// </summary>
         /// <param name="directoryInfo">The <paramref name="directoryInfo"/> to get the size of.</param>
         /// <returns>The size of <paramref name="directoryInfo"/> in bytes.</returns>
+        [DebuggerStepThrough]
         public static long GetSizeInByte(this DirectoryInfo directoryInfo)
         {
             var length = directoryInfo.GetFiles().Sum(file => file.Exists ? file.Length : 0);
@@ -28,10 +30,8 @@
         /// </summary>
         /// <param name="directoryInfo">The <paramref name="directoryInfo"/> to check.</param>
         /// <returns>Boolean indicating if the <paramref name="directoryInfo"/> is hidden.</returns>
-        public static bool IsHidden(this DirectoryInfo directoryInfo)
-        {
-            return (directoryInfo.Attributes & FileAttributes.Hidden) != 0;
-        }
+        [DebuggerStepThrough]
+        public static bool IsHidden(this DirectoryInfo directoryInfo) => (directoryInfo.Attributes & FileAttributes.Hidden) != 0;
 
         /// <summary>
         /// Indicates if a given <paramref name="fileInfo"/> is hidden.
@@ -40,14 +40,13 @@
         /// <returns>
         /// Boolean indicating if the <paramref name="fileInfo"/> is hidden.
         /// </returns>
-        public static bool IsHidden(this FileInfo fileInfo)
-        {
-            return (fileInfo.Attributes & FileAttributes.Hidden) != 0;
-        }
+        [DebuggerStepThrough]
+        public static bool IsHidden(this FileInfo fileInfo) => (fileInfo.Attributes & FileAttributes.Hidden) != 0;
 
         /// <summary>
         /// Renames the given <paramref name="fileInfo"/> to <paramref name="newName"/>.
         /// </summary>
+        [DebuggerStepThrough]
         public static void Rename(this FileInfo fileInfo, string newName)
         {
             Ensure.NotNull(fileInfo, nameof(fileInfo));
@@ -74,6 +73,7 @@
         /// which may result <see cref="IOException"/> if the file is opened exclusively by another process such as <c>Excel</c>.
         /// </remarks>
         /// </summary>
+        [DebuggerStepThrough]
         public static IEnumerable<string> ReadAllLines(this FileInfo fileInfo)
         {
             return fileInfo.ReadAllLines(Encoding.UTF8);
@@ -86,6 +86,7 @@
         /// which may result <see cref="IOException"/> if the file is opened exclusively by another process such as <c>Excel</c>.
         /// </remarks>
         /// </summary>
+        [DebuggerStepThrough]
         public static IEnumerable<string> ReadAllLines(this FileInfo fileInfo, Encoding encoding)
         {
             Ensure.NotNull(fileInfo, nameof(fileInfo));
@@ -105,6 +106,7 @@
         /// Enumerates every directory inside the <paramref name="directory"/> without 
         /// throwing <see cref="UnauthorizedAccessException"/>.
         /// </summary>
+        [DebuggerStepThrough]
         public static IEnumerable<DirectoryInfo> EnumerateDirectoriesSafe(this DirectoryInfo directory,
             string searchPattern = "*", SearchOption option = SearchOption.TopDirectoryOnly, bool throwOnPathTooLong = false)
         {
@@ -129,6 +131,7 @@
         /// Enumerates every file inside the <paramref name="directory"/> without 
         /// throwing <see cref="UnauthorizedAccessException"/>.
         /// </summary>
+        [DebuggerStepThrough]
         public static IEnumerable<FileInfo> EnumerateFilesSafe(this DirectoryInfo directory,
             string searchPattern = "*", SearchOption option = SearchOption.TopDirectoryOnly, bool throwOnPathTooLong = false)
         {
