@@ -47,10 +47,6 @@ namespace Easy.Common.Extensions
         /// <summary>
         /// Concatenates the members of a collection, using the specified separator between each member.
         /// </summary>
-        /// <typeparam name="T">The type of data in <paramref name="sequence"/>.</typeparam>
-        /// <param name="sequence">The sequence of data to separate by the given <paramref name="separator"/></param>
-        /// <param name="separator">The string to use for separating each items in the <paramref name="sequence"/>.</param>
-        /// <returns>The string containing the data in the <paramref name="sequence"/> separated by the <paramref name="separator"/>.</returns>
         [DebuggerStepThrough]
         public static string ToStringSeparated<T>(this IEnumerable<T> sequence, string separator)
         {
@@ -69,12 +65,8 @@ namespace Easy.Common.Extensions
         }
 
         /// <summary>
-        /// Converts <paramref name="sequence"/> to a <paramref name="delimiter"/> separated string
+        /// Converts <paramref name="sequence"/> to a <paramref name="delimiter"/> separated string.
         /// </summary>
-        /// <typeparam name="T">The type of data in <paramref name="sequence"/>.</typeparam>
-        /// <param name="sequence">The sequence of data to separate by the given <paramref name="delimiter"/></param>
-        /// <param name="delimiter">The character to use for separating each items in the <paramref name="sequence"/>.</param>
-        /// <returns>The string containing the data in the <paramref name="sequence"/> separated by the <paramref name="delimiter"/>.</returns>
         [DebuggerStepThrough]
         public static string ToCharSeparated<T>(this IEnumerable<T> sequence, char delimiter)
         {
@@ -82,11 +74,8 @@ namespace Easy.Common.Extensions
         }
 
         /// <summary>
-        /// Converts <paramref name="sequence"/> to a comma separated string
+        /// Converts <paramref name="sequence"/> to a <c>Comma</c> separated string.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sequence"></param>
-        /// <returns></returns>
         [DebuggerStepThrough]
         public static string ToCommaSeparated<T>(this IEnumerable<T> sequence)
         {
@@ -181,20 +170,22 @@ namespace Easy.Common.Extensions
 
         /// <summary>
         /// Returns all the distinct elements of the given source where <c>distictness</c> is determined
-        /// via a projection and the default <see cref="IEqualityComparer{T}"/> for the <paramref name="sequence"/>.
+        /// via a projection and the <see cref="EqualityComparer{TKey}.Default"/> for the given <paramref name="sequence"/>.
         /// </summary>
         [DebuggerStepThrough]
         public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, Func<T, TKey> selector)
         {
-            return sequence.DistinctBy(selector, null);
+            return DistinctBy(sequence, selector, EqualityComparer<TKey>.Default);
         }
 
         /// <summary>
         /// Returns all the distinct elements of the given source where <c>distictness</c> is determined
-        /// via a projection and the <paramref name="comparer"/>.
+        /// via a projection and the <paramref name="comparer"/> and the given <paramref name="comparer"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, Func<T, TKey> selector, IEqualityComparer<TKey> comparer)
+        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, 
+            Func<T, TKey> selector, 
+            IEqualityComparer<TKey> comparer)
         {
             var keys = new HashSet<TKey>(comparer);
             foreach (var item in sequence)
@@ -208,22 +199,50 @@ namespace Easy.Common.Extensions
 
         /// <summary>
         /// Returns a <see cref="HashSet{T}"/> from the given <paramref name="sequence"/> 
-        /// eliminating any duplicate values.
+        /// based on the <see cref="EqualityComparer{TKey}.Default"/> eliminating any duplicate values.
         /// </summary>
         [DebuggerStepThrough]
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence)
         {
-            return new HashSet<T>(sequence, EqualityComparer<T>.Default);
+            return ToHashSet(sequence, EqualityComparer<T>.Default);
         }
 
         /// <summary>
         /// Returns a <see cref="HashSet{T}"/> from the given <paramref name="sequence"/> 
-        /// eliminating any duplicate values.
+        /// base on the given <paramref name="comparer"/> eliminating any duplicate values.
         /// </summary>
         [DebuggerStepThrough]
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence, IEqualityComparer<T> comparer)
         {
             return new HashSet<T>(sequence, comparer);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="KeyedCollectionEx{TKey,TItem}"/> for the given <paramref name="sequence"/> 
+        /// based on the <paramref name="selector"/> and <see cref="EqualityComparer{TKey}.Default"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static KeyedCollectionEx<TKey, TItem> ToKeyedCollectionEx<TKey, TItem>(this IEnumerable<TItem> sequence, 
+            Func<TItem, TKey> selector)
+        {
+            return ToKeyedCollectionEx(sequence, selector, EqualityComparer<TKey>.Default);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="KeyedCollectionEx{TKey,TItem}"/> for the given <paramref name="sequence"/> 
+        /// based on the <paramref name="selector"/> and <paramref name="comparer"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static KeyedCollectionEx<TKey, TItem> ToKeyedCollectionEx<TKey, TItem>(this IEnumerable<TItem> sequence, 
+            Func<TItem, TKey> selector, 
+            IEqualityComparer<TKey> comparer)
+        {
+            var result = new KeyedCollectionEx<TKey, TItem>(selector, comparer);
+            foreach (var item in sequence)
+            {
+                result.Add(item);
+            }
+            return result;
         }
 
         /// <summary>
