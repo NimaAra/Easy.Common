@@ -45,7 +45,7 @@ namespace Easy.Common.Extensions
         }
 
         /// <summary>
-        /// Concatenates the members of a collection, using the specified separator between each member.
+        /// Concatenates the members of a collection, using the specified separator between each item.
         /// </summary>
         [DebuggerStepThrough]
         public static string ToStringSeparated<T>(this IEnumerable<T> sequence, string separator)
@@ -53,19 +53,11 @@ namespace Easy.Common.Extensions
             Ensure.NotNull(sequence, nameof(sequence));
 
             if (!sequence.Any()) { return string.Empty; }
-
-            var builder = StringBuilderCache.Acquire();
-            foreach (var item in sequence)
-            {
-                builder.AppendFormat("{0}{1}", item, separator);
-            }
-
-            builder.Remove(builder.Length - separator.Length, separator.Length);
-            return StringBuilderCache.GetStringAndRelease(builder);
+            return string.Join(separator, sequence);
         }
 
         /// <summary>
-        /// Converts <paramref name="sequence"/> to a <paramref name="delimiter"/> separated string.
+        /// Converts <paramref name="sequence"/> to a <paramref name="delimiter"/> separated <see cref="string"/>.
         /// </summary>
         [DebuggerStepThrough]
         public static string ToCharSeparated<T>(this IEnumerable<T> sequence, char delimiter)
