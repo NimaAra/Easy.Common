@@ -1,10 +1,11 @@
 ﻿namespace Easy.Common
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
-    using Easy.Common.Extensions;
 
     /// <summary>
     /// Provides a set of methods to help work with a <see cref="Process"/>.
@@ -16,8 +17,9 @@
         /// <remarks><see href="http://www.levibotelho.com/development/async-processes-with-taskcompletionsource/"/></remarks>
         /// </summary>
         /// <param name="processInfo">The information for the process to run.</param>
+        /// <param name="cToken">The cancellation token.</param>
         /// <returns>A task representing the started process which you can await until process exits.</returns>
-        public static Task RunProcessAsync(ProcessStartInfo processInfo)
+        public static Task<ProcessExecutionResult> ExecuteAsync(ProcessStartInfo processInfo, CancellationToken cToken = default(CancellationToken))
         {
             Ensure.NotNull(processInfo, nameof(processInfo));
 
@@ -32,32 +34,55 @@
                 StartInfo = processInfo
             };
 
-            var tcs = new TaskCompletionSource<object>();
-            process.Exited += (sender, args) =>
+            var tcs = new TaskCompletionSource<ProcessExecutionResult>();
+            var standardOutput = new List<string>();
+            var standardError = new List<string>();
+
+            var standardOutputResults = new TaskCompletionSource<string[]>();
+            process.OutputDataReceived += (sender, args) =>
             {
-                var p = (Process)sender;
-
-                p.OutputDataReceived -= OnOutputDataReceived;
-                p.ErrorDataReceived -= OnErrorDataReceived;
-
-                if (p.ExitCode != 0)
-                {
-                    tcs.TrySetException(new InvalidOperationException("The process did not exit gracefully. Search for [Process Error]"));
-                } else
-                {
-                    tcs.SetResult(null);
-                }
-
-                p.Dispose();
+                if (args.Data != null)
+                    standardOutput.Add(args.Data);
+                else
+                    standardOutputResults.SetResult(standardOutput.ToArray());
             };
 
-            process.OutputDataReceived += OnOutputDataReceived;
-            process.ErrorDataReceived += OnErrorDataReceived;
+            var standardErrorResults = new TaskCompletionSource<string[]>();
+            process.ErrorDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                    standardError.Add(args.Data);
+                else
+                    standardErrorResults.SetResult(standardError.ToArray());
+            };
 
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-            return tcs.Task;
+            process.Exited += (sender, args) =>
+            {
+                // Since the Exited event can happen asynchronously to the output and error events, 
+                // we use the task results for stdout/stderr to ensure they are both closed
+                tcs.TrySetResult(new ProcessExecutionResult(process, standardOutputResults.Task.Result, standardErrorResults.Task.Result));
+            };
+
+            using (cToken.Register(() =>
+                {
+                    tcs.TrySetCanceled();
+                    try
+                    {
+                        if (!process.HasExited) { process.Kill(); }
+                    } catch (InvalidOperationException) { }
+                }))
+            {
+                cToken.ThrowIfCancellationRequested();
+
+                if (!process.Start())
+                {
+                    tcs.TrySetException(new InvalidOperationException("Failed to start the process."));
+                }
+
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                return tcs.Task;
+            }
         }
 
         /// <summary>
@@ -65,11 +90,13 @@
         /// <remarks><see href="http://www.levibotelho.com/development/async-processes-with-taskcompletionsource/"/></remarks>
         /// </summary>
         /// <param name="processPath">The path to the process.</param>
+        /// <param name="args">The arguments to be passed to the process.</param>
+        /// <param name="cToken">The cancellation token.</param>
         /// <returns>A task representing the started process which you can await until process exits.</returns>
-        public static Task RunProcessAsync(string processPath)
+        public static Task<ProcessExecutionResult> ExecuteAsync(string processPath, string args, CancellationToken cToken = default(CancellationToken))
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(processPath);
-            return RunProcessAsync(new ProcessStartInfo(processPath));
+            return ExecuteAsync(new ProcessStartInfo(processPath, args), cToken);
         }
 
         /// <summary>
@@ -78,35 +105,67 @@
         /// </summary>
         /// <param name="processPath">The path to the process.</param>
         /// <param name="args">The arguments to be passed to the process.</param>
+        /// <param name="cToken">The cancellation token.</param>
         /// <returns>A task representing the started process which you can await until process exits.</returns>
-        public static Task RunProcessAsync(FileInfo processPath, string args)
+        public static Task<ProcessExecutionResult> ExecuteAsync(FileInfo processPath, string args, CancellationToken cToken = default(CancellationToken))
         {
             Ensure.NotNull(processPath, nameof(processPath));
-            Ensure.NotNullOrEmptyOrWhiteSpace(args);
-            return RunProcessAsync(new ProcessStartInfo(processPath.FullName, args));
+            return ExecuteAsync(new ProcessStartInfo(processPath.FullName, args), cToken);
+        }
+    }
+
+    /// <summary>
+    /// Represents the result of executing a process.
+    /// </summary>
+    public sealed class ProcessExecutionResult : IDisposable
+    {
+        private readonly Process _process;
+
+        internal ProcessExecutionResult(Process process, string[] standardOutput, string[] standardError)
+        {
+            _process = Ensure.NotNull(process, nameof(process));
+            
+            PID = _process.Id;
+            ExecutionTime = _process.ExitTime - _process.StartTime;
+            StandardOutput = Ensure.NotNull(standardOutput, nameof(standardOutput));
+            StandardError = Ensure.NotNull(standardError, nameof(standardError));
         }
 
-        private static void OnErrorDataReceived(object sender, DataReceivedEventArgs args)
+        /// <summary>
+        /// Gets the process ID.
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
+        public int PID { get; }
+
+        /// <summary>
+        /// Gets the execution time of the process.
+        /// </summary>
+        public TimeSpan ExecutionTime { get; }
+
+        /// <summary>
+        /// Gets the standard output of the process.
+        /// </summary>
+        public string[] StandardOutput { get; }
+
+        /// <summary>
+        /// Gets the standard error of the process.
+        /// </summary>
+        public string[] StandardError { get; }
+
+        /// <summary>
+        /// Read the value of the process property identified by the given <paramref name="selector"/>.
+        /// </summary>
+        public T ReadProcessInfo<T>(Func<Process, T> selector)
         {
-            var errMsg = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] - [Process Error] | ";
-
-            if (args?.Data != null)
-            {
-                errMsg += args.Data;
-            } else
-            {
-                if (((Process)sender).HasExited)
-                { return; }
-
-                errMsg += "No data available";
-            }
-
-            errMsg.Print();
+            return selector(_process);
         }
 
-        private static void OnOutputDataReceived(object o, DataReceivedEventArgs args)
+        /// <summary>
+        /// Releases all resources used by the underlying process.
+        /// </summary>
+        public void Dispose()
         {
-            args?.Data?.Print();
+            _process?.Dispose();
         }
     }
 }
