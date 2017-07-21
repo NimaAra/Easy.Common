@@ -25,8 +25,10 @@ namespace Easy.Common
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo);
-            Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName + ".");
+            if (!typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo))
+            {
+                throw new InvalidOperationException("Unable to find property: " + propertyName + ".");
+            }
             return BuildSetter<TInstance, TProperty>(propInfo, includeNonPublic);
         }
 
@@ -41,7 +43,11 @@ namespace Easy.Common
         public static Action<TInstance, TProperty> BuildSetter<TInstance, TProperty>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
-            Ensure.That(propertyInfo.CanWrite, $"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support writing.");
+
+            if (!propertyInfo.CanWrite)
+            {
+                throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support writing.");
+            }
 
             var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
             return (Action<TInstance, TProperty>)Delegate.CreateDelegate(typeof(Action<TInstance, TProperty>), setMethod);
@@ -55,8 +61,10 @@ namespace Easy.Common
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo);
-            Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName + ".");
+            if (!typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo))
+            {
+                throw new InvalidOperationException("Unable to find property: " + propertyName + ".");
+            }
             return BuildGetter<TInstance, TProperty>(propInfo, includeNonPublic);
         }
 
@@ -67,7 +75,11 @@ namespace Easy.Common
         public static Func<TInstance, TProperty> BuildGetter<TInstance, TProperty>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
-            Ensure.That(propertyInfo.CanRead, $"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support reading.");
+
+            if (!propertyInfo.CanRead)
+            {
+                throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support reading.");
+            }
 
             var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
             return (Func<TInstance, TProperty>)Delegate.CreateDelegate(typeof(Func<TInstance, TProperty>), getMethod);
@@ -81,7 +93,11 @@ namespace Easy.Common
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
             
             var instanceType = propertyInfo.ReflectedType;
-            Ensure.That(propertyInfo.CanWrite, $"Property: `{propertyInfo.Name}` of type: `{instanceType?.FullName}` does not support writing.");
+
+            if (!propertyInfo.CanWrite)
+            {
+                throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{instanceType?.FullName}` does not support writing.");
+            }
 
             var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
             var typeofObject = typeof(object);
@@ -110,8 +126,11 @@ namespace Easy.Common
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
             
             var instanceType = propertyInfo.ReflectedType;
-            Ensure.That(propertyInfo.CanRead, $"Property: `{propertyInfo.Name}` of type: `{instanceType?.FullName}` does not support reading.");
-            
+            if (!propertyInfo.CanRead)
+            {
+                throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{instanceType?.FullName}` does not support reading.");
+            }
+
             var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
             var typeofObject = typeof(object);
 
@@ -137,8 +156,11 @@ namespace Easy.Common
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo);
-            Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName + ".");
+            if (!typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo))
+            {
+                throw new InvalidOperationException("Unable to find property: " + propertyName + ".");
+            }
+            
             return BuildSetter<TInstance>(propInfo, includeNonPublic);
         }
 
@@ -153,7 +175,11 @@ namespace Easy.Common
         public static Action<TInstance, object> BuildSetter<TInstance>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
-            Ensure.That(propertyInfo.CanWrite, $"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support writing.");
+
+            if (!propertyInfo.CanWrite)
+            {
+                throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support writing.");
+            }
 
             var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
 
@@ -176,8 +202,11 @@ namespace Easy.Common
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
-            var found = typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo);
-            Ensure.That<InvalidOperationException>(found, "Unable to find property: " + propertyName + ".");
+            if (!typeof(TInstance).TryGetInstanceProperty(propertyName, out PropertyInfo propInfo))
+            {
+                throw new InvalidOperationException("Unable to find property: " + propertyName + ".");
+            }
+            
             return BuildGetter<TInstance>(propInfo, includeNonPublic);
         }
 
@@ -188,7 +217,11 @@ namespace Easy.Common
         public static Func<TInstance, object> BuildGetter<TInstance>(PropertyInfo propertyInfo, bool includeNonPublic = false)
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
-            Ensure.That(propertyInfo.CanRead, $"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support reading.");
+
+            if (!propertyInfo.CanRead)
+            {
+                throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support reading.");
+            }
 
             var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
 

@@ -93,8 +93,8 @@
         /// Ensures given objects are equal.
         /// </summary>
         /// <typeparam name="T">Type of objects to compare for equality</typeparam>
-        /// <param name="left">Left <see langword="object"/>.</param>
-        /// <param name="right">Right <see langword="object"/>.</param>
+        /// <param name="left">The left item</param>
+        /// <param name="right">The right item</param>
         /// <param name="message">Message for the exception</param>
         /// <exception cref="ArgumentException">
         ///     Thrown when <paramref name="left"/> not equal to <paramref name="right"/>
@@ -110,8 +110,8 @@
         /// Ensures given objects are not equal.
         /// </summary>
         /// <typeparam name="T">Type of objects to compare for equality</typeparam>
-        /// <param name="left">First Value to Compare</param>
-        /// <param name="right">Second Value to Compare</param>
+        /// <param name="left">The left item</param>
+        /// <param name="right">The right item</param>
         /// <param name="message">Message for the exception</param>
         /// <exception cref="ArgumentException">
         ///     Thrown when <paramref name="left"/> equal to <paramref name="right"/>

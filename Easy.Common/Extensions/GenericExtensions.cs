@@ -27,7 +27,6 @@ namespace Easy.Common.Extensions
         public static DynamicDictionary ToDynamic<T>(this T @object, bool inherit = true)
         {
             var dynDic = new DynamicDictionary();
-
             foreach (var property in @object.GetType().GetInstanceProperties(inherit))
             {
                 dynDic.Add(property.Name, property.GetValue(@object, null));
@@ -61,22 +60,21 @@ namespace Easy.Common.Extensions
         /// <returns>An instance of type <typeparamref name="T"/> 
         /// with all its <c>non-static</c> fields initialized to its default value.
         /// </returns>
-        public static T GetUninitializedInstance<T>()
-        {
-            return (T)FormatterServices.GetUninitializedObject(typeof(T));
-        }
+        public static T GetUninitializedInstance<T>() => (T)FormatterServices.GetUninitializedObject(typeof(T));
 
         /// <summary>
         /// Gets all the private, public, inherited instance property names for the given <paramref name="object"/>.
-        /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property names.</remarks>
+        /// <remarks>
+        /// This method can be used to return both a <c>public</c> or <c>non-public</c> property names
+        /// and supports instances of <see cref="ExpandoObject"/>.
+        /// </remarks>
         /// <param name="object">Object to get properties from</param>
         /// <param name="inherit">The flag indicating whether inherited properties should be included or not</param>
         /// <param name="includePrivate">The flag indicating whether private properties should be included or not</param>
         /// </summary>
         public static string[] GetPropertyNames<T>(this T @object, bool inherit = true, bool includePrivate = true)
         {
-            var expando = @object as IDynamicMetaObjectProvider;
-            if (expando != null)
+            if (@object is IDynamicMetaObjectProvider expando)
             {
                 var dic = (IDictionary<string, object>)expando;
                 return dic.Keys.ToArray();
@@ -98,10 +96,11 @@ namespace Easy.Common.Extensions
         public static T CloneShallowUsingIl<T>(this T @object)
         {
             Delegate myExec;
-            if (!CachedIlShallow.TryGetValue(typeof(T), out myExec))
+            var type = typeof(T);
+            if (!CachedIlShallow.TryGetValue(type, out myExec))
             {
                 // Create ILGenerator (both DM declarations work)
-                var dymMethod = new DynamicMethod("DoClone", typeof(T), new[] { typeof(T) }, Assembly.GetExecutingAssembly().ManifestModule, true);
+                var dymMethod = new DynamicMethod("DoClone", type, new[] { type }, Assembly.GetExecutingAssembly().ManifestModule, true);
                 var cInfo = @object.GetType().GetConstructor(new Type[] { });
                 var generator = dymMethod.GetILGenerator();
 
@@ -117,7 +116,7 @@ namespace Easy.Common.Extensions
                 generator.Emit(OpCodes.Ldloc_0);
                 generator.Emit(OpCodes.Ret);
                 myExec = dymMethod.CreateDelegate(typeof(Func<T, T>));
-                CachedIlShallow.Add(typeof(T), myExec);
+                CachedIlShallow.Add(type, myExec);
             }
             return ((Func<T, T>)myExec)(@object);
         }
@@ -133,17 +132,18 @@ namespace Easy.Common.Extensions
         public static T CloneDeepUsingIl<T>(this T myObject)
         {
             Delegate myExec;
-            if (!CachedIlDeep.TryGetValue(typeof(T), out myExec))
+            var type = typeof(T);
+            if (!CachedIlDeep.TryGetValue(type, out myExec))
             {
                 // Create ILGenerator (both DM declarations work)
-                var dymMethod = new DynamicMethod("DoClone", typeof(T), new[] { typeof(T) }, Assembly.GetExecutingAssembly().ManifestModule, true);
+                var dymMethod = new DynamicMethod("DoClone", type, new[] { type }, Assembly.GetExecutingAssembly().ManifestModule, true);
                 var cInfo = myObject.GetType().GetConstructor(new Type[] { });
                 var generator = dymMethod.GetILGenerator();
 
                 generator.Emit(OpCodes.Newobj, cInfo);
                 generator.Emit(OpCodes.Stloc_0);
 
-                foreach (var field in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+                foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
                 {
                     if (field.FieldType.IsValueType || field.FieldType == typeof(string))
                     {
@@ -157,7 +157,7 @@ namespace Easy.Common.Extensions
                 generator.Emit(OpCodes.Ldloc_0);
                 generator.Emit(OpCodes.Ret);
                 myExec = dymMethod.CreateDelegate(typeof(Func<T, T>));
-                CachedIlDeep.Add(typeof(T), myExec);
+                CachedIlDeep.Add(type, myExec);
             }
             return ((Func<T, T>)myExec)(myObject);
         }
