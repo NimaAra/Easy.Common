@@ -77,7 +77,7 @@
         /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property.</remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<PropertyInfo> GetInstanceProperties(this Type type, bool inherit = true, bool includePrivate = true)
+        public static PropertyInfo[] GetInstanceProperties(this Type type, bool inherit = true, bool includePrivate = true)
         {
             Ensure.NotNull(type, nameof(type));
             return GetInstanceProperties(type.GetTypeInfo(), inherit, includePrivate);
@@ -88,7 +88,7 @@
         /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property.</remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<PropertyInfo> GetInstanceProperties(this TypeInfo typeInfo, bool inherit, bool includePrivate)
+        public static PropertyInfo[] GetInstanceProperties(this TypeInfo typeInfo, bool inherit, bool includePrivate)
         {
             Ensure.NotNull(typeInfo, nameof(typeInfo));
 
@@ -198,7 +198,6 @@
         /// <param name="sequenceType">The determined type of the sequence</param>
         /// <returns><c>True</c> if <paramref name="type"/> is a sequence otherwise <c>False</c></returns>
         [DebuggerStepThrough]
-        // ReSharper disable once CyclomaticComplexity
         public static bool IsSequence(this Type type, out SequenceType sequenceType)
         {
             Ensure.NotNull(type, nameof(type));

@@ -34,12 +34,12 @@ namespace Easy.Common.Tests.Unit.TypeExtensions
         [Test]
         public void When_getting_all_public_properties()
         {
-            var allProps = typeof(SampleChild).GetInstanceProperties().ToArray();
+            var allProps = typeof(SampleChild).GetInstanceProperties();
             allProps.ShouldNotBeNull();
             allProps.ShouldNotBeEmpty();
             allProps.Length.ShouldBe(8);
 
-            var declaredProps = typeof(SampleChild).GetInstanceProperties(false).ToArray();
+            var declaredProps = typeof(SampleChild).GetInstanceProperties(false);
             declaredProps.ShouldNotBeNull();
             declaredProps.ShouldNotBeEmpty();
             declaredProps.Length.ShouldBe(5);
