@@ -21,7 +21,7 @@ namespace Easy.Common
         /// intentionally not supported as changing the values of immutable types is a bad practice.
         /// </remarks>
         /// </summary>
-        public static Action<TInstance, TProperty> BuildSetter<TInstance, TProperty>(string propertyName, bool includeNonPublic = false) where TInstance : class
+        public static Action<TInstance, TProperty> BuildSetter<TInstance, TProperty>(string propertyName, bool includePrivate = false) where TInstance : class
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
@@ -29,7 +29,7 @@ namespace Easy.Common
             {
                 throw new InvalidOperationException("Unable to find property: " + propertyName + ".");
             }
-            return BuildSetter<TInstance, TProperty>(propInfo, includeNonPublic);
+            return BuildSetter<TInstance, TProperty>(propInfo, includePrivate);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Easy.Common
         /// intentionally not supported as changing the values of immutable types is a bad practice.
         /// </remarks>
         /// </summary>
-        public static Action<TInstance, TProperty> BuildSetter<TInstance, TProperty>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
+        public static Action<TInstance, TProperty> BuildSetter<TInstance, TProperty>(PropertyInfo propertyInfo, bool includePrivate = false) where TInstance : class
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
 
@@ -49,7 +49,7 @@ namespace Easy.Common
                 throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support writing.");
             }
 
-            var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
+            var setMethod = propertyInfo.GetSetMethod(includePrivate);
             return (Action<TInstance, TProperty>)Delegate.CreateDelegate(typeof(Action<TInstance, TProperty>), setMethod);
         }
 
@@ -57,7 +57,7 @@ namespace Easy.Common
         /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> 
         /// and property type of <typeparamref name="TProperty"/> with the name of <paramref name="propertyName"/>.
         /// </summary>
-        public static Func<TInstance, TProperty> BuildGetter<TInstance, TProperty>(string propertyName, bool includeNonPublic = false) where TInstance : class
+        public static Func<TInstance, TProperty> BuildGetter<TInstance, TProperty>(string propertyName, bool includePrivate = false) where TInstance : class
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
@@ -65,14 +65,14 @@ namespace Easy.Common
             {
                 throw new InvalidOperationException("Unable to find property: " + propertyName + ".");
             }
-            return BuildGetter<TInstance, TProperty>(propInfo, includeNonPublic);
+            return BuildGetter<TInstance, TProperty>(propInfo, includePrivate);
         }
 
         /// <summary>
         /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> 
         /// and property type of <typeparamref name="TProperty"/>.
         /// </summary>
-        public static Func<TInstance, TProperty> BuildGetter<TInstance, TProperty>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
+        public static Func<TInstance, TProperty> BuildGetter<TInstance, TProperty>(PropertyInfo propertyInfo, bool includePrivate = false) where TInstance : class
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
 
@@ -81,14 +81,14 @@ namespace Easy.Common
                 throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support reading.");
             }
 
-            var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
+            var getMethod = propertyInfo.GetGetMethod(includePrivate);
             return (Func<TInstance, TProperty>)Delegate.CreateDelegate(typeof(Func<TInstance, TProperty>), getMethod);
         }
 
         /// <summary>
         /// Builds a property setter for when both the instance and property type are unknown.
         /// </summary>
-        public static Action<object, object> BuildSetter(PropertyInfo propertyInfo, bool includeNonPublic = false)
+        public static Action<object, object> BuildSetter(PropertyInfo propertyInfo, bool includePrivate = false)
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
             
@@ -99,7 +99,7 @@ namespace Easy.Common
                 throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{instanceType?.FullName}` does not support writing.");
             }
 
-            var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
+            var setMethod = propertyInfo.GetSetMethod(includePrivate);
             var typeofObject = typeof(object);
 
             var instance = Expression.Parameter(typeofObject, "instance");
@@ -121,7 +121,7 @@ namespace Easy.Common
         /// <summary>
         /// Builds a property getter for when both the instance and property type are unknown.
         /// </summary>
-        public static Func<object, object> BuildGetter(PropertyInfo propertyInfo, bool includeNonPublic = false)
+        public static Func<object, object> BuildGetter(PropertyInfo propertyInfo, bool includePrivate = false)
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
             
@@ -131,7 +131,7 @@ namespace Easy.Common
                 throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{instanceType?.FullName}` does not support reading.");
             }
 
-            var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
+            var getMethod = propertyInfo.GetGetMethod(includePrivate);
             var typeofObject = typeof(object);
 
             var instance = Expression.Parameter(typeofObject, "instance");
@@ -152,7 +152,7 @@ namespace Easy.Common
         /// intentionally not supported as changing the values of immutable types is a bad practice.
         /// </remarks>
         /// </summary>
-        public static Action<TInstance, object> BuildSetter<TInstance>(string propertyName, bool includeNonPublic = false) where TInstance : class
+        public static Action<TInstance, object> BuildSetter<TInstance>(string propertyName, bool includePrivate = false) where TInstance : class
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
@@ -161,7 +161,7 @@ namespace Easy.Common
                 throw new InvalidOperationException("Unable to find property: " + propertyName + ".");
             }
             
-            return BuildSetter<TInstance>(propInfo, includeNonPublic);
+            return BuildSetter<TInstance>(propInfo, includePrivate);
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace Easy.Common
         /// intentionally not supported as changing the values of immutable types is a bad practice.
         /// </remarks>
         /// </summary>
-        public static Action<TInstance, object> BuildSetter<TInstance>(PropertyInfo propertyInfo, bool includeNonPublic = false) where TInstance : class
+        public static Action<TInstance, object> BuildSetter<TInstance>(PropertyInfo propertyInfo, bool includePrivate = false) where TInstance : class
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
 
@@ -181,7 +181,7 @@ namespace Easy.Common
                 throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support writing.");
             }
 
-            var setMethod = propertyInfo.GetSetMethod(includeNonPublic);
+            var setMethod = propertyInfo.GetSetMethod(includePrivate);
 
             var instance = Expression.Parameter(typeof(TInstance), "instance");
             var value = Expression.Parameter(typeof(object), "value");
@@ -198,7 +198,7 @@ namespace Easy.Common
         /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> 
         /// and property name of <paramref name="propertyName"/>.
         /// </summary>
-        public static Func<TInstance, object> BuildGetter<TInstance>(string propertyName, bool includeNonPublic = false)
+        public static Func<TInstance, object> BuildGetter<TInstance>(string propertyName, bool includePrivate = false)
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
@@ -207,14 +207,14 @@ namespace Easy.Common
                 throw new InvalidOperationException("Unable to find property: " + propertyName + ".");
             }
             
-            return BuildGetter<TInstance>(propInfo, includeNonPublic);
+            return BuildGetter<TInstance>(propInfo, includePrivate);
         }
 
         /// <summary>
         /// Builds a property getter for a given instance type of <typeparamref name="TInstance"/> 
         /// and property of <paramref name="propertyInfo"/>.
         /// </summary>
-        public static Func<TInstance, object> BuildGetter<TInstance>(PropertyInfo propertyInfo, bool includeNonPublic = false)
+        public static Func<TInstance, object> BuildGetter<TInstance>(PropertyInfo propertyInfo, bool includePrivate = false)
         {
             Ensure.NotNull(propertyInfo, nameof(propertyInfo));
 
@@ -223,7 +223,7 @@ namespace Easy.Common
                 throw new ArgumentException($"Property: `{propertyInfo.Name}` of type: `{propertyInfo.ReflectedType?.FullName}` does not support reading.");
             }
 
-            var getMethod = propertyInfo.GetGetMethod(includeNonPublic);
+            var getMethod = propertyInfo.GetGetMethod(includePrivate);
 
             var instance = Expression.Parameter(typeof(TInstance), "instance");
             return Expression.Lambda<Func<TInstance, object>>(
