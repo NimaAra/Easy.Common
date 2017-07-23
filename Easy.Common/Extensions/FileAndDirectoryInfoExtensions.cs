@@ -51,7 +51,7 @@
         {
             Ensure.NotNull(fileInfo, nameof(fileInfo));
             Ensure.NotNullOrEmptyOrWhiteSpace(newName);
-            Ensure.That(PathHelper.IsValidFilename(newName), "Invalid file name: " + newName);
+            Ensure.That(newName.IsValidFileName(), "Invalid file name: " + newName);
 
             fileInfo.Refresh();
             if (fileInfo.DirectoryName != null && fileInfo.Directory != null
