@@ -21,9 +21,7 @@ namespace Easy.Common.Extensions
         /// <returns>The returned paged sequence</returns>
         [DebuggerStepThrough]
         public static IEnumerable<T> GetPage<T>(this IEnumerable<T> sequence, uint pageIndex, uint pageSize)
-        {
-            return sequence.Skip((int)pageIndex * (int)pageSize).Take((int)pageSize);
-        }
+            => sequence.Skip((int)pageIndex * (int)pageSize).Take((int)pageSize);
 
         /// <summary>
         /// Converts an Enumerable into a read-only collection
@@ -39,10 +37,8 @@ namespace Easy.Common.Extensions
         /// Validates that the <paramref name="sequence"/> is not null and contains items.
         /// </summary>
         [DebuggerStepThrough]
-        public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> sequence)
-        {
-            return sequence != null && sequence.Any();
-        }
+        public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> sequence) => 
+            sequence != null && sequence.Any();
 
         /// <summary>
         /// Concatenates the members of a collection, using the specified separator between each item.
@@ -60,19 +56,15 @@ namespace Easy.Common.Extensions
         /// Converts <paramref name="sequence"/> to a <paramref name="delimiter"/> separated <see cref="string"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static string ToCharSeparated<T>(this IEnumerable<T> sequence, char delimiter)
-        {
-            return ToStringSeparated(sequence, delimiter.ToString());
-        }
+        public static string ToCharSeparated<T>(this IEnumerable<T> sequence, char delimiter) 
+            => ToStringSeparated(sequence, delimiter.ToString());
 
         /// <summary>
         /// Converts <paramref name="sequence"/> to a <c>Comma</c> separated string.
         /// </summary>
         [DebuggerStepThrough]
-        public static string ToCommaSeparated<T>(this IEnumerable<T> sequence)
-        {
-            return ToCharSeparated(sequence, ',');
-        }
+        public static string ToCommaSeparated<T>(this IEnumerable<T> sequence) 
+            => ToCharSeparated(sequence, ',');
 
         /// <summary>
         /// Executes an <paramref name="action"/> for each of the items in the sequence
@@ -137,8 +129,7 @@ namespace Easy.Common.Extensions
         public static IEnumerable<T> Randomize<T>(this IEnumerable<T> sequence)
         {
             Ensure.NotNull(sequence, nameof(sequence));
-            var random = new Random(Guid.NewGuid().GetHashCode());
-            return Randomize(sequence, random);
+            return Randomize(sequence, new Random(Guid.NewGuid().GetHashCode()));
         }
 
         /// <summary>
@@ -165,10 +156,8 @@ namespace Easy.Common.Extensions
         /// via a projection and the <see cref="EqualityComparer{TKey}.Default"/> for the given <paramref name="sequence"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, Func<T, TKey> selector)
-        {
-            return DistinctBy(sequence, selector, EqualityComparer<TKey>.Default);
-        }
+        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, Func<T, TKey> selector) 
+            => DistinctBy(sequence, selector, EqualityComparer<TKey>.Default);
 
         /// <summary>
         /// Returns all the distinct elements of the given source where <c>distictness</c> is determined
@@ -195,30 +184,24 @@ namespace Easy.Common.Extensions
         /// </summary>
         [DebuggerStepThrough]
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence)
-        {
-            return ToHashSet(sequence, EqualityComparer<T>.Default);
-        }
+            => ToHashSet(sequence, EqualityComparer<T>.Default);
 
         /// <summary>
         /// Returns a <see cref="HashSet{T}"/> from the given <paramref name="sequence"/> 
         /// base on the given <paramref name="comparer"/> eliminating any duplicate values.
         /// </summary>
         [DebuggerStepThrough]
-        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence, IEqualityComparer<T> comparer)
-        {
-            return new HashSet<T>(sequence, comparer);
-        }
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence, IEqualityComparer<T> comparer) 
+            => new HashSet<T>(sequence, comparer);
 
         /// <summary>
         /// Returns a <see cref="KeyedCollectionEx{TKey,TItem}"/> for the given <paramref name="sequence"/> 
         /// based on the <paramref name="selector"/> and <see cref="EqualityComparer{TKey}.Default"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static KeyedCollectionEx<TKey, TItem> ToKeyedCollectionEx<TKey, TItem>(this IEnumerable<TItem> sequence, 
-            Func<TItem, TKey> selector)
-        {
-            return ToKeyedCollectionEx(sequence, selector, EqualityComparer<TKey>.Default);
-        }
+        public static KeyedCollectionEx<TKey, TItem> ToKeyedCollectionEx<TKey, TItem>(
+            this IEnumerable<TItem> sequence, Func<TItem, TKey> selector) 
+                => ToKeyedCollectionEx(sequence, selector, EqualityComparer<TKey>.Default);
 
         /// <summary>
         /// Returns a <see cref="KeyedCollectionEx{TKey,TItem}"/> for the given <paramref name="sequence"/> 
