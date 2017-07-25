@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>A set of common utilities and reusable components for XAML development.</Description>
+    <Summary>A set of common utilities and reusable components for XAML development.</Summary>
+    <Copyright>2017 Nima Ara</Copyright>
+    <AssemblyTitle>Easy Common XAML</AssemblyTitle>
+    <VersionPrefix>0.0.0</VersionPrefix>
+    <Authors>Nima Ara</Authors>
+    <TargetFrameworks>net45</TargetFrameworks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AssemblyName>Easy.Common.XAML</AssemblyName>
+    <PackageId>Easy.Common.XAML</PackageId>
+    <PackageTags>XAML;UWP;WPF</PackageTags>
+    <PackageProjectUrl>https://github.com/NimaAra/Easy.Common</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/NimaAra/Easy.Common/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/NimaAra/Easy.Common</RepositoryUrl>    
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net45</TargetFramework>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <FileVersion>0.0.0.0</FileVersion>
+    <PackageReleaseNotes>-</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <Reference Include="System" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\net45\Easy.Common.XAML.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Easy.Common.XAML.v3.ncrunchproject" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.Windows.Presentation" />
+    <Reference Include="System.Xaml" />
+  </ItemGroup>
+
+</Project>
