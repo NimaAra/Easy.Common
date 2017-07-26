@@ -52,6 +52,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System.Windows.Presentation" />
     <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
 
 </Project>

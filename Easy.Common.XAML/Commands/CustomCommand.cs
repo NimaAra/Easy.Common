@@ -8,16 +8,22 @@
     /// </summary>
     public sealed class CustomCommand : ICommand
     {
-        private readonly Action<object> _execute;
-        private readonly Func<object, bool> _canExecute;
+        private readonly Action<object> _actionWithParam;
 
         /// <summary>
         /// Creates an instance of the <see cref="CustomCommand"/>.
         /// </summary>
-        public CustomCommand(Action<object> execute, Func<object, bool> canExecute)
+        public CustomCommand(Action action)
         {
-            _execute = execute;
-            _canExecute = canExecute;
+            _actionWithParam = _ => action();
+        }
+
+        /// <summary>
+        /// Creates an instance of the <see cref="CustomCommand"/>.
+        /// </summary>
+        public CustomCommand(Action<object> actionWithParam)
+        {
+            _actionWithParam = actionWithParam;
         }
 
         /// <summary>
@@ -30,14 +36,14 @@
         /// <returns>
         /// <see langword="true" /> if this command can be executed; otherwise, <see langword="false" />.
         /// </returns>
-        public bool CanExecute(object parameter) => _canExecute == null || _canExecute(parameter);
+        public bool CanExecute(object parameter) => true;
 
         /// <summary>Defines the method to be called when the command is invoked.</summary>
         /// <param name="parameter">
         /// Data used by the command. If the command does not require data to be passed, 
         /// this object can be set to <see langword="null" />.
         /// </param>
-        public void Execute(object parameter) => _execute(parameter);
+        public void Execute(object parameter) => _actionWithParam(parameter);
 
         /// <summary>
         /// Occurs when changes occur that affect whether or not the command should execute.

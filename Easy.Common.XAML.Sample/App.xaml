@@ -1,0 +1,36 @@
+﻿<Application x:Class="Easy.Common.XAML.Sample.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:core="clr-namespace:Easy.Common.XAML.Sample"
+             xmlns:converters="clr-namespace:Easy.Common.XAML.ValueConverters;assembly=Easy.Common.XAML"
+             StartupUri="MainWindow.xaml">
+
+    <Application.Resources>
+        <!-- ReSharper disable once InconsistentNaming -->
+        <core:VMLocator x:Key="VMLocator"/>
+
+        <converters:NegatingBooleanConverter x:Key="NegatingConverter"/>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToHiddenConverter" 
+                                              TrueValue="Visible"
+                                              FalseValue="Hidden"/>
+        
+        <!-- Formating DatePicker -->
+        <Style TargetType="{x:Type Control}" x:Key="DatePickerTextBoxStyle">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{x:Null}"/>
+        </Style>
+        <Style TargetType="{x:Type DatePickerTextBox}" >
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <TextBox x:Name="PART_TextBox"
+                                 Text="{Binding Path=SelectedDate, StringFormat='yyyy-MM-dd', RelativeSource={RelativeSource AncestorType={x:Type DatePicker}}}" Style="{StaticResource DatePickerTextBoxStyle}" >
+                        </TextBox>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Formating DatePicker -->
+    </Application.Resources>
+</Application>
