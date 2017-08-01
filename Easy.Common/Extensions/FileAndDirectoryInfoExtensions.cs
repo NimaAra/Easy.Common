@@ -6,12 +6,19 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading;
 
     /// <summary>
     /// Provides a set of useful methods for working with <see cref="FileInfo"/> and <see cref="DirectoryInfo"/>.
     /// </summary>
     public static class FileAndDirectoryInfoExtensions
     {
+        private const char CarriageReturn = '\r';
+        private const char NewLine = '\n';
+        private const char Tab = '\t';
+
+        private static readonly ThreadLocal<char[]> CharacterBuffer = new ThreadLocal<char[]>(() => new char[256]);
+
         /// <summary>
         /// Returns the size in bytes of the <paramref name="directoryInfo"/> represented by the <paramref name="directoryInfo"/> instance.
         /// </summary>
@@ -149,6 +156,36 @@
             {
                 return Enumerable.Empty<FileInfo>();
             }
+        }
+
+        /// <summary>
+        /// Determines if the given <paramref name="file"/> is binary or a text file.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static bool IsBinary(this FileSystemInfo file)
+        {
+            var buffer = CharacterBuffer.Value;
+
+            using (var fileStream = File.Open(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var reader = new StreamReader(fileStream))
+            {
+                var read = reader.ReadBlock(buffer, 0, buffer.Length);
+                return ContainsBinary(buffer, read);
+            }
+        }
+
+        // ReSharper disable once SuggestBaseTypeForParameter
+        private static bool ContainsBinary(char[] bytes, int count)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                var c = bytes[i];
+                if (char.IsControl(c) && c != CarriageReturn && c != NewLine && c != Tab)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
