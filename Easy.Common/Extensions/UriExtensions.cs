@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Net;
     using System.Text.RegularExpressions;
 
     /// <summary>
@@ -12,7 +13,10 @@
         private static readonly Regex QueryStringRegex = new Regex(@"[?|&]([\w\.-]+)=([^?|^&]+)", RegexOptions.Compiled);
 
         /// <summary>
-        /// Extracts Parameters and Values from the Query String
+        /// Extracts Parameters and Values from the Query String.
+        /// <remarks>
+        /// This method also correctly <c>URL-decode</c>s the parsed values.
+        /// </remarks>
         /// </summary>
         public static IEnumerable<KeyValuePair<string, string>> ParseQueryString(this Uri uri)
         {
@@ -21,13 +25,18 @@
             var match = QueryStringRegex.Match(uri.OriginalString);
             while (match.Success)
             {
-                yield return new KeyValuePair<string, string>(match.Groups[1].Value, match.Groups[2].Value);
+                yield return new KeyValuePair<string, string>(
+                    match.Groups[1].Value,
+                    WebUtility.UrlDecode(match.Groups[2].Value));
                 match = match.NextMatch();
             }
         }
 
         /// <summary>
         /// Adds or appends parameters and values to the query-string.
+        /// <remarks>
+        /// This method also correctly <c>URL-encode</c>s the given <paramref name="value"/>.
+        /// </remarks>
         /// </summary>
         public static Uri AddParametersToQueryString(this Uri uri, string parameter, string value)
         {
@@ -35,38 +44,8 @@
             Ensure.NotNullOrEmptyOrWhiteSpace(parameter);
             Ensure.NotNullOrEmptyOrWhiteSpace(value);
 
-            var queryToAppend = string.Concat(parameter, "=", value);
+            var queryToAppend = string.Concat(parameter, "=", WebUtility.UrlEncode(value));
             return AddOrAppendToQueryString(uri, queryToAppend);
-        }
-
-        /// <summary>
-        /// Adds or appends parameters and values to the query-string.
-        /// </summary>
-        public static Uri AddParametersToQueryString(this Uri uri, string parameter, int value)
-        {
-            return uri.AddParametersToQueryString(parameter, (long)value);
-        }
-
-        /// <summary>
-        /// Adds or appends parameters and values to the query-string.
-        /// </summary>
-        public static Uri AddParametersToQueryString(this Uri uri, string parameter, long value)
-        {
-            return uri.AddParametersToQueryString(parameter, value.ToString());
-        }
-
-        /// <summary>
-        /// Applies the specified <paramref name="modification"/> to the <paramref name="uri"/> query-string.
-        /// </summary>
-        public static string WithModifiedQuerystring(this Uri uri, Action<IEnumerable<KeyValuePair<string, string>>> modification)
-        {
-            Ensure.NotNull(uri, nameof(uri));
-            Ensure.NotNull(modification, nameof(modification));
-
-            var query = uri.ParseQueryString();
-            modification(query);
-
-            return string.Concat(uri.GetLeftPart(UriPartial.Path), "?", query.ToString());
         }
 
         private static Uri AddOrAppendToQueryString(Uri uri, string query)
@@ -76,8 +55,7 @@
             if (baseUri.Query.Length > 1)
             {
                 baseUri.Query = uri.Query.Substring(1) + "&" + query;
-            }
-            else
+            } else
             {
                 baseUri.Query = query;
             }
