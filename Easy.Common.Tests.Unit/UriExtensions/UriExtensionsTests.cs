@@ -1,6 +1,7 @@
 ﻿namespace Easy.Common.Tests.Unit.UriExtensions
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Easy.Common.Extensions;
     using NUnit.Framework;
@@ -12,7 +13,7 @@
         [Test]
         public void When_parsing_query_string()
         {
-            var uri1 = new Uri("http://www.baz.com/abc.svc?name=bar&age=10");
+            var uri1 = new Uri("http://www.baz.com/abc.svc?%23name=bar&age=10");
 
             var queryStringParams1 = uri1.ParseQueryString().ToArray();
 
@@ -20,7 +21,7 @@
             queryStringParams1.ShouldNotBeEmpty();
             queryStringParams1.Length.ShouldBe(2);
             
-            queryStringParams1[0].Key.ShouldBe("name");
+            queryStringParams1[0].Key.ShouldBe("#name");
             queryStringParams1[0].Value.ShouldBe("bar");
             
             queryStringParams1[1].Key.ShouldBe("age");
@@ -39,20 +40,102 @@
         }
 
         [Test]
-        public void When_adding_parameters_to_query_string_with_no_parameters()
+        public void When_adding_empty_parameters_to_query_string_with_no_parameters()
         {
             var uri = new Uri("http://www.baz.com/abc.svc");
 
-            const string Key = "foo";
-            const string Value = "#some value, & stuff";
+            var parameters = new Dictionary<string, string>();
 
-            var newUri = uri.AddParametersToQueryString(Key, Value);
-            newUri.Query.ShouldBe("?foo=%23some+value%2C+%26+stuff");
+            var newUri = uri.AddParametersToQueryString(parameters);
+            newUri.Query.ShouldBe(string.Empty);
+
+            var parsed = newUri.ParseQueryString().ToArray();
+            parsed.Length.ShouldBe(0);
+        }
+
+        [Test]
+        public void When_adding_empty_parameters_to_query_string_with_existing_parameters()
+        {
+            var uri = new Uri("http://www.baz.com/abc.svc?name=abc");
+
+            var parameters = new Dictionary<string, string>();
+
+            var newUri = uri.AddParametersToQueryString(parameters);
+            newUri.Query.ShouldBe("?name=abc");
 
             var parsed = newUri.ParseQueryString().ToArray();
             parsed.Length.ShouldBe(1);
 
-            parsed[0].Key.ShouldBe("foo");
+            parsed[0].Key.ShouldBe("name");
+            parsed[0].Value.ShouldBe("abc");
+        }
+
+        [Test]
+        public void When_adding_multiple_parameters_to_query_string_with_no_parameters()
+        {
+            var uri = new Uri("http://www.baz.com/abc.svc");
+
+            var parameters = new Dictionary<string, string>
+            {
+                ["#foo"] = "#some value, & stuff",
+                ["baz"] = "bar"
+            };
+
+            var newUri = uri.AddParametersToQueryString(parameters);
+            newUri.Query.ShouldBe("?%23foo=%23some+value%2C+%26+stuff&baz=bar");
+
+            var parsed = newUri.ParseQueryString().ToArray();
+            parsed.Length.ShouldBe(2);
+
+            parsed[0].Key.ShouldBe("#foo");
+            parsed[0].Value.ShouldBe("#some value, & stuff");
+
+            parsed[1].Key.ShouldBe("baz");
+            parsed[1].Value.ShouldBe("bar");
+        }
+
+        [Test]
+        public void When_adding_multiple_parameters_to_query_string_with_existing_parameters()
+        {
+            var uri = new Uri("http://www.baz.com/abc.svc?name=abc");
+
+            var parameters = new Dictionary<string, string>
+            {
+                ["#foo"] = "#some value, & stuff",
+                ["baz"] = "bar"
+            };
+
+            var newUri = uri.AddParametersToQueryString(parameters);
+            newUri.Query.ShouldBe("?name=abc&%23foo=%23some+value%2C+%26+stuff&baz=bar");
+
+            var parsed = newUri.ParseQueryString().ToArray();
+            parsed.Length.ShouldBe(3);
+
+            parsed[0].Key.ShouldBe("name");
+            parsed[0].Value.ShouldBe("abc");
+
+            parsed[1].Key.ShouldBe("#foo");
+            parsed[1].Value.ShouldBe("#some value, & stuff");
+
+            parsed[2].Key.ShouldBe("baz");
+            parsed[2].Value.ShouldBe("bar");
+        }
+
+        [Test]
+        public void When_adding_parameters_to_query_string_with_no_parameters()
+        {
+            var uri = new Uri("http://www.baz.com/abc.svc");
+
+            const string Key = "#foo";
+            const string Value = "#some value, & stuff";
+
+            var newUri = uri.AddParametersToQueryString(Key, Value);
+            newUri.Query.ShouldBe("?%23foo=%23some+value%2C+%26+stuff");
+
+            var parsed = newUri.ParseQueryString().ToArray();
+            parsed.Length.ShouldBe(1);
+
+            parsed[0].Key.ShouldBe("#foo");
             parsed[0].Value.ShouldBe(Value);
         }
 
@@ -61,11 +144,11 @@
         {
             var uri = new Uri("http://www.baz.com/abc.svc?name=abc");
 
-            const string Key = "foo";
+            const string Key = "#foo";
             const string Value = "#some value, & stuff";
 
             var newUri = uri.AddParametersToQueryString(Key, Value);
-            newUri.Query.ShouldBe("?name=abc&foo=%23some+value%2C+%26+stuff");
+            newUri.Query.ShouldBe("?name=abc&%23foo=%23some+value%2C+%26+stuff");
 
             var parsed = newUri.ParseQueryString().ToArray();
             parsed.Length.ShouldBe(2);
@@ -73,7 +156,7 @@
             parsed[0].Key.ShouldBe("name");
             parsed[0].Value.ShouldBe("abc");
 
-            parsed[1].Key.ShouldBe("foo");
+            parsed[1].Key.ShouldBe("#foo");
             parsed[1].Value.ShouldBe(Value);
         }
 
@@ -82,15 +165,15 @@
         {
             var uri = new Uri("http://www.baz.com/abc.svc?");
             
-            const string Key = "foo";
+            const string Key = "%23foo";
             const string Value = "%23some+value%2C+%26+stuff";
 
             var newUri = uri.AddParametersToQueryString(Key, Value);
-            newUri.Query.ShouldBe("?foo=%2523some%2Bvalue%252C%2B%2526%2Bstuff");
+            newUri.Query.ShouldBe("?%2523foo=%2523some%2Bvalue%252C%2B%2526%2Bstuff");
 
             var parsed = newUri.ParseQueryString().ToArray();
             parsed.Length.ShouldBe(1);
-            parsed[0].Key.ShouldBe("foo");
+            parsed[0].Key.ShouldBe(Key);
             parsed[0].Value.ShouldBe(Value);
         }
 
