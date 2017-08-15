@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -17,44 +16,28 @@
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigReader"/> class. 
-        /// </summary>
-        /// <exception cref="ConfigurationErrorsException">
-        /// Could not retrieve a <see cref="T:System.Collections.Specialized.NameValueCollection"/> object with the application settings data.
-        /// </exception>
-        public ConfigReader()
-        {
-            Settings = ConfigurationManager.AppSettings.ToDictionary();
-            ConfigFile = new FileInfo(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="configFile"></param>
-        public ConfigReader(FileInfo configFile)
-        {
-            ConfigFile = Ensure.Exists(configFile);
-            Settings = new Dictionary<string, string>();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigReader"/> class. 
         /// by loading <paramref name="configFile"/> and reading the values from it.
         /// </summary>
         /// <param name="configFile">Path to the configuration file</param>
         /// <param name="element">Name of the node which stores the key value pairs</param>
         /// <param name="keyAttribute">Attribute identifying the key</param>
         /// <param name="valueAttribute">Attribute identifying the value</param>
-        public ConfigReader(FileInfo configFile, XName element, string keyAttribute = "key", string valueAttribute = "value")
+        public ConfigReader(
+            FileInfo configFile, 
+            XName element, 
+            string keyAttribute = "key", 
+            string valueAttribute = "value") => Init(configFile, element, keyAttribute, valueAttribute);
+
+        private void Init(FileInfo configFile, XName element, string keyAttribute, string valueAttribute)
         {
-            Ensure.Exists(configFile);
+            Ensure.NotNull(configFile, nameof(configFile));
             Ensure.NotNull(element, nameof(element));
             Ensure.NotNullOrEmptyOrWhiteSpace(keyAttribute);
             Ensure.NotNullOrEmptyOrWhiteSpace(valueAttribute);
 
-            ConfigFile = configFile;
+            ConfigFile = Ensure.Exists(configFile);
             Settings = new Dictionary<string, string>();
-
+            
             using (var fs = ConfigFile.OpenRead())
             {
                 foreach (var item in fs.GetElements(element))
@@ -76,12 +59,12 @@
         /// <summary>
         /// Gets the file storing the config entries.
         /// </summary>
-        public FileInfo ConfigFile { get; }
+        public FileInfo ConfigFile { get; private set; }
 
         /// <summary>
         /// Gets all of the settings retrieved from the configuration.
         /// </summary>
-        public Dictionary<string, string> Settings { get; }
+        public Dictionary<string, string> Settings { get; private set; }
 
         /// <summary>
         /// Attempts to read a config value specified as <paramref name="key"/> into <paramref name="values"/>.

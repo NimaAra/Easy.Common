@@ -11,13 +11,14 @@
 
         protected void Given_a_config_reader_with_default_application_configuration_file()
         {
-            ConfigReader = new ConfigReader();
+            var configFile = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Easy.Common.Tests.Unit.dll.config"));
+            ConfigReader = new ConfigReader(configFile, "add");
         }
 
         protected void Given_a_config_reader_with_a_given_mapped_config()
         {
             var configFile = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigReader", "Configuration.config"));
-            ConfigReader = new ConfigReader(configFile);
+            ConfigReader = new ConfigReader(configFile, "add");
         }
 
         protected void Given_a_config_reader_with_custom_configuration_file_with_specified_settings()

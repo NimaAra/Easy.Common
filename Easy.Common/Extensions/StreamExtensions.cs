@@ -37,7 +37,7 @@
             Ensure.NotNull(name, nameof(name));
             Ensure.NotNull(settings, nameof(settings));
 
-            using (var reader = XmlReader.Create(stream))
+            using (var reader = XmlReader.Create(stream, settings))
             {
                 foreach (var xElement in reader.GetEelements(name, ignoreCase))
                 {
