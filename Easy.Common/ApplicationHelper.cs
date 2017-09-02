@@ -16,7 +16,7 @@
         /// <summary>
         /// Gets the flag indicating whether this application has been compiled in <c>DEBUG</c>.
         /// </summary>
-        public static bool IsDebugBuild { get; } =
+        public static bool IsDebugBuild =>
 #if DEBUG 
         true;
 #else
