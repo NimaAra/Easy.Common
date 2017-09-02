@@ -5,6 +5,7 @@
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.Xml.Linq;
     using Easy.Common.Extensions;
     using Easy.Common.Interfaces;
@@ -14,6 +15,22 @@
     /// </summary>
     public sealed class ConfigReader : IConfigReader
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConfigReader"/> class.
+        /// <remarks>
+        /// This constructor searches for default config file of the calling assembly.
+        /// </remarks>
+        /// </summary>
+        public ConfigReader()
+        {
+            var assLocalPath = new Uri(Assembly.GetCallingAssembly().CodeBase).LocalPath;
+            var configFile = new FileInfo(assLocalPath + ".config");
+            
+            Ensure.Exists(configFile);
+
+            Init(configFile, "add", "key", "value");
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigReader"/> class. 
         /// by loading <paramref name="configFile"/> and reading the values from it.

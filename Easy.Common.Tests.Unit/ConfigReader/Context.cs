@@ -11,8 +11,7 @@
 
         protected void Given_a_config_reader_with_default_application_configuration_file()
         {
-            var configFile = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Easy.Common.Tests.Unit.dll.config"));
-            ConfigReader = new ConfigReader(configFile, "add");
+            ConfigReader = new ConfigReader();
         }
 
         protected void Given_a_config_reader_with_a_given_mapped_config()
