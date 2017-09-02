@@ -109,10 +109,7 @@
         /// <summary>
         /// Cancels all pending requests on this instance.
         /// </summary>
-        public void CancelPendingRequests()
-        {
-            _client.CancelPendingRequests();
-        }
+        public void CancelPendingRequests() => _client.CancelPendingRequests();
 
         /// <summary>
         /// Releases the unmanaged resources and disposes of the managed resources used by the <see cref="HttpClient"/>.
