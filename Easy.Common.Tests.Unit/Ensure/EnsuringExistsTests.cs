@@ -15,7 +15,7 @@
             var nonExistingDirInfo = new DirectoryInfo(nonExistingDirectoryPath);
 
             Should.Throw<DirectoryNotFoundException>(() => Ensure.Exists(nonExistingDirInfo))
-                .Message.ShouldBe("The given directory cannot be found.");
+                .Message.ShouldBe($"Cannot find: {nonExistingDirInfo.FullName}");
 
             nonExistingDirInfo.Create();
 
@@ -37,7 +37,7 @@
             var nonExistingFileInfo = new FileInfo(nonExistingFilePath);
 
             Should.Throw<FileNotFoundException>(() => Ensure.Exists(nonExistingFileInfo))
-                .Message.ShouldBe("The given file cannot be found.");
+                .Message.ShouldBe($"Cannot find: {nonExistingFileInfo.FullName}");
 
             nonExistingFileInfo.Create();
 
