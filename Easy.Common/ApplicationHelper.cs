@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Text;
     using Easy.Common.Extensions;
     using Microsoft.Win32;
@@ -31,13 +32,31 @@
             DateTime.Now.Subtract(Process.GetCurrentProcess().StartTime);
 
         /// <summary>
-        /// Returns the system details on which the application executes.
+        /// Returns the details related to <c>System</c>, <c>Process</c>, <c>Assemblies</c>
+        /// and <c>Environment</c> on which the application executes.
         /// </summary>
-        /// <returns>The system details</returns>
-        public static string GetSystemDetails()
+        public static string GetDiagnosticReport()
         {
-            var details = new StringBuilder("Process, Assemblies, Environment & System Details:");
+            var details = new StringBuilder("Diagnostic Report:");
             details.AppendLine();
+
+            details.AppendLine(@"/------------------------------System-----------------------------\");
+            new[]
+                {
+                    $"OS Version: {Environment.OSVersion}",
+                    $"64Bit OS: {Environment.Is64BitOperatingSystem}",
+                    $"Runtime: {Environment.Version}",
+                    $"FQDN: {NetworkHelper.GetFQDN()}",
+                    $"Machine Name: {Environment.MachineName}",
+                    $"Installed RAM: {GetInstalledMemoryInMegaBytes():N0} MB",
+                    $"Processor: {GetProcessorName()}",
+                    $"Processor Count: {Environment.ProcessorCount}",
+                    $"Running as: {Environment.UserDomainName}\\{Environment.UserName}",
+                    $"Current Directory: {Environment.CurrentDirectory}"
+                }
+                .ForEach(x => details.AppendFormat("\t{0}{1}", x, Environment.NewLine));
+            details.AppendLine(@"\------------------------------System-----------------------------/");
+
             details.AppendLine(@"/-----------------------------Process-----------------------------\");
             using (var p = Process.GetCurrentProcess())
             {
@@ -81,23 +100,7 @@
                          counter++;
                      });
             details.AppendLine(@"\---------------------------Assemblies----------------------------/");
-
-            details.AppendLine(@"/---------------------------Environment---------------------------\");
-            new[]
-            {
-                $"OS Version: {Environment.OSVersion}",
-                $"64Bit OS: {Environment.Is64BitOperatingSystem}",
-                $"Runtime: {Environment.Version}",
-                $"FQDN: {NetworkHelper.GetFQDN()}",
-                $"Machine Name: {Environment.MachineName}",
-                $"Processor: {GetProcessorName()}",
-                $"Processor Count: {Environment.ProcessorCount}",
-                $"Running as: {Environment.UserDomainName}\\{Environment.UserName}",
-                $"Current Directory: {Environment.CurrentDirectory}"
-            }
-            .ForEach(x => details.AppendFormat("\t{0}{1}", x, Environment.NewLine));
-            details.AppendLine(@"\---------------------------Environment---------------------------/");
-
+            
             details.AppendLine(@"/----------------------Environment Variables----------------------\");
             Environment.GetEnvironmentVariables()
                        .Cast<DictionaryEntry>()
@@ -164,5 +167,18 @@
             if (key == null) { return "Not Found"; }
             return key.GetValue("ProcessorNameString").ToString();
         }
+
+        private static long GetInstalledMemoryInMegaBytes()
+        {
+            GetPhysicallyInstalledSystemMemory(out var installedMemoryKb);
+            return installedMemoryKb / 1024;
+        }
+
+        /// <summary>
+        /// <see href="https://msdn.microsoft.com/en-us/library/windows/desktop/cc300158(v=vs.85).aspx"/>
+        /// </summary>
+        [DllImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetPhysicallyInstalledSystemMemory(out long totalMemoryInKilobytes);
     }
 }
