@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Text;
     using Easy.Common.Extensions;
@@ -26,10 +27,8 @@
         /// <summary>
         /// Returns the time taken to start the current process.
         /// </summary>
-        public static TimeSpan GetProcessStartupDuration()
-        {
-            return DateTime.Now.Subtract(Process.GetCurrentProcess().StartTime);
-        }
+        public static TimeSpan GetProcessStartupDuration() => 
+            DateTime.Now.Subtract(Process.GetCurrentProcess().StartTime);
 
         /// <summary>
         /// Returns the system details on which the application executes.
@@ -37,7 +36,7 @@
         /// <returns>The system details</returns>
         public static string GetSystemDetails()
         {
-            var details = new StringBuilder("Process, Environment & System Details:");
+            var details = new StringBuilder("Process, Assemblies, Environment & System Details:");
             details.AppendLine();
             details.AppendLine(@"/-----------------------------Process-----------------------------\");
             using (var p = Process.GetCurrentProcess())
@@ -48,8 +47,10 @@
                     $"Id: {p.Id}",
                     $"Name: {p.ProcessName}",
                     $"Started: {p.StartTime:yyyy-MM-dd HH:mm:ss.fff}",
-                    $"Loaded In: {GetProcessStartupDuration().ToString()}",
-                    $"Debug Enabled: {IsDebugBuild.ToString()}",
+                    $"Loaded In: {GetProcessStartupDuration()}",
+                    $"Debug Enabled: {IsDebugBuild}",
+                    $"64Bit Process: {Environment.Is64BitProcess}",
+                    $"Large Address Aware: {IsProcessLargeAddressAware()}",
                     $"Module Name: {p.MainModule.ModuleName}",
                     $"Module File Name: {p.MainModule.FileName}",
                     $"Product Name: {pVerInfo.ProductName}",
@@ -59,7 +60,8 @@
                     $"Product Version: {pVerInfo.ProductVersion}",
                     $"Language: {pVerInfo.Language}",
                     $"Copyright: {pVerInfo.LegalCopyright}"
-                }.ForEach(x => details.AppendFormat("\t{0}{1}", x, Environment.NewLine));
+                }
+                .ForEach(x => details.AppendFormat("\t{0}{1}", x, Environment.NewLine));
             }
             details.AppendLine(@"\-----------------------------Process-----------------------------/");
 
@@ -70,11 +72,12 @@
                      .OrderByDescending(o => o.GlobalAssemblyCache)
                      .ForEach(x =>
                      {
-                         details.AppendFormat("\t{0:D2}.Name: {1}{2}", counter.ToString(), x.FullName, Environment.NewLine);
-                         details.AppendFormat("\t{0:D2}.Optimized: {1}{2}", counter.ToString(), x.IsOptimized().ToString(), Environment.NewLine);
-                         details.AppendFormat("\t\t {0} - Is GAC: {1}{2}", x.GetFrameworkVersion(), x.GlobalAssemblyCache.ToString(), Environment.NewLine);
-                         details.AppendFormat("\t\t Location: {0}{1}", x.Location, Environment.NewLine);
-                         details.AppendFormat("\t\t CodeBase: {0}{1}", x.CodeBase, Environment.NewLine);
+                         details.AppendFormat("\t{0:D2}. Name: {1}{2}", counter, x.FullName, Environment.NewLine);
+                         details.AppendFormat("\t\t| {0} - Is GAC: {1}{2}", x.GetFrameworkVersion(), x.GlobalAssemblyCache.ToString(), Environment.NewLine);
+                         details.AppendFormat("\t\t| Is64Bit: {0}{1}", !x.Is32Bit(), Environment.NewLine);
+                         details.AppendFormat("\t\t| Optimized: {0}{1}", x.IsOptimized(), Environment.NewLine);
+                         details.AppendFormat("\t\t| Location: {0}{1}", x.Location, Environment.NewLine);
+                         details.AppendFormat("\t\t| CodeBase: {0}{1}", x.CodeBase, Environment.NewLine);
                          counter++;
                      });
             details.AppendLine(@"\---------------------------Assemblies----------------------------/");
@@ -83,13 +86,12 @@
             new[]
             {
                 $"OS Version: {Environment.OSVersion}",
-                $"64Bit OS: {Environment.Is64BitOperatingSystem.ToString()}",
-                $"64Bit Process: {Environment.Is64BitProcess.ToString()}",
+                $"64Bit OS: {Environment.Is64BitOperatingSystem}",
                 $"Runtime: {Environment.Version}",
                 $"FQDN: {NetworkHelper.GetFQDN()}",
                 $"Machine Name: {Environment.MachineName}",
                 $"Processor: {GetProcessorName()}",
-                $"Processor Count: {Environment.ProcessorCount.ToString()}",
+                $"Processor Count: {Environment.ProcessorCount}",
                 $"Running as: {Environment.UserDomainName}\\{Environment.UserName}",
                 $"Current Directory: {Environment.CurrentDirectory}"
             }
@@ -107,6 +109,48 @@
             details.AppendLine(@"\--------------------------System Drives--------------------------/");
 
             return details.ToString();
+        }
+
+        /// <summary>
+        /// Queries the process's headers to find if it is <c>LARGEADDRESSAWARE</c>.
+        /// <remarks>The method is equivalent to running <c>DumpBin</c> on the executable.</remarks>
+        /// </summary>
+        public static bool IsProcessLargeAddressAware()
+        {
+            using (var p = Process.GetCurrentProcess())
+            {
+                return IsLargeAddressAware(p.MainModule.FileName);
+            }
+        }
+
+        /// <summary>
+        /// <see href="https://helloacm.com/large-address-aware/"/>
+        /// </summary>
+        internal static bool IsLargeAddressAware(string file)
+        {
+            Ensure.NotNullOrEmptyOrWhiteSpace(file);
+            var fileInfo = new FileInfo(file);
+            Ensure.Exists(fileInfo);
+
+            const int ImageFileLargeAddressAware = 0x20;
+
+            using (var stream = File.Open(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var reader = new BinaryReader(stream))
+            {
+                //No MZ Header
+                if (reader.ReadInt16() != 0x5A4D) { return false; }
+
+                reader.BaseStream.Position = 0x3C;
+                var peloc = reader.ReadInt32(); //Get the PE header location.
+
+                reader.BaseStream.Position = peloc;
+                
+                //No PE header
+                if (reader.ReadInt32() != 0x4550) { return false; }
+
+                reader.BaseStream.Position += 0x12;
+                return (reader.ReadInt16() & ImageFileLargeAddressAware) == ImageFileLargeAddressAware;
+            }
         }
 
         /// <summary>

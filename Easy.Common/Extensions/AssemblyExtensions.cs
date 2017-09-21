@@ -22,17 +22,11 @@
             var targetFrameAttribute = assembly.GetCustomAttributes(true)
                 .OfType<TargetFrameworkAttribute>().FirstOrDefault();
 
-            if (targetFrameAttribute == null)
-            {
-                return ".NET 2, 3 or 3.5";
-            }
+            if (targetFrameAttribute == null) { return ".NET 2, 3 or 3.5"; }
 
             var result = targetFrameAttribute.FrameworkDisplayName;
 
-            if (result == null)
-            {
-                result = targetFrameAttribute.FrameworkName;
-            }
+            if (result == null) { result = targetFrameAttribute.FrameworkName; }
 
             return result.Replace(".NETFramework", ".NET").Replace(".NET Framework", ".NET");
         }
@@ -55,11 +49,9 @@
         /// </summary>
         /// <param name="assembly">The assembly for which location is returned</param>
         /// <returns>The location as <see cref="DirectoryInfo"/></returns>
-        public static DirectoryInfo GetAssemblyLocation(this Assembly assembly)
-        {
+        public static DirectoryInfo GetAssemblyLocation(this Assembly assembly) => 
             // ReSharper disable once AssignNullToNotNullAttribute
-            return new DirectoryInfo(Path.GetDirectoryName(assembly.Location));
-        }
+            new DirectoryInfo(Path.GetDirectoryName(assembly.Location));
 
         /// <summary>
         /// Obtains the location from which the <paramref name="assembly"/> was found.
@@ -112,5 +104,28 @@
             }
             return false;
         }
+
+        /// <summary>
+        /// Gets the flag indicating whether the given <paramref name="assembly"/> is <c>32-bit</c>.
+        /// </summary>
+        public static bool Is32Bit(this Assembly assembly)
+        {
+            Ensure.NotNull(assembly, nameof(assembly));
+            var location = assembly.Location;
+            if (location.IsNullOrEmptyOrWhiteSpace()) { location = assembly.CodeBase; }
+            
+            var uri = new Uri(location);
+            Ensure.That(uri.IsFile, "Assembly location is not a file.");
+
+            var assemblyName = AssemblyName.GetAssemblyName(uri.LocalPath);
+            return assemblyName.ProcessorArchitecture == ProcessorArchitecture.X86;
+        }
+
+        /// <summary>
+        /// Queries the assembly's headers to find if it is <c>LARGEADDRESSAWARE</c>.
+        /// <remarks>The method is equivalent to running <c>DumpBin</c> on the assembly.</remarks>
+        /// </summary>
+        public static bool IsAssemblyLargeAddressAware(Assembly assembly) =>
+            ApplicationHelper.IsLargeAddressAware(assembly.Location);
     }
 }
