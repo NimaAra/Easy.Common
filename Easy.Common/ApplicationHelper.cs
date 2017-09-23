@@ -48,7 +48,7 @@
                     $"Runtime: {Environment.Version}",
                     $"FQDN: {NetworkHelper.GetFQDN()}",
                     $"Machine Name: {Environment.MachineName}",
-                    $"Installed RAM: {GetInstalledMemoryInMegaBytes():N0} MB",
+                    $"Installed RAM: {GetInstalledMemoryInGigaBytes():N0} GB",
                     $"Processor: {GetProcessorName()}",
                     $"Processor Count: {Environment.ProcessorCount}",
                     $"Running as: {Environment.UserDomainName}\\{Environment.UserName}",
@@ -168,10 +168,10 @@
             return key.GetValue("ProcessorNameString").ToString();
         }
 
-        private static long GetInstalledMemoryInMegaBytes()
+        private static long GetInstalledMemoryInGigaBytes()
         {
             GetPhysicallyInstalledSystemMemory(out var installedMemoryKb);
-            return installedMemoryKb / 1024;
+            return (long) UnitConverter.KiloBytesToMegaBytes(installedMemoryKb).MegaBytesToGigaBytes();
         }
 
         /// <summary>
