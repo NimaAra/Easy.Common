@@ -13,7 +13,7 @@
 
     /// <summary>
     /// A helper class for generating a report containing details related to 
-    /// <c>System</c>, <c>Process</c>, <c>Assemblies</c> and <c>Environment</c> 
+    /// <c>System</c>, <c>Process</c>, <c>Assemblies</c>, <c>Network</c> and <c>Environment</c> 
     /// on which the application executes.
     /// </summary>
     public static class DiagnosticReporter
@@ -32,8 +32,13 @@
         /// </summary>
         public static string Generate()
         {
-            try { return GenerateImpl(); } 
-            catch (Exception e) { return "Unable to generate the Diagnostic Report. Error:\r\n\t" + e; }
+            try
+            {
+                return GenerateImpl();
+            } catch (Exception e)
+            {
+                return $"Unable to generate the Diagnostic Report. Error:{NewLine}\t{e}";
+            }
         }
 
         private static string GenerateImpl()
