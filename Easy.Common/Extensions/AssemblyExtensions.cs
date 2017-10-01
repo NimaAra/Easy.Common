@@ -28,7 +28,7 @@
 
             if (result == null) { result = targetFrameAttribute.FrameworkName; }
 
-            return result.Replace(".NETFramework", ".NET").Replace(".NET Framework", ".NET");
+            return result.Replace(".NETFramework,Version=v", ".NET ").Replace(".NETFramework", ".NET").Replace(".NET Framework", ".NET");
         }
 
         /// <summary>
