@@ -14,11 +14,13 @@
     /// An abstraction over <see cref="HttpClient"/> to address the following issues:
     /// <para><see href="http://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/"/></para>
     /// <para><see href="http://byterot.blogspot.co.uk/2016/07/singleton-httpclient-dns.html"/></para>
+    /// <para><see href="http://naeem.khedarun.co.uk/blog/2016/11/30/httpclient-dns-settings-for-azure-cloud-services-and-traffic-manager-1480285049222/"/></para>
     /// </summary>
     public sealed class RestClient : IRestClient
     {
         private readonly HttpClient _client;
         private readonly HashSet<Uri> _endpoints;
+        private readonly TimeSpan _connectionCloseTimeoutPeriod;
 
         /// <summary>
         /// Creates an instance of the <see cref="RestClient"/>.
@@ -37,6 +39,10 @@
             AddMaxResponseBufferSize(maxResponseContentBufferSize);
             
             _endpoints = new HashSet<Uri>();
+            _connectionCloseTimeoutPeriod = 1.Minutes();
+
+            // Default is 2 minutes: https://msdn.microsoft.com/en-us/library/system.net.servicepointmanager.dnsrefreshtimeout(v=vs.110).aspx
+            ServicePointManager.DnsRefreshTimeout = (int)1.Minutes().TotalMilliseconds;
         }
 
         /// <summary>
@@ -149,7 +155,7 @@
                 if (_endpoints.Contains(endpoint)) { return; }
 
                 ServicePointManager.FindServicePoint(endpoint)
-                    .ConnectionLeaseTimeout = (int)1.Minutes().TotalMilliseconds;
+                    .ConnectionLeaseTimeout = (int)_connectionCloseTimeoutPeriod.TotalMilliseconds;
                 _endpoints.Add(endpoint);
             }
         }
