@@ -306,9 +306,7 @@
                 .OrderByDescending(o => o.GlobalAssemblyCache)
                 .ForEach(x =>
                 {
-                    builder.AppendFormat(
-                        nameFormatter,
-                        LinePrefix, assCounter, Pipe, assHeaders[0], x.FullName, NewLine);
+                    builder.AppendFormat(nameFormatter, LinePrefix, assCounter, Pipe, assHeaders[0], x.FullName, NewLine);
 
                     Format(assHeaders[1], x.GlobalAssemblyCache);
                     Format(assHeaders[2], !x.Is32Bit());
@@ -358,8 +356,7 @@
             builder.Insert(sectionIndex, GetSeperator("Environment-Variables", maxLineLength));
         }
 
-        private static void WrapInTable(
-            StringBuilder builder, string[] columnHeaders, List<string[]> values)
+        private static void WrapInTable(StringBuilder builder, string[] columnHeaders, List<string[]> values)
         {
             foreach (var row in values)
             {
@@ -369,7 +366,7 @@
                 }
             }
 
-            // init cellLengths first based on length of the headers
+            // initialize cellLengths first based on length of the headers
             var cellLengths = new int[columnHeaders.Length];
             for (var i = 0; i < columnHeaders.Length; i++)
             {
@@ -471,9 +468,7 @@
         private static string GetProcessorName()
         {
             var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0\");
-            if (key == null)
-            { return "Not Found"; }
-            return key.GetValue("ProcessorNameString").ToString();
+            return key?.GetValue("ProcessorNameString").ToString() ?? "Not Found";
         }
 
         private static long GetInstalledMemoryInGigaBytes()
