@@ -10,16 +10,6 @@
     public static class ApplicationHelper
     {
         /// <summary>
-        /// Gets the flag indicating whether this application has been compiled in <c>DEBUG</c>.
-        /// </summary>
-        public static bool IsDebugBuild =>
-#if DEBUG 
-        true;
-#else
-        false;
-#endif
-
-        /// <summary>
         /// Returns the time taken to start the current process.
         /// </summary>
         public static TimeSpan GetProcessStartupDuration() => 

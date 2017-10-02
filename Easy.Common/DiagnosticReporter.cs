@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
     using Microsoft.Win32;
@@ -246,7 +247,7 @@
                 Format(headers[2], p.StartTime.ToString("dd-MM-yyyy HH:mm:ss.fff"));
                 Format(headers[3], ApplicationHelper.GetProcessStartupDuration());
                 Format(headers[17], Environment.UserInteractive);
-                Format(headers[4], ApplicationHelper.IsDebugBuild);
+                Format(headers[4], IsDebugEnabled());
                 Format(headers[5], Environment.Is64BitProcess);
                 Format(headers[6], ApplicationHelper.IsProcessLargeAddressAware());
                 Format(headers[16], UnitConverter.BytesToMegaBytes(Environment.WorkingSet).ToString("N0") + "MB");
@@ -286,6 +287,14 @@
                         .Append(Colon)
                         .Append(Space)
                         .AppendLine(value.ToString());
+                }
+
+                string IsDebugEnabled()
+                {
+                    var executingAssembly = Assembly.GetEntryAssembly();
+                    return executingAssembly == null 
+                        ? "N/A - Assembly was called from Unmanaged code." 
+                        : executingAssembly.IsOptimized().ToString();
                 }
             }
         }
