@@ -218,7 +218,7 @@
                 "Name",
                 "Started",
                 "Loaded In",
-                "Debug Enabled",
+                "Optimized",
                 "64Bit Process",
                 "Large Address Aware",
                 "Module Name",
@@ -247,7 +247,7 @@
                 Format(headers[2], p.StartTime.ToString("dd-MM-yyyy HH:mm:ss.fff"));
                 Format(headers[3], ApplicationHelper.GetProcessStartupDuration());
                 Format(headers[17], Environment.UserInteractive);
-                Format(headers[4], IsDebugEnabled());
+                Format(headers[4], IsOptimized());
                 Format(headers[5], Environment.Is64BitProcess);
                 Format(headers[6], ApplicationHelper.IsProcessLargeAddressAware());
                 Format(headers[16], UnitConverter.BytesToMegaBytes(Environment.WorkingSet).ToString("N0") + "MB");
@@ -289,7 +289,7 @@
                         .AppendLine(value.ToString());
                 }
 
-                string IsDebugEnabled()
+                string IsOptimized()
                 {
                     var executingAssembly = Assembly.GetEntryAssembly();
                     return executingAssembly == null 
