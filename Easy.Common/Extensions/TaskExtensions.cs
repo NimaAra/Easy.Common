@@ -13,6 +13,42 @@ namespace Easy.Common.Extensions
     public static class TaskExtensions
     {
         /// <summary>
+        /// Ensures that the given <paramref name="task"/> finishes before a timeout <see cref="Task"/> 
+        /// with the given <paramref name="timeoutPeriod"/>.
+        /// </summary>
+        /// <returns>The original task.</returns>
+        public static async Task<T> TimeoutAfter<T>(this Task<T> task, TimeSpan timeoutPeriod)
+        {
+            await TimeoutAfterImpl(task, timeoutPeriod);
+            return await task;
+        }
+
+        /// <summary>
+        /// Ensures that every task in the given <paramref name="tasks"/> finishes before a timeout 
+        /// <see cref="Task"/> with the given <paramref name="timeoutPeriod"/>.
+        /// </summary>
+        /// <returns>The original tasks.</returns>
+        public static async Task<IEnumerable<Task<T>>> TimeoutAfter<T>(this IEnumerable<Task<T>> tasks, TimeSpan timeoutPeriod)
+        {
+            await TimeoutAfterImpl(tasks, timeoutPeriod);
+            return tasks;
+        }
+
+        /// <summary>
+        /// Ensures that the given <paramref name="task"/> finishes before a timeout <see cref="Task"/> 
+        /// with the given <paramref name="timeoutPeriod"/>.
+        /// </summary>
+        public static async Task TimeoutAfter(this Task task, TimeSpan timeoutPeriod) 
+            => await TimeoutAfterImpl(task, timeoutPeriod);
+
+        /// <summary>
+        /// Ensures that every task in the given <paramref name="tasks"/> finishes before a timeout 
+        /// <see cref="Task"/> with the given <paramref name="timeoutPeriod"/>.
+        /// </summary>
+        public static async Task TimeoutAfter(this IEnumerable<Task> tasks, TimeSpan timeoutPeriod) 
+            => await TimeoutAfterImpl(tasks, timeoutPeriod);
+
+        /// <summary>
         /// Executes the given action on each of the tasks in turn, in the order of
         /// the sequence. The action is passed the result of each task.
         /// </summary>
@@ -47,9 +83,11 @@ namespace Easy.Common.Extensions
             Ensure.That(allTasks.Count > 0);
 
             var tcs = new TaskCompletionSource<T[]>();
-
             var taskCompletedCount = 0;
-            Action<Task<T>> completeAction = t =>
+            allTasks.ForEach(t => t.ContinueWith(CompleteAction));
+            return tcs.Task;
+
+            void CompleteAction(Task<T> t)
             {
                 if (t.IsFaulted)
                 {
@@ -68,11 +106,7 @@ namespace Easy.Common.Extensions
                 {
                     tcs.SetResult(allTasks.Select(ct => ct.Result).ToArray());
                 }
-            };
-
-            allTasks.ForEach(t => t.ContinueWith(completeAction));
-
-            return tcs.Task;
+            }
         }
 
         #region Exception Handling
@@ -124,7 +158,8 @@ namespace Easy.Common.Extensions
             {
                 var e = t.Exception;
 
-                if (e == null) { return; }
+                if (e == null)
+                { return; }
 
                 e.Flatten().Handle(ie =>
                 {
@@ -154,7 +189,8 @@ namespace Easy.Common.Extensions
             {
                 var e = t.Exception;
 
-                if (e == null) { return; }
+                if (e == null)
+                { return; }
 
                 e.Flatten().Handle(ie =>
                 {
@@ -188,7 +224,8 @@ namespace Easy.Common.Extensions
             {
                 var e = t.Exception;
 
-                if (e == null) { return; }
+                if (e == null)
+                { return; }
 
                 e.Flatten().Handle(ie =>
                 {
@@ -207,5 +244,39 @@ namespace Easy.Common.Extensions
         }
 
         #endregion
+
+        private static async Task TimeoutAfterImpl(this Task task, TimeSpan timeoutPeriod)
+        {
+            if (task == null) { throw new ArgumentNullException(nameof(task)); }
+
+            var timeoutTask = Task.Delay(timeoutPeriod);
+
+            var finishedTask = await Task.WhenAny(task, timeoutTask);
+            if (finishedTask == timeoutTask)
+            {
+                throw new TimeoutException("Task timed out after: " + timeoutPeriod);
+            }
+        }
+
+        private static async Task<IEnumerable<Task>> TimeoutAfterImpl(this IEnumerable<Task> tasks, TimeSpan timeoutPeriod)
+        {
+            if (tasks == null) { throw new ArgumentNullException(nameof(tasks)); }
+
+            var timeoutTask = Task.Delay(timeoutPeriod);
+            var tasksList = new List<Task>(tasks) { timeoutTask };
+            while (tasksList.Any())
+            {
+                var finishedTask = await Task.WhenAny(tasksList);
+                if (finishedTask == timeoutTask)
+                {
+                    throw new TimeoutException("At least one of the tasks timed out after: " + timeoutPeriod);
+                }
+
+                tasksList.Remove(finishedTask);
+
+                if (tasksList.Count == 1 && tasksList[0] == timeoutTask) { break; }
+            }
+            return tasks;
+        }
     }
 }
