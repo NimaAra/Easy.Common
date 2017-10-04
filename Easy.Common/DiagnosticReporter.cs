@@ -306,7 +306,7 @@
             var assHeaders = new[] {"Name", "GAC", "64Bit", "Optimized", "Framework", "Location", "CodeBase"};
             var maxHeaderLength = assHeaders.Max(h => h.Length);
 
-            var nameFormatter = "{0}{1:D2}{2} {3,-" + (maxHeaderLength + 1) + "}: {4}{5}";
+            var nameFormatter = "{0}{1:D3}{2} {3,-" + (maxHeaderLength + 1) + "}: {4}{5}";
             var formatter = "{0,-" + (maxHeaderLength + 1) + "}";
 
             var assCounter = 1;
@@ -333,7 +333,7 @@
             {
                 builder
                     .Append(LinePrefix)
-                    .Append(Space).Append(Space)
+                    .Append(Space).Append(Space).Append(Space)
                     .Append(Dot)
                     .Append(Space)
                     .AppendFormat(formatter, key)
@@ -354,7 +354,7 @@
 
             var envVarCounter = 1;
             var maxKeyLength = envKeyVals.Keys.Max(key => key.Length);
-            var format = "{0}{1:D2}{2} {3,-" + maxKeyLength + "} : {4}{5}";
+            var format = "{0}{1:D3}{2} {3,-" + maxKeyLength + "} : {4}{5}";
             envKeyVals.ForEach(kv =>
             {
                 builder.AppendFormat(format, LinePrefix, envVarCounter, Dot, kv.Key, kv.Value, NewLine);
