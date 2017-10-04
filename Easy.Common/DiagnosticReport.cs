@@ -12,12 +12,24 @@
     using Microsoft.Win32;
     using Easy.Common.Extensions;
 
+    [Flags]
+    public enum DiagnosticReportType
+    {
+        System = 1,
+        Process = 2,
+        Drives = 4,
+        Assemblies = 8,
+        EnvironmentVariables = 16,
+        Networking = 32,
+        Full = System | Process | Drives | Assemblies | EnvironmentVariables | Networking
+    }
+
     /// <summary>
     /// A helper class for generating a report containing details related to 
     /// <c>System</c>, <c>Process</c>, <c>Assemblies</c>, <c>Network</c> and <c>Environment</c> 
     /// on which the application executes.
     /// </summary>
-    public static class DiagnosticReporter
+    public static class DiagnosticReport
     {
         private const char Pipe = '|';
         private const char Dot = '.';
@@ -27,33 +39,89 @@
         private static readonly string NewLine = Environment.NewLine;
         private static readonly string LinePrefix = Pipe + "\t";
 
+        private static readonly Action<StringBuilder>[] Actions = 
+        {
+            AddSystem,
+            AddProcess,
+            AddDrives,
+            AddAssemblies,
+            AddEnvironmentVariables,
+            AddNetworking
+        };
+
+        private static readonly string[] SystemHeaders =
+        {
+            "OS Version", 
+            "64Bit OS", 
+            "Runtime", 
+            "FQDN", 
+            "Machine Name", 
+            "Installed RAM", 
+            "Processor", 
+            "Processor Count", 
+            "User", 
+            "System Directory", 
+            "Current Directory" 
+        };
+
+        private static readonly string[] ProcessHeaders =
+        {
+            "Id",
+            "Name",
+            "Started",
+            "Loaded In",
+            "Optimized",
+            "64Bit Process",
+            "Large Address Aware",
+            "Module Name",
+            "Module File Name",
+            "Product Name",
+            "Original File Name",
+            "File Name",
+            "File Version",
+            "Product Version",
+            "Language",
+            "Copyright",
+            "WorkingSet",
+            "Interactive",
+            "CommandLine"
+        };
+
+        private static readonly string[] DrivesHeaders =
+        {
+            "Name", "Type", "Format", "Label", "Capacity(GB)", "Free(GB)", "Available(GB)"
+        };
+
+        private static readonly string[] AssemblyHeaders =
+        {
+            "Name", "GAC", "64Bit", "Optimized", "Framework", "Location", "CodeBase"
+        };
+
         /// <summary>
         /// Returns the details related to <c>System</c>, <c>Process</c>, <c>Assemblies</c>
         /// and <c>Environment</c> on which the application executes.
         /// </summary>
-        public static string Generate()
+        public static string Generate(DiagnosticReportType type = DiagnosticReportType.Full)
         {
             try
             {
-                return GenerateImpl();
+                return GenerateImpl(type);
             } catch (Exception e)
             {
                 return $"Unable to generate the Diagnostic Report. Error:{NewLine}\t{e}";
             }
         }
 
-        private static string GenerateImpl()
+        private static string GenerateImpl(DiagnosticReportType type)
         {
             var sw = Stopwatch.StartNew();
             
             var builder = new StringBuilder();
-            
-            AddSystem(builder);
-            AddProcess(builder);
-            AddDrives(builder);
-            AddAssemblies(builder);
-            AddEnvironmentVariables(builder);
-            AddNetworking(builder);
+            for (var i = 0; i < Actions.Length; i++)
+            {
+                var enabled = ((int)type & (1 << i)) != 0;
+                if (enabled) { Actions[i](builder); }
+            }
 
             sw.Stop();
 
@@ -64,36 +132,21 @@
 
         private static void AddSystem(StringBuilder builder)
         {
-            var headers = new[]
-            {
-                "OS Version", 
-                "64Bit OS", 
-                "Runtime", 
-                "FQDN", 
-                "Machine Name", 
-                "Installed RAM", 
-                "Processor",
-                "Processor Count",
-                "User",
-                "System Directory",
-                "Current Directory"
-            };
-
-            var maxHeaderLength = headers.Max(h => h.Length);
+            var maxHeaderLength = SystemHeaders.Max(h => h.Length);
             var formatter = "{0,-" + (maxHeaderLength + 1) + "}";
 
             var sectionIndex = builder.Length;
-            Format(headers[8], Environment.UserDomainName + "\\" + Environment.UserName);
-            Format(headers[0], Environment.OSVersion);
-            Format(headers[1], Environment.Is64BitOperatingSystem);
-            Format(headers[2], Environment.Version);
-            Format(headers[4], Environment.MachineName);
-            Format(headers[3], NetworkHelper.GetFQDN());
-            Format(headers[6], GetProcessorName());
-            Format(headers[7], Environment.ProcessorCount);
-            Format(headers[5], GetInstalledMemoryInGigaBytes().ToString("N0") + "GB");
-            Format(headers[9], Environment.SystemDirectory);
-            Format(headers[10], Environment.CurrentDirectory);
+            Format(SystemHeaders[8], Environment.UserDomainName + "\\" + Environment.UserName);
+            Format(SystemHeaders[0], Environment.OSVersion);
+            Format(SystemHeaders[1], Environment.Is64BitOperatingSystem);
+            Format(SystemHeaders[2], Environment.Version);
+            Format(SystemHeaders[4], Environment.MachineName);
+            Format(SystemHeaders[3], NetworkHelper.GetFQDN());
+            Format(SystemHeaders[6], GetProcessorName());
+            Format(SystemHeaders[7], Environment.ProcessorCount);
+            Format(SystemHeaders[5], GetInstalledMemoryInGigaBytes().ToString("N0") + "GB");
+            Format(SystemHeaders[9], Environment.SystemDirectory);
+            Format(SystemHeaders[10], Environment.CurrentDirectory);
 
             var maxLineLength = GetMaximumLineLength(builder, sectionIndex);
             builder.Insert(sectionIndex, GetSeperator("System", maxLineLength));
@@ -113,7 +166,6 @@
 
         private static void AddDrives(StringBuilder builder)
         {
-            var headers = new[] { "Name", "Type", "Format", "Label", "Capacity(GB)", "Free(GB)", "Available(GB)" };
             var values = new List<string[]>();
 
             foreach (var d in DriveInfo.GetDrives())
@@ -144,7 +196,7 @@
                 values.Add(row);
             }
 
-            WrapInTable(builder, headers, values);
+            WrapInTable(builder, DrivesHeaders, values);
         }
 
         private static void AddNetworking(StringBuilder builder)
@@ -212,57 +264,34 @@
 
         private static void AddProcess(StringBuilder builder)
         {
-            var headers = new[]
-            {
-                "Id",
-                "Name",
-                "Started",
-                "Loaded In",
-                "Optimized",
-                "64Bit Process",
-                "Large Address Aware",
-                "Module Name",
-                "Module File Name",
-                "Product Name",
-                "Original File Name",
-                "File Name",
-                "File Version",
-                "Product Version",
-                "Language",
-                "Copyright",
-                "WorkingSet",
-                "Interactive",
-                "CommandLine"
-            };
-
-            var maxHeaderLength = headers.Max(h => h.Length);
+            var maxHeaderLength = ProcessHeaders.Max(h => h.Length);
             var formatter = "{0,-" +(maxHeaderLength + 1) + "}";
 
             var sectionIndex = builder.Length;
             using (var p = Process.GetCurrentProcess())
             {
                 var pVerInfo = p.MainModule.FileVersionInfo;
-                Format(headers[0], p.Id);
-                Format(headers[1], p.ProcessName);
-                Format(headers[2], p.StartTime.ToString("dd-MM-yyyy HH:mm:ss.fff"));
-                Format(headers[3], ApplicationHelper.GetProcessStartupDuration());
-                Format(headers[17], Environment.UserInteractive);
-                Format(headers[4], IsOptimized());
-                Format(headers[5], Environment.Is64BitProcess);
-                Format(headers[6], ApplicationHelper.IsProcessLargeAddressAware());
-                Format(headers[16], UnitConverter.BytesToMegaBytes(Environment.WorkingSet).ToString("N0") + "MB");
-                Format(headers[12], pVerInfo.FileVersion);
-                Format(headers[13], pVerInfo.ProductVersion);
-                Format(headers[14], pVerInfo.Language);
-                Format(headers[15], pVerInfo.LegalCopyright);
-                Format(headers[10], pVerInfo.OriginalFilename);
-                Format(headers[11], pVerInfo.FileName);
-                Format(headers[7], p.MainModule.ModuleName);
-                Format(headers[8], p.MainModule.FileName);
-                Format(headers[9], pVerInfo.ProductName);
+                Format(ProcessHeaders[0], p.Id);
+                Format(ProcessHeaders[1], p.ProcessName);
+                Format(ProcessHeaders[2], p.StartTime.ToString("dd-MM-yyyy HH:mm:ss.fff"));
+                Format(ProcessHeaders[3], ApplicationHelper.GetProcessStartupDuration());
+                Format(ProcessHeaders[17], Environment.UserInteractive);
+                Format(ProcessHeaders[4], IsOptimized());
+                Format(ProcessHeaders[5], Environment.Is64BitProcess);
+                Format(ProcessHeaders[6], ApplicationHelper.IsProcessLargeAddressAware());
+                Format(ProcessHeaders[16], UnitConverter.BytesToMegaBytes(Environment.WorkingSet).ToString("N0") + "MB");
+                Format(ProcessHeaders[12], pVerInfo.FileVersion);
+                Format(ProcessHeaders[13], pVerInfo.ProductVersion);
+                Format(ProcessHeaders[14], pVerInfo.Language);
+                Format(ProcessHeaders[15], pVerInfo.LegalCopyright);
+                Format(ProcessHeaders[10], pVerInfo.OriginalFilename);
+                Format(ProcessHeaders[11], pVerInfo.FileName);
+                Format(ProcessHeaders[7], p.MainModule.ModuleName);
+                Format(ProcessHeaders[8], p.MainModule.FileName);
+                Format(ProcessHeaders[9], pVerInfo.ProductName);
 
                 var cmdArgs = Environment.GetCommandLineArgs();
-                Format(headers[18], cmdArgs[0]);
+                Format(ProcessHeaders[18], cmdArgs[0]);
 
                 for (var i = 1; i < cmdArgs.Length; i++)
                 {
@@ -303,8 +332,7 @@
         {
             var sectionIndex = builder.Length;
 
-            var assHeaders = new[] {"Name", "GAC", "64Bit", "Optimized", "Framework", "Location", "CodeBase"};
-            var maxHeaderLength = assHeaders.Max(h => h.Length);
+            var maxHeaderLength = AssemblyHeaders.Max(h => h.Length);
 
             var nameFormatter = "{0}{1:D3}{2} {3,-" + (maxHeaderLength + 1) + "}: {4}{5}";
             var formatter = "{0,-" + (maxHeaderLength + 1) + "}";
@@ -315,14 +343,14 @@
                 .OrderByDescending(o => o.GlobalAssemblyCache)
                 .ForEach(x =>
                 {
-                    builder.AppendFormat(nameFormatter, LinePrefix, assCounter, Pipe, assHeaders[0], x.FullName, NewLine);
+                    builder.AppendFormat(nameFormatter, LinePrefix, assCounter, Pipe, AssemblyHeaders[0], x.FullName, NewLine);
 
-                    Format(assHeaders[1], x.GlobalAssemblyCache);
-                    Format(assHeaders[2], !x.Is32Bit());
-                    Format(assHeaders[3], x.IsOptimized());
-                    Format(assHeaders[4], x.GetFrameworkVersion());
-                    Format(assHeaders[5], x.Location);
-                    Format(assHeaders[6], x.CodeBase);
+                    Format(AssemblyHeaders[1], x.GlobalAssemblyCache);
+                    Format(AssemblyHeaders[2], !x.Is32Bit());
+                    Format(AssemblyHeaders[3], x.IsOptimized());
+                    Format(AssemblyHeaders[4], x.GetFrameworkVersion());
+                    Format(AssemblyHeaders[5], x.Location);
+                    Format(AssemblyHeaders[6], x.CodeBase);
                     assCounter++;
                 });
 
