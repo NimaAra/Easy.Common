@@ -123,7 +123,7 @@
             var report = DiagnosticReport.Generate(DiagnosticReportType.EnvironmentVariables);
             report.ShouldNotBeNull();
             report.Length.ShouldBeGreaterThan(100);
-            Console.WriteLine(report);
+            
             report.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
             report.ShouldNotContain("\r\n|\r\n|System|...");
             report.ShouldNotContain("\r\n|\r\n|Process|...");
