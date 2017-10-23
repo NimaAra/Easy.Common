@@ -24,11 +24,7 @@
 
             if (targetFrameAttribute == null) { return ".NET 2, 3 or 3.5"; }
 
-            var result = targetFrameAttribute.FrameworkDisplayName;
-
-            if (result == null) { result = targetFrameAttribute.FrameworkName; }
-
-            return result.Replace(".NETFramework,Version=v", ".NET ").Replace(".NETFramework", ".NET").Replace(".NET Framework", ".NET");
+            return targetFrameAttribute.FrameworkName;
         }
 
         /// <summary>

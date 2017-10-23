@@ -43,7 +43,7 @@
         {
             var path = Path.Combine(_currentDirectory, @"Assembly\DotNet4.dll");
             Assembly.LoadFrom(path).GetFrameworkVersion()
-                .ShouldBe(".NET 4");
+                .ShouldBe(".NETFramework,Version=v4.0");
         }
 
         [Test]
@@ -51,7 +51,7 @@
         {
             var path = Path.Combine(_currentDirectory, @"Assembly\DotNet45.dll");
             Assembly.LoadFrom(path).GetFrameworkVersion()
-                .ShouldBe(".NET 4.5");
+                .ShouldBe(".NETFramework,Version=v4.5");
         }
 
         [Test]
@@ -59,7 +59,7 @@
         {
             var path = Path.Combine(_currentDirectory, @"Assembly\DotNet451.dll");
             Assembly.LoadFrom(path).GetFrameworkVersion()
-                .ShouldBe(".NET 4.5.1");
+                .ShouldBe(".NETFramework,Version=v4.5.1");
         }
 
         [Test]
@@ -67,7 +67,7 @@
         {
             var path = Path.Combine(_currentDirectory, @"Assembly\DotNet452.dll");
             Assembly.LoadFrom(path).GetFrameworkVersion()
-                .ShouldBe(".NET 4.5.2");
+                .ShouldBe(".NETFramework,Version=v4.5.2");
         }
 
         [Test]
@@ -75,7 +75,7 @@
         {
             var path = Path.Combine(_currentDirectory, @"Assembly\DotNet46.dll");
             Assembly.LoadFrom(path).GetFrameworkVersion()
-                .ShouldBe(".NET 4.6");
+                .ShouldBe(".NETFramework,Version=v4.6");
         }
 
         [Test]
@@ -83,7 +83,7 @@
         {
             var path = Path.Combine(_currentDirectory, @"Assembly\DotNet461.dll");
             Assembly.LoadFrom(path).GetFrameworkVersion()
-                .ShouldBe(".NET 4.6.1");
+                .ShouldBe(".NETFramework,Version=v4.6.1");
         }
     }
 }
