@@ -1,6 +1,5 @@
 ﻿namespace Easy.Common.Tests.Unit.ActiveDirectoryHelper
 {
-    using System;
     using NUnit.Framework;
     using Shouldly;
     using ActiveDirectoryHelper = Easy.Common.ActiveDirectoryHelper;
