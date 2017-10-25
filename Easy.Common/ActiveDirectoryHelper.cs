@@ -26,6 +26,28 @@
         }
 
         /// <summary>
+        /// Determines whether the given <paramref name="userLogon"/> is a member of
+        /// the given <paramref name="groupName"/>.
+        /// </summary>
+        public static bool IsGroupMember(string userLogon, string groupName)
+        {
+            Ensure.NotNullOrEmptyOrWhiteSpace(userLogon);
+            Ensure.NotNullOrEmptyOrWhiteSpace(groupName);
+
+            var groups = GetGroupsForUser(userLogon);
+
+            const StringComparison CmpPolicy = StringComparison.InvariantCultureIgnoreCase;
+            if (groupName.Equals("Everyone", CmpPolicy) || groupName.Equals("Administrators", CmpPolicy))
+            {
+                return groups.Contains(groupName);
+            }
+
+            return groupName.Contains("\\") // if contains domain
+                ? groups.Contains(groupName)
+                : groups.Any(g => g.EndsWith("\\" + groupName, CmpPolicy));
+        }
+
+        /// <summary>
         /// Compares the group membership for each of the items in <paramref name="userLogons"/>
         /// and generates a <c>HTML</c> report indicating the commonality as well as differences 
         /// between each users.
