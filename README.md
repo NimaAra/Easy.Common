@@ -9,3 +9,4 @@ Supports _.NET Core_ (_.NET 4.5_ & _netstandard2.0_) running on:
 ___
 
 * NuGet at: https://www.nuget.org/packages/Easy.Common/
+easy
