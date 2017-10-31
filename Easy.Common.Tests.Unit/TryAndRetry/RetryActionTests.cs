@@ -80,7 +80,7 @@
         {
             var counter = 0;
 
-            Should.Throw<NullReferenceException>(async () =>
+            var retryEx = Should.Throw<RetryException>(async () =>
             {
                 await Retry.On<NullReferenceException>(
                     () => {
@@ -88,11 +88,14 @@
                         throw new NullReferenceException();
                     });
             });
+            retryEx.RetryCount.ShouldBe((uint)1);
+            retryEx.Message.ShouldBe("Retry failed after: 1 attempts.");
+            
             counter.ShouldBe(2);
 
             counter = 0;
 
-            Should.Throw<NullReferenceException>(async () =>
+            retryEx = Should.Throw<RetryException>(async () =>
             {
                 await Retry.On<NullReferenceException>(
                     () => {
@@ -103,6 +106,9 @@
                     100.Milliseconds(),
                     100.Milliseconds());
             });
+            retryEx.RetryCount.ShouldBe((uint)3);
+            retryEx.Message.ShouldBe("Retry failed after: 3 attempts.");
+
             counter.ShouldBe(4);
         }
 
@@ -153,7 +159,7 @@
         {
             var counter = 0;
 
-            Should.Throw<NullReferenceException>(async () =>
+            var retryEx = Should.Throw<RetryException>(async () =>
             {
                 await Retry.OnAny<ArgumentNullException, NullReferenceException>(
                     () => {
@@ -161,11 +167,14 @@
                         throw new NullReferenceException();
                     });
             });
+            retryEx.RetryCount.ShouldBe((uint)1);
+            retryEx.Message.ShouldBe("Retry failed after: 1 attempts.");
+            
             counter.ShouldBe(2);
 
             counter = 0;
 
-            Should.Throw<NullReferenceException>(async () =>
+            retryEx = Should.Throw<RetryException>(async () =>
             {
                 await Retry.OnAny<ArgumentNullException, NullReferenceException>(
                     () => {
@@ -176,6 +185,9 @@
                     100.Milliseconds(),
                     100.Milliseconds());
             });
+            retryEx.RetryCount.ShouldBe((uint)3);
+            retryEx.Message.ShouldBe("Retry failed after: 3 attempts.");
+
             counter.ShouldBe(4);
         }
     }

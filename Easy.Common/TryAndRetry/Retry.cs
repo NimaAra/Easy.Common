@@ -1,4 +1,5 @@
-﻿namespace Easy.Common
+﻿// ReSharper disable once CheckNamespace
+namespace Easy.Common
 {
     using System;
     using System.Collections.Generic;
@@ -18,8 +19,8 @@
         /// <paramref name="action"/> will be retried once.
         /// </remarks>
         /// </summary>
-        public static Task On<TEx>(Action action, params TimeSpan[] delays) where TEx : Exception => 
-            OnImpl(action, delays, typeof(TEx));
+        public static Task On<TEx>(Action action, params TimeSpan[] delays) 
+            where TEx : Exception => OnImpl(action, delays, typeof(TEx));
 
         /// <summary>
         /// Retries the given <paramref name="action"/> in case of any of the given exceptions specified by
@@ -30,8 +31,7 @@
         /// </remarks>
         /// </summary>
         public static Task OnAny<TEx1, TEx2>(Action action, params TimeSpan[] delays)
-            where TEx1 : Exception where TEx2 : Exception => 
-                OnImpl(action, delays, typeof(TEx1), typeof(TEx2));
+            where TEx1 : Exception where TEx2 : Exception => OnImpl(action, delays, typeof(TEx1), typeof(TEx2));
 
         /// <summary>
         /// Retries the given <paramref name="action"/> in case of any of the given exceptions specified by
@@ -43,7 +43,7 @@
         /// </summary>
         public static Task OnAny<TEx1, TEx2, TEx3>(Action action, params TimeSpan[] delays)
             where TEx1 : Exception where TEx2 : Exception where TEx3 : Exception => 
-                OnImpl(action, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3));
+            OnImpl(action, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3));
 
         /// <summary>
         /// Retries the given <paramref name="action"/> in case of any of the given exceptions specified by
@@ -55,7 +55,7 @@
         /// </summary>
         public static Task OnAny<TEx1, TEx2, TEx3, TEx4>(Action action, params TimeSpan[] delays)
             where TEx1 : Exception where TEx2 : Exception where TEx3 : Exception where TEx4 : Exception =>
-                OnImpl(action, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3), typeof(TEx4));
+            OnImpl(action, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3), typeof(TEx4));
 
         /// <summary>
         /// Retries the given <paramref name="action"/> in case of any of the given exceptions specified by
@@ -67,7 +67,7 @@
         /// </summary>
         public static Task OnAny<TEx1, TEx2, TEx3, TEx4, TEx5>(Action action, params TimeSpan[] delays)
             where TEx1 : Exception where TEx2 : Exception where TEx3 : Exception where TEx4 : Exception where TEx5 : Exception =>
-                OnImpl(action, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3), typeof(TEx4), typeof(TEx5));
+            OnImpl(action, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3), typeof(TEx4), typeof(TEx5));
 
         /// <summary>
         /// Retries the given <paramref name="func"/> in case of an exception of 
@@ -77,8 +77,8 @@
         /// <paramref name="func"/> will be retried once.
         /// </remarks>
         /// </summary>
-        public static Task<TResult> On<TEx, TResult>(Func<TResult> func, params TimeSpan[] delays) where TEx : Exception => 
-            OnImpl(func, delays, typeof(TEx));
+        public static Task<TResult> On<TEx, TResult>(Func<TResult> func, params TimeSpan[] delays) 
+            where TEx : Exception => OnImpl(func, delays, typeof(TEx));
 
         /// <summary>
         /// Retries the given <paramref name="func"/> in case of any of the given exceptions specified by 
@@ -89,8 +89,7 @@
         /// </remarks>
         /// </summary>
         public static Task<TResult> OnAny<TEx1, TEx2, TResult>(Func<TResult> func, params TimeSpan[] delays)
-            where TEx1 : Exception where TEx2 : Exception =>
-                OnImpl(func, delays, typeof(TEx1), typeof(TEx2));
+            where TEx1 : Exception where TEx2 : Exception => OnImpl(func, delays, typeof(TEx1), typeof(TEx2));
 
         /// <summary>
         /// Retries the given <paramref name="func"/> in case of any of the given exceptions specified by 
@@ -102,7 +101,7 @@
         /// </summary>
         public static Task<TResult> OnAny<TEx1, TEx2, TEx3, TResult>(Func<TResult> func, params TimeSpan[] delays)
             where TEx1 : Exception where TEx2 : Exception where TEx3 : Exception =>
-                OnImpl(func, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3));
+            OnImpl(func, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3));
 
         /// <summary>
         /// Retries the given <paramref name="func"/> in case of any of the given exceptions specified by 
@@ -114,7 +113,7 @@
         /// </summary>
         public static Task<TResult> OnAny<TEx1, TEx2, TEx3, TEx4, TResult>(Func<TResult> func, params TimeSpan[] delays)
             where TEx1 : Exception where TEx2 : Exception where TEx3 : Exception where TEx4 : Exception =>
-                OnImpl(func, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3), typeof(TEx4));
+            OnImpl(func, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3), typeof(TEx4));
 
         /// <summary>
         /// Retries the given <paramref name="func"/> in case of any of the given exceptions specified by 
@@ -126,20 +125,23 @@
         /// </summary>
         public static Task<TResult> OnAny<TEx1, TEx2, TEx3, TEx4, TEx5, TResult>(Func<TResult> func, params TimeSpan[] delays)
             where TEx1 : Exception where TEx2 : Exception where TEx3 : Exception where TEx4 : Exception where TEx5 : Exception =>
-                OnImpl(func, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3), typeof(TEx4), typeof(TEx5));
+            OnImpl(func, delays, typeof(TEx1), typeof(TEx2), typeof(TEx3), typeof(TEx4), typeof(TEx5));
 
         private static async Task OnImpl(Action action, IReadOnlyList<TimeSpan> delays, params Type[] exceptionTypes)
         {
             if (!delays.Any())
             {
-                try
+                var count = 2;
+                while (count-- > 0)
                 {
-                    action();
-                    return;
-                } catch (Exception e) when (exceptionTypes.Contains(e.GetType()))
-                {
-                    action();
-                    return;
+                    try
+                    {
+                        action();
+                        return;
+                    } catch (Exception e) when (exceptionTypes.Contains(e.GetType()))
+                    {
+                        if (count == 0) { throw new RetryException(1, e); }
+                    }
                 }
             }
 
@@ -151,7 +153,7 @@
                     return;
                 } catch (Exception e) when (exceptionTypes.Contains(e.GetType()))
                 {
-                    if (i == delays.Count) { throw; }
+                    if (i == delays.Count) { throw new RetryException((uint)i, e); }
                     await Task.Delay(delays[i]);
                 }
             }
@@ -161,12 +163,16 @@
         {
             if (!delays.Any())
             {
-                try
+                uint count = 2;
+                while (count-- > 0)
                 {
-                    return func();
-                } catch (Exception e) when (exceptionTypes.Contains(e.GetType()))
-                {
-                    return func();
+                    try
+                    {
+                        return func();
+                    } catch (Exception e) when (exceptionTypes.Contains(e.GetType()))
+                    {
+                        if (count == 0) { throw new RetryException(1, e); }
+                    }
                 }
             }
 
@@ -177,11 +183,10 @@
                     return func();
                 } catch (Exception e) when (exceptionTypes.Contains(e.GetType()))
                 {
-                    if (i == delays.Count) { throw; }
+                    if (i == delays.Count) { throw new RetryException((uint)i, e); }
                     await Task.Delay(delays[i]);
                 }
             }
-
             throw new InvalidOperationException();
         }
     }

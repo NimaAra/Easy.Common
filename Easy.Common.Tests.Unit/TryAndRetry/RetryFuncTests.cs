@@ -98,7 +98,7 @@
         {
             var result = -1;
             var counter = 0;
-            Should.Throw<NullReferenceException>(async () =>
+            var retryEx = Should.Throw<RetryException>(async () =>
             {
                 result = await Retry.On<NullReferenceException, int>(
                     () => {
@@ -109,8 +109,26 @@
                     100.Milliseconds(),
                     100.Milliseconds());
             });
+            retryEx.RetryCount.ShouldBe((uint)3);
+            retryEx.Message.ShouldBe("Retry failed after: 3 attempts.");
 
             counter.ShouldBe(4);
+            result.ShouldBe(-1);
+
+            result = -1;
+            counter = 0;
+            retryEx = Should.Throw<RetryException>(async () =>
+            {
+                result = await Retry.On<NullReferenceException, int>(
+                    () => {
+                        counter++;
+                        throw new NullReferenceException();
+                    });
+            });
+            retryEx.RetryCount.ShouldBe((uint)1);
+            retryEx.Message.ShouldBe("Retry failed after: 1 attempts.");
+
+            counter.ShouldBe(2);
             result.ShouldBe(-1);
         }
 
@@ -159,7 +177,7 @@
         {
             var result = -1;
             var counter = 0;
-            Should.Throw<NullReferenceException>(async () =>
+            var retryEx = Should.Throw<RetryException>(async () =>
             {
                 result = await Retry.OnAny<ArgumentNullException, NullReferenceException, int>(
                     () => {
@@ -170,6 +188,8 @@
                     100.Milliseconds(),
                     100.Milliseconds());
             });
+            retryEx.RetryCount.ShouldBe((uint)3);
+            retryEx.Message.ShouldBe("Retry failed after: 3 attempts.");
 
             counter.ShouldBe(4);
             result.ShouldBe(-1);

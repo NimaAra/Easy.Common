@@ -1,4 +1,5 @@
-﻿namespace Easy.Common
+﻿// ReSharper disable once CheckNamespace
+namespace Easy.Common
 {
     using System;
 
