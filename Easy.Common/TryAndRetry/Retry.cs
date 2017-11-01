@@ -154,7 +154,7 @@ namespace Easy.Common
                 } catch (Exception e) when (exceptionTypes.Contains(e.GetType()))
                 {
                     if (i == delays.Count) { throw new RetryException((uint)i, e); }
-                    await Task.Delay(delays[i]);
+                    await Task.Delay(delays[i]).ConfigureAwait(false);
                 }
             }
         }
@@ -184,7 +184,7 @@ namespace Easy.Common
                 } catch (Exception e) when (exceptionTypes.Contains(e.GetType()))
                 {
                     if (i == delays.Count) { throw new RetryException((uint)i, e); }
-                    await Task.Delay(delays[i]);
+                    await Task.Delay(delays[i]).ConfigureAwait(false);
                 }
             }
             throw new InvalidOperationException();
