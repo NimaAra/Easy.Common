@@ -88,14 +88,14 @@
 
         private static readonly string[] SystemHeaders =
         {
-            "OS Version", 
+            "OS", 
             "64Bit OS", 
-            "Runtime", 
+            "CLR Runtime", 
             "FQDN", 
             "Machine Name", 
             "Installed RAM", 
-            "Processor", 
-            "Processor Count", 
+            "CPU", 
+            "CPU Core Count", 
             "User", 
             "System Directory", 
             "Current Directory" 
@@ -173,12 +173,12 @@
             var formatter = "{0,-" + (maxHeaderLength + 1) + "}";
 
             var sectionIndex = builder.Length;
-            Format(SystemHeaders[8], Environment.UserDomainName + "\\" + Environment.UserName);
             Format(SystemHeaders[0], Environment.OSVersion);
             Format(SystemHeaders[1], Environment.Is64BitOperatingSystem);
             Format(SystemHeaders[2], Environment.Version);
             Format(SystemHeaders[4], Environment.MachineName);
             Format(SystemHeaders[3], NetworkHelper.GetFQDN());
+            Format(SystemHeaders[8], Environment.UserDomainName + "\\" + Environment.UserName);
             Format(SystemHeaders[6], GetProcessorName());
             Format(SystemHeaders[7], Environment.ProcessorCount);
             Format(SystemHeaders[5], GetInstalledMemoryInGigaBytes().ToString("N0") + "GB");
