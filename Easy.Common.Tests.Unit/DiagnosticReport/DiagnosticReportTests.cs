@@ -1,6 +1,5 @@
 ﻿namespace Easy.Common.Tests.Unit.DiagnosticReport
 {
-    using System;
     using NUnit.Framework;
     using Shouldly;
     using DiagnosticReport = Easy.Common.DiagnosticReport;
