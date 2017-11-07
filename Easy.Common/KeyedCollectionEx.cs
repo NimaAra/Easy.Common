@@ -21,10 +21,8 @@
         /// Creates an instance of the <see cref="KeyedCollectionEx{TKey,TItem}"/>.
         /// </summary>
         /// <param name="keySelector">The selector used to select the key for the collection.</param>
-        public KeyedCollectionEx(Func<TItem, TKey> keySelector)
-        {
+        public KeyedCollectionEx(Func<TItem, TKey> keySelector) => 
             _getKeyForItemFunc = Ensure.NotNull(keySelector, nameof(keySelector));
-        }
 
         /// <summary>
         /// Creates an instance of the <see cref="KeyedCollectionEx{TKey,TItem}"/>.
@@ -35,11 +33,23 @@
         /// interface to use when comparing keys, or null to use the default equality 
         /// comparer for the type of the key, obtained from <see cref="EqualityComparer{T}.Default"/>.
         /// </param>
-        public KeyedCollectionEx(Func<TItem, TKey> keySelector, IEqualityComparer<TKey> comparer) 
-            : base(comparer)
-        {
-            _getKeyForItemFunc = Ensure.NotNull(keySelector, nameof(keySelector));
-        }
+        public KeyedCollectionEx(Func<TItem, TKey> keySelector, IEqualityComparer<TKey> comparer) : base(comparer) 
+            => _getKeyForItemFunc = Ensure.NotNull(keySelector, nameof(keySelector));
+
+        /// <summary>
+        /// Gets the keys stored in the instance.
+        /// </summary>
+        public ICollection<TKey> Keys => Dictionary.Keys;
+
+        /// <summary>
+        /// Gets the values stored in the instance.
+        /// </summary>
+        public ICollection<TItem> Values => Dictionary.Values;
+
+        /// <summary>
+        /// Gets the key for the given <paramref name="item"/>.
+        /// </summary>
+        protected override TKey GetKeyForItem(TItem item) => _getKeyForItemFunc(item);
 
         /// <summary>
         /// Attempts to return the value for the given <paramref name="key"/>.
@@ -57,11 +67,29 @@
         }
 
         /// <summary>
-        /// Gets the key for the given <paramref name="item"/>.
+        /// Adds the <paramref name="key"/> and <paramref name="value"/> if the <paramref name="key"/> 
+        /// does not already exists and returns the inserted value.
         /// </summary>
-        protected override TKey GetKeyForItem(TItem item)
+        public TItem GetOrAdd(TKey key, TItem value)
         {
-            return _getKeyForItemFunc(item);
+            if (TryGet(key, out var result)) { return result; }
+
+            Add(value);
+            return value;
+        }
+
+        /// <summary>
+        /// Adds the <paramref name="key"/> and the value created by <paramref name="valueCreator"/> 
+        /// if the <paramref name="key"/> does not already exists and returns the inserted value.
+        /// </summary>
+        public TItem GetOrAdd(TKey key, Func<TItem> valueCreator)
+        {
+            if (TryGet(key, out var result)) { return result; }
+
+            var value = valueCreator();
+            Add(value);
+            result = value;
+            return result;
         }
     }
 }
