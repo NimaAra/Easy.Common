@@ -8,6 +8,18 @@
     internal sealed class KeyedCollectionExTests
     {
         [Test]
+        public void When_checking_keys_of_an_empty_collection()
+        {
+            var collection = new KeyedCollectionEx<string, Person>(p => p.Name);
+
+            collection.ShouldBeEmpty();
+            collection.Count.ShouldBe(0);
+
+            collection.Keys.ShouldNotBeNull();
+            collection.Keys.Count.ShouldBe(0);
+        }
+        
+        [Test]
         public void When_checking_keys()
         {
             var personA = new Person { Name = "A", Age = 1 };
@@ -35,6 +47,18 @@
 
             collection.Keys.Count.ShouldBe(2);
             collection.Keys.ShouldBe(new[] { "A", "C" });
+        }
+
+        [Test]
+        public void When_checking_values_of_an_empty_collection()
+        {
+            var collection = new KeyedCollectionEx<string, Person>(p => p.Name);
+
+            collection.ShouldBeEmpty();
+            collection.Count.ShouldBe(0);
+
+            collection.Values.ShouldNotBeNull();
+            collection.Values.Count.ShouldBe(0);
         }
 
         [Test]

@@ -39,12 +39,12 @@
         /// <summary>
         /// Gets the keys stored in the instance.
         /// </summary>
-        public ICollection<TKey> Keys => Dictionary.Keys;
+        public ICollection<TKey> Keys => Dictionary?.Keys ?? new List<TKey>(0);
 
         /// <summary>
         /// Gets the values stored in the instance.
         /// </summary>
-        public ICollection<TItem> Values => Dictionary.Values;
+        public ICollection<TItem> Values => Dictionary?.Values ?? new List<TItem>(0);
 
         /// <summary>
         /// Gets the key for the given <paramref name="item"/>.
