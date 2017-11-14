@@ -1,5 +1,6 @@
 ﻿namespace Easy.Common
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Net;
@@ -23,7 +24,7 @@
             var hostName = Dns.GetHostName();
 
             domainName = "." + domainName;
-            if (!hostName.EndsWith(domainName))
+            if (!hostName.EndsWith(domainName, StringComparison.InvariantCultureIgnoreCase))
             {
                 hostName += domainName;
             }
@@ -58,27 +59,35 @@
         public static IDictionary<IPAddress, string> GetLocalIPAddresses()
         {
             // Get a list of all network interfaces (usually one per network card, dial-up, and VPN connection)
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+            var nics = NetworkInterface.GetAllNetworkInterfaces();
 
             var result = new Dictionary<IPAddress, string>();
-            foreach (var networkInterface in networkInterfaces)
+            foreach (var nic in nics)
             {
-                // Read the IP configuration for each network
-                var properties = networkInterface.GetIPProperties();
-
-                // Each network interface may have multiple IP addresses
-                foreach (var address in properties.UnicastAddresses)
+                foreach (var item in GetLocalIPAddresses(nic))
                 {
-                    // We're only interested in IPv4 addresses for now
-                    if (address.Address.AddressFamily != AddressFamily.InterNetwork) { continue; }
-
-                    // Ignore loopback addresses (e.g., 127.0.0.1)
-                    if (IPAddress.IsLoopback(address.Address)) { continue; }
-
-                    result.Add(address.Address, networkInterface.Name);
+                    result.Add(item, nic.Name);
                 }
             }
             return result;
+        }
+
+        internal static IEnumerable<IPAddress> GetLocalIPAddresses(NetworkInterface nic)
+        {
+            // Read the IP configuration for each network
+            var properties = nic.GetIPProperties();
+
+            // Each network interface may have multiple IP addresses
+            foreach (var address in properties.UnicastAddresses)
+            {
+                // We're only interested in IPv4 addresses for now
+                if (address.Address.AddressFamily != AddressFamily.InterNetwork) { continue; }
+
+                // Ignore loopback addresses (e.g., 127.0.0.1)
+                if (IPAddress.IsLoopback(address.Address)) { continue; }
+
+                yield return address.Address;
+            }
         }
     }
 }

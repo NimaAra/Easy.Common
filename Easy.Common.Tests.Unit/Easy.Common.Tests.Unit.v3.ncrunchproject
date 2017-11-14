@@ -16,6 +16,9 @@
       <FixtureTestSelector>
         <FixtureName>Easy.Common.Tests.Unit.TimerAndClockTests.TimerClockTests</FixtureName>
       </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Easy.Common.Tests.Unit.DiagnosticReport.DiagnosticReportTests</FixtureName>
+      </FixtureTestSelector>
     </IgnoredTests>
     <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
   </Settings>

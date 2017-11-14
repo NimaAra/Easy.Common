@@ -51,5 +51,9 @@
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+  </ItemGroup>
 
 </Project>
