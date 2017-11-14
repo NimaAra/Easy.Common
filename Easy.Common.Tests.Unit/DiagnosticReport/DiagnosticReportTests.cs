@@ -14,7 +14,7 @@
         {
             var report = DiagnosticReport.Generate();
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(DiagnosticReportType.Full);
             report.SystemDetails.ShouldNotBeNull();
@@ -48,7 +48,7 @@
             // ReSharper disable once RedundantArgumentDefaultValue
             var report = DiagnosticReport.Generate(DiagnosticReportType.Full);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(DiagnosticReportType.Full);
             report.SystemDetails.ShouldNotBeNull();
@@ -81,7 +81,7 @@
         {
             var report = DiagnosticReport.Generate(DiagnosticReportType.System);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(DiagnosticReportType.System);
             report.SystemDetails.ShouldNotBeNull();
@@ -112,7 +112,7 @@
         {
             var report = DiagnosticReport.Generate(DiagnosticReportType.Process);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(DiagnosticReportType.Process);
             report.SystemDetails.ShouldBeNull();
@@ -142,7 +142,7 @@
         {
             var report = DiagnosticReport.Generate(DiagnosticReportType.Drives);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(DiagnosticReportType.Drives);
             report.SystemDetails.ShouldBeNull();
@@ -173,7 +173,7 @@
         {
             var report = DiagnosticReport.Generate(DiagnosticReportType.Assemblies);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(DiagnosticReportType.Assemblies);
             report.SystemDetails.ShouldBeNull();
@@ -204,7 +204,7 @@
         {
             var report = DiagnosticReport.Generate(DiagnosticReportType.EnvironmentVariables);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(DiagnosticReportType.EnvironmentVariables);
             report.SystemDetails.ShouldBeNull();
@@ -235,7 +235,7 @@
         {
             var report = DiagnosticReport.Generate(DiagnosticReportType.Networks);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(DiagnosticReportType.Networks);
             report.SystemDetails.ShouldBeNull();
@@ -268,7 +268,7 @@
 
             var report = DiagnosticReport.Generate(Flags);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(Flags);
             report.SystemDetails.ShouldNotBeNull();
@@ -301,7 +301,7 @@
             
             var report = DiagnosticReport.Generate(Flags);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(Flags);
             report.SystemDetails.ShouldNotBeNull();
@@ -335,7 +335,7 @@
             
             var report = DiagnosticReport.Generate(Flags);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(Flags);
             report.SystemDetails.ShouldNotBeNull();
@@ -369,7 +369,7 @@
             
             var report = DiagnosticReport.Generate(Flags);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(Flags);
             report.SystemDetails.ShouldNotBeNull();
@@ -403,7 +403,7 @@
             
             var report = DiagnosticReport.Generate(Flags);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(Flags);
             report.SystemDetails.ShouldNotBeNull();
@@ -440,7 +440,7 @@
             
             var report = DiagnosticReport.Generate();
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(Flags);
             report.SystemDetails.ShouldNotBeNull();
@@ -478,7 +478,7 @@
 
             var report = DiagnosticReport.Generate(Flags);
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(Flags);
             report.SystemDetails.ShouldBeNull();
@@ -514,7 +514,7 @@
 
             var report = DiagnosticReport.Generate();
             report.ShouldNotBeNull();
-            report.Timestamp.ShouldBeLessThan(DateTimeOffset.Now);
+            report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
             report.TimeTaken.ShouldBeGreaterThan(0.Milliseconds());
             report.Type.ShouldBe(Flags);
             report.SystemDetails.ShouldNotBeNull();
