@@ -196,7 +196,6 @@ namespace Easy.Common
         {
             if (!IsReportEnabled(type, DiagnosticReportType.System)) { return null; }
 
-            var start = Stopwatch.StartNew();
             return new SystemDetails
             {
                 OSName = RuntimeInformation.OSDescription,
@@ -212,7 +211,7 @@ namespace Easy.Common
                 SystemDirectory = Environment.SystemDirectory,
                 CurrentDirectory = Environment.CurrentDirectory,
                 RuntimeDirectory = RuntimeEnvironment.GetRuntimeDirectory(),
-                Uptime = TimeSpan.FromMilliseconds(GetTickCount64()).Subtract(start.Elapsed)
+                Uptime = GetUptime()
             };
         }
 
@@ -273,13 +272,14 @@ namespace Easy.Common
                 .Select(d =>
                 {
                     var dashString = Dash.ToString();
-                    string driveFormat = dashString, volumeLabel = dashString;
+                    string driveFormat = string.Empty, volumeLabel = string.Empty;
                     double capacity = 0, free = 0, available = 0;
 
                     if (d.IsReady)
                     {
-                        driveFormat = d.DriveFormat;
-                        volumeLabel = d.VolumeLabel;
+                        // ReSharper disable once ConstantNullCoalescingCondition
+                        driveFormat = d.DriveFormat ?? dashString;
+                        volumeLabel = d.VolumeLabel ?? dashString;
                         capacity = UnitConverter.BytesToGigaBytes(d.TotalSize);
                         free = UnitConverter.BytesToGigaBytes(d.TotalFreeSpace);
                         available = UnitConverter.BytesToGigaBytes(d.AvailableFreeSpace);
@@ -327,10 +327,10 @@ namespace Easy.Common
 
             return new NetworkDetails
             {
-                DHCPScope = globalProps.DhcpScopeName,
+                DHCPScope = ApplicationHelper.IsWindows ? globalProps.DhcpScopeName : string.Empty,
                 Domain = globalProps.DomainName,
                 Host = globalProps.HostName,
-                IsWINSProxy = globalProps.IsWinsProxy,
+                IsWINSProxy = ApplicationHelper.IsWindows && globalProps.IsWinsProxy,
                 NodeType = globalProps.NodeType.ToString(),
                 InterfaceDetails = NetworkInterface.GetAllNetworkInterfaces()
                     .Select(nic =>
@@ -400,7 +400,7 @@ namespace Easy.Common
                     .AppendFormat(formatter, key)
                     .Append(Colon)
                     .Append(Space)
-                    .AppendLine(value.ToString());
+                    .AppendLine(value?.ToString());
             }
         }
 
@@ -453,7 +453,7 @@ namespace Easy.Common
                     .AppendFormat(formatter, key)
                     .Append(Colon)
                     .Append(Space)
-                    .AppendLine(value.ToString());
+                    .AppendLine(value?.ToString());
             }
         }
 
@@ -521,7 +521,7 @@ namespace Easy.Common
                     .AppendFormat(formatter, key)
                     .Append(Colon)
                     .Append(Space)
-                    .AppendLine(value.ToString());
+                    .AppendLine(value?.ToString());
             }
         }
 
@@ -601,7 +601,7 @@ namespace Easy.Common
 
             void Format(string key, object value)
             {
-                builder.AppendFormat(format, LinePrefix, Pipe, key, value, NewLine);
+                builder.AppendFormat(format, LinePrefix, Pipe, key, value?.ToString(), NewLine);
             }
         }
 
@@ -758,8 +758,71 @@ namespace Easy.Common
 
         private static long GetInstalledMemoryInGigaBytes()
         {
+            try
+            {
+                if (ApplicationHelper.IsWindows) { return GetInstalledMemoryInGigaBytesWindows(); }
+                if (ApplicationHelper.IsLinux) { return GetInstalledMemoryInGigaBytesLinux(); }
+                if (ApplicationHelper.IsOSX) { return GetInstalledMemoryInGigaBytesOSX(); }
+
+                return 0;
+            } catch (Exception) { return 0; }
+        }
+
+        private static long GetInstalledMemoryInGigaBytesWindows()
+        {
             GetPhysicallyInstalledSystemMemory(out var installedMemoryKb);
             return (long)UnitConverter.KiloBytesToMegaBytes(installedMemoryKb).MegaBytesToGigaBytes();
+        }
+
+        private static long GetInstalledMemoryInGigaBytesLinux()
+        {
+            const string MemFile = "/proc/meminfo";
+            var memLine = File.ReadLines(MemFile)
+                .FirstOrDefault(l => l.StartsWith("MemTotal:", StringComparison.InvariantCultureIgnoreCase));
+
+            const string BeginSeperator = ":";
+            const string EndSeperator = "kB";
+            var startIdx = memLine.IndexOf(BeginSeperator, StringComparison.Ordinal) + BeginSeperator.Length;
+            var endIdx = memLine.IndexOf(EndSeperator, StringComparison.Ordinal);
+            var memStr = memLine.Substring(startIdx, endIdx - startIdx);
+            return long.Parse(memStr) / 1000_000;
+        }
+
+        // ReSharper disable once InconsistentNaming
+        private static long GetInstalledMemoryInGigaBytesOSX()
+        {
+            var memStr = AsBashCommand("sysctl -n hw.memsize");
+            return long.Parse(memStr) / 1000_000_000;
+        }
+
+        private static TimeSpan GetUptime()
+        {
+            try
+            {
+                if (ApplicationHelper.IsWindows) { return GetUptimeWindows(); }
+                if (ApplicationHelper.IsLinux) { return GetUptimeLinux(); }
+                return TimeSpan.MinValue;
+            } catch (Exception)
+            {
+                return TimeSpan.MinValue;
+            }
+        }
+
+        private static TimeSpan GetUptimeWindows()
+        {
+            var start = Stopwatch.StartNew();
+            return TimeSpan.FromMilliseconds(GetTickCount64()).Subtract(start.Elapsed);
+        }
+
+        private static TimeSpan GetUptimeLinux()
+        {
+            const string UptimeFile = "/proc/uptime";
+            var upTimeStr = File.ReadAllText(UptimeFile);
+
+            var stopIdx = upTimeStr.IndexOf(Space);
+            var upTimeSecStr = upTimeStr.Substring(0, stopIdx);
+            var upTimeSec = double.Parse(upTimeSecStr);
+            return TimeSpan.FromSeconds(upTimeSec);
         }
 
         private static string GetSeperator(string title, int count) 
