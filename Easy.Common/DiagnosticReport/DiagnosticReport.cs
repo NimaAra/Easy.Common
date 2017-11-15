@@ -385,8 +385,14 @@ namespace Easy.Common
             Format(SystemHeaders[10], report.SystemDetails.SystemDirectory);
             Format(SystemHeaders[11], report.SystemDetails.CurrentDirectory);
             Format(SystemHeaders[12], report.SystemDetails.RuntimeDirectory);
-            Format(SystemHeaders[13], report.SystemDetails.Uptime
-                .ToString(@"dd\D\a\y\ hh\H\o\u\r\ mm\M\i\n\ ss\S\e\c"));
+
+            string upTimeStr = "-";
+            if (report.SystemDetails.Uptime != TimeSpan.MinValue)
+            {
+                upTimeStr = report.SystemDetails.Uptime.ToString(@"dd\D\a\y\ hh\H\o\u\r\ mm\M\i\n\ ss\S\e\c");
+            }
+
+            Format(SystemHeaders[13], upTimeStr);
 
             var maxLineLength = GetMaximumLineLength(builder, sectionIndex);
             builder.Insert(sectionIndex, GetSeperator("System", maxLineLength));
@@ -583,9 +589,13 @@ namespace Easy.Common
                 Format(NetworkHeaders[6], item.MAC);
                 Format(NetworkHeaders[7], item.Interface.NetworkInterfaceType);
                 Format(NetworkHeaders[8], item.Interface.OperationalStatus);
-                Format(NetworkHeaders[9], item.Interface.IsReceiveOnly);
                 Format(NetworkHeaders[10], item.Interface.SupportsMulticast);
-                Format(NetworkHeaders[11], (item.Interface.Speed / 1000000).ToString("N0") + " Mbit/s");
+
+                if (ApplicationHelper.IsWindows)
+                {
+                    Format(NetworkHeaders[9], item.Interface.IsReceiveOnly);
+                    Format(NetworkHeaders[11], (item.Interface.Speed / 1000000).ToString("N0") + " Mbit/s");
+                }
 
                 if (item.Addresses.Any())
                 {
