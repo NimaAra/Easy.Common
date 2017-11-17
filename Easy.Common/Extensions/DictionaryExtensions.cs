@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.Specialized;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     /// <summary>
@@ -15,14 +16,13 @@
         /// Adds the <paramref name="key"/> and <paramref name="value"/> to the <paramref name="dictionary"/>
         /// if the <paramref name="key"/> does not already exists and returns the inserted value.
         /// </summary>
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, 
+            TKey key, TValue value)
         {
-            if (!dictionary.TryGetValue(key, out TValue result))
-            {
-                dictionary[key] = value;
-                return value;
-            }
-            return result;
+            if (dictionary.TryGetValue(key, out var result)) { return result; }
+            
+            dictionary[key] = value;
+            return value;
         }
 
         /// <summary>
@@ -30,14 +30,14 @@
         /// the <paramref name="dictionary"/> if the <paramref name="key"/> does not already exists 
         /// and returns the inserted value.
         /// </summary>
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> valueCreator)
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, 
+            TKey key, Func<TValue> valueCreator)
         {
-            if (!dictionary.TryGetValue(key, out TValue result))
-            {
-                var value = valueCreator();
-                dictionary[key] = value;
-                result = value;
-            }
+            if (dictionary.TryGetValue(key, out var result)) { return result; }
+            
+            var value = valueCreator();
+            dictionary[key] = value;
+            result = value;
             return result;
         }
         
@@ -48,28 +48,63 @@
         /// <param name="key">The key whose value to get.</param>
         /// <param name="defaultValue">The default value to return if an item with the specified <paramref name="key"/> does not exist.</param>
         /// <returns>The value associated with the specified key or the <paramref name="defaultValue"/> if it does not exist.</returns>
-        public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default(TValue))
+        public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, 
+            TKey key, TValue defaultValue = default(TValue)) 
+                => dictionary.TryGetValue(key, out var value) ? value : defaultValue;
+
+        /// <summary>
+        /// Compares the given <paramref name="left"/> against <paramref name="right"/> for equality.
+        /// </summary>
+        [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
+        public static bool EqualsTo<TKey, TValue>(this IDictionary<TKey, TValue> left, 
+            IDictionary<TKey, TValue> right, 
+            IEqualityComparer<TValue> valueComparer = null)
         {
-            if (dictionary.TryGetValue(key, out TValue value)) { return value; }
-            return defaultValue;
+            if (left == right) { return true; }
+            if (left == null || right == null) { return false; }
+            if (left.Count != right.Count) { return false; }
+            if (left.Count == 0) { return true; }
+
+            var comparer = valueComparer ?? EqualityComparer<TValue>.Default;
+
+            if (left is Dictionary<TKey, TValue> leftConcrete)
+            {
+                foreach (var pair in leftConcrete) { if (!PairExists(pair, right, comparer)) { return false; } }
+            }
+            else if (right is Dictionary<TKey, TValue> rightConcrete)
+            {
+                foreach (var pair in rightConcrete) { if (!PairExists(pair, left, comparer)) { return false; } }
+            }
+            else
+            {
+                foreach (var pair in left) { if (!PairExists(pair, right, comparer)) { return false; } }
+            }
+
+            return true;
         }
+
+        private static bool PairExists<TKey, TValue>(KeyValuePair<TKey, TValue> pair, 
+            IDictionary<TKey, TValue> dictionary, IEqualityComparer<TValue> comparer)
+                => dictionary.TryGetValue(pair.Key, out var rightVal) && comparer.Equals(pair.Value, rightVal);
 
         /// <summary>
         /// Returns a <see cref="NameValueCollection"/> as a Dictionary
         /// </summary>
         public static Dictionary<string, string> ToDictionary(this NameValueCollection namedValueCollection)
-        {
-            Ensure.NotNull(namedValueCollection, nameof(namedValueCollection));
-            return namedValueCollection.AllKeys.ToDictionary(key => key, key => namedValueCollection[key]);
-        }
+            => namedValueCollection.AllKeys.ToDictionary(key => key, key => namedValueCollection[key]);
 
         /// <summary>
         /// Returns a <see cref="ConcurrentDictionary{TKey,TValue}"/> from an <see cref="IDictionary{TKey,TValue}"/>.
         /// </summary>
-        public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
-        {
-            Ensure.NotNull(dictionary, nameof(dictionary));
-            return new ConcurrentDictionary<TKey, TValue>(dictionary);
-        }
+        public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary) 
+                => new ConcurrentDictionary<TKey, TValue>(dictionary);
+
+        /// <summary>
+        /// Returns a <see cref="ConcurrentDictionary{TKey,TValue}"/> from an <see cref="IDictionary{TKey,TValue}"/>.
+        /// </summary>
+        public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
+                => new ConcurrentDictionary<TKey, TValue>(dictionary, comparer);
     }
 }
