@@ -121,7 +121,7 @@
         /// Queries the assembly's headers to find if it is <c>LARGEADDRESSAWARE</c>.
         /// <remarks>The method is equivalent to running <c>DumpBin</c> on the assembly.</remarks>
         /// </summary>
-        public static bool IsAssemblyLargeAddressAware(Assembly assembly) =>
+        public static bool IsAssemblyLargeAddressAware(this Assembly assembly) =>
             ApplicationHelper.IsLargeAddressAware(assembly.Location);
     }
 }
