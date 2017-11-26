@@ -6,8 +6,11 @@
     using System.Collections.Specialized;
     using System.Diagnostics;
     using Easy.Common.Extensions;
+    using Easy.Common.Interfaces;
+    using Easy.Common.Tests.Unit.EasyDictionary;
     using NUnit.Framework;
     using Shouldly;
+    using HashHelper = Easy.Common.HashHelper;
 
     [TestFixture]
     internal sealed class DictionaryExtensionsTests
@@ -161,6 +164,37 @@
             left.EqualsTo(null, comparer).ShouldBeFalse();
 
             ((IDictionary<int, string>)null).EqualsTo(null, comparer).ShouldBeTrue();
+        }
+
+        [Test]
+        public void When_comparing_easy_dictionaries()
+        {
+            IReadOnlyDictionary<string, Person> left = new EasyDictionary<string, Person>(p => p.Id);
+            IReadOnlyDictionary<string, Person> right = new EasyDictionary<string, Person>(p => p.Id);
+
+            left.EqualsTo(right).ShouldBeTrue();
+
+            ((IEasyDictionary<string, Person>)left).Add(new Person("A", 1));
+            left.EqualsTo(right).ShouldBeFalse();
+
+            ((IEasyDictionary<string, Person>)right).Add(new Person("A", 1));
+            left.EqualsTo(right).ShouldBeTrue();
+            
+            ((IDictionary<int, string>)null).EqualsTo(null).ShouldBeTrue();
+        }
+
+        private sealed class Person : Equatable<Person>
+        {
+            public Person(string id, int age)
+            {
+                Id = id;
+                Age = age;
+            }
+
+            public string Id { get; }
+            public int Age { get; }
+
+            public override int GetHashCode() => HashHelper.GetHashCode(Id, Age);
         }
     }
 }

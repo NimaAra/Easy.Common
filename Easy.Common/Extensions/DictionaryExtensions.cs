@@ -55,9 +55,19 @@
         /// <summary>
         /// Compares the given <paramref name="left"/> against <paramref name="right"/> for equality.
         /// </summary>
+        public static bool EqualsTo<TKey, TValue>(
+            this IDictionary<TKey, TValue> left,
+            IDictionary<TKey, TValue> right,
+            IEqualityComparer<TValue> valueComparer = null)
+                => ((IReadOnlyDictionary<TKey, TValue>) left).EqualsTo((IReadOnlyDictionary<TKey, TValue>) right, valueComparer);
+
+        /// <summary>
+        /// Compares the given <paramref name="left"/> against <paramref name="right"/> for equality.
+        /// </summary>
         [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
-        public static bool EqualsTo<TKey, TValue>(this IDictionary<TKey, TValue> left, 
-            IDictionary<TKey, TValue> right, 
+        public static bool EqualsTo<TKey, TValue>(
+            this IReadOnlyDictionary<TKey, TValue> left,
+            IReadOnlyDictionary<TKey, TValue> right, 
             IEqualityComparer<TValue> valueComparer = null)
         {
             if (left == right) { return true; }
@@ -74,17 +84,24 @@
             else if (right is Dictionary<TKey, TValue> rightConcrete)
             {
                 foreach (var pair in rightConcrete) { if (!PairExists(pair, left, comparer)) { return false; } }
+            } 
+            else if (left is EasyDictionary<TKey, TValue> leftEasyConcrete)
+            {
+                foreach (var pair in leftEasyConcrete) { if (!PairExists(pair, right, comparer)) { return false; } }
+            }
+            else if (right is EasyDictionary<TKey, TValue> rightEasyConcrete)
+            {
+                foreach (var pair in rightEasyConcrete) { if (!PairExists(pair, left, comparer)) { return false; } }
             }
             else
             {
                 foreach (var pair in left) { if (!PairExists(pair, right, comparer)) { return false; } }
             }
-
             return true;
         }
 
         private static bool PairExists<TKey, TValue>(KeyValuePair<TKey, TValue> pair, 
-            IDictionary<TKey, TValue> dictionary, IEqualityComparer<TValue> comparer)
+            IReadOnlyDictionary<TKey, TValue> dictionary, IEqualityComparer<TValue> comparer)
                 => dictionary.TryGetValue(pair.Key, out var rightVal) && comparer.Equals(pair.Value, rightVal);
 
         /// <summary>
