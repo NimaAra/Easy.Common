@@ -103,30 +103,30 @@
             IDictionary<string, int> left = new Dictionary<string, int>();
             IDictionary<string, int> right = new Dictionary<string, int>();
 
-            left.EqualsTo(right).ShouldBeTrue();
+            DictionaryExtensions.Equals(left, right).ShouldBeTrue();
 
             left.Add("A", 1);
-            left.EqualsTo(right).ShouldBeFalse();
+            DictionaryExtensions.Equals(left, right).ShouldBeFalse();
 
             right.Add("A", 1);
-            left.EqualsTo(right).ShouldBeTrue();
+            DictionaryExtensions.Equals(left, right).ShouldBeTrue();
 
             left["A"] = 2;
-            left.EqualsTo(right).ShouldBeFalse();
+            DictionaryExtensions.Equals(left, right).ShouldBeFalse();
 
             right["A"] = 2;
             right["B"] = 3;
-            left.EqualsTo(right).ShouldBeFalse();
+            DictionaryExtensions.Equals(left, right).ShouldBeFalse();
 
             left["B"] = 3;
-            left.EqualsTo(right).ShouldBeTrue();
+            DictionaryExtensions.Equals(left, right).ShouldBeTrue();
 
-            ((IDictionary<string, int>) null).EqualsTo(right).ShouldBeFalse();
+            DictionaryExtensions.Equals(((IDictionary<string, int>) null), right).ShouldBeFalse();
 
             left = right;
-            left.EqualsTo(null).ShouldBeFalse();
+            DictionaryExtensions.Equals(left, null).ShouldBeFalse();
             
-            ((IDictionary<string, int>) null).EqualsTo(null).ShouldBeTrue();
+            DictionaryExtensions.Equals(((IDictionary<string, int>) null), null).ShouldBeTrue();
         }
 
         [Test]
@@ -137,33 +137,33 @@
 
             var comparer = StringComparer.OrdinalIgnoreCase;
 
-            left.EqualsTo(right, comparer).ShouldBeTrue();
+            DictionaryExtensions.Equals(left, right, comparer).ShouldBeTrue();
 
             left.Add(1, "A");
-            left.EqualsTo(right, comparer).ShouldBeFalse();
+            DictionaryExtensions.Equals(left, right, comparer).ShouldBeFalse();
 
             right.Add(1, "A");
-            left.EqualsTo(right, comparer).ShouldBeTrue();
+            DictionaryExtensions.Equals(left, right, comparer).ShouldBeTrue();
 
             left[2] = "A";
-            left.EqualsTo(right, comparer).ShouldBeFalse();
+            DictionaryExtensions.Equals(left, right, comparer).ShouldBeFalse();
 
             right[2] = "A";
             right[3] = "B";
-            left.EqualsTo(right, comparer).ShouldBeFalse();
+            DictionaryExtensions.Equals(left, right, comparer).ShouldBeFalse();
 
             left[3] = "B";
-            left.EqualsTo(right, comparer).ShouldBeTrue();
+            DictionaryExtensions.Equals(left, right, comparer).ShouldBeTrue();
 
             left[3] = "b";
-            left.EqualsTo(right, comparer).ShouldBeTrue();
+            DictionaryExtensions.Equals(left, right, comparer).ShouldBeTrue();
 
-            ((IDictionary<int, string>)null).EqualsTo(right, comparer).ShouldBeFalse();
+            DictionaryExtensions.Equals(((IDictionary<int, string>)null), right, comparer).ShouldBeFalse();
 
             left = right;
-            left.EqualsTo(null, comparer).ShouldBeFalse();
+            DictionaryExtensions.Equals(left, null, comparer).ShouldBeFalse();
 
-            ((IDictionary<int, string>)null).EqualsTo(null, comparer).ShouldBeTrue();
+            DictionaryExtensions.Equals(((IDictionary<int, string>)null), null, comparer).ShouldBeTrue();
         }
 
         [Test]
@@ -172,15 +172,15 @@
             IReadOnlyDictionary<string, Person> left = new EasyDictionary<string, Person>(p => p.Id);
             IReadOnlyDictionary<string, Person> right = new EasyDictionary<string, Person>(p => p.Id);
 
-            left.EqualsTo(right).ShouldBeTrue();
+            DictionaryExtensions.Equals(left, right).ShouldBeTrue();
 
             ((IEasyDictionary<string, Person>)left).Add(new Person("A", 1));
-            left.EqualsTo(right).ShouldBeFalse();
+            DictionaryExtensions.Equals(left, right).ShouldBeFalse();
 
             ((IEasyDictionary<string, Person>)right).Add(new Person("A", 1));
-            left.EqualsTo(right).ShouldBeTrue();
+            DictionaryExtensions.Equals(left, right).ShouldBeTrue();
             
-            ((IDictionary<int, string>)null).EqualsTo(null).ShouldBeTrue();
+            DictionaryExtensions.Equals(((IDictionary<int, string>)null), null).ShouldBeTrue();
         }
 
         private sealed class Person : Equatable<Person>

@@ -55,17 +55,17 @@
         /// <summary>
         /// Compares the given <paramref name="left"/> against <paramref name="right"/> for equality.
         /// </summary>
-        public static bool EqualsTo<TKey, TValue>(
+        public static bool Equals<TKey, TValue>(
             this IDictionary<TKey, TValue> left,
             IDictionary<TKey, TValue> right,
             IEqualityComparer<TValue> valueComparer = null)
-                => ((IReadOnlyDictionary<TKey, TValue>) left).EqualsTo((IReadOnlyDictionary<TKey, TValue>) right, valueComparer);
+                => Equals(((IReadOnlyDictionary<TKey, TValue>) left), (IReadOnlyDictionary<TKey, TValue>) right, valueComparer);
 
         /// <summary>
         /// Compares the given <paramref name="left"/> against <paramref name="right"/> for equality.
         /// </summary>
         [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
-        public static bool EqualsTo<TKey, TValue>(
+        public static bool Equals<TKey, TValue>(
             this IReadOnlyDictionary<TKey, TValue> left,
             IReadOnlyDictionary<TKey, TValue> right, 
             IEqualityComparer<TValue> valueComparer = null)
