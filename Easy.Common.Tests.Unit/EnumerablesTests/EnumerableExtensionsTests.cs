@@ -316,5 +316,32 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
             keyedCollection["Name-10"].Age.ShouldBe(10);
             keyedCollection["name-10"].Age.ShouldBe(10);
         }
+
+        [Test]
+        public void When_converting_sequence_to_easy_dictionary_with_default_comparer()
+        {
+            var sequence = Enumerable.Range(1, 10).Select(n => new { Age = n, Name = "Name-" + n.ToString() });
+            var keyedCollection = sequence.ToEasyDictionary(item => item.Name);
+            keyedCollection.Count.ShouldBe(10);
+            keyedCollection["Name-1"].Age.ShouldBe(1);
+            keyedCollection["Name-10"].Age.ShouldBe(10);
+
+            Should.Throw<KeyNotFoundException>(() =>
+            {
+                var ignore = keyedCollection["name-10"];
+            }).Message.ShouldBe("The given key was not present in the dictionary.");
+        }
+
+        [Test]
+        public void When_converting_sequence_to_easy_dictionary_with_non_default_comparer()
+        {
+            var sequence = Enumerable.Range(1, 10).Select(n => new { Age = n, Name = "Name-" + n.ToString() });
+            var keyedCollection = sequence.ToEasyDictionary(item => item.Name, StringComparer.OrdinalIgnoreCase);
+            keyedCollection.Count.ShouldBe(10);
+            keyedCollection["Name-1"].Age.ShouldBe(1);
+
+            keyedCollection["Name-10"].Age.ShouldBe(10);
+            keyedCollection["name-10"].Age.ShouldBe(10);
+        }
     }
 }

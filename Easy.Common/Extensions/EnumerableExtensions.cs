@@ -195,10 +195,31 @@ namespace Easy.Common.Extensions
             => new HashSet<T>(sequence, comparer);
 
         /// <summary>
+        /// Returns a <see cref="EasyDictionary{TKey,TValue}"/> for the given <paramref name="sequence"/>
+        /// based on the <paramref name="keySelector"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static EasyDictionary<TKey, TValue> ToEasyDictionary<TKey, TValue>(
+            this IEnumerable<TValue> sequence, Func<TValue, TKey> keySelector)
+                => ToEasyDictionary(sequence, keySelector, EqualityComparer<TKey>.Default);
+        
+        /// <summary>
+        /// Returns a <see cref="EasyDictionary{TKey,TValue}"/> for the given <paramref name="sequence"/>
+        /// based on the <paramref name="keySelector"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static EasyDictionary<TKey, TValue> ToEasyDictionary<TKey, TValue>(
+            this IEnumerable<TValue> sequence, 
+            Func<TValue, TKey> keySelector, 
+            IEqualityComparer<TKey> comparer) 
+                => new EasyDictionary<TKey, TValue>(keySelector, sequence, comparer);
+
+        /// <summary>
         /// Returns a <see cref="KeyedCollectionEx{TKey,TItem}"/> for the given <paramref name="sequence"/> 
         /// based on the <paramref name="selector"/> and <see cref="EqualityComparer{TKey}.Default"/>.
         /// </summary>
         [DebuggerStepThrough]
+        [Obsolete("Use EasyDictionary<TKey, TValue> instead.")]
         public static KeyedCollectionEx<TKey, TItem> ToKeyedCollectionEx<TKey, TItem>(
             this IEnumerable<TItem> sequence, Func<TItem, TKey> selector) 
                 => ToKeyedCollectionEx(sequence, selector, EqualityComparer<TKey>.Default);
@@ -208,6 +229,7 @@ namespace Easy.Common.Extensions
         /// based on the <paramref name="selector"/> and <paramref name="comparer"/>.
         /// </summary>
         [DebuggerStepThrough]
+        [Obsolete("Use EasyDictionary<TKey, TValue> instead.")]
         public static KeyedCollectionEx<TKey, TItem> ToKeyedCollectionEx<TKey, TItem>(this IEnumerable<TItem> sequence, 
             Func<TItem, TKey> selector, 
             IEqualityComparer<TKey> comparer)

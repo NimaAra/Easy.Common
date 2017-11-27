@@ -13,6 +13,7 @@
     /// </summary>
     /// <typeparam name="TKey">Key to be used as the HashKey</typeparam>
     /// <typeparam name="TItem">Item to be stored as Value</typeparam>
+    [Obsolete("Use EasyDictionary<TKey, TValue> instead.")]
     public class KeyedCollectionEx<TKey, TItem> : KeyedCollection<TKey, TItem>
     {
         private readonly Func<TItem, TKey> _getKeyForItemFunc;

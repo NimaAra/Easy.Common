@@ -6,6 +6,7 @@ namespace Easy.Common.EasyComparer
     using System.Linq;
     using System.Reflection;
     using Easy.Common.Extensions;
+    using Easy.Common.Interfaces;
 
     /// <summary>
     /// A utility class for comparing the property values of given objects against each other.
@@ -29,7 +30,7 @@ namespace Easy.Common.EasyComparer
         /// <paramref name="left"/> and <paramref name="right"/> and returns the variance.
         /// </summary>
         public bool Compare<T>(T left, T right, bool inherit, bool includePrivate, 
-            out KeyedCollectionEx<PropertyInfo, Variance> variances)
+            out IEasyDictionary<PropertyInfo, Variance> variances)
         {
             var type = typeof(T);
             var key = new CacheKey(type, inherit, includePrivate);
@@ -41,7 +42,7 @@ namespace Easy.Common.EasyComparer
             });
 
             var bothMatch = true;
-            var result = new KeyedCollectionEx<PropertyInfo, Variance>(variance => variance.Property);
+            var result = new EasyDictionary<PropertyInfo, Variance>(variance => variance.Property);
 
             foreach (var pair in cache)
             {
@@ -76,10 +77,8 @@ namespace Easy.Common.EasyComparer
             private bool Inherit { get; }
             private bool IncludePrivate { get; }
 
-            public override int GetHashCode()
-            {
-                return HashHelper.GetHashCode(Type, Inherit, IncludePrivate);
-            }
+            public override int GetHashCode() 
+                => HashHelper.GetHashCode(Type, Inherit, IncludePrivate);
         }
     }
 }

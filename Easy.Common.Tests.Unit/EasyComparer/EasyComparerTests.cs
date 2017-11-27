@@ -5,7 +5,6 @@
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
     using Easy.Common.EasyComparer;
     using NUnit.Framework;
     using Shouldly;
@@ -26,12 +25,10 @@
         {
             var obj = new SomeClass();
 
-            EasyComparer.Instance.Compare(obj, obj, true, false, 
-                out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(obj, obj, true, false, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
-            result.ShouldNotBeEmpty();
             result.Count.ShouldBe(12);
             result.ShouldAllBe(v => v.Varies == false);
 
@@ -57,8 +54,7 @@
         {
             var obj = new SomeClass();
 
-            EasyComparer.Instance.Compare(obj, obj, true, true,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(obj, obj, true, true, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
@@ -87,8 +83,7 @@
         {
             var obj = new SomeClass();
 
-            EasyComparer.Instance.Compare(obj, obj, false, true,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(obj, obj, false, true, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
@@ -148,8 +143,7 @@
                 SomeInternal = left.SomeInternal
             };
 
-            EasyComparer.Instance.Compare(left, right, true, false,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(left, right, true, false, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
@@ -195,8 +189,7 @@
                 SomeInternal = left.SomeInternal
             };
 
-            EasyComparer.Instance.Compare(left, right, true, true,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(left, right, true, true, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
@@ -230,8 +223,7 @@
                 SomeDictionary = new Dictionary<int, string> { [0] = "Bar" }
             };
 
-            EasyComparer.Instance.Compare(left, right, true, true,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(left, right, true, true, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
@@ -253,8 +245,7 @@
                 Bytes = new byte[] { 0, 1, 2 },
             };
 
-            EasyComparer.Instance.Compare(left, right, true, true,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(left, right, true, true, out var result)
                 .ShouldBeFalse();
 
             result.ShouldNotBeNull();
@@ -274,8 +265,7 @@
         {
             var obj = new SomeStruct();
 
-            EasyComparer.Instance.Compare(obj, obj, true, false,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(obj, obj, true, false, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
@@ -304,8 +294,7 @@
         {
             var obj = new SomeStruct();
 
-            EasyComparer.Instance.Compare(obj, obj, true, true,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(obj, obj, true, true, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
@@ -333,8 +322,7 @@
         {
             var obj = new SomeStruct();
 
-            EasyComparer.Instance.Compare(obj, obj, false, true,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(obj, obj, false, true, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
@@ -392,8 +380,7 @@
                 SomeInternal = left.SomeInternal
             };
 
-            EasyComparer.Instance.Compare(left, right, true, false,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(left, right, true, false, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
@@ -437,8 +424,7 @@
                 SomeInternal = left.SomeInternal
             };
 
-            EasyComparer.Instance.Compare(left, right, true, true,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(left, right, true, true, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
@@ -470,8 +456,7 @@
                 SomeDictionary = new Dictionary<int, string> { [0] = "Bar" }
             };
 
-            EasyComparer.Instance.Compare(left, right, true, true,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(left, right, true, true, out var result)
                 .ShouldBeTrue();
 
             result.ShouldNotBeNull();
@@ -493,8 +478,7 @@
                 Bytes = new byte[] { 0, 1, 2 },
             };
 
-            EasyComparer.Instance.Compare(left, right, true, true,
-                    out KeyedCollectionEx<PropertyInfo, Variance> result)
+            EasyComparer.Instance.Compare(left, right, true, true, out var result)
                 .ShouldBeFalse();
 
             result.ShouldNotBeNull();
