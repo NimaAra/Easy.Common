@@ -215,34 +215,6 @@ namespace Easy.Common.Extensions
                 => new EasyDictionary<TKey, TValue>(keySelector, sequence, comparer);
 
         /// <summary>
-        /// Returns a <see cref="KeyedCollectionEx{TKey,TItem}"/> for the given <paramref name="sequence"/> 
-        /// based on the <paramref name="selector"/> and <see cref="EqualityComparer{TKey}.Default"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        [Obsolete("Use EasyDictionary<TKey, TValue> instead.")]
-        public static KeyedCollectionEx<TKey, TItem> ToKeyedCollectionEx<TKey, TItem>(
-            this IEnumerable<TItem> sequence, Func<TItem, TKey> selector) 
-                => ToKeyedCollectionEx(sequence, selector, EqualityComparer<TKey>.Default);
-
-        /// <summary>
-        /// Returns a <see cref="KeyedCollectionEx{TKey,TItem}"/> for the given <paramref name="sequence"/> 
-        /// based on the <paramref name="selector"/> and <paramref name="comparer"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        [Obsolete("Use EasyDictionary<TKey, TValue> instead.")]
-        public static KeyedCollectionEx<TKey, TItem> ToKeyedCollectionEx<TKey, TItem>(this IEnumerable<TItem> sequence, 
-            Func<TItem, TKey> selector, 
-            IEqualityComparer<TKey> comparer)
-        {
-            var result = new KeyedCollectionEx<TKey, TItem>(selector, comparer);
-            foreach (var item in sequence)
-            {
-                result.Add(item);
-            }
-            return result;
-        }
-
-        /// <summary>
         /// Allows exception handling when yield returning an IEnumerable
         /// <example>
         /// myList.HandleExceptionWhenYieldReturning{int}(e => 
