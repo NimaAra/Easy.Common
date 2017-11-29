@@ -225,12 +225,13 @@
         /// Return an enumerator that iterates through the dictionary.
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _dictionary.GetEnumerator();
+        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() 
+            => _dictionary.GetEnumerator();
 
         /// <summary>
         /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => _dictionary.Values.GetEnumerator();
+        public IEnumerator<TValue> GetEnumerator() => _dictionary.Values.GetEnumerator();
 
         /// <summary>
         /// Returns an enumerator that iterates through the sequence.
