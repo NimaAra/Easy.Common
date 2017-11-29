@@ -4,7 +4,6 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using Easy.Common.Interfaces;
     using NUnit.Framework;
     using Shouldly;
     using HashHelper = Easy.Common.HashHelper;
@@ -493,12 +492,12 @@
         }
 
         [Test]
-        public void When_getting_enumerator_as_easy_dictionary()
+        public void When_getting_enumerator_as_key_value_pair()
         {
             var p1 = new Person("A", 1);
             var p2 = new Person("B", 2);
 
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id)
+            IEnumerable<KeyValuePair<string, Person>> dic = new EasyDictionary<string, Person>(p => p.Id)
             {
                 p1,
                 p2
@@ -523,12 +522,12 @@
         }
 
         [Test]
-        public void When_getting_enumerator_as_ienumerable_of_value()
+        public void When_getting_enumerator_as_easy_dictionary()
         {
             var p1 = new Person("A", 1);
             var p2 = new Person("B", 2);
 
-            ICollection<Person> dic = new EasyDictionary<string, Person>(p => p.Id)
+            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id)
             {
                 p1,
                 p2
