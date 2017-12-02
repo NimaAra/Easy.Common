@@ -87,11 +87,13 @@
             } 
             else if (left is EasyDictionary<TKey, TValue> leftEasyConcrete)
             {
-                foreach (var pair in leftEasyConcrete) { if (!PairExists(pair, right, comparer)) { return false; } }
+                var keySelector = leftEasyConcrete.KeySelector;
+                foreach (var item in leftEasyConcrete) { if (!ValueExists(keySelector(item), item, right, comparer)) { return false; } }
             }
             else if (right is EasyDictionary<TKey, TValue> rightEasyConcrete)
             {
-                foreach (var pair in rightEasyConcrete) { if (!PairExists(pair, left, comparer)) { return false; } }
+                var keySelector = rightEasyConcrete.KeySelector;
+                foreach (var item in rightEasyConcrete) { if (!ValueExists(keySelector(item), item, left, comparer)) { return false; } }
             }
             else
             {
@@ -99,6 +101,10 @@
             }
             return true;
         }
+
+        private static bool ValueExists<TKey, TValue>(TKey key, TValue value,
+            IReadOnlyDictionary<TKey, TValue> dictionary, IEqualityComparer<TValue> comparer)
+            => dictionary.TryGetValue(key, out var rightVal) && comparer.Equals(value, rightVal);
 
         private static bool PairExists<TKey, TValue>(KeyValuePair<TKey, TValue> pair, 
             IReadOnlyDictionary<TKey, TValue> dictionary, IEqualityComparer<TValue> comparer)
