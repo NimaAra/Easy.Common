@@ -9,8 +9,10 @@ namespace Easy.Common
     using System.Linq;
     using System.Net.NetworkInformation;
     using System.Reflection;
+    using System.Runtime;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Threading;
     using Easy.Common.Extensions;
     using Microsoft.Win32;
 
@@ -88,7 +90,11 @@ namespace Easy.Common
             "Copyright",
             "WorkingSet",
             "Interactive",
-            "CommandLine"
+            "CommandLine",
+            "Server GC",
+            "Threads",
+            "IO Threads",
+            "Worker Threads"
         };
 
         private static readonly string[] DrivesHeaders =
@@ -110,7 +116,7 @@ namespace Easy.Common
         /// <summary>
         /// Creates a new instance of the <see cref="DiagnosticReport"/>.
         /// </summary>
-        public DiagnosticReport(DiagnosticReportType type)
+        private DiagnosticReport(DiagnosticReportType type)
         {
             var sw = Stopwatch.StartNew();
 
@@ -199,7 +205,7 @@ namespace Easy.Common
             return new SystemDetails
             {
                 OSName = RuntimeInformation.OSDescription,
-                OSType = ApplicationHelper.OSPlatform.ToString(),
+                OSType = GetOSPlatform(),
                 Is64BitOS = Environment.Is64BitOperatingSystem,
                 CLRRuntime = RuntimeInformation.FrameworkDescription,
                 MachineName = Environment.MachineName,
@@ -222,7 +228,7 @@ namespace Easy.Common
             using (var p = Process.GetCurrentProcess())
             {
                 var pVerInfo = p.MainModule.FileVersionInfo;
-                return new ProcessDetails
+                var result = new ProcessDetails
                 {
                     PID = p.Id,
                     Name = p.ProcessName,
@@ -231,6 +237,7 @@ namespace Easy.Common
                     IsInteractive = Environment.UserInteractive,
                     IsOptimized = IsOptimized(),
                     Is64Bit = Environment.Is64BitProcess,
+                    IsServerGC = GCSettings.IsServerGC,
                     IsLargeAddressAware = ApplicationHelper.IsProcessLargeAddressAware(),
                     WorkingSetInMegaBytes = UnitConverter.BytesToMegaBytes(Environment.WorkingSet),
                     FileVersion = pVerInfo.FileVersion,
@@ -244,6 +251,16 @@ namespace Easy.Common
                     ProductName = pVerInfo.ProductName,
                     CommandLine = Environment.GetCommandLineArgs()
                 };
+
+                ThreadPool.GetMinThreads(out var minWrkrs, out var minComplWrkers);
+                ThreadPool.GetMaxThreads(out var maxWrkrs, out var maxComplWrkers);
+                result.ThreadPoolMinCompletionPortCount = (uint)minComplWrkers;
+                result.ThreadPoolMaxCompletionPortCount = (uint)maxComplWrkers;
+                result.ThreadPoolMinWorkerCount = (uint)minWrkrs;
+                result.ThreadPoolMaxWorkerCount = (uint)maxWrkrs;
+
+                result.ThreadCount = (uint) p.Threads.OfType<ProcessThread>().Count();
+                return result;
 
                 string IsOptimized()
                 {
@@ -423,8 +440,13 @@ namespace Easy.Common
             Format(ProcessHeaders[17], report.ProcessDetails.IsInteractive);
             Format(ProcessHeaders[4], report.ProcessDetails.IsOptimized);
             Format(ProcessHeaders[5], report.ProcessDetails.Is64Bit);
+            Format(ProcessHeaders[19], report.ProcessDetails.IsServerGC);
             Format(ProcessHeaders[6], report.ProcessDetails.IsLargeAddressAware);
             Format(ProcessHeaders[16], report.ProcessDetails.WorkingSetInMegaBytes.ToString("N0") + "MB");
+            Format(ProcessHeaders[20], report.ProcessDetails.ThreadCount.ToString("N0"));
+            Format(ProcessHeaders[21], $"{report.ProcessDetails.ThreadPoolMinCompletionPortCount:N0} <-> {report.ProcessDetails.ThreadPoolMaxCompletionPortCount:N0}");
+            Format(ProcessHeaders[22], $"{report.ProcessDetails.ThreadPoolMinWorkerCount:N0} <-> {report.ProcessDetails.ThreadPoolMaxWorkerCount:N0}");
+            Format(ProcessHeaders[12], report.ProcessDetails.FileVersion);
             Format(ProcessHeaders[12], report.ProcessDetails.FileVersion);
             Format(ProcessHeaders[13], report.ProcessDetails.ProductVersion);
             Format(ProcessHeaders[14], report.ProcessDetails.Language);
@@ -861,6 +883,22 @@ namespace Easy.Common
             return result;
         }
 
+        // ReSharper disable once InconsistentNaming
+        private static string GetOSPlatform()
+        {
+            if (ApplicationHelper.OSPlatform == OSPlatform.Windows)
+            {
+                return IsWindowsServer() ? "Windows (Server)" : "Windows (Desktop)";
+            }
+
+            if (ApplicationHelper.OSPlatform == OSPlatform.Linux) { return "Linux"; }
+            if (ApplicationHelper.OSPlatform == OSPlatform.OSX) { return "OSX"; }
+
+            return ApplicationHelper.OSPlatform.ToString();
+        }
+
+        private static bool IsWindowsServer() => IsOS(OS_ANYSERVER);
+
         /// <summary>
         /// <see href="https://msdn.microsoft.com/en-us/library/windows/desktop/cc300158(v=vs.85).aspx"/>
         /// </summary>
@@ -870,5 +908,10 @@ namespace Easy.Common
 
         [DllImport("kernel32")]
         private static extern ulong GetTickCount64();
+
+        [DllImport("shlwapi.dll", SetLastError = true, EntryPoint = "#437")]
+        private static extern bool IsOS(int os);
+        // ReSharper disable once InconsistentNaming
+        private const int OS_ANYSERVER = 29;
     }
 }

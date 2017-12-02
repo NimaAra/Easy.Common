@@ -511,7 +511,7 @@
                 | DiagnosticReportType.Assemblies
                 | DiagnosticReportType.Networks
                 | DiagnosticReportType.Full;
-
+            
             var report = DiagnosticReport.Generate();
             report.ShouldNotBeNull();
             report.Timestamp.ShouldBeLessThanOrEqualTo(DateTimeOffset.Now);
@@ -526,7 +526,7 @@
             report.EnvironmentVariables.ShouldNotBeNull();
             report.EnvironmentVariables.ShouldNotBeEmpty();
             report.NetworkingDetails.ShouldNotBeNull();
-
+            
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
             formattedReport.Length.ShouldBeGreaterThan(1000);

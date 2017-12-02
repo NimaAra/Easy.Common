@@ -40,9 +40,40 @@ namespace Easy.Common
         public bool Is64Bit { get; internal set; }
 
         /// <summary>
+        /// Gets the flag indicating whether the <c>GC</c> mode is <c>Server</c>.
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
+        public bool IsServerGC { get; internal set; }
+
+        /// <summary>
         /// Gets the flag indicating whether the process is <c>Large Address Aware</c>.
         /// </summary>
         public bool IsLargeAddressAware { get; internal set; }
+
+        /// <summary>
+        /// Gets the number of threads owned by the process.
+        /// </summary>
+        public uint ThreadCount { get; internal set; }
+
+        /// <summary>
+        /// Gets the minimum number of worker threads in the <c>ThreadPool</c>.
+        /// </summary>
+        public uint ThreadPoolMinWorkerCount { get; internal set; }
+
+        /// <summary>
+        /// Gets the maximum number of worker threads in the <c>ThreadPool</c>.
+        /// </summary>
+        public uint ThreadPoolMaxWorkerCount { get; internal set; }
+
+        /// <summary>
+        /// Gets the minimum number of completion port worker threads in the <c>ThreadPool</c>.
+        /// </summary>
+        public uint ThreadPoolMinCompletionPortCount { get; internal set; }
+
+        /// <summary>
+        /// Gets the maximum number of completion port worker threads in the <c>ThreadPool</c>.
+        /// </summary>
+        public uint ThreadPoolMaxCompletionPortCount { get; internal set; }
 
         /// <summary>
         /// Gets the name of the process module.
