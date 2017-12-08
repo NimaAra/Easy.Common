@@ -73,27 +73,25 @@
         }
 
         /// <summary>
-        /// Lazily reads all the lines in the <paramref name="fileInfo"/> without requiring a file lock.
+        /// Lazily reads every line in the <paramref name="fileInfo"/> without requiring a file lock.
         /// <remarks>
-        /// This method is preferred over the <see cref="File.ReadAllLines(string)"/> which requires a file lock
-        /// which may result <see cref="IOException"/> if the file is opened exclusively by another process such as <c>Excel</c>.
+        /// This method is preferred over the <see cref="File.ReadLines(string)"/> which requires a file lock
+        /// that may result <see cref="IOException"/> if the file is opened exclusively by another process such as <c>Excel</c>.
         /// </remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<string> ReadAllLines(this FileInfo fileInfo)
-        {
-            return fileInfo.ReadAllLines(Encoding.UTF8);
-        }
+        public static IEnumerable<string> ReadLines(this FileInfo fileInfo) 
+            => fileInfo.ReadLines(Encoding.UTF8);
 
         /// <summary>
-        /// Lazily reads all the lines in the <paramref name="fileInfo"/> without requiring a file lock.
+        /// Lazily reads every line in the <paramref name="fileInfo"/> without requiring a file lock.
         /// <remarks>
-        /// This method is preferred over the <see cref="File.ReadAllLines(string)"/> which requires a file lock
-        /// which may result <see cref="IOException"/> if the file is opened exclusively by another process such as <c>Excel</c>.
+        /// This method is preferred over the <see cref="File.ReadLines(string)"/> which requires a file lock
+        /// that may result <see cref="IOException"/> if the file is opened exclusively by another process such as <c>Excel</c>.
         /// </remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<string> ReadAllLines(this FileInfo fileInfo, Encoding encoding)
+        public static IEnumerable<string> ReadLines(this FileInfo fileInfo, Encoding encoding)
         {
             Ensure.NotNull(fileInfo, nameof(fileInfo));
             Ensure.NotNull(encoding, nameof(encoding));
@@ -159,7 +157,7 @@
         }
 
         /// <summary>
-        /// Determines if the given <paramref name="file"/> is binary or a text file.
+        /// Determines whether the given <paramref name="file"/> is binary or a text file.
         /// </summary>
         [DebuggerStepThrough]
         public static bool IsBinary(this FileSystemInfo file)
@@ -172,20 +170,19 @@
                 var read = reader.ReadBlock(buffer, 0, buffer.Length);
                 return ContainsBinary(buffer, read);
             }
-        }
 
-        // ReSharper disable once SuggestBaseTypeForParameter
-        private static bool ContainsBinary(char[] bytes, int count)
-        {
-            for (var i = 0; i < count; i++)
+            bool ContainsBinary(char[] bytes, int count)
             {
-                var c = bytes[i];
-                if (char.IsControl(c) && c != CarriageReturn && c != NewLine && c != Tab)
+                for (var i = 0; i < count; i++)
                 {
-                    return true;
+                    var c = bytes[i];
+                    if (char.IsControl(c) && c != CarriageReturn && c != NewLine && c != Tab)
+                    {
+                        return true;
+                    }
                 }
+                return false;
             }
-            return false;
         }
     }
 }

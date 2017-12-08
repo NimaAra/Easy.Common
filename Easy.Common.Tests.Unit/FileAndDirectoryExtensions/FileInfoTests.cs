@@ -49,14 +49,14 @@
                         .Message.ShouldStartWith($"The process cannot access the file '{fileInfo.FullName}' because it is being used by another process.");
 
                     // But this one does
-                    var linesExplicitEncoding = fileInfo.ReadAllLines(Encoding.UTF8).ToArray();
+                    var linesExplicitEncoding = fileInfo.ReadLines(Encoding.UTF8).ToArray();
                     linesExplicitEncoding.ShouldNotBeNull();
                     linesExplicitEncoding.Length.ShouldBe(2);
                     linesExplicitEncoding[0].ShouldBe("1stLine");
                     linesExplicitEncoding[1].ShouldBe("2ndLine");
 
                     // So does this one
-                    var linesDefaultEncoding = fileInfo.ReadAllLines().ToArray();
+                    var linesDefaultEncoding = fileInfo.ReadLines().ToArray();
                     linesDefaultEncoding.ShouldNotBeNull();
                     linesDefaultEncoding.Length.ShouldBe(2);
                     linesDefaultEncoding[0].ShouldBe("1stLine");
