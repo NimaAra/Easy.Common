@@ -13,7 +13,7 @@
         [Test]
         public void When_testing_as_concrete_type()
         {
-            var dic = new DynamicDictionary();
+            DynamicDictionary dic = new DynamicDictionary();
             dic.Count.ShouldBe(0);
 
             dic["A"] = "A";
@@ -82,7 +82,7 @@
         [Test]
         public void When_testing_case_sensitivity()
         {
-            var caseSensetiveDic = new DynamicDictionary(false)
+            DynamicDictionary caseSensetiveDic = new DynamicDictionary(false)
             {
                 ["A"] = 1,
                 ["Id"] = 66
@@ -103,7 +103,7 @@
             ((string)dynCaseSensetiveDic.a).ShouldBeNull();
             ((string)dynCaseSensetiveDic.ID).ShouldBeNull();
 
-            var caseInSensetiveDic = new DynamicDictionary()
+            DynamicDictionary caseInSensetiveDic = new DynamicDictionary()
             {
                 ["A"] = 1,
                 ["Id"] = 66
@@ -170,7 +170,7 @@
         [Test]
         public void When_enumerating_as_original_type()
         {
-            var dic = new DynamicDictionary();
+            DynamicDictionary dic = new DynamicDictionary();
             dic.Count.ShouldBe(0);
 
             dic["A"] = "1";
@@ -212,7 +212,7 @@
         public void When_getting_a_model_as_dynamic_dictionary()
         {
             var model = new Child { Name = "Foo", Age = 10 };
-            var dicWithInherittedProp = model.ToDynamic();
+            DynamicDictionary dicWithInherittedProp = model.ToDynamic();
             
             dicWithInherittedProp.ShouldNotBeNull();
             dicWithInherittedProp.Count.ShouldBe(3);
