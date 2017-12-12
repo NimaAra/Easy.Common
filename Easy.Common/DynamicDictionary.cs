@@ -9,7 +9,7 @@
     
     /// <summary>
     /// Provides an abstraction for an object to be used dynamically as a key value pair
-    /// where the property is the key and value is an <see cref="object"/>.
+    /// where the property name is the key and value is an <see cref="object"/>.
     /// </summary>
     public sealed class DynamicDictionary : DynamicObject, IDictionary<string, object>
     {
@@ -19,55 +19,39 @@
         /// Creates a new instance of <see cref="DynamicDictionary"/>.
         /// </summary>
         /// <param name="ignoreCase">
-        /// The flag indicating whether keys should be treated regardless of the case.
+        /// The flag indicating whether property names should be treated case sensitively.
         /// </param>
         [DebuggerStepThrough]
         public DynamicDictionary(bool ignoreCase = true)
-        {
-            _dictionary = new Dictionary<string, object>(
-                ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
-        }
+            => _dictionary = new Dictionary<string, object>(
+                    ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
 
         /// <summary>
         /// Add the given <paramref name="item"/> to this instance.
         /// </summary>
         /// <param name="item"></param>
-        public void Add(KeyValuePair<string, object> item)
-        {
-            _dictionary.Add(item);
-        }
+        public void Add(KeyValuePair<string, object> item) => _dictionary.Add(item);
 
         /// <summary>
         /// Removes all the items from this instance.
         /// </summary>
-        public void Clear()
-        {
-            _dictionary.Clear();
-        }
+        public void Clear() => _dictionary.Clear();
 
         /// <summary>
         /// Determines whether this instance contains the given <paramref name="item"/>.
         /// </summary>
-        public bool Contains(KeyValuePair<string, object> item)
-        {
-            return _dictionary.Contains(item);
-        }
+        public bool Contains(KeyValuePair<string, object> item) => _dictionary.Contains(item);
 
         /// <summary>
         /// Copies the elements of this instance to the given <paramref name="array"/>, starting at a particular <paramref name="array"/>.
         /// </summary>
-        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
-        {
-            _dictionary.CopyTo(array, arrayIndex);
-        }
+        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex) 
+            => _dictionary.CopyTo(array, arrayIndex);
 
         /// <summary>
         /// Removes the given <paramref name="item"/> from this instance.
         /// </summary>
-        public bool Remove(KeyValuePair<string, object> item)
-        {
-            return _dictionary.Remove(item);
-        }
+        public bool Remove(KeyValuePair<string, object> item) => _dictionary.Remove(item);
 
         /// <summary>
         /// Gets the number of elements contained in this instance.
@@ -82,50 +66,33 @@
         /// <summary>
         /// Returns an enumerator that iterates through the keys and values of this instance.
         /// </summary>
-        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
-        {
-            return _dictionary.GetEnumerator();
-        }
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => _dictionary.GetEnumerator();
 
         /// <summary>
         /// Returns an enumerator that iterates through the keys and values of this instance.
         /// </summary>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>
         /// Determines whether this instance contains an element with the given <paramref name="key"/>.
         /// </summary>
-        public bool ContainsKey(string key)
-        {
-            return _dictionary.ContainsKey(key);
-        }
+        public bool ContainsKey(string key) => _dictionary.ContainsKey(key);
 
         /// <summary>
         /// Adds an element for the given <paramref name="key"/> and associated <paramref name="value"/> to this instance.
         /// </summary>
-        public void Add(string key, object value)
-        {
-            _dictionary.Add(key, value);
-        }
+        public void Add(string key, object value) => _dictionary.Add(key, value);
 
         /// <summary>
         /// Removes the element with the given <paramref name="key"/> from this instance.
         /// </summary>
-        public bool Remove(string key)
-        {
-            return _dictionary.Remove(key);
-        }
+        public bool Remove(string key) => _dictionary.Remove(key);
 
         /// <summary>
         /// Attempts to get the value associated to the given <paramref name="key"/>.
         /// </summary>
-        public bool TryGetValue(string key, out object value)
-        {
-            return _dictionary.TryGetValue(key, out value);
-        }
+        public bool TryGetValue(string key, out object value) => 
+            _dictionary.TryGetValue(key, out value);
 
         /// <summary>
         /// Gets or sets the value stored against the given <paramref name="key"/>.
@@ -135,12 +102,11 @@
         {
             get
             {
-                object result;
-                _dictionary.TryGetValue(key, out result);
+                _dictionary.TryGetValue(key, out object result);
                 return result;
             }
 
-            set { _dictionary[key] = value; }
+            set => _dictionary[key] = value;
         }
 
         /// <summary>
@@ -181,8 +147,13 @@
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool TrySetMember(SetMemberBinder binder, object result)
         {
-            if (!_dictionary.ContainsKey(binder.Name)) { _dictionary.Add(binder.Name, result); }
-            else { _dictionary[binder.Name] = result; }
+            if (!_dictionary.ContainsKey(binder.Name))
+            {
+                _dictionary.Add(binder.Name, result);
+            } else
+            {
+                _dictionary[binder.Name] = result;
+            }
             return true;
         }
 
