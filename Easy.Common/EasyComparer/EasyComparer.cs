@@ -13,12 +13,10 @@ namespace Easy.Common.EasyComparer
     /// </summary>
     public sealed class EasyComparer
     {
-        private readonly ConcurrentDictionary<CacheKey, IEnumerable<KeyValuePair<PropertyInfo, object>>> _cache;
+        private readonly ConcurrentDictionary<CacheKey, KeyValuePair<PropertyInfo, object>[]> _cache;
 
-        private EasyComparer()
-        {
-            _cache = new ConcurrentDictionary<CacheKey, IEnumerable<KeyValuePair<PropertyInfo, object>>>();
-        }
+        private EasyComparer() =>  _cache = 
+            new ConcurrentDictionary<CacheKey, KeyValuePair<PropertyInfo, object>[]>();
 
         /// <summary>
         /// Gets a single instance of the <see cref="EasyComparer"/>.
@@ -35,17 +33,19 @@ namespace Easy.Common.EasyComparer
             var type = typeof(T);
             var key = new CacheKey(type, inherit, includePrivate);
             
-            var cache = _cache.GetOrAdd(key, () =>
-            {
-                return type.GetInstanceProperties(inherit, includePrivate)
-                    .Select(p => new KeyValuePair<PropertyInfo, object>(p, AccessorBuilder.BuildGetter<T>(p, includePrivate)));
-            });
+            var cache = _cache.GetOrAdd(
+                key, 
+                () => type.GetInstanceProperties(inherit, includePrivate)
+                    .Select(p => new KeyValuePair<PropertyInfo, object>(p, AccessorBuilder.BuildGetter<T>(p, includePrivate)))
+                    .ToArray());
 
             var bothMatch = true;
             var result = new EasyDictionary<PropertyInfo, Variance>(variance => variance.Property);
 
-            foreach (var pair in cache)
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < cache.Length; i++)
             {
+                var pair = cache[i];
                 var p = pair.Key;
                 var getter = (Func<T, object>)pair.Value;
 
@@ -53,7 +53,7 @@ namespace Easy.Common.EasyComparer
                 var rightVal = getter(right);
 
                 var variance = new Variance(p, leftVal, rightVal);
-                
+
                 result.Add(variance);
 
                 if (!bothMatch) { continue; }
