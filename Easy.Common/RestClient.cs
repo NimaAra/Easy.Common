@@ -43,6 +43,9 @@
 
             // Default is 2 minutes: https://msdn.microsoft.com/en-us/library/system.net.servicepointmanager.dnsrefreshtimeout(v=vs.110).aspx
             ServicePointManager.DnsRefreshTimeout = (int)1.Minutes().TotalMilliseconds;
+            
+            // Increases the concurrent outbound connections
+            ServicePointManager.DefaultConnectionLimit = 1024;
         }
 
         /// <summary>
