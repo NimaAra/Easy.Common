@@ -38,7 +38,7 @@
         {
             BackingText = "Default";
             BackingNumber = 666;
-            Pool.Put(this);
+            Pool.Return(this);
         }
     }
 
@@ -46,7 +46,7 @@
     {
         public override void Dispose()
         {
-            Pool.Put(this);
+            Pool.Return(this);
         }
     }
 }

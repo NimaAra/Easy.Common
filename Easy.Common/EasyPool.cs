@@ -7,29 +7,31 @@
     using Easy.Common.Interfaces;
 
     /// <summary>
-    /// A generic thread safe high performance object pool.
+    /// A generic thread-safe high performance object pool.
     /// </summary>
     public sealed class EasyPool : IObjectPool
     {
+        private readonly object _locker = new object();
+        private readonly TimeSpan _maxLockTimeout = 5.Seconds();
         private readonly Dictionary<Type, Pool> _pools;
+        private bool _disposed;
+        
         private Dictionary<Type, Pool> Pools
         {
             get
             {
-                if (_disposed) { throw new ObjectDisposedException("The pool has been disposed."); }
-                return _pools;
+                using (_locker.Lock(_maxLockTimeout))
+                {
+                    if (_disposed) { throw new ObjectDisposedException("The pool has been disposed."); }
+                    return _pools;
+                }
             }
         }
-
-        private bool _disposed;
 
         /// <summary>
         /// Initializes an instance of the <see cref="EasyPool"/>
         /// </summary>
-        public EasyPool()
-        {
-            _pools = new Dictionary<Type, Pool>();
-        }
+        public EasyPool() => _pools = new Dictionary<Type, Pool>();
 
         /// <summary>
         /// Returns the total number of registered types in the <see cref="_pools"/>.
@@ -46,8 +48,7 @@
         public void Register<T>(Func<T> factory, uint maximumCount) where T : class, IPoolableObject
         {
             Ensure.NotNull(factory, nameof(factory));
-
-            using (Pools.Lock(5.Seconds()))
+            using (_locker.Lock(_maxLockTimeout))
             {
                 Pools.Add(typeof(T), new Pool(factory, maximumCount));
             }
@@ -57,16 +58,14 @@
         /// Returns an object of type <typeparamref name="T"/> from the pool.
         /// </summary>
         /// <returns>Object of type <typeparamref name="T"/></returns>
-        public T Get<T>() where T : class, IPoolableObject
+        public T Rent<T>() where T : class, IPoolableObject
         {
-            Pool pool;
-            if (!Pools.TryGetValue(typeof(T), out pool))
+            if (!Pools.TryGetValue(typeof(T), out Pool pool))
             {
                 throw new InvalidOperationException("The type is not registered with the pool, cannot build the object. Type: " + typeof(T));
             }
 
-            IPoolableObject result;
-            if (pool.Bag.TryTake(out result)) { return result as T; }
+            if (pool.Bag.TryTake(out IPoolableObject result)) { return result as T; }
 
             result = pool.Factory();
             result.SetPoolManager(this);
@@ -77,16 +76,14 @@
         /// Puts an object of type <typeparamref name="T"/> back in the pool.
         /// </summary>
         /// <param name="item">Object of type <typeparamref name="T"/></param>
-        public void Put<T>(T item) where T : class, IPoolableObject
+        public void Return<T>(T item) where T : class, IPoolableObject
         {
             Ensure.NotNull(item, nameof(item));
 
-            Pool pool;
-            if (!Pools.TryGetValue(typeof(T), out pool) || pool.Count >= pool.MaximumCount)
+            if (!Pools.TryGetValue(typeof(T), out Pool pool) || pool.Count >= pool.MaximumCount)
             {
                 return;
             }
-
             pool.Bag.Add(item);
         }
 
@@ -96,9 +93,7 @@
         /// </summary>
         public uint GetCountOfObjectsInThePool<T>() where T : class, IPoolableObject
         {
-            Pool pool;
-            if (!Pools.TryGetValue(typeof(T), out pool)) { return 0; }
-
+            if (!Pools.TryGetValue(typeof(T), out Pool pool)) { return 0; }
             return (uint)pool.Count;
         }
 
@@ -107,8 +102,10 @@
         /// </summary>
         public void Dispose()
         {
-            using (_pools.Lock(30.Seconds()))
+            using (_locker.Lock(_maxLockTimeout))
             {
+                if (_disposed) { return; }
+                
                 Pools.Values.ForEach(pool => pool.Dispose());
                 Pools.Clear();
                 _disposed = true;
@@ -130,8 +127,7 @@
 
             public void Dispose()
             {
-                IPoolableObject removed;
-                while (Bag.TryTake(out removed)) { /* empty */ }
+                while (Bag.TryTake(out IPoolableObject _)) { /* empty */ }
             }
         }
     }

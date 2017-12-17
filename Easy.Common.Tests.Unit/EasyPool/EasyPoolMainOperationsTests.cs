@@ -23,7 +23,7 @@
             _pool.TotalRegistrations.ShouldBe((uint)0);
             _pool.GetCountOfObjectsInThePool<TestPoolableObject>().ShouldBe((uint)0);
 
-            Action gettingNonRegisteredType = () => _pool.Get<TestPoolableObject>();
+            Action gettingNonRegisteredType = () => _pool.Rent<TestPoolableObject>();
             gettingNonRegisteredType.ShouldThrow<InvalidOperationException>("Because there is no registration.");
         }
 
@@ -35,7 +35,7 @@
 
             _pool.GetCountOfObjectsInThePool<TestPoolableObject>().ShouldBe((uint)0);
 
-            var obj1 = _pool.Get<TestPoolableObject>();
+            var obj1 = _pool.Rent<TestPoolableObject>();
             obj1.Text.ShouldBe("Default");
             obj1.Number.ShouldBe(666);
 
@@ -47,13 +47,13 @@
             _pool.GetCountOfObjectsInThePool<TestPoolableObject>()
                 .ShouldBe((uint)1, "Because the object has been returned to the pool.");
 
-            var obj2 = _pool.Get<TestPoolableObject>();
+            var obj2 = _pool.Rent<TestPoolableObject>();
             obj2.Text.ShouldBe("Default");
             obj2.Number.ShouldBe(666);
 
             _pool.GetCountOfObjectsInThePool<TestPoolableObject>().ShouldBe((uint)0);
 
-            var obj3 = _pool.Get<TestPoolableObject>();
+            var obj3 = _pool.Rent<TestPoolableObject>();
             obj3.Text.ShouldBe("Default");
             obj3.Number.ShouldBe(666);
 
@@ -75,7 +75,7 @@
         {
             _pool.Register(() => new TestPoolableObject(), 2);
 
-            var obj1 = _pool.Get<TestPoolableObject>();
+            var obj1 = _pool.Rent<TestPoolableObject>();
             obj1.Text.ShouldBe("Default");
             obj1.Number.ShouldBe(666);
 
@@ -87,8 +87,8 @@
             obj1.Dispose();
             _pool.GetCountOfObjectsInThePool<TestPoolableObject>().ShouldBe((uint)2);
 
-            var tmpObj1 = _pool.Get<TestPoolableObject>();
-            var tmpObj2 = _pool.Get<TestPoolableObject>();
+            var tmpObj1 = _pool.Rent<TestPoolableObject>();
+            var tmpObj2 = _pool.Rent<TestPoolableObject>();
 
             _pool.GetCountOfObjectsInThePool<TestPoolableObject>().ShouldBe((uint)0);
 
@@ -102,8 +102,8 @@
             _pool.Register(() => new TestPoolableObject(), 2);
             _pool.TotalRegistrations.ShouldBe((uint)1);
             
-            var obj1 = _pool.Get<TestPoolableObject>();
-            var obj2 = _pool.Get<TestPoolableObject>();
+            var obj1 = _pool.Rent<TestPoolableObject>();
+            var obj2 = _pool.Rent<TestPoolableObject>();
 
             _pool.GetCountOfObjectsInThePool<TestPoolableObject>().ShouldBe((uint)0);
 
@@ -127,7 +127,7 @@
         public void When_getting_a_non_reset_poolable_object_from_the_pool()
         {
             _pool.Register(() => new TestNonResetPoolableObject(), 2);
-            var obj1 = _pool.Get<TestNonResetPoolableObject>();
+            var obj1 = _pool.Rent<TestNonResetPoolableObject>();
 
             obj1.Text.ShouldBe("Default");
             obj1.Number.ShouldBe(666);
@@ -139,14 +139,14 @@
             obj1.Dispose();
             _pool.GetCountOfObjectsInThePool<TestNonResetPoolableObject>().ShouldBe((uint)1);
 
-            var obj2 = _pool.Get<TestNonResetPoolableObject>();
+            var obj2 = _pool.Rent<TestNonResetPoolableObject>();
 
             _pool.GetCountOfObjectsInThePool<TestNonResetPoolableObject>().ShouldBe((uint)0);
 
             obj2.Text.ShouldBe("Won't Reset");
             obj2.Number.ShouldBe(123);
 
-            var obj3 = _pool.Get<TestNonResetPoolableObject>();
+            var obj3 = _pool.Rent<TestNonResetPoolableObject>();
 
             obj3.Text.ShouldBe("Default");
             obj3.Number.ShouldBe(666);

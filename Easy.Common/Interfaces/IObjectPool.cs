@@ -24,14 +24,14 @@
         /// </summary>
         /// <typeparam name="T">Type of pooled object</typeparam>
         /// <returns>An instance of the <typeparamref name="T"/></returns>
-        T Get<T>() where T : class, IPoolableObject;
+        T Rent<T>() where T : class, IPoolableObject;
 
         /// <summary>
         /// Puts an instance of the <typeparamref name="T"/> back in the pool.
         /// </summary>
         /// <typeparam name="T">Type of pooled object</typeparam>
         /// <param name="item">An instance of the <typeparamref name="T"/></param>
-        void Put<T>(T item) where T : class, IPoolableObject;
+        void Return<T>(T item) where T : class, IPoolableObject;
 
         /// <summary>
         /// Returns the total number of instances of the <typeparamref name="T"/>
