@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Net;
     using System.Net.Http;
     using System.Text;
@@ -73,6 +74,29 @@
         }
 
         [Test]
+        public void When_sending_a_request_with_string_uri()
+        {
+            var endpoint = "http://localhost:33/api";
+            var endpointUri = new Uri(endpoint);
+            ServicePointManager.FindServicePoint(endpointUri).ConnectionLeaseTimeout.ShouldBe(-1);
+
+            using (IRestClient client = new RestClient())
+            {
+                client.SendAsync(new HttpRequestMessage(HttpMethod.Get, endpoint));
+
+                ServicePointManager.FindServicePoint(endpointUri)
+                    .ConnectionLeaseTimeout
+                    .ShouldBe((int)1.Minutes().TotalMilliseconds);
+
+                client.Endpoints.Length.ShouldBe(1);
+                client.Endpoints[0].OriginalString.ShouldBe(endpoint);
+
+                client.ClearEndpoints();
+                client.Endpoints.ShouldBeEmpty();
+            }
+        }
+
+        [Test]
         public async Task When_sending_a_get_request()
         {
 
@@ -113,9 +137,109 @@
         }
 
         [Test]
-        public async Task When_sending_a_post_request()
+        public async Task When_sending_a_put_request_via_explicit_put_with_uri()
         {
             var endpoint = new Uri("http://localhost:2/api/");
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Put.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+
+                await server.ListenAsync();
+
+                var response = await client.PutAsync(endpoint,new MultipartFormDataContent());
+                response.EnsureSuccessStatusCode();
+                var respStr = await response.Content.ReadAsStringAsync();
+                respStr.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_put_request_via_explicit_put_with_string()
+        {
+            var endpoint = "http://localhost:3/api/";
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Put.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+
+                await server.ListenAsync();
+
+                var response = await client.PutAsync(endpoint, new MultipartFormDataContent());
+                response.EnsureSuccessStatusCode();
+                var respStr = await response.Content.ReadAsStringAsync();
+                respStr.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_put_request_via_explicit_put_with_uri_with_cancellation()
+        {
+            var endpoint = new Uri("http://localhost:4/api/");
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+
+                await server.ListenAsync();
+
+                var cts = new CancellationTokenSource(1.Seconds());
+                Should.Throw<TaskCanceledException>(async () => await client.PutAsync(endpoint, new MultipartFormDataContent(), cts.Token));
+               
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_put_request_via_explicit_put_with_string_with_cancellation()
+        {
+            var endpoint = "http://localhost:5/api/";
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+
+                await server.ListenAsync();
+
+                var cts = new CancellationTokenSource(1.Seconds());
+                Should.Throw<TaskCanceledException>(async () => await client.PutAsync(endpoint, new MultipartFormDataContent(), cts.Token));
+
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_post_request()
+        {
+            var endpoint = new Uri("http://localhost:6/api/");
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -151,9 +275,305 @@
         }
 
         [Test]
+        public async Task When_sending_a_post_request_via_explicit_post_with_uri()
+        {
+            var endpoint = new Uri("http://localhost:7/api/");
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Post.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+
+                await server.ListenAsync();
+
+                var content = new MultipartFormDataContent();
+
+                var response = await client.PostAsync(endpoint, content);
+                response.EnsureSuccessStatusCode();
+                var respStr = await response.Content.ReadAsStringAsync();
+                respStr.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_post_request_via_explicit_post_with_string()
+        {
+            var endpoint = "http://localhost:8/api/";
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Post.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+
+                await server.ListenAsync();
+
+                var content = new MultipartFormDataContent();
+
+                var response = await client.PostAsync(endpoint, content);
+                response.EnsureSuccessStatusCode();
+                var respStr = await response.Content.ReadAsStringAsync();
+                respStr.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_post_request_via_explicit_post_with_uri_with_cancellation_token()
+        {
+            var endpoint = new Uri("http://localhost:9/api/");
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                await server.ListenAsync();
+
+
+                var cts = new CancellationTokenSource(1.Seconds());
+                Should.Throw<TaskCanceledException>(async () => await client.PostAsync(endpoint, new MultipartFormDataContent(),cts.Token));
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_post_request_via_explicit_post_with_string_with_cancellation_token()
+        {
+            var endpoint = "http://localhost:10/api/";
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                await server.ListenAsync();
+
+
+                var cts = new CancellationTokenSource(1.Seconds());
+                Should.Throw<TaskCanceledException>(async () => await client.PostAsync(endpoint, new MultipartFormDataContent(), cts.Token));
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_request_via_explicit_get_with_uri()
+        {
+
+            var endpoint = new Uri("http://localhost:11/api/");
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Get.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+
+                await server.ListenAsync();
+
+                var response = await client.GetAsync(endpoint);
+                response.EnsureSuccessStatusCode();
+                var respStr = await response.Content.ReadAsStringAsync();
+                respStr.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_request_via_explicit_get_with_string()
+        {
+
+            var endpoint = "http://localhost:12/api/";
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Get.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+
+                await server.ListenAsync();
+
+                var response = await client.GetAsync(endpoint);
+                response.EnsureSuccessStatusCode();
+                var respStr = await response.Content.ReadAsStringAsync();
+                respStr.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_request_via_explicit_get_with_uri_with_cancellation_token()
+        {
+
+            var endpoint = new Uri("http://localhost:13/api/");
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                await server.ListenAsync();
+
+                var cts = new CancellationTokenSource(1.Seconds());
+                Should.Throw<TaskCanceledException>(async () => await client.GetAsync(endpoint,cts.Token));
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_request_via_explicit_get_with_string_with_cancellation_token()
+        {
+
+            var endpoint = "http://localhost:14/api/";
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                await server.ListenAsync();
+
+                var cts = new CancellationTokenSource(1.Seconds());
+                Should.Throw<TaskCanceledException>(async () => await client.GetAsync(endpoint, cts.Token));
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_request_via_explicit_get_with_uri_with_completion_option()
+        {
+
+            var endpoint = new Uri("http://localhost:15/api/");
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Get.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+
+                await server.ListenAsync();
+
+                var response = await client.GetAsync(endpoint,HttpCompletionOption.ResponseContentRead);
+                response.EnsureSuccessStatusCode();
+                var respStr = await response.Content.ReadAsStringAsync();
+                respStr.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_request_via_explicit_get_with_string_with_completion_option()
+        {
+
+            var endpoint = "http://localhost:16/api/";
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Get.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+
+                await server.ListenAsync();
+
+                var response = await client.GetAsync(endpoint, HttpCompletionOption.ResponseContentRead);
+                response.EnsureSuccessStatusCode();
+                var respStr = await response.Content.ReadAsStringAsync();
+                respStr.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_request_via_explicit_get_with_uri_with_completion_option_with_cancellation_token()
+        {
+
+            var endpoint = new Uri("http://localhost:17/api/");
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                await server.ListenAsync();
+                var cts = new CancellationTokenSource(1.Seconds());
+                Should.Throw<TaskCanceledException>(async () => await client.GetAsync(endpoint, HttpCompletionOption.ResponseContentRead, cts.Token));
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_request_via_explicit_get_with_string_with_completion_option_with_cancelation_token()
+        {
+
+            var endpoint = "http://localhost:18/api/";
+
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                await server.ListenAsync();
+                var cts = new CancellationTokenSource(1.Seconds());
+                Should.Throw<TaskCanceledException>(async () => await client.GetAsync(endpoint, HttpCompletionOption.ResponseContentRead, cts.Token));
+            }
+        }
+
+        [Test]
         public async Task When_sending_a_delete_request()
         {
-            var endpoint = new Uri("http://localhost:3/api/");
+            var endpoint = new Uri("http://localhost:19/api/");
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -189,9 +609,100 @@
         }
 
         [Test]
+        public async Task When_sending_a_delete_request_via_explicit_delete_with_uri()
+        {
+            var endpoint = new Uri("http://localhost:20/api/");
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Delete.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+
+                await server.ListenAsync();
+
+                var response = await client.DeleteAsync(endpoint);
+                response.EnsureSuccessStatusCode();
+                var respStr = await response.Content.ReadAsStringAsync();
+                respStr.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_delete_request_via_explicit_delete_with_string()
+        {
+            var endpoint ="http://localhost:21/api/";
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Delete.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+
+                await server.ListenAsync();
+
+                var response = await client.DeleteAsync(endpoint);
+                response.EnsureSuccessStatusCode();
+                var respStr = await response.Content.ReadAsStringAsync();
+                respStr.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_delete_request_via_explicit_delete_with_uri_with_cancellation_token()
+        {
+            var endpoint = new Uri("http://localhost:22/api/");
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                await server.ListenAsync();
+
+                var cts = new CancellationTokenSource(1.Seconds());
+                Should.Throw<TaskCanceledException>(async () => await client.DeleteAsync(endpoint, cts.Token));
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_delete_request_via_explicit_delete_with_string_with_cancellation_token()
+        {
+            var endpoint = "http://localhost:23/api/";
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                await server.ListenAsync();
+                var cts = new CancellationTokenSource(1.Seconds());
+                Should.Throw<TaskCanceledException>(async () => await client.DeleteAsync(endpoint, cts.Token));
+            }
+        }
+
+        [Test]
         public async Task When_sending_a_request_with_cancellation_and_completion_option()
         {
-            var endpoint = new Uri("http://localhost:4/api/");
+            var endpoint = new Uri("http://localhost:24/api/");
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -213,7 +724,7 @@
         [Test]
         public async Task When_sending_a_request_with_cancellation()
         {
-            var endpoint = new Uri("http://localhost:5/api/");
+            var endpoint = new Uri("http://localhost:25/api/");
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -234,7 +745,7 @@
         [Test]
         public async Task When_sending_a_request_then_cancelling_all_pending_requests()
         {
-            var endpoint = new Uri("http://localhost:6/api/");
+            var endpoint = new Uri("http://localhost:26/api/");
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -252,6 +763,186 @@
                 Task.Delay(1.Seconds()).ContinueWith(_ => copy.CancelPendingRequests());
 #pragma warning restore 4014
                 Should.Throw<TaskCanceledException>(async () => await client.SendAsync(request));
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_string_request_with_uri()
+        {
+            var endpoint = new Uri("http://localhost:27/api/");
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Get.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+                await server.ListenAsync();
+                var response = await client.GetStringAsync(endpoint);
+
+                response.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_string_request_with_string()
+        {
+            var endpoint = "http://localhost:27/api/";
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Get.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+                await server.ListenAsync();
+                var response = await client.GetStringAsync(endpoint);
+
+                response.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_stream_request_with_uri()
+        {
+            var endpoint = new Uri("http://localhost:28/api/");
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Get.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+                await server.ListenAsync();
+                var response = await client.GetStreamAsync(endpoint);
+                using (var streamReader = new StreamReader(response, Encoding.UTF8))
+                {
+                    var responseString = await streamReader.ReadToEndAsync();
+                    responseString.ShouldBe("Hello There!");
+                }
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_stream_request_with_string()
+        {
+            var endpoint = "http://localhost:29/api/";
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Get.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+                await server.ListenAsync();
+                var response = await client.GetStreamAsync(endpoint);
+                using (var streamReader = new StreamReader(response,Encoding.UTF8))
+                {
+                    var responseString = await streamReader.ReadToEndAsync();
+                    responseString.ShouldBe("Hello There!");
+                }
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_byte_array_request_with_uri()
+        {
+            var endpoint = new Uri("http://localhost:30/api/");
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(endpoint))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Get.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+                await server.ListenAsync();
+                var response = await client.GetByteArrayAsync(endpoint);
+                var responseString = Encoding.UTF8.GetString(response);
+                responseString.ShouldBe("Hello There!");
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_get_byte_array_request_with_string()
+        {
+            var endpoint = "http://localhost:31/api/";
+            using (IRestClient client = new RestClient())
+            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            {
+                server.OnRequest += (sender, context) =>
+                {
+                    if (context.Request.HttpMethod != HttpMethod.Get.ToString())
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                        context.Response.Close();
+                    }
+                    else
+                    {
+                        var reply = Encoding.UTF8.GetBytes("Hello There!");
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.OutputStream.Write(reply, 0, reply.Length);
+                        context.Response.Close();
+                    }
+                };
+                await server.ListenAsync();
+                var response = await client.GetByteArrayAsync(endpoint);
+                var responseString = Encoding.UTF8.GetString(response);
+                responseString.ShouldBe("Hello There!");
             }
         }
 
