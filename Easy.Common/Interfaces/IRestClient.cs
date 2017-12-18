@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
@@ -50,6 +51,137 @@
         /// Sends an HTTP request as an asynchronous operation.
         /// </summary>
         Task<HttpResponseMessage> SendAsync(HttpRequestMessage message, HttpCompletionOption option, CancellationToken cToken);
+
+        /// <summary>
+        /// Sends a PUT request to the specified URI as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> PutAsync(string uri, HttpContent content);
+
+        /// <summary>
+        /// Sends a PUT request to the specified URI as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content);
+
+        /// <summary>
+        /// Sends a PUT request to the specified URI with a cancellation token as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Sends a PUT request to the specified URI with a cancellation token as an asynchronous operation
+        /// </summary>       
+        Task<HttpResponseMessage> PutAsync(string uri, HttpContent content, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Send a POST request to the specified Uri as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> PostAsync(string uri, HttpContent content);
+
+        /// <summary>
+        /// Send a POST request to the specified Uri as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content);
+
+        /// <summary>
+        /// Send a POST request to the specified Uri with a cancellation token as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Send a POST request to the specified Uri with a cancellation token as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> PostAsync(string uri, HttpContent content, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and returns the response body as a string in an asynchronous operation
+        /// </summary>
+        Task<string> GetStringAsync(string uri);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and returns the response body as a string in an asynchronous operation
+        /// </summary>
+        Task<string> GetStringAsync(Uri uri);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and returns the response body as a stream in an asynchronous operation
+        /// </summary>
+        Task<Stream> GetStreamAsync(string uri);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and returns the response body as a stream in an asynchronous operation
+        /// </summary>
+        Task<Stream> GetStreamAsync(Uri uri);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and returns the response body as a byte array in an asynchronous operation
+        /// </summary>
+        Task<byte[]> GetByteArrayAsync(string uri);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri and returns the response body as a byte array in an asynchronous operation
+        /// </summary>
+        Task<byte[]> GetByteArrayAsync(Uri uri);
+
+        /// <summary>
+        /// Sends a GET request to the specifed Uri as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> GetAsync(string uri);
+
+        /// <summary>
+        /// Sends a GET request to the specifed Uri as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> GetAsync(Uri uri);
+
+        /// <summary>
+        /// Sends a GET request to the specifed Uri with a cancellation token as an asynchronous opertaion
+        /// </summary>
+        Task<HttpResponseMessage> GetAsync(string uri, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Sends a GET request to the specifed Uri with a cancellation token as an asynchronous opertaion
+        /// </summary>
+        Task<HttpResponseMessage> GetAsync(Uri uri, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri with an HTTP completion option as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> GetAsync(string uri, HttpCompletionOption completionOption);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri with an HTTP completion option as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> GetAsync(Uri uri, HttpCompletionOption completionOption);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri with an HTTP completion option and a cancellation token as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> GetAsync(string uri, HttpCompletionOption completionOption, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Send a GET request to the specified Uri with an HTTP completion option and a cancellation token as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> GetAsync(Uri uri, HttpCompletionOption completionOption, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Send a DELETE request to the specified Uri as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> DeleteAsync(string uri);
+
+        /// <summary>
+        /// Send a DELETE request to the specified Uri as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> DeleteAsync(Uri uri);
+
+        /// <summary>
+        /// Send a DELETE request to the specified Uri with a cancellation token as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> DeleteAsync(string uri, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Send a DELETE request to the specified Uri with a cancellation token as an asynchronous operation
+        /// </summary>
+        Task<HttpResponseMessage> DeleteAsync(Uri uri, CancellationToken cancellationToken);
+
 
         /// <summary>
         /// Clears all of the endpoints which this instance has sent a request to.
