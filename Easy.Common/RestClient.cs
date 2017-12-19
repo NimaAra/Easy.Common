@@ -44,7 +44,7 @@
 
             // Default is 2 minutes: https://msdn.microsoft.com/en-us/library/system.net.servicepointmanager.dnsrefreshtimeout(v=vs.110).aspx
             ServicePointManager.DnsRefreshTimeout = (int)1.Minutes().TotalMilliseconds;
-            
+
             // Increases the concurrent outbound connections
             ServicePointManager.DefaultConnectionLimit = 1024;
         }
@@ -73,324 +73,261 @@
         }
 
         /// <summary>
-        /// Sends an HTTP request as an asynchronous operation.
+        /// Sends the given <paramref name="request"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage message) => SendAsync(message, HttpCompletionOption.ResponseContentRead, CancellationToken.None);
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
+            => SendAsync(request, HttpCompletionOption.ResponseContentRead, CancellationToken.None);
 
         /// <summary>
-        /// Sends an HTTP request as an asynchronous operation.
+        /// Sends the given <paramref name="request"/> with the given <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage message, CancellationToken cToken) => SendAsync(message, HttpCompletionOption.ResponseContentRead, cToken);
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cToken)
+            => SendAsync(request, HttpCompletionOption.ResponseContentRead, cToken);
 
         /// <summary>
-        /// Sends an HTTP request as an asynchronous operation.
+        /// Sends the given <paramref name="request"/> with the given <paramref name="option"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage message, HttpCompletionOption option) => SendAsync(message, option, CancellationToken.None);
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption option)
+            => SendAsync(request, option, CancellationToken.None);
 
         /// <summary>
-        /// Sends an HTTP request as an asynchronous operation.
+        /// Sends the given <paramref name="request"/> with the given <paramref name="option"/> and <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage message, HttpCompletionOption option, CancellationToken cToken)
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption option, CancellationToken cToken)
         {
-            Ensure.NotNull(message, nameof(message));
-            AddConnectionLeaseTimeout(message.RequestUri);
-            return _client.SendAsync(message, option, cToken);
+            Ensure.NotNull(request, nameof(request));
+            AddConnectionLeaseTimeout(request.RequestUri);
+            return _client.SendAsync(request, option, cToken);
         }
 
         /// <summary>
-        /// Sends a PUT request to the specified URI as an asynchronous operation
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
+        /// </summary>
+        /// <exception cref="UriFormatException"/>
+        /// <exception cref="ArgumentException"/>
+        public Task<HttpResponseMessage> GetAsync(string uri) => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri));
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public Task<HttpResponseMessage> GetAsync(Uri uri) => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri));
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="cToken"/>.
+        /// </summary>
+        /// <exception cref="UriFormatException"/>
+        /// <exception cref="ArgumentException"/>
+        public Task<HttpResponseMessage> GetAsync(string uri, CancellationToken cToken)
+            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), cToken);
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="cToken"/>.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public Task<HttpResponseMessage> GetAsync(Uri uri, CancellationToken cToken)
+            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), cToken);
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="option"/>.
+        /// </summary>
+        /// <exception cref="UriFormatException"/>
+        /// <exception cref="ArgumentException"/>
+        public Task<HttpResponseMessage> GetAsync(string uri, HttpCompletionOption option)
+            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option);
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="option"/>.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public Task<HttpResponseMessage> GetAsync(Uri uri, HttpCompletionOption option)
+            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option);
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="option"/> and <paramref name="cToken"/>.
+        /// </summary>
+        /// <exception cref="UriFormatException"/>
+        /// <exception cref="ArgumentException"/>
+        public Task<HttpResponseMessage> GetAsync(string uri, HttpCompletionOption option, CancellationToken cToken)
+            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option, cToken);
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="option"/> and <paramref name="cToken"/>.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        public Task<HttpResponseMessage> GetAsync(Uri uri, HttpCompletionOption option, CancellationToken cToken)
+            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option, cToken);
+
+        /// <summary>
+        /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="UriFormatException"/>
         public Task<HttpResponseMessage> PutAsync(string uri, HttpContent content)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Put, uri);
-            message.Content = content;
-            return SendAsync(message);
-        }
+            => SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content });
 
         /// <summary>
-        /// Sends a PUT request to the specified URI as an asynchronous operation
+        /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         public Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Put, uri);
-            message.Content = content;
-            return SendAsync(message);
-        }
+            => SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content });
 
         /// <summary>
-        /// Sends a PUT request to the specified URI with a cancellation token as an asynchronous operation
+        /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> 
+        /// with the given <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         public Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content, CancellationToken cToken)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Put, uri);
-            message.Content = content;
-            return SendAsync(message, cToken);
-        }
+            => SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content }, cToken);
 
         /// <summary>
-        /// Sends a PUT request to the specified URI with a cancellation token as an asynchronous operation
-        /// </summary>       
+        /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> 
+        /// with the given <paramref name="cToken"/>.
+        /// </summary>     
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="UriFormatException"/>
         public Task<HttpResponseMessage> PutAsync(string uri, HttpContent content, CancellationToken cToken)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Put, uri);
-            message.Content = content;
-            return SendAsync(message, cToken);
-        }
+            => SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content }, cToken);
 
         /// <summary>
-        /// Send a POST request to the specified Uri as an asynchronous operation
+        /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/>.
         /// </summary>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="UriFormatException"/>
         public Task<HttpResponseMessage> PostAsync(string uri, HttpContent content)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Post, uri);
-            message.Content = content;
-            return SendAsync(message);
-        }
+            => SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content });
 
         /// <summary>
-        /// Send a POST request to the specified Uri as an asynchronous operation
+        /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         public Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Post, uri);
-            message.Content = content;
-            return SendAsync(message);
-        }
+            => SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content });
 
         /// <summary>
-        /// Send a POST request to the specified Uri with a cancellation token as an asynchronous operation
+        /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> 
+        /// with the given <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         public Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content, CancellationToken cToken)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Post, uri);
-            message.Content = content;
-            return SendAsync(message, cToken);
-        }
+            => SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content }, cToken);
 
         /// <summary>
-        /// Send a POST request to the specified Uri with a cancellation token as an asynchronous operation
-        /// </summary>
+        /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> 
+        /// with the given <paramref name="cToken"/>.
+        /// </summary>     
         /// <exception cref="ArgumentException"/>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="UriFormatException"/>
         public Task<HttpResponseMessage> PostAsync(string uri, HttpContent content, CancellationToken cToken)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Post, uri);
-            message.Content = content;
-            return SendAsync(message, cToken);
-        }
+            => SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content }, cToken);
 
         /// <summary>
-        /// Send a GET request to the specified Uri and returns the response body as a string in an asynchronous operation
-        /// </summary>
-        /// <exception cref="ArgumentException"/>
-        ///<exception cref="UriFormatException"/>
-        public Task<string> GetStringAsync(string uri)
-        {
-            AddConnectionLeaseTimeout(uri);
-            return _client.GetStringAsync(uri);
-        }
-
-        /// <summary>
-        /// Send a GET request to the specified Uri and returns the response body as a string in an asynchronous operation
-        /// </summary>
-        ///<exception cref="ArgumentNullException"/>
-        public Task<string> GetStringAsync(Uri uri)
-        {
-            Ensure.NotNull(uri, "uri");
-            AddConnectionLeaseTimeout(uri);
-            return _client.GetStringAsync(uri);
-        }
-
-        /// <summary>
-        /// Send a GET request to the specified Uri and returns the response body as a stream in an asynchronous operation
-        /// </summary>
-        /// <exception cref="ArgumentException"/>
-        ///<exception cref="UriFormatException"/>
-        public Task<Stream> GetStreamAsync(string uri)
-        {
-            AddConnectionLeaseTimeout(uri);
-            return _client.GetStreamAsync(uri);
-        }
-
-        /// <summary>
-        /// Send a GET request to the specified Uri and returns the response body as a stream in an asynchronous operation
-        /// </summary>
-        ///<exception cref="ArgumentNullException"/>
-        public Task<Stream> GetStreamAsync(Uri uri)
-        {
-            Ensure.NotNull(uri, "uri");
-            AddConnectionLeaseTimeout(uri);
-            return _client.GetStreamAsync(uri);
-        }
-
-        /// <summary>
-        /// Send a GET request to the specified Uri and returns the response body as a byte array in an asynchronous operation
-        /// </summary>
-        ///<exception cref="UriFormatException"/>
-        /// <exception cref="ArgumentException"/>
-        public Task<byte[]> GetByteArrayAsync(string uri)
-        {
-            AddConnectionLeaseTimeout(uri);
-            return _client.GetByteArrayAsync(uri);
-        }
-
-        /// <summary>
-        /// Send a GET request to the specified Uri and returns the response body as a byte array in an asynchronous operation
-        /// </summary>
-        ///<exception cref="ArgumentNullException"/>
-        public Task<byte[]> GetByteArrayAsync(Uri uri)
-        {
-            Ensure.NotNull(uri, "uri");
-            AddConnectionLeaseTimeout(uri);
-            return _client.GetByteArrayAsync(uri);
-        }
-
-        /// <summary>
-        /// Sends a GET request to the specifed Uri as an asynchronous operation
-        /// </summary>
-        /// <exception cref="UriFormatException"/>
-        /// <exception cref="ArgumentException"/>
-        public Task<HttpResponseMessage> GetAsync(string uri)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Get, uri);
-            return SendAsync(message);
-        }
-
-        /// <summary>
-        /// Sends a GET request to the specifed Uri as an asynchronous operation
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> GetAsync(Uri uri)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Get, uri);
-            return SendAsync(message);
-        }
-
-        /// <summary>
-        /// Sends a GET request to the specifed Uri with a cancellation token as an asynchronous opertaion
-        /// </summary>
-        /// <exception cref="UriFormatException"/>
-        /// <exception cref="ArgumentException"/>
-        public Task<HttpResponseMessage> GetAsync(string uri, CancellationToken cToken)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Get, uri);
-            return SendAsync(message, cToken);
-        }
-
-        /// <summary>
-        /// Sends a GET request to the specifed Uri with a cancellation token as an asynchronous opertaion
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> GetAsync(Uri uri, CancellationToken cToken)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Get, uri);
-            return SendAsync(message, cToken);
-        }
-
-        /// <summary>
-        /// Send a GET request to the specified Uri with an HTTP completion option as an asynchronous operation
-        /// </summary>
-        /// <exception cref="UriFormatException"/>
-        /// <exception cref="ArgumentException"/>
-        public Task<HttpResponseMessage> GetAsync(string uri, HttpCompletionOption completionOption)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Get, uri);
-            return SendAsync(message, completionOption);
-        }
-
-        /// <summary>
-        /// Send a GET request to the specified Uri with an HTTP completion option as an asynchronous operation
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> GetAsync(Uri uri, HttpCompletionOption completionOption)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Get, uri);
-            return SendAsync(message, completionOption);
-        }
-
-        /// <summary>
-        /// Send a GET request to the specified Uri with an HTTP completion option and a cancellation token as an asynchronous operation
-        /// </summary>
-        /// <exception cref="UriFormatException"/>
-        /// <exception cref="ArgumentException"/>
-        public Task<HttpResponseMessage> GetAsync(string uri, HttpCompletionOption completionOption, CancellationToken cToken)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Get, uri);
-            return SendAsync(message, completionOption, cToken);
-        }
-
-        /// <summary>
-        /// Send a GET request to the specified Uri with an HTTP completion option and a cancellation token as an asynchronous operation
-        /// </summary>
-        /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> GetAsync(Uri uri, HttpCompletionOption completionOption, CancellationToken cToken)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Get, uri);
-            return SendAsync(message, completionOption, cToken);
-        }
-
-        /// <summary>
-        /// Send a DELETE request to the specified Uri as an asynchronous operation
+        /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/>.
         /// </summary>
         /// <exception cref="UriFormatException"/>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="InvalidOperationException"/>
         public Task<HttpResponseMessage> DeleteAsync(string uri)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Delete, uri);
-            return SendAsync(message);
-        }
+            => SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri));
 
         /// <summary>
-        /// Send a DELETE request to the specified Uri as an asynchronous operation
+        /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="InvalidOperationException"/>
         public Task<HttpResponseMessage> DeleteAsync(Uri uri)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Delete, uri);
-            return SendAsync(message);
-        }
+            => SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri));
 
         /// <summary>
-        /// Send a DELETE request to the specified Uri with a cancellation token as an asynchronous operation
+        /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/> with the given <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="UriFormatException"/>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="InvalidOperationException"/>
         public Task<HttpResponseMessage> DeleteAsync(string uri, CancellationToken cToken)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Delete, uri);
-            return SendAsync(message, cToken);
-        }
+            => SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri), cToken);
 
         /// <summary>
-        /// Send a DELETE request to the specified Uri with a cancellation token as an asynchronous operation
+        /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/> with the given <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="InvalidOperationException"/>
         public Task<HttpResponseMessage> DeleteAsync(Uri uri, CancellationToken cToken)
+            => SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri), cToken);
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
+        /// </summary>
+        /// <exception cref="ArgumentException"/>
+        ///<exception cref="UriFormatException"/>
+        public Task<string> GetStringAsync(string uri)
         {
-            var message = new HttpRequestMessage(HttpMethod.Delete, uri);
-            return SendAsync(message, cToken);
+            Ensure.NotNullOrEmptyOrWhiteSpace(uri);
+            return GetStringAsync(new Uri(uri, UriKind.RelativeOrAbsolute));
+        }
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
+        /// </summary>
+        ///<exception cref="ArgumentNullException"/>
+        public Task<string> GetStringAsync(Uri uri)
+        {
+            Ensure.NotNull(uri, nameof(uri));
+            AddConnectionLeaseTimeout(uri);
+            return _client.GetStringAsync(uri);
+        }
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
+        /// </summary>
+        /// <exception cref="ArgumentException"/>
+        ///<exception cref="UriFormatException"/>
+        public Task<Stream> GetStreamAsync(string uri)
+        {
+            Ensure.NotNullOrEmptyOrWhiteSpace(uri);
+            return GetStreamAsync(new Uri(uri, UriKind.RelativeOrAbsolute));
+        }
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
+        /// </summary>
+        ///<exception cref="ArgumentNullException"/>
+        public Task<Stream> GetStreamAsync(Uri uri)
+        {
+            Ensure.NotNull(uri, nameof(uri));
+            AddConnectionLeaseTimeout(uri);
+            return _client.GetStreamAsync(uri);
+        }
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
+        /// </summary>
+        ///<exception cref="UriFormatException"/>
+        /// <exception cref="ArgumentException"/>
+        public Task<byte[]> GetByteArrayAsync(string uri)
+        {
+            Ensure.NotNullOrEmptyOrWhiteSpace(uri);
+            return GetByteArrayAsync(new Uri(uri, UriKind.RelativeOrAbsolute));
+        }
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
+        /// </summary>
+        ///<exception cref="ArgumentNullException"/>
+        public Task<byte[]> GetByteArrayAsync(Uri uri)
+        {
+            Ensure.NotNull(uri, nameof(uri));
+            AddConnectionLeaseTimeout(uri);
+            return _client.GetByteArrayAsync(uri);
         }
 
         /// <summary>
@@ -447,12 +384,6 @@
                     .ConnectionLeaseTimeout = (int)_connectionCloseTimeoutPeriod.TotalMilliseconds;
                 _endpoints.Add(endpoint);
             }
-        }
-
-        private void AddConnectionLeaseTimeout(string endpointUri)
-        {
-            Ensure.NotNullOrEmptyOrWhiteSpace(endpointUri, nameof(endpointUri) + " must not be null, empty or whitespace");
-            AddConnectionLeaseTimeout(new Uri(endpointUri));
         }
     }
 }

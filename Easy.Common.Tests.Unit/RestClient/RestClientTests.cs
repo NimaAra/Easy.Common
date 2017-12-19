@@ -76,20 +76,20 @@
         [Test]
         public void When_sending_a_request_with_string_uri()
         {
-            var endpoint = "http://localhost:33/api";
-            var endpointUri = new Uri(endpoint);
+            const string Endpoint = "http://localhost:33/api";
+            var endpointUri = new Uri(Endpoint);
             ServicePointManager.FindServicePoint(endpointUri).ConnectionLeaseTimeout.ShouldBe(-1);
 
             using (IRestClient client = new RestClient())
             {
-                client.SendAsync(new HttpRequestMessage(HttpMethod.Get, endpoint));
+                client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Endpoint));
 
                 ServicePointManager.FindServicePoint(endpointUri)
                     .ConnectionLeaseTimeout
                     .ShouldBe((int)1.Minutes().TotalMilliseconds);
 
                 client.Endpoints.Length.ShouldBe(1);
-                client.Endpoints[0].OriginalString.ShouldBe(endpoint);
+                client.Endpoints[0].OriginalString.ShouldBe(Endpoint);
 
                 client.ClearEndpoints();
                 client.Endpoints.ShouldBeEmpty();
@@ -99,7 +99,6 @@
         [Test]
         public async Task When_sending_a_get_request()
         {
-
             var endpoint = new Uri("http://localhost:1/api/");
 
             using (IRestClient client = new RestClient())
@@ -131,6 +130,7 @@
 
                 var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -164,6 +164,7 @@
 
                 var response = await client.PutAsync(endpoint,new MultipartFormDataContent());
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -172,10 +173,10 @@
         [Test]
         public async Task When_sending_a_put_request_via_explicit_put_with_string()
         {
-            var endpoint = "http://localhost:3/api/";
+            const string Endpoint = "http://localhost:3/api/";
 
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 server.OnRequest += (sender, context) =>
                 {
@@ -195,8 +196,9 @@
 
                 await server.ListenAsync();
 
-                var response = await client.PutAsync(endpoint, new MultipartFormDataContent());
+                var response = await client.PutAsync(Endpoint, new MultipartFormDataContent());
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -210,29 +212,27 @@
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
-
                 await server.ListenAsync();
 
                 var cts = new CancellationTokenSource(1.Seconds());
-                Should.Throw<TaskCanceledException>(async () => await client.PutAsync(endpoint, new MultipartFormDataContent(), cts.Token));
-               
+                Should.Throw<TaskCanceledException>(
+                    async () => await client.PutAsync(endpoint, new MultipartFormDataContent(), cts.Token));
             }
         }
 
         [Test]
         public async Task When_sending_a_put_request_via_explicit_put_with_string_with_cancellation()
         {
-            var endpoint = "http://localhost:5/api/";
+            const string Endpoint = "http://localhost:5/api/";
 
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
-
                 await server.ListenAsync();
 
                 var cts = new CancellationTokenSource(1.Seconds());
-                Should.Throw<TaskCanceledException>(async () => await client.PutAsync(endpoint, new MultipartFormDataContent(), cts.Token));
-
+                Should.Throw<TaskCanceledException>(
+                    async () => await client.PutAsync(Endpoint, new MultipartFormDataContent(), cts.Token));
             }
         }
 
@@ -240,6 +240,7 @@
         public async Task When_sending_a_post_request()
         {
             var endpoint = new Uri("http://localhost:6/api/");
+            
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -269,6 +270,7 @@
 
                 var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -278,6 +280,7 @@
         public async Task When_sending_a_post_request_via_explicit_post_with_uri()
         {
             var endpoint = new Uri("http://localhost:7/api/");
+            
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -303,6 +306,7 @@
 
                 var response = await client.PostAsync(endpoint, content);
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -311,9 +315,10 @@
         [Test]
         public async Task When_sending_a_post_request_via_explicit_post_with_string()
         {
-            var endpoint = "http://localhost:8/api/";
+            const string Endpoint = "http://localhost:8/api/";
+
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 server.OnRequest += (sender, context) =>
                 {
@@ -335,8 +340,9 @@
 
                 var content = new MultipartFormDataContent();
 
-                var response = await client.PostAsync(endpoint, content);
+                var response = await client.PostAsync(Endpoint, content);
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -346,36 +352,37 @@
         public async Task When_sending_a_post_request_via_explicit_post_with_uri_with_cancellation_token()
         {
             var endpoint = new Uri("http://localhost:9/api/");
+            
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
                 await server.ListenAsync();
-
-
+                
                 var cts = new CancellationTokenSource(1.Seconds());
-                Should.Throw<TaskCanceledException>(async () => await client.PostAsync(endpoint, new MultipartFormDataContent(),cts.Token));
+                Should.Throw<TaskCanceledException>(
+                    async () => await client.PostAsync(endpoint, new MultipartFormDataContent(),cts.Token));
             }
         }
 
         [Test]
         public async Task When_sending_a_post_request_via_explicit_post_with_string_with_cancellation_token()
         {
-            var endpoint = "http://localhost:10/api/";
+            const string Endpoint = "http://localhost:10/api/";
+
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 await server.ListenAsync();
 
-
                 var cts = new CancellationTokenSource(1.Seconds());
-                Should.Throw<TaskCanceledException>(async () => await client.PostAsync(endpoint, new MultipartFormDataContent(), cts.Token));
+                Should.Throw<TaskCanceledException>(
+                    async () => await client.PostAsync(Endpoint, new MultipartFormDataContent(), cts.Token));
             }
         }
 
         [Test]
         public async Task When_sending_a_get_request_via_explicit_get_with_uri()
         {
-
             var endpoint = new Uri("http://localhost:11/api/");
 
             using (IRestClient client = new RestClient())
@@ -401,6 +408,7 @@
 
                 var response = await client.GetAsync(endpoint);
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -409,11 +417,10 @@
         [Test]
         public async Task When_sending_a_get_request_via_explicit_get_with_string()
         {
-
-            var endpoint = "http://localhost:12/api/";
+            const string Endpoint = "http://localhost:12/api/";
 
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 server.OnRequest += (sender, context) =>
                 {
@@ -433,8 +440,9 @@
 
                 await server.ListenAsync();
 
-                var response = await client.GetAsync(endpoint);
+                var response = await client.GetAsync(Endpoint);
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -443,7 +451,6 @@
         [Test]
         public async Task When_sending_a_get_request_via_explicit_get_with_uri_with_cancellation_token()
         {
-
             var endpoint = new Uri("http://localhost:13/api/");
 
             using (IRestClient client = new RestClient())
@@ -459,23 +466,21 @@
         [Test]
         public async Task When_sending_a_get_request_via_explicit_get_with_string_with_cancellation_token()
         {
-
-            var endpoint = "http://localhost:14/api/";
+            const string Endpoint = "http://localhost:14/api/";
 
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 await server.ListenAsync();
 
                 var cts = new CancellationTokenSource(1.Seconds());
-                Should.Throw<TaskCanceledException>(async () => await client.GetAsync(endpoint, cts.Token));
+                Should.Throw<TaskCanceledException>(async () => await client.GetAsync(Endpoint, cts.Token));
             }
         }
 
         [Test]
         public async Task When_sending_a_get_request_via_explicit_get_with_uri_with_completion_option()
         {
-
             var endpoint = new Uri("http://localhost:15/api/");
 
             using (IRestClient client = new RestClient())
@@ -501,6 +506,7 @@
 
                 var response = await client.GetAsync(endpoint,HttpCompletionOption.ResponseContentRead);
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -509,11 +515,10 @@
         [Test]
         public async Task When_sending_a_get_request_via_explicit_get_with_string_with_completion_option()
         {
-
-            var endpoint = "http://localhost:16/api/";
+            const string Endpoint = "http://localhost:16/api/";
 
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 server.OnRequest += (sender, context) =>
                 {
@@ -533,8 +538,9 @@
 
                 await server.ListenAsync();
 
-                var response = await client.GetAsync(endpoint, HttpCompletionOption.ResponseContentRead);
+                var response = await client.GetAsync(Endpoint, HttpCompletionOption.ResponseContentRead);
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -543,30 +549,34 @@
         [Test]
         public async Task When_sending_a_get_request_via_explicit_get_with_uri_with_completion_option_with_cancellation_token()
         {
-
             var endpoint = new Uri("http://localhost:17/api/");
 
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
                 await server.ListenAsync();
+                
                 var cts = new CancellationTokenSource(1.Seconds());
-                Should.Throw<TaskCanceledException>(async () => await client.GetAsync(endpoint, HttpCompletionOption.ResponseContentRead, cts.Token));
+                Should.Throw<TaskCanceledException>(
+                    async () => await client.GetAsync(
+                        endpoint, HttpCompletionOption.ResponseContentRead, cts.Token));
             }
         }
 
         [Test]
         public async Task When_sending_a_get_request_via_explicit_get_with_string_with_completion_option_with_cancelation_token()
         {
-
-            var endpoint = "http://localhost:18/api/";
+            const string Endpoint = "http://localhost:18/api/";
 
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 await server.ListenAsync();
+                
                 var cts = new CancellationTokenSource(1.Seconds());
-                Should.Throw<TaskCanceledException>(async () => await client.GetAsync(endpoint, HttpCompletionOption.ResponseContentRead, cts.Token));
+                Should.Throw<TaskCanceledException>(
+                    async () => await client.GetAsync(
+                        Endpoint, HttpCompletionOption.ResponseContentRead, cts.Token));
             }
         }
 
@@ -574,6 +584,7 @@
         public async Task When_sending_a_delete_request()
         {
             var endpoint = new Uri("http://localhost:19/api/");
+
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -603,6 +614,7 @@
 
                 var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -612,6 +624,7 @@
         public async Task When_sending_a_delete_request_via_explicit_delete_with_uri()
         {
             var endpoint = new Uri("http://localhost:20/api/");
+            
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -635,6 +648,7 @@
 
                 var response = await client.DeleteAsync(endpoint);
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -643,9 +657,10 @@
         [Test]
         public async Task When_sending_a_delete_request_via_explicit_delete_with_string()
         {
-            var endpoint ="http://localhost:21/api/";
+            const string Endpoint = "http://localhost:21/api/";
+
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 server.OnRequest += (sender, context) =>
                 {
@@ -665,8 +680,9 @@
 
                 await server.ListenAsync();
 
-                var response = await client.DeleteAsync(endpoint);
+                var response = await client.DeleteAsync(Endpoint);
                 response.EnsureSuccessStatusCode();
+                
                 var respStr = await response.Content.ReadAsStringAsync();
                 respStr.ShouldBe("Hello There!");
             }
@@ -675,27 +691,32 @@
         [Test]
         public async Task When_sending_a_delete_request_via_explicit_delete_with_uri_with_cancellation_token()
         {
-            var endpoint = new Uri("http://localhost:22/api/");
+            var endpoint = new Uri("http://localhost:34/api/");
+            
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
                 await server.ListenAsync();
 
                 var cts = new CancellationTokenSource(1.Seconds());
-                Should.Throw<TaskCanceledException>(async () => await client.DeleteAsync(endpoint, cts.Token));
+                Should.Throw<TaskCanceledException>(
+                    async () => await client.DeleteAsync(endpoint, cts.Token));
             }
         }
 
         [Test]
         public async Task When_sending_a_delete_request_via_explicit_delete_with_string_with_cancellation_token()
         {
-            var endpoint = "http://localhost:23/api/";
+            const string Endpoint = "http://localhost:23/api/";
+
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 await server.ListenAsync();
+                
                 var cts = new CancellationTokenSource(1.Seconds());
-                Should.Throw<TaskCanceledException>(async () => await client.DeleteAsync(endpoint, cts.Token));
+                Should.Throw<TaskCanceledException>(
+                    async () => await client.DeleteAsync(Endpoint, cts.Token));
             }
         }
 
@@ -703,6 +724,7 @@
         public async Task When_sending_a_request_with_cancellation_and_completion_option()
         {
             var endpoint = new Uri("http://localhost:24/api/");
+            
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -717,7 +739,8 @@
 
                 var cts = new CancellationTokenSource(1.Seconds());
                 Should.Throw<TaskCanceledException>(
-                    async () => await client.SendAsync(request, HttpCompletionOption.ResponseContentRead, cts.Token));
+                    async () => await client.SendAsync(
+                        request, HttpCompletionOption.ResponseContentRead, cts.Token));
             }
         }
 
@@ -725,6 +748,7 @@
         public async Task When_sending_a_request_with_cancellation()
         {
             var endpoint = new Uri("http://localhost:25/api/");
+            
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -738,7 +762,8 @@
                 request.Headers.Add("Foo", "Bar");
 
                 var cts = new CancellationTokenSource(1.Seconds());
-                Should.Throw<TaskCanceledException>(async () => await client.SendAsync(request, cts.Token));
+                Should.Throw<TaskCanceledException>(
+                    async () => await client.SendAsync(request, cts.Token));
             }
         }
 
@@ -746,6 +771,7 @@
         public async Task When_sending_a_request_then_cancelling_all_pending_requests()
         {
             var endpoint = new Uri("http://localhost:26/api/");
+            
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -770,6 +796,7 @@
         public async Task When_sending_a_get_string_request_with_uri()
         {
             var endpoint = new Uri("http://localhost:27/api/");
+            
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -789,6 +816,7 @@
                     }
                 };
                 await server.ListenAsync();
+                
                 var response = await client.GetStringAsync(endpoint);
 
                 response.ShouldBe("Hello There!");
@@ -798,9 +826,10 @@
         [Test]
         public async Task When_sending_a_get_string_request_with_string()
         {
-            var endpoint = "http://localhost:27/api/";
+            const string Endpoint = "http://localhost:27/api/";
+
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 server.OnRequest += (sender, context) =>
                 {
@@ -818,7 +847,8 @@
                     }
                 };
                 await server.ListenAsync();
-                var response = await client.GetStringAsync(endpoint);
+                
+                var response = await client.GetStringAsync(Endpoint);
 
                 response.ShouldBe("Hello There!");
             }
@@ -828,6 +858,7 @@
         public async Task When_sending_a_get_stream_request_with_uri()
         {
             var endpoint = new Uri("http://localhost:28/api/");
+            
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -847,6 +878,7 @@
                     }
                 };
                 await server.ListenAsync();
+                
                 var response = await client.GetStreamAsync(endpoint);
                 using (var streamReader = new StreamReader(response, Encoding.UTF8))
                 {
@@ -859,9 +891,10 @@
         [Test]
         public async Task When_sending_a_get_stream_request_with_string()
         {
-            var endpoint = "http://localhost:29/api/";
+            const string Endpoint = "http://localhost:29/api/";
+
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 server.OnRequest += (sender, context) =>
                 {
@@ -879,8 +912,9 @@
                     }
                 };
                 await server.ListenAsync();
-                var response = await client.GetStreamAsync(endpoint);
-                using (var streamReader = new StreamReader(response,Encoding.UTF8))
+                
+                var response = await client.GetStreamAsync(Endpoint);
+                using (var streamReader = new StreamReader(response, Encoding.UTF8))
                 {
                     var responseString = await streamReader.ReadToEndAsync();
                     responseString.ShouldBe("Hello There!");
@@ -892,6 +926,7 @@
         public async Task When_sending_a_get_byte_array_request_with_uri()
         {
             var endpoint = new Uri("http://localhost:30/api/");
+            
             using (IRestClient client = new RestClient())
             using (var server = new SimpleHttpListener(endpoint))
             {
@@ -911,6 +946,7 @@
                     }
                 };
                 await server.ListenAsync();
+                
                 var response = await client.GetByteArrayAsync(endpoint);
                 var responseString = Encoding.UTF8.GetString(response);
                 responseString.ShouldBe("Hello There!");
@@ -920,9 +956,10 @@
         [Test]
         public async Task When_sending_a_get_byte_array_request_with_string()
         {
-            var endpoint = "http://localhost:31/api/";
+            const string Endpoint = "http://localhost:31/api/";
+            
             using (IRestClient client = new RestClient())
-            using (var server = new SimpleHttpListener(new Uri(endpoint)))
+            using (var server = new SimpleHttpListener(new Uri(Endpoint)))
             {
                 server.OnRequest += (sender, context) =>
                 {
@@ -940,7 +977,8 @@
                     }
                 };
                 await server.ListenAsync();
-                var response = await client.GetByteArrayAsync(endpoint);
+                
+                var response = await client.GetByteArrayAsync(Endpoint);
                 var responseString = Encoding.UTF8.GetString(response);
                 responseString.ShouldBe("Hello There!");
             }
@@ -950,7 +988,8 @@
         public async Task CallFakeRequest()
         {
             var fakeResponseHandler = new FakeResponseHandler();
-            fakeResponseHandler.AddFakeResponse(new Uri("http://example.org/test"), new HttpResponseMessage(HttpStatusCode.OK));
+            fakeResponseHandler.AddFakeResponse(
+                new Uri("http://example.org/test"), new HttpResponseMessage(HttpStatusCode.OK));
 
             var httpClient = new HttpClient(fakeResponseHandler);
 
