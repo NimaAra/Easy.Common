@@ -29,6 +29,10 @@
             var _ = Listener.Value;
         }
 
+        /// <summary>
+        /// Called for all existing event sources when the event listener is created 
+        /// and when a new event source is attached to the listener.
+        /// </summary>
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
             if (eventSource.Guid == Guid)
@@ -38,6 +42,10 @@
             }
         }
 
+        /// <summary>
+        /// Called whenever an event has been written by an event source for which the 
+        /// event listener has enabled events.
+        /// </summary>
         protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
             if (eventData.EventId == 10 && // TASKWAITBEGIN_ID
