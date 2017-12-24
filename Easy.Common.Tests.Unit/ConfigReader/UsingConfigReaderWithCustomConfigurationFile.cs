@@ -31,8 +31,7 @@
             ConfigReader.Settings.ShouldNotContainKey("non-existent-key");
             ConfigReader.Settings.ShouldNotContainKey("ignore");
 
-            string stringVal;
-            ConfigReader.TryRead("string", out stringVal).ShouldBeTrue();
+            ConfigReader.TryRead("string", out string stringVal).ShouldBeTrue();
             stringVal.ShouldBe("bar");
 
             ConfigReader.TryRead("StRiNg", out stringVal).ShouldBeFalse();
@@ -41,8 +40,7 @@
             ConfigReader.TryRead("empty-string", out stringVal).ShouldBeTrue();
             stringVal.ShouldBe(string.Empty);
 
-            short shortVal;
-            ConfigReader.TryRead("pos-short", out shortVal).ShouldBeTrue();
+            ConfigReader.TryRead("pos-short", out short shortVal).ShouldBeTrue();
             shortVal.ShouldBe((short)1);
 
             ConfigReader.TryRead("non-existent-key", out shortVal).ShouldBeFalse();
@@ -51,8 +49,7 @@
             ConfigReader.TryRead("neg-short", out shortVal).ShouldBeTrue();
             shortVal.ShouldBe((short)-1);
 
-            ushort ushortVal;
-            ConfigReader.TryRead("pos-ushort", out ushortVal).ShouldBeTrue();
+            ConfigReader.TryRead("pos-ushort", out ushort ushortVal).ShouldBeTrue();
             ushortVal.ShouldBe((ushort)1);
 
             ConfigReader.TryRead("neg-ushort", out ushortVal).ShouldBeFalse();
@@ -61,8 +58,7 @@
             ConfigReader.TryRead("non-existent-key", out ushortVal).ShouldBeFalse();
             ushortVal.ShouldBe(default(ushort));
 
-            int intVal;
-            ConfigReader.TryRead("pos-int", out intVal).ShouldBeTrue();
+            ConfigReader.TryRead("pos-int", out int intVal).ShouldBeTrue();
             intVal.ShouldBe(1);
 
             ConfigReader.TryRead("non-existent-key", out intVal).ShouldBeFalse();
@@ -71,8 +67,7 @@
             ConfigReader.TryRead("neg-int", out intVal).ShouldBeTrue();
             intVal.ShouldBe(-1);
 
-            uint uintVal;
-            ConfigReader.TryRead("pos-int", out uintVal).ShouldBeTrue();
+            ConfigReader.TryRead("pos-int", out uint uintVal).ShouldBeTrue();
             uintVal.ShouldBe((uint)1);
 
             ConfigReader.TryRead("neg-int", out uintVal).ShouldBeFalse();
@@ -81,8 +76,7 @@
             ConfigReader.TryRead("non-existent-key", out uintVal).ShouldBeFalse();
             uintVal.ShouldBe(default(uint));
 
-            long longVal;
-            ConfigReader.TryRead("pos-long", out longVal).ShouldBeTrue();
+            ConfigReader.TryRead("pos-long", out long longVal).ShouldBeTrue();
             longVal.ShouldBe(1);
 
             ConfigReader.TryRead("neg-long", out longVal).ShouldBeTrue();
@@ -91,8 +85,7 @@
             ConfigReader.TryRead("non-existent-key", out longVal).ShouldBeFalse();
             longVal.ShouldBe(default(long));
 
-            ulong ulongVal;
-            ConfigReader.TryRead("pos-int", out ulongVal).ShouldBeTrue();
+            ConfigReader.TryRead("pos-int", out ulong ulongVal).ShouldBeTrue();
             ulongVal.ShouldBe((ulong)1);
 
             ConfigReader.TryRead("non-existent-key", out ulongVal).ShouldBeFalse();
@@ -101,29 +94,25 @@
             ConfigReader.TryRead("neg-int", out ulongVal).ShouldBeFalse();
             ulongVal.ShouldBe((ulong)0);
 
-            float floatVal;
-            ConfigReader.TryRead("float", out floatVal).ShouldBeTrue();
+            ConfigReader.TryRead("float", out float floatVal).ShouldBeTrue();
             floatVal.ShouldBe(1.1f);
 
             ConfigReader.TryRead("non-existent-key", out floatVal).ShouldBeFalse();
             floatVal.ShouldBe(default(float));
 
-            double doubleVal;
-            ConfigReader.TryRead("double", out doubleVal).ShouldBeTrue();
+            ConfigReader.TryRead("double", out double doubleVal).ShouldBeTrue();
             doubleVal.ShouldBe(1.12d);
 
             ConfigReader.TryRead("non-existent-key", out doubleVal).ShouldBeFalse();
             doubleVal.ShouldBe(default(double));
 
-            decimal decimalVal;
-            ConfigReader.TryRead("decimal", out decimalVal).ShouldBeTrue();
+            ConfigReader.TryRead("decimal", out decimal decimalVal).ShouldBeTrue();
             decimalVal.ShouldBe(1.123m);
 
             ConfigReader.TryRead("non-existent-key", out decimalVal).ShouldBeFalse();
             decimalVal.ShouldBe(default(decimal));
 
-            bool boolVal;
-            ConfigReader.TryRead("bool-true-1", out boolVal).ShouldBeTrue();
+            ConfigReader.TryRead("bool-true-1", out bool boolVal).ShouldBeTrue();
             boolVal.ShouldBeTrue();
 
             ConfigReader.TryRead("non-existent-key", out boolVal).ShouldBeFalse();
@@ -177,18 +166,16 @@
             ConfigReader.TryRead("bool-invalid-empty", out boolVal).ShouldBeFalse();
             ConfigReader.TryRead("bool-invalid-space", out boolVal).ShouldBeFalse();
 
-            string[] csvVal;
-            ConfigReader.TryReadStringAsCsv("pipe-delimited", "|", out csvVal).ShouldBeTrue();
+            ConfigReader.TryReadStringAsCSV("pipe-delimited", "|", out string[] csvVal).ShouldBeTrue();
             csvVal.ShouldBe(new []{"A", " B", " C", "D"});
 
-            ConfigReader.TryReadStringAsCsv("pipe-delimited", ",", out csvVal).ShouldBeTrue();
+            ConfigReader.TryReadStringAsCSV("pipe-delimited", ",", out csvVal).ShouldBeTrue();
             csvVal.ShouldBe(new[] { "A| B| C|D" });
 
-            ConfigReader.TryReadStringAsCsv("non-existent-key", "|", out csvVal).ShouldBeFalse();
+            ConfigReader.TryReadStringAsCSV("non-existent-key", "|", out csvVal).ShouldBeFalse();
             csvVal.ShouldBeNull();
 
-            TimeSpan timeSpanVal;
-            ConfigReader.TryGetTicks("timespan-tick", out timeSpanVal).ShouldBeTrue();
+            ConfigReader.TryGetTicks("timespan-tick", out TimeSpan timeSpanVal).ShouldBeTrue();
             timeSpanVal.ShouldBe(156.Ticks());
 
             ConfigReader.TryGetTicks("non-existent-key", out timeSpanVal).ShouldBeFalse();
@@ -230,8 +217,7 @@
             ConfigReader.TryGetWeeks("non-existent-key", out timeSpanVal).ShouldBeFalse();
             timeSpanVal.ShouldBe(default(TimeSpan));
 
-            DateTime dateTimeVal;
-            ConfigReader.TryRead("datetime", "yyyy-MM-dd HH:mm:ss.fff", out dateTimeVal).ShouldBeTrue();
+            ConfigReader.TryRead("datetime", "yyyy-MM-dd HH:mm:ss.fff", out DateTime dateTimeVal).ShouldBeTrue();
             dateTimeVal.ShouldBe(new DateTime(2014, 01, 03, 13, 15, 24, 532, DateTimeKind.Unspecified));
 
             ConfigReader.TryRead("datetime", "MM-dd-yyyy HH:mm:ss.fff", out dateTimeVal).ShouldBeFalse();
@@ -240,8 +226,7 @@
             ConfigReader.TryRead("non-existent-key", "not-important", out dateTimeVal).ShouldBeFalse();
             dateTimeVal.ShouldBe(default(DateTime));
 
-            FileInfo fileInfoVal;
-            ConfigReader.TryRead("file-path-1", out fileInfoVal).ShouldBeTrue();
+            ConfigReader.TryRead("file-path-1", out FileInfo fileInfoVal).ShouldBeTrue();
             fileInfoVal.FullName.ShouldBe(@"C:\some-folder\some-file");
 
             ConfigReader.TryRead("file-path-2", out fileInfoVal).ShouldBeTrue();
@@ -253,8 +238,7 @@
             ConfigReader.TryRead("non-existent-key", out fileInfoVal).ShouldBeFalse();
             fileInfoVal.ShouldBe(default(FileInfo));
 
-            DirectoryInfo directoryInfoVal;
-            ConfigReader.TryRead("directory-path-1", out directoryInfoVal).ShouldBeTrue();
+            ConfigReader.TryRead("directory-path-1", out DirectoryInfo directoryInfoVal).ShouldBeTrue();
             directoryInfoVal.FullName.ShouldBe(@"C:\some-folder");
 
             ConfigReader.TryRead("directory-path-2", out directoryInfoVal).ShouldBeTrue();
@@ -266,8 +250,7 @@
             ConfigReader.TryRead("non-existent-key", out directoryInfoVal).ShouldBeFalse();
             directoryInfoVal.ShouldBe(default(DirectoryInfo));
 
-            Uri uri;
-            ConfigReader.TryRead("uri-1", out uri).ShouldBeTrue();
+            ConfigReader.TryRead("uri-1", out Uri uri).ShouldBeTrue();
             uri.Scheme.ShouldBe("http");
             uri.Port.ShouldBe(80);
             uri.Query.ShouldBe(string.Empty);

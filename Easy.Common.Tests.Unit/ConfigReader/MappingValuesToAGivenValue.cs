@@ -24,8 +24,8 @@ namespace Easy.Common.Tests.Unit.ConfigReader
             ConfigReader.Settings.ShouldNotBeNull();
             ConfigReader.Settings.ShouldBeEmpty();
 
-            IDictionary<string, string> values;
-            ConfigReader.TryRead("someSection", out values).ShouldBeTrue();
+            ConfigReader.TryRead("someSection", out IDictionary<string, string> values)
+                .ShouldBeTrue();
             values.ShouldNotBeNull();
             values.Count.ShouldBe(3);
 
@@ -46,8 +46,8 @@ namespace Easy.Common.Tests.Unit.ConfigReader
             ConfigReader.Settings.ShouldNotBeNull();
             ConfigReader.Settings.ShouldBeEmpty();
 
-            IDictionary<string, string> values;
-            ConfigReader.TryRead("someMissingSection", out values).ShouldBeFalse();
+            ConfigReader.TryRead("someMissingSection", out IDictionary<string, string> values)
+                .ShouldBeFalse();
             values.ShouldBeNull();
         }
 
@@ -61,8 +61,8 @@ namespace Easy.Common.Tests.Unit.ConfigReader
             ConfigReader.Settings.ShouldNotBeNull();
             ConfigReader.Settings.ShouldBeEmpty();
 
-            IDictionary<string, string> values;
-            ConfigReader.TryRead("emptySection", out values).ShouldBeFalse();
+            ConfigReader.TryRead("emptySection", out IDictionary<string, string> values)
+                .ShouldBeFalse();
             values.ShouldBeNull();
         }
 
@@ -76,10 +76,9 @@ namespace Easy.Common.Tests.Unit.ConfigReader
             ConfigReader.Settings.ShouldNotBeNull();
             ConfigReader.Settings.ShouldBeEmpty();
 
-            IDictionary<string, string> values;
-
-            Should.Throw<InvalidDataException>(() => ConfigReader.TryRead("duplicateSection", out values))
-                .Message.ShouldBe("Multiple keys with the name: duplicateSection was found.");
+            Should.Throw<InvalidDataException>(() => 
+                ConfigReader.TryRead("duplicateSection", out IDictionary<string, string> _))
+                    .Message.ShouldBe("Multiple keys with the name: duplicateSection was found.");
         }
     }
 }

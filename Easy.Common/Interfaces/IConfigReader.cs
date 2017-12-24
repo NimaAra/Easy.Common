@@ -128,7 +128,8 @@
         /// <param name="separator">The <see cref="string"/> separating the values</param>
         /// <param name="value">The value associated with the <paramref name="key"/></param>
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
-        bool TryReadStringAsCsv(string key, string separator, out string[] value);
+        // ReSharper disable once InconsistentNaming
+        bool TryReadStringAsCSV(string key, string separator, out string[] value);
 
         /// <summary>
         /// Attempts to read a config value specified as <paramref name="key"/> into <paramref name="value"/>.

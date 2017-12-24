@@ -149,8 +149,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out short value)
         {
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out var valStr))
             {
                 return false;
             }
@@ -166,8 +165,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out int value)
         {
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out var valStr))
             {
                 return false;
             }
@@ -183,8 +181,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out long value)
         {
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out var valStr))
             {
                 return false;
             }
@@ -200,8 +197,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out ushort value)
         {
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out var valStr))
             {
                 return false;
             }
@@ -217,8 +213,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out uint value)
         {
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out var valStr))
             {
                 return false;
             }
@@ -234,8 +229,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out ulong value)
         {
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out var valStr))
             {
                 return false;
             }
@@ -251,8 +245,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out float value)
         {
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out var valStr))
             {
                 return false;
             }
@@ -268,8 +261,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out double value)
         {
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out var valStr))
             {
                 return false;
             }
@@ -285,8 +277,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out decimal value)
         {
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out var valStr))
             {
                 return false;
             }
@@ -308,8 +299,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out bool value)
         {
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out var valStr))
             {
                 return false;
             }
@@ -324,10 +314,9 @@
         /// <param name="separator">The <see cref="string"/> separating the values</param>
         /// <param name="value">The value associated with the <paramref name="key"/></param>
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
-        public bool TryReadStringAsCsv(string key, string separator, out string[] value)
+        public bool TryReadStringAsCSV(string key, string separator, out string[] value)
         {
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out var valStr))
             {
                 return false;
             }
@@ -344,9 +333,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryGetTicks(string key, out TimeSpan value)
         {
-            string valStr;
-            long valLong;
-            if (!TryGetString(key, out value, out valStr) || !TryRead(key, out valLong))
+            if (!TryGetString(key, out value, out var _) || !TryRead(key, out long valLong))
             {
                 return false;
             }
@@ -363,9 +350,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryGetMilliseconds(string key, out TimeSpan value)
         {
-            string valStr;
-            double valDouble;
-            if (!TryGetString(key, out value, out valStr) || !TryRead(key, out valDouble))
+            if (!TryGetString(key, out value, out _) || !TryRead(key, out double valDouble))
             {
                 return false;
             }
@@ -382,9 +367,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryGetSeconds(string key, out TimeSpan value)
         {
-            string valStr;
-            double valDouble;
-            if (!TryGetString(key, out value, out valStr) || !TryRead(key, out valDouble))
+            if (!TryGetString(key, out value, out _) || !TryRead(key, out double valDouble))
             {
                 return false;
             }
@@ -401,9 +384,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryGetMinutes(string key, out TimeSpan value)
         {
-            string valStr;
-            double valDouble;
-            if (!TryGetString(key, out value, out valStr) || !TryRead(key, out valDouble))
+            if (!TryGetString(key, out value, out _) || !TryRead(key, out double valDouble))
             {
                 return false;
             }
@@ -420,9 +401,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryGetHours(string key, out TimeSpan value)
         {
-            string valStr;
-            double valDouble;
-            if (!TryGetString(key, out value, out valStr) || !TryRead(key, out valDouble))
+            if (!TryGetString(key, out value, out _) || !TryRead(key, out double valDouble))
             {
                 return false;
             }
@@ -439,9 +418,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryGetDays(string key, out TimeSpan value)
         {
-            string valStr;
-            double valDouble;
-            if (!TryGetString(key, out value, out valStr) || !TryRead(key, out valDouble))
+            if (!TryGetString(key, out value, out _) || !TryRead(key, out double valDouble))
             {
                 return false;
             }
@@ -458,9 +435,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryGetWeeks(string key, out TimeSpan value)
         {
-            string valStr;
-            double valDouble;
-            if (!TryGetString(key, out value, out valStr) || !TryRead(key, out valDouble))
+            if (!TryGetString(key, out value, out _) || !TryRead(key, out double valDouble))
             {
                 return false;
             }
@@ -480,8 +455,7 @@
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(formatSpecifier);
 
-            string valStr;
-            if (!TryGetString(key, out value, out valStr))
+            if (!TryGetString(key, out value, out string valStr))
             {
                 return false;
             }
@@ -497,8 +471,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out FileInfo value)
         {
-            string valStr;
-            if (!TryRead(key, out valStr))
+            if (!TryRead(key, out string valStr))
             {
                 value = null;
                 return false;
@@ -524,8 +497,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out DirectoryInfo value)
         {
-            string valStr;
-            if (!TryRead(key, out valStr))
+            if (!TryRead(key, out string valStr))
             {
                 value = null;
                 return false;
@@ -551,8 +523,7 @@
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         public bool TryRead(string key, out Uri value)
         {
-            string valStr;
-            if (!TryRead(key, out valStr))
+            if (!TryRead(key, out string valStr))
             {
                 value = null;
                 return false;
@@ -574,8 +545,7 @@
         {
             defaultVal = default(T);
 
-            string valStr;
-            if (!TryRead(key, out valStr))
+            if (!TryRead(key, out string valStr))
             {
                 value = null;
                 return false;
