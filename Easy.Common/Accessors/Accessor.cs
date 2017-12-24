@@ -13,7 +13,7 @@ namespace Easy.Common
         /// <summary>
         /// Creates an instance of the <see cref="Accessor"/> class.
         /// </summary>
-        /// <param name="type">The type of the object to access.</param>
+        /// <param name="type">The type of the object instance to access.</param>
         /// <param name="ignoreCase">The flag indicating whether property names should be treated case insensitively</param>
         /// <param name="includeNonPublic">The flag indicating whether non-public properties should be accessible or not</param>
         protected Accessor(IReflect type, bool ignoreCase, bool includeNonPublic)
@@ -37,7 +37,7 @@ namespace Easy.Common
         /// Gets the <see cref="StringComparer"/> used by the <see cref="Accessor"/> to find 
         /// the properties on the given instance. 
         /// </summary>
-        protected StringComparer Comparer;
+        protected StringComparer Comparer { get; }
 
         /// <summary>
         /// Gets the type of the object this instance supports.
@@ -61,13 +61,26 @@ namespace Easy.Common
         
         /// <summary>
         /// Builds an <see cref="ObjectAccessor"/> which provides easy access to all of 
-        /// the <see cref="PropertyInfo"/> of the given <paramref name="type"/>.
+        /// the <see cref="PropertyInfo"/> of the given <paramref name="instance"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static ObjectAccessor Build(Type type, bool ignoreCase = false, bool includeNonPublic = false)
+        public static ObjectAccessor Build(
+            object instance, bool ignoreCase = false, bool includeNonPublic = false)
         {
-            Ensure.NotNull(type, nameof(type));
-            return new ObjectAccessor(type, ignoreCase, includeNonPublic);
+            Ensure.NotNull(instance, nameof(instance));
+            return Build(instance.GetType(), ignoreCase, includeNonPublic);
+        }
+
+        /// <summary>
+        /// Builds an <see cref="ObjectAccessor"/> which provides easy access to all of 
+        /// the <see cref="PropertyInfo"/> of the given <paramref name="instanceType"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static ObjectAccessor Build(
+            Type instanceType, bool ignoreCase = false, bool includeNonPublic = false)
+        {
+            Ensure.NotNull(instanceType, nameof(instanceType));
+            return new ObjectAccessor(instanceType, ignoreCase, includeNonPublic);
         }
 
         /// <summary>
@@ -75,9 +88,8 @@ namespace Easy.Common
         /// the <see cref="PropertyInfo"/> of the given <typeparamref name="TInstance"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static GenericAccessor<TInstance> Build<TInstance>(bool ignoreCase = false, bool includeNonPublic = false) where TInstance : class
-        {
-            return new GenericAccessor<TInstance>(ignoreCase, includeNonPublic);
-        }
+        public static GenericAccessor<TInstance> Build<TInstance>(
+            bool ignoreCase = false, bool includeNonPublic = false) where TInstance : class
+                => new GenericAccessor<TInstance>(ignoreCase, includeNonPublic);
     }
 }

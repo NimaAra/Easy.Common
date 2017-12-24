@@ -12,7 +12,7 @@ namespace Easy.Common.Tests.Unit.Accessors
         public void When_creating_object_accessor_with_default_flags()
         {
             var parent = new Parent();
-            var parentAccessor = Accessor.Build(parent.GetType());
+            ObjectAccessor parentAccessor = Accessor.Build(parent);
             parentAccessor.ShouldBeOfType<ObjectAccessor>();
             parentAccessor.Type.ShouldBe(typeof(Parent));
             parentAccessor.IgnoreCase.ShouldBe(false);
@@ -37,7 +37,7 @@ namespace Easy.Common.Tests.Unit.Accessors
             parentAccessor[parent, "Age"].ShouldBe(10);
 
             var child = new Child();
-            var childAccessor = Accessor.Build(child.GetType());
+            ObjectAccessor childAccessor = Accessor.Build(child);
             childAccessor.ShouldBeOfType<ObjectAccessor>();
             childAccessor.Type.ShouldBe(typeof(Child));
             childAccessor.IgnoreCase.ShouldBe(false);
@@ -69,7 +69,7 @@ namespace Easy.Common.Tests.Unit.Accessors
         public void When_creating_object_accessor_with_custom_flags()
         {
             var parent = new Parent();
-            var parentAccessor = Accessor.Build(parent.GetType(), true, true);
+            ObjectAccessor parentAccessor = Accessor.Build(parent, true, true);
             parentAccessor.ShouldBeOfType<ObjectAccessor>();
             parentAccessor.Type.ShouldBe(typeof(Parent));
             parentAccessor.IgnoreCase.ShouldBe(true);
@@ -105,7 +105,7 @@ namespace Easy.Common.Tests.Unit.Accessors
             parentAccessor[parent, "naME"].ShouldBe("Foo Foo");
 
             var child = new Child();
-            var childAccessor = Accessor.Build(typeof(Child), true, true);
+            ObjectAccessor childAccessor = Accessor.Build(typeof(Child), true, true);
             childAccessor.ShouldBeOfType<ObjectAccessor>();
             childAccessor.Type.ShouldBe(typeof(Child));
             childAccessor.IgnoreCase.ShouldBe(true);
@@ -137,7 +137,7 @@ namespace Easy.Common.Tests.Unit.Accessors
         public void When_using_parent_accessor_to_access_child_properties()
         {
             var parent = new Parent();
-            var parentAccessor = Accessor.Build(parent.GetType());
+            ObjectAccessor parentAccessor = Accessor.Build(parent);
             parentAccessor.Type.ShouldBe(typeof(Parent));
             parentAccessor.IgnoreCase.ShouldBe(false);
             parentAccessor.IncludesNonPublic.ShouldBe(false);
@@ -155,7 +155,7 @@ namespace Easy.Common.Tests.Unit.Accessors
         public void When_using_child_accessor_to_access_parent_properties()
         {
             var child = new Child();
-            var childAccessor = Accessor.Build(child.GetType());
+            ObjectAccessor childAccessor = Accessor.Build(child);
             childAccessor.Type.ShouldBe(typeof(Child));
             childAccessor.IgnoreCase.ShouldBe(false);
             childAccessor.IncludesNonPublic.ShouldBe(false);
@@ -168,13 +168,13 @@ namespace Easy.Common.Tests.Unit.Accessors
         [Test]
         public void When_setting_invalid_values()
         {
-            var accessor = Accessor.Build(typeof(Parent));
+            var instance = new Parent();
+
+            var accessor = Accessor.Build(instance);
             accessor.Type.ShouldBe(typeof(Parent));
             accessor.IgnoreCase.ShouldBe(false);
             accessor.IncludesNonPublic.ShouldBe(false);
-
-            var instance = new Parent();
-
+            
             accessor[instance, "Name"] = 10;
             instance.Name.ShouldBeNull();
 
@@ -184,15 +184,15 @@ namespace Easy.Common.Tests.Unit.Accessors
         [Test]
         public void When_testing_special_cases()
         {
-            var accessor = Accessor.Build(typeof(SpecialCase));
+            var instance = new SpecialCase();
+
+            ObjectAccessor accessor = Accessor.Build(instance);
             accessor.Type.ShouldBe(typeof(SpecialCase));
             accessor.IgnoreCase.ShouldBe(false);
             accessor.Properties.Length.ShouldBe(2);
             accessor.Properties.ShouldContain(x => x.Name == "GetterOnly");
             accessor.Properties.ShouldContain(x => x.Name == "SetterOnly");
-
-            var instance = new SpecialCase();
-
+            
             Should.Throw<ArgumentException>(() => { var ignore = accessor[instance, "SetterOnly"]; })
                 .Message.ShouldBe("Type: `Easy.Common.Tests.Unit.Accessors.ObjectAccessorTests+SpecialCase` does not have a property named: `SetterOnly` that supports reading.");
 
@@ -201,6 +201,29 @@ namespace Easy.Common.Tests.Unit.Accessors
 
             accessor[instance, "SetterOnly"] = "Foo";
             accessor[instance, "GetterOnly"].ShouldBe("Foo");
+        }
+
+        [Test]
+        public void When_reusing_object_accessor_on_different_instances_of_the_same_type()
+        {
+            var instanceOne = new Parent();
+            var instanceTwo = new Parent();
+
+            ObjectAccessor accessor = Accessor.Build(instanceOne);
+            instanceOne.Name.ShouldBeNull();
+            instanceOne.Age.ShouldBe(0);
+
+            accessor[instanceOne, "Name"] = "Foo1";
+            accessor[instanceOne, "Age"] = 1;
+
+            accessor[instanceTwo, "Name"] = "Foo2";
+            accessor[instanceTwo, "Age"] = 2;
+
+            instanceOne.Name.ShouldBe("Foo1");
+            instanceOne.Age.ShouldBe(1);
+
+            instanceTwo.Name.ShouldBe("Foo2");
+            instanceTwo.Age.ShouldBe(2);
         }
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
