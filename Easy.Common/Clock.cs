@@ -29,11 +29,10 @@
         {
             try
             {
-                long preciseTime;
-                NativeMethods.GetSystemTimePreciseAsFileTime(out preciseTime);
+                NativeMethods.GetSystemTimePreciseAsFileTime(out _);
                 IsPrecise = true;
             }
-            catch (EntryPointNotFoundException)
+            catch (Exception e) when(e is EntryPointNotFoundException || e is DllNotFoundException)
             {
                 IsPrecise = false;
             }
@@ -58,8 +57,7 @@
             {
                 if (IsPrecise)
                 {
-                    long preciseTime;
-                    NativeMethods.GetSystemTimePreciseAsFileTime(out preciseTime);
+                    NativeMethods.GetSystemTimePreciseAsFileTime(out long preciseTime);
                     return DateTime.FromFileTimeUtc(preciseTime);
                 }
 
