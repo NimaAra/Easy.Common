@@ -187,5 +187,12 @@
 
             return base.TryDeleteMember(binder);
         }
+
+        /// <summary>
+        /// Returns the enumeration of all dynamic member names.
+        /// </summary>
+        /// <returns></returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override IEnumerable<string> GetDynamicMemberNames() => _dictionary.Keys;
     }
 }

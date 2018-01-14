@@ -32,6 +32,8 @@
             dic["d"].ShouldBe(1);
 
             dic.Keys.ShouldBe(new[] { "A", "B", "C", "D" });
+            dic.GetDynamicMemberNames().ShouldBe(new[] { "A", "B", "C", "D" });
+            
             dic.Values.ShouldBe(new object[] { "A", "B", "C", 1 });
 
             dic["non-existent"].ShouldBeNull();
@@ -70,6 +72,8 @@
             ((int)dic.d).ShouldBe(1);
 
             ((ICollection<string>)dic.Keys).ShouldBe(new[] { "A", "B", "C", "D", "action" });
+            ((DynamicDictionary)dic).GetDynamicMemberNames().ShouldBe(new[] { "A", "B", "C", "D", "action" });
+
             ((ICollection<object>)dic.Values).ShouldBe(new object[] { "A", "B", "C", 1, someFunc });
 
             ((string)dic["non-existent"]).ShouldBeNull();
@@ -103,6 +107,9 @@
             ((string)dynCaseSensetiveDic.a).ShouldBeNull();
             ((string)dynCaseSensetiveDic.ID).ShouldBeNull();
 
+            ((DynamicDictionary)dynCaseSensetiveDic).GetDynamicMemberNames()
+                .ShouldBe(new[] { "A", "Id" });
+
             DynamicDictionary caseInSensetiveDic = new DynamicDictionary()
             {
                 ["A"] = 1,
@@ -124,6 +131,9 @@
             ((int)dynCaseInSensetiveDic.Id).ShouldBe(66);
             ((int)dynCaseInSensetiveDic.ID).ShouldBe(66);
             ((int)dynCaseInSensetiveDic.id).ShouldBe(66);
+
+            ((DynamicDictionary)dynCaseInSensetiveDic).GetDynamicMemberNames()
+                .ShouldBe(new[] { "A", "Id" });
         }
 
         [Test]
@@ -136,6 +146,8 @@
             dic["B"] = "2";
             dic["C"] = "3";
             dic["D"] = 66;
+
+            ((DynamicDictionary)dic).GetDynamicMemberNames().ShouldBe(new[] { "A", "B", "C", "D" });
 
             foreach (KeyValuePair<string, object> pair in dic)
             {
@@ -220,6 +232,8 @@
             dicWithInherittedProp["Name"].ShouldBe("Foo");
             dicWithInherittedProp["Age"].ShouldBe(10);
 
+            dicWithInherittedProp.GetDynamicMemberNames().ShouldBe(new[] { "Name", "Age", "OriginalName" });
+
             var dicWithDeclaredProp = model.ToDynamic(false);
 
             dicWithDeclaredProp.ShouldNotBeNull();
@@ -227,6 +241,8 @@
             dicWithDeclaredProp["OriginalName"].ShouldBeNull();
             dicWithDeclaredProp["Name"].ShouldBe("Foo");
             dicWithDeclaredProp["Age"].ShouldBe(10);
+
+            dicWithDeclaredProp.GetDynamicMemberNames().ShouldBe(new[] { "Name", "Age" });
         }
 
         [Test]
@@ -242,6 +258,9 @@
             ((string)dicWithInherittedProp["Name"]).ShouldBe("Foo");
             ((int)dicWithInherittedProp["Age"]).ShouldBe(10);
 
+            ((DynamicDictionary)dicWithInherittedProp).GetDynamicMemberNames()
+                .ShouldBe(new[] { "Name", "Age", "OriginalName" });
+
             dynamic dicWithDeclaredProp = model.ToDynamic(false);
 
             ((DynamicDictionary)dicWithDeclaredProp).ShouldNotBeNull();
@@ -250,6 +269,9 @@
             ((string)dicWithDeclaredProp["OriginalName"]).ShouldBeNull();
             ((string)dicWithDeclaredProp["Name"]).ShouldBe("Foo");
             ((int)dicWithDeclaredProp["Age"]).ShouldBe(10);
+
+            ((DynamicDictionary)dicWithDeclaredProp).GetDynamicMemberNames()
+                .ShouldBe(new[] { "Name", "Age" });
         }
 
         private class Base
