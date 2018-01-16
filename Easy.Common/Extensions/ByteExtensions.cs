@@ -16,7 +16,7 @@
             
             // Validate buffers are the same length.
             // This also ensures that the count does not exceed the length of either buffer.  
-            return left.Length == right.Length && NativeMethods.MemCopy(left, right, left.Length) == 0;
+            return left.Length == right.Length && NativeMethods.MemoryCompare(left, right, left.Length) == 0;
         }
     }
 }

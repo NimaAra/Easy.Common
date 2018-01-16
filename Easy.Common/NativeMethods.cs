@@ -15,6 +15,6 @@
         internal static extern void GetSystemTimePreciseAsFileTime(out long filetime);
 
         [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "memcmp")]
-        internal static extern int MemCopy(byte[] b1, byte[] b2, long count);
+        internal static extern int MemoryCompare(byte[] b1, byte[] b2, long count);
     }
 }
