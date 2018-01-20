@@ -3,6 +3,7 @@ namespace Easy.Common.Extensions
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Dynamic;
     using System.Linq;
     using System.Reflection;
@@ -24,6 +25,7 @@ namespace Easy.Common.Extensions
         /// <summary>
         /// Converts the given <paramref name="object"/> to a <see cref="DynamicDictionary"/>.
         /// </summary>
+        [DebuggerStepThrough]
         public static DynamicDictionary ToDynamic<T>(this T @object, bool inherit = true)
         {
             var dynDic = new DynamicDictionary();
@@ -40,10 +42,9 @@ namespace Easy.Common.Extensions
         /// </summary>
         /// <param name="object">The object to check for default.</param>
         /// <returns><c>True</c> if <paramref name="object"/> has default or null value otherwise <c>False</c>.</returns>
-        public static bool IsDefault<T>(this T @object)
-        {
-            return EqualityComparer<T>.Default.Equals(@object, default(T));
-        }
+        [DebuggerStepThrough]
+        public static bool IsDefault<T>(this T @object) 
+            => EqualityComparer<T>.Default.Equals(@object, default(T));
 
         /// <summary>
         /// Returns an uninitialized instance of the <typeparamref name="T"/> without calling any of its constructor(s).
@@ -60,7 +61,9 @@ namespace Easy.Common.Extensions
         /// <returns>An instance of type <typeparamref name="T"/> 
         /// with all its <c>non-static</c> fields initialized to its default value.
         /// </returns>
-        public static T GetUninitializedInstance<T>() => (T)FormatterServices.GetUninitializedObject(typeof(T));
+        [DebuggerStepThrough]
+        public static T GetUninitializedInstance<T>() 
+            => (T)FormatterServices.GetUninitializedObject(typeof(T));
 
         /// <summary>
         /// Gets all the private, public, inherited instance property names for the given <paramref name="object"/>.
@@ -72,7 +75,9 @@ namespace Easy.Common.Extensions
         /// <param name="inherit">The flag indicating whether inherited properties should be included or not</param>
         /// <param name="includePrivate">The flag indicating whether private properties should be included or not</param>
         /// </summary>
-        public static string[] GetPropertyNames<T>(this T @object, bool inherit = true, bool includePrivate = true)
+        [DebuggerStepThrough]
+        public static string[] GetPropertyNames<T>(
+            this T @object, bool inherit = true, bool includePrivate = true)
         {
             if (@object is IDynamicMetaObjectProvider expando)
             {
@@ -93,20 +98,22 @@ namespace Easy.Common.Extensions
         /// <typeparam name="T">Type of object to clone</typeparam>    
         /// <param name="object">Object to clone</param>    
         /// <returns>Cloned object</returns>    
+        [DebuggerStepThrough]
         public static T CloneShallowUsingIl<T>(this T @object)
         {
-            Delegate myExec;
             var type = typeof(T);
-            if (!CachedIlShallow.TryGetValue(type, out myExec))
+            if (!CachedIlShallow.TryGetValue(type, out var myExec))
             {
                 // Create ILGenerator (both DM declarations work)
-                var dymMethod = new DynamicMethod("DoClone", type, new[] { type }, Assembly.GetExecutingAssembly().ManifestModule, true);
+                var dymMethod = new DynamicMethod(
+                    "DoClone", type, new[] { type }, Assembly.GetExecutingAssembly().ManifestModule, true);
                 var cInfo = @object.GetType().GetConstructor(new Type[] { });
                 var generator = dymMethod.GetILGenerator();
 
                 generator.Emit(OpCodes.Newobj, cInfo);
                 generator.Emit(OpCodes.Stloc_0);
-                foreach (FieldInfo field in @object.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+                foreach (FieldInfo field in @object.GetType().GetFields(
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
                 {
                     generator.Emit(OpCodes.Ldloc_0);
                     generator.Emit(OpCodes.Ldarg_0);
@@ -129,21 +136,23 @@ namespace Easy.Common.Extensions
         /// <typeparam name="T">The type of object being cloned.</typeparam>    
         /// <param name="myObject">The object instance to clone.</param>    
         /// <returns>the cloned object</returns>    
+        [DebuggerStepThrough]
         public static T CloneDeepUsingIl<T>(this T myObject)
         {
-            Delegate myExec;
             var type = typeof(T);
-            if (!CachedIlDeep.TryGetValue(type, out myExec))
+            if (!CachedIlDeep.TryGetValue(type, out var myExec))
             {
                 // Create ILGenerator (both DM declarations work)
-                var dymMethod = new DynamicMethod("DoClone", type, new[] { type }, Assembly.GetExecutingAssembly().ManifestModule, true);
+                var dymMethod = new DynamicMethod(
+                    "DoClone", type, new[] { type }, Assembly.GetExecutingAssembly().ManifestModule, true);
                 var cInfo = myObject.GetType().GetConstructor(new Type[] { });
                 var generator = dymMethod.GetILGenerator();
 
                 generator.Emit(OpCodes.Newobj, cInfo);
                 generator.Emit(OpCodes.Stloc_0);
 
-                foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+                foreach (var field in type.GetFields(
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
                 {
                     if (field.FieldType.IsValueType || field.FieldType == typeof(string))
                     {
@@ -200,7 +209,8 @@ namespace Easy.Common.Extensions
             {
                 CreateNewTempObject(generator, field.FieldType);
                 PlaceNewTempObjInClone(generator, field);
-                foreach (var fi in field.FieldType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+                foreach (var fi in field.FieldType.GetFields(
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
                 {
                     if (fi.FieldType.IsValueType || fi.FieldType == typeof(string))
                     {
@@ -229,7 +239,8 @@ namespace Easy.Common.Extensions
             generator.Emit(OpCodes.Stfld, field);
         }
 
-        private static void CopyValueTypeTemp(ILGenerator generator, FieldInfo fieldParent, FieldInfo fieldDetail)
+        private static void CopyValueTypeTemp(
+            ILGenerator generator, FieldInfo fieldParent, FieldInfo fieldDetail)
         {
             generator.Emit(OpCodes.Ldloc_1);
             generator.Emit(OpCodes.Ldarg_0);

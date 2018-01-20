@@ -1023,14 +1023,14 @@
         }
     }
 
-    internal sealed class SimpleHttpListener : IDisposable
+    public sealed class SimpleHttpListener : IDisposable
     {
         private readonly HttpListener _listener;
 
-        internal EventHandler<HttpListenerContext> OnRequest;
-        internal EventHandler<HttpListenerException> OnError;
+        public event EventHandler<HttpListenerContext> OnRequest;
+        public event EventHandler<HttpListenerException> OnError;
 
-        internal SimpleHttpListener(params Uri[] prefixes)
+        public SimpleHttpListener(params Uri[] prefixes)
         {
             Ensure.NotNull(prefixes, nameof(prefixes));
             _listener = new HttpListener();
@@ -1047,7 +1047,7 @@
             }
         }
 
-        internal Task ListenAsync()
+        public Task ListenAsync()
         {
             ListenAsyncImpl();
             return Task.FromResult(false);
@@ -1067,7 +1067,7 @@
 
                 try
                 {
-                    ctx = await _listener.GetContextAsync();
+                    ctx = await _listener.GetContextAsync().ConfigureAwait(false);
                 } catch (HttpListenerException e)
                 {
                     OnError?.Invoke(this, e);

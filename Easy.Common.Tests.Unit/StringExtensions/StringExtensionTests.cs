@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Text.RegularExpressions;
     using Easy.Common.Extensions;
@@ -545,13 +544,6 @@
             " ".NullIfEmpty().ShouldBe(" ");
             string.Empty.NullIfEmpty().ShouldBeNull();
             ((string)null).NullIfEmpty().ShouldBeNull();
-        }
-
-        [Test]
-        public void When_formatting_string_with_format_provider()
-        {
-            "{0}-{1}-{2:yyyy-MMM-dd}".FormatWith(new CultureInfo("fr-FR"), "foo", "bar", new DateTime(2017, 02, 03))
-                .ShouldBe("foo-bar-2017-févr.-03");
         }
     }
 }

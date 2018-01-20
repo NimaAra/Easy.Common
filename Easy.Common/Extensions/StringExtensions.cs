@@ -19,7 +19,7 @@
     public static class StringExtensions
     {
         /// <summary>
-        ///  Contains characters that may be used as regular expression arguments after <c>\</c>.
+        ///  Contains characters that may be used as regular expression arguments.
         /// </summary>
         private static readonly char[] RegexCharacters = { 'G', 'Z', 'A', 'n', 'W', 'w', 'v', 't', 's', 'S', 'r', 'k', 'f', 'D', 'd', 'B', 'b' };
 
@@ -30,7 +30,9 @@
         /// A nicer way of calling <see cref="string.IsNullOrEmpty(string)"/>
         /// </summary>
         /// <param name="value">The string to test.</param>
-        /// <returns><see langword="true"/> if the format parameter is null or an empty string (""); otherwise, <see langword="false"/>.</returns>
+        /// <returns>
+        /// <see langword="true"/> if the format parameter is null or an empty string (""); otherwise, <see langword="false"/>.
+        /// </returns>
         [DebuggerStepThrough]
         public static bool IsNullOrEmpty(this string value) => string.IsNullOrEmpty(value);
 
@@ -38,7 +40,9 @@
         /// A nice way of calling the inverse of <see cref="string.IsNullOrEmpty(string)"/>
         /// </summary>
         /// <param name="value">The string to test.</param>
-        /// <returns><see langword="true"/> if the format parameter is not null or an empty string (""); otherwise, <see langword="false"/>.</returns>
+        /// <returns>
+        /// <see langword="true"/> if the format parameter is not null or an empty string (""); otherwise, <see langword="false"/>.
+        /// </returns>
         [DebuggerStepThrough]
         public static bool IsNotNullOrEmpty(this string value) => !value.IsNullOrEmpty();
 
@@ -46,7 +50,9 @@
         /// A nice way of checking if a string is null, empty or whitespace 
         /// </summary>
         /// <param name="value">The string to test.</param>
-        /// <returns><see langword="true"/> if the format parameter is null or an empty string (""); otherwise, <see langword="false"/>.</returns>
+        /// <returns>
+        /// <see langword="true"/> if the format parameter is null or an empty string (""); otherwise, <see langword="false"/>.
+        /// </returns>
         [DebuggerStepThrough]
         public static bool IsNullOrEmptyOrWhiteSpace(this string value) => string.IsNullOrWhiteSpace(value);
 
@@ -54,9 +60,12 @@
         /// A nice way of checking the inverse of (if a string is null, empty or whitespace) 
         /// </summary>
         /// <param name="value">The string to test.</param>
-        /// <returns><see langword="true"/> if the format parameter is not null or an empty string (""); otherwise, <see langword="false"/>.</returns>
+        /// <returns>
+        /// <see langword="true"/> if the format parameter is not null or an empty string (""); otherwise, <see langword="false"/>.
+        /// </returns>
         [DebuggerStepThrough]
-        public static bool IsNotNullOrEmptyOrWhiteSpace(this string value) => !value.IsNullOrEmptyOrWhiteSpace();
+        public static bool IsNotNullOrEmptyOrWhiteSpace(this string value) 
+            => !value.IsNullOrEmptyOrWhiteSpace();
 
         /// <summary>
         /// Parses a string as Boolean, valid inputs are: <c>true|false|yes|no|1|0</c>.
@@ -88,41 +97,19 @@
             return false;
         }
 
-        /// <summary>Formats arguments into string based on the provided <paramref name="format"/>.</summary>
-        /// <param name="format">The <paramref name="format"/> as string. </param>
-        /// <param name="args">The arguments. </param>
-        /// <returns>The formatted string. </returns>
-        /// <exception cref="ArgumentException"> Thrown when <paramref name="format"/> is null or empty or whitespace.</exception>
-        [DebuggerStepThrough]
-        public static string FormatWith(this string format, params object[] args)
-        {
-            Ensure.NotNullOrEmptyOrWhiteSpace(format);
-            return string.Format(format, args);
-        }
-
-        /// <summary>Formats arguments into string based on the provided <paramref name="format"/>.</summary>
-        /// <param name="format">The <paramref name="format"/> as string. </param>
-        /// <param name="provider">The format provider. </param>
-        /// <param name="args">The arguments. </param>
-        /// <returns>The formatted string. </returns>
-        /// <exception cref="ArgumentException"> Thrown when <paramref name="format"/> is null or empty or whitespace.</exception>
-        [DebuggerStepThrough]
-        public static string FormatWith(this string format, IFormatProvider provider, params object[] args)
-        {
-            Ensure.NotNullOrEmptyOrWhiteSpace(format);
-            return string.Format(provider, format, args);
-        }
-
         /// <summary>
         /// Allows for using strings in <see langword="null"/> coalescing operations.
         /// </summary>
         /// <param name="value">The string value to check.</param>
-        /// <returns>Null if <paramref name="value"/> is empty or the original <paramref name="value"/>.</returns>
+        /// <returns>
+        /// Null if <paramref name="value"/> is empty or the original <paramref name="value"/>.
+        /// </returns>
         [DebuggerStepThrough]
         public static string NullIfEmpty(this string value) => value == string.Empty ? null : value;
 
         /// <summary>
-        /// Tries to extract the value between the tag <paramref name="tagName"/> from the <paramref name="input"/>.
+        /// Tries to extract the value between the tag <paramref name="tagName"/> 
+        /// from the <paramref name="input"/>.
         /// <remarks>This method is case insensitive.</remarks>
         /// </summary>
         /// <param name="input">The input string.</param>
@@ -161,7 +148,8 @@
         }
 
         /// <summary>
-        /// Checks if the <paramref name="input"/> contains the <paramref name="stringToCheckFor"/> based on the provided <paramref name="comparison"/> rules.
+        /// Checks if the <paramref name="input"/> contains the <paramref name="stringToCheckFor"/> 
+        /// based on the provided <paramref name="comparison"/> rules.
         /// </summary>
         public static bool Contains(this string input, string stringToCheckFor, StringComparison comparison)
             => input.IndexOf(stringToCheckFor, comparison) >= 0;
@@ -170,19 +158,22 @@
         /// Checks that given <paramref name="input"/> matches any of the potential matches.
         /// Inspired by: http://stackoverflow.com/a/20644611/23199
         /// </summary>
-        public static bool EqualsAny(this string input, StringComparer comparer, string match1, string match2) 
-            => comparer.Equals(input, match1) || comparer.Equals(input, match2);
+        public static bool EqualsAny(
+            this string input, StringComparer comparer, string match1, string match2) 
+                => comparer.Equals(input, match1) || comparer.Equals(input, match2);
 
         /// <summary>
         /// Checks that given <paramref name="input"/> matches any of the potential matches.
         /// Inspired by: http://stackoverflow.com/a/20644611/23199
         /// </summary>
-        public static bool EqualsAny(this string input, StringComparer comparer, string match1, string match2, string match3)
-            => comparer.Equals(input, match1) || comparer.Equals(input, match2) || comparer.Equals(input, match3);
+        public static bool EqualsAny(
+            this string input, StringComparer comparer, string match1, string match2, string match3) 
+                => comparer.Equals(input, match1) || comparer.Equals(input, match2) || comparer.Equals(input, match3);
 
         /// <summary>
-        /// Checks that given <paramref name="input"/> is in a list of potential <paramref name="matches"/>.
-        /// Inspired by: http://stackoverflow.com/a/20644611/23199
+        /// Checks that given <paramref name="input"/> is in a list of 
+        /// potential <paramref name="matches"/>.
+        /// <remarks>Inspired by: <see href="http://stackoverflow.com/a/20644611/23199"/> </remarks>
         /// </summary>
         public static bool EqualsAny(this string input, StringComparer comparer, params string[] matches) 
             => matches.Any(x => comparer.Equals(x, input));
@@ -190,8 +181,6 @@
         /// <summary>
         /// Checks to see if the given input is a valid palindrome or not.
         /// </summary>
-        /// <param name="input">The input string</param>
-        /// <returns><c>True</c> if palindrome otherwise <c>False</c></returns>
         public static bool IsPalindrome(this string input)
         {
             Ensure.NotNull(input, nameof(input));
@@ -211,13 +200,12 @@
         }
 
         /// <summary>
-        /// Truncates the <paramref name="input"/> to the maximum length of <paramref name="maxLength"/> and
-        /// replaces the truncated part with <paramref name="suffix"/>
+        /// Truncates the <paramref name="input"/> to the maximum length of <paramref name="maxLength"/> 
+        /// and replaces the truncated part with <paramref name="suffix"/>
         /// </summary>
         /// <param name="input">The input string</param>
         /// <param name="maxLength">Total length of characters to maintain before truncation.</param>
         /// <param name="suffix">The suffix to add to the end of the truncated <paramref name="input"/></param>
-        /// <returns>Truncated string.</returns>
         public static string Truncate(this string input, int maxLength, string suffix = "")
         {
             Ensure.NotNull(input, nameof(input));
@@ -275,11 +263,11 @@
         }
 
         /// <summary>
-        /// Compares <paramref name="input"/> against <paramref name="target"/>, the comparison is case-sensitive.
+        /// Compares <paramref name="input"/> against <paramref name="target"/>, 
+        /// the comparison is case-sensitive.
         /// </summary>
         /// <param name="input">The input string</param>
         /// <param name="target">The target string</param>
-        /// <returns><c>True</c> if equal otherwise <c>False</c></returns>
         public static bool IsEqualTo(this string input, string target)
         {
             if (input == null && target == null) { return true; }
@@ -314,7 +302,8 @@
 
             if (maxLength.HasValue)
             {
-                result = result.Substring(0, result.Length <= maxLength ? result.Length : (int)maxLength.Value).Trim();
+                result = result.Substring(0, result.Length <= maxLength 
+                    ? result.Length : (int)maxLength.Value).Trim();
             }
             return Regex.Replace(result, @"\s", "-");
         }
@@ -346,6 +335,7 @@
         /// <summary>
         /// A method to convert English digits to Persian numbers.
         /// </summary>
+        [DebuggerStepThrough]
         public static string ToPersianNumber(this string input)
         {
             Ensure.NotNull(input, nameof(input));
@@ -368,8 +358,12 @@
         /// <param name="xmlInput">The input containing XML</param>
         /// <param name="name">The name of the elements to return</param>
         /// <param name="ignoreCase">The flag indicating whether the name should be looked up in a case sensitive manner</param>
-        /// <returns>The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/></returns>
-        public static IEnumerable<XElement> GetElements(this string xmlInput, XName name, bool ignoreCase = true)
+        /// <returns>
+        /// The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/>.
+        /// </returns>
+        [DebuggerStepThrough]
+        public static IEnumerable<XElement> GetElements(
+            this string xmlInput, XName name, bool ignoreCase = true)
         {
             Ensure.NotNull(xmlInput, nameof(xmlInput));
             return xmlInput.GetElements(name, new XmlReaderSettings(), ignoreCase);
@@ -382,8 +376,12 @@
         /// <param name="name">The name of the elements to return</param>
         /// <param name="settings">The settings used by the <see cref="XmlReader"/></param>
         /// <param name="ignoreCase">The flag indicating whether the name should be looked up in a case sensitive manner</param>
-        /// <returns>The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/></returns>
-        public static IEnumerable<XElement> GetElements(this string xmlInput, XName name, XmlReaderSettings settings, bool ignoreCase = true)
+        /// <returns>
+        /// The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/>.
+        /// </returns>
+        [DebuggerStepThrough]
+        public static IEnumerable<XElement> GetElements(
+            this string xmlInput, XName name, XmlReaderSettings settings, bool ignoreCase = true)
         {
             Ensure.NotNull(xmlInput, nameof(xmlInput));
             Ensure.NotNull(name, nameof(name));
@@ -404,6 +402,7 @@
         /// </summary>
         /// <param name="input">The string to be compressed</param>
         /// <returns>The compressed string in <c>Base64</c></returns>
+        [DebuggerStepThrough]
         public static string Compress(this string input)
         {
             Ensure.NotNull(input, nameof(input));
@@ -432,6 +431,7 @@
         /// </summary>
         /// <param name="compressedInput">The string compressed in <c>Base64</c></param>
         /// <returns>The uncompressed string</returns>
+        [DebuggerStepThrough]
         public static string Decompress(this string compressedInput)
         {
             Ensure.NotNull(compressedInput, nameof(compressedInput));
@@ -456,18 +456,16 @@
         /// <summary>
         /// Ensures the given <paramref name="input"/> can be used as a file name.
         /// </summary>
-        public static bool IsValidFileName(this string input)
-        {
-            return input.IsNotNullOrEmptyOrWhiteSpace() && input.IndexOfAny(InvalidFileNameCharacters) == -1;
-        }
+        [DebuggerStepThrough]
+        public static bool IsValidFileName(this string input) 
+            => input.IsNotNullOrEmptyOrWhiteSpace() && input.IndexOfAny(InvalidFileNameCharacters) == -1;
 
         /// <summary>
         /// Ensures the given <paramref name="input"/> can be used as a path.
         /// </summary>
-        public static bool IsValidPathName(this string input)
-        {
-            return input.IsNotNullOrEmptyOrWhiteSpace() && input.IndexOfAny(InvalidPathCharacters) == -1;
-        }
+        [DebuggerStepThrough]
+        public static bool IsValidPathName(this string input) 
+            => input.IsNotNullOrEmptyOrWhiteSpace() && input.IndexOfAny(InvalidPathCharacters) == -1;
 
         /// <summary>
         /// Returns a <see cref="Guid"/> from a <c>Base64</c> encoded <paramref name="input"/>.
@@ -478,12 +476,11 @@
         /// See: <see href="https://blog.codinghorror.com/equipping-our-ascii-armor/"/>
         /// </remarks>
         /// </summary>
-        public static Guid ToGuid(this string input, bool trimmed = true)
-        {
-            return trimmed ? new Guid(Convert.FromBase64String(input + "=="))
+        [DebuggerStepThrough]
+        public static Guid ToGuid(this string input, bool trimmed = true) 
+            => trimmed ? new Guid(Convert.FromBase64String(input + "=="))
                 : new Guid(Convert.FromBase64String(input));
-        }
-
+        
         /// <summary>
         /// Converts <c>API</c> to <c>[aA][pP][iI]</c>.
         /// <remarks>
@@ -491,6 +488,7 @@
         /// or using the <c>(?i)</c> for example <c>(?i)API(?-i)</c>
         /// </remarks>
         /// </summary>
+        [DebuggerStepThrough]
         public static string ToCaseIncensitiveRegexArgument(this string input)
         {
             if (input.IsNullOrEmptyOrWhiteSpace()) { return input; }
@@ -500,7 +498,6 @@
             var isInPattern = false;
 
             var builder = StringBuilderCache.Acquire();
-            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < input.Length; i++)
             {
                 var prev = i == 0 ? new char() : input[i - 1];
@@ -556,7 +553,8 @@
         /// the starting position and value is the end position.
         /// </returns>
         [DebuggerStepThrough]
-        public static IEnumerable<KeyValuePair<int, int>> GetStartAndEndIndexes(this string input, string startTag, string endTag)
+        public static IEnumerable<KeyValuePair<int, int>> GetStartAndEndIndexes(
+            this string input, string startTag, string endTag)
         {
             var startIdx = 0;
             int endIdx;

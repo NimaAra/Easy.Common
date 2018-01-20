@@ -26,7 +26,7 @@
 
             BlockingTaskNotifier.Start();
 
-            Task.Delay(1.Seconds()).Wait();
+            await Task.Delay(1.Seconds());
             var task = Task.Delay(1.Seconds());
 
             while (!task.IsCompleted)

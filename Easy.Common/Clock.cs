@@ -25,6 +25,7 @@
         /// <summary>
         /// Creates an instance of the <see cref="Clock"/>.
         /// </summary>
+        [DebuggerStepThrough]
         public Clock()
         {
             try
@@ -87,6 +88,7 @@
         /// <summary>
         /// Releases all resources used by the instance of <see cref="Clock"/>.
         /// </summary>
+        [DebuggerStepThrough]
         public void Dispose()
         {
             _startTime.Dispose();
