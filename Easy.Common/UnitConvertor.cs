@@ -1,7 +1,5 @@
 ﻿namespace Easy.Common
 {
-    using System;
-
     /// <summary>
     /// A set of methods to convert between different units.
     /// </summary>
@@ -16,7 +14,7 @@
         /// </summary>
         public static string Humanize(double bytes)
         {
-            var abs = Math.Abs(bytes);
+            var abs = System.Math.Abs(bytes);
 
             if (abs >= GigaBytes)
             {
@@ -37,75 +35,48 @@
         }
 
         /// <summary>
-        /// Converts Bytes to Megabytes.
+        /// Converts <c>Bytes</c> to <c>Megabytes</c>.
         /// </summary>
-        public static double BytesToMegaBytes(this double bytes)
-        {
-            return bytes / MegaBytes;
-        }
+        public static double BytesToMegaBytes(this double bytes) => bytes / MegaBytes;
 
         /// <summary>
-        /// Converts Bytes to Gigabytes.
+        /// Converts <c>Bytes</c> to <c>Gigabytes</c>.
         /// </summary>
-        public static double BytesToGigaBytes(this double bytes)
-        {
-            return bytes / MegaBytes / KiloBytes;
-        }
+        public static double BytesToGigaBytes(this double bytes) => bytes / MegaBytes / KiloBytes;
 
         /// <summary>
-        /// Converts Kilobytes to Megabytes.
+        /// Converts <c>Kilobytes</c> to <c>Megabytes</c>.
         /// </summary>
-        public static double KiloBytesToMegaBytes(this double kiloBytes)
-        {
-            return kiloBytes / KiloBytes;
-        }
+        public static double KiloBytesToMegaBytes(this double kiloBytes) => kiloBytes / KiloBytes;
 
         /// <summary>
-        /// Converts Megabytes to Gigabytes.
+        /// Converts <c>Megabytes</c> to <c>Gigabytes</c>.
         /// </summary>
-        public static double MegaBytesToGigaBytes(this double megaBytes)
-        {
-            return megaBytes / KiloBytes;
-        }
+        public static double MegaBytesToGigaBytes(this double megaBytes) => megaBytes / KiloBytes;
 
         /// <summary>
-        /// Converts Megabytes to Terabytes.
+        /// Converts <c>Megabytes</c> to <c>Terabytes</c>.
         /// </summary>
-        public static double MegaBytesToTeraBytes(this double megaBytes)
-        {
-            return megaBytes / MegaBytes;
-        }
+        public static double MegaBytesToTeraBytes(this double megaBytes) => megaBytes / MegaBytes;
 
         /// <summary>
-        /// Converts Gigabytes to Megabytes.
+        /// Converts <c>Gigabytes</c> to <c>Megabytes</c>.
         /// </summary>
-        public static double GigaBytesToMegaBytes(this double gigaBytes)
-        {
-            return gigaBytes * KiloBytes;
-        }
+        public static double GigaBytesToMegaBytes(this double gigaBytes) => gigaBytes * KiloBytes;
 
         /// <summary>
-        /// Converts Gigabytes to Terabytes.
+        /// Converts <c>Gigabytes</c> to <c>Terabytes</c>.
         /// </summary>
-        public static double GigaBytesToTeraBytes(this double gigaBytes)
-        {
-            return gigaBytes / KiloBytes;
-        }
+        public static double GigaBytesToTeraBytes(this double gigaBytes) => gigaBytes / KiloBytes;
 
         /// <summary>
-        /// Converts Terabytes to Megabytes.
+        /// Converts <c>Terabytes</c> to <c>Megabytes</c>.
         /// </summary>
-        public static double TeraBytesToMegaBytes(this double teraBytes)
-        {
-            return teraBytes * MegaBytes;
-        }
+        public static double TeraBytesToMegaBytes(this double teraBytes) => teraBytes * MegaBytes;
 
         /// <summary>
-        /// Converts Terabytes to Gigabytes.
+        /// Converts <c>Terabytes</c> to <c>Gigabytes</c>.
         /// </summary>
-        public static double TeraBytesToGigaBytes(this double teraBytes)
-        {
-            return teraBytes * KiloBytes;
-        }
+        public static double TeraBytesToGigaBytes(this double teraBytes) => teraBytes * KiloBytes;
     }
 }
