@@ -219,7 +219,7 @@ namespace Easy.Common.Extensions
         /// by casting it first and if not successful then calling <c>ToList()</c>.
         /// </summary>
         [DebuggerStepThrough]
-        internal static IList<T> SpeculativeToList<T>(this IEnumerable<T> sequence)
+        public static IList<T> SpeculativeToList<T>(this IEnumerable<T> sequence)
             => sequence as IList<T> ?? sequence.ToList();
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace Easy.Common.Extensions
         /// by casting it first and if not successful then calling <c>ToList()</c>.
         /// </summary>
         [DebuggerStepThrough]
-        internal static IReadOnlyList<T> SpeculativeToReadOnlyList<T>(this IEnumerable<T> sequence)
+        public static IReadOnlyList<T> SpeculativeToReadOnlyList<T>(this IEnumerable<T> sequence)
             => sequence as IReadOnlyList<T> ?? sequence.ToList();
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace Easy.Common.Extensions
         /// by casting it first and if not successful then calling <c>ToArray()</c>.
         /// </summary>
         [DebuggerStepThrough]
-        internal static T[] SpeculativeToArray<T>(this IEnumerable<T> sequence)
+        public static T[] SpeculativeToArray<T>(this IEnumerable<T> sequence)
             => sequence as T[] ?? sequence.ToArray();
 
         /// <summary>
