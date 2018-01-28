@@ -48,7 +48,7 @@
         /// <param name="key">The key whose value to get.</param>
         /// <param name="defaultValue">The default value to return if an item with the specified <paramref name="key"/> does not exist.</param>
         /// <returns>The value associated with the specified key or the <paramref name="defaultValue"/> if it does not exist.</returns>
-        public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, 
+        public static TValue GetOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, 
             TKey key, TValue defaultValue = default(TValue)) 
                 => dictionary.TryGetValue(key, out var value) ? value : defaultValue;
 
@@ -120,14 +120,14 @@
         /// Returns a <see cref="ConcurrentDictionary{TKey,TValue}"/> from an <see cref="IDictionary{TKey,TValue}"/>.
         /// </summary>
         public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(
-            this IDictionary<TKey, TValue> dictionary) 
+            this IReadOnlyDictionary<TKey, TValue> dictionary) 
                 => new ConcurrentDictionary<TKey, TValue>(dictionary);
 
         /// <summary>
         /// Returns a <see cref="ConcurrentDictionary{TKey,TValue}"/> from an <see cref="IDictionary{TKey,TValue}"/>.
         /// </summary>
         public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(
-            this IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
+            this IReadOnlyDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
                 => new ConcurrentDictionary<TKey, TValue>(dictionary, comparer);
     }
 }
