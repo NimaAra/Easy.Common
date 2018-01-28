@@ -215,6 +215,30 @@ namespace Easy.Common.Extensions
                 => new EasyDictionary<TKey, TValue>(keySelector, sequence, comparer);
 
         /// <summary>
+        /// Attempts to convert the given <paramref name="sequence"/> to an <see cref="IList{T}"/>
+        /// by casting it first and if not successful then calling <c>ToList()</c>.
+        /// </summary>
+        [DebuggerStepThrough]
+        internal static IList<T> SpeculativeToList<T>(this IEnumerable<T> sequence)
+            => sequence as IList<T> ?? sequence.ToList();
+
+        /// <summary>
+        /// Attempts to convert the given <paramref name="sequence"/> to an <see cref="IReadOnlyList{T}"/>
+        /// by casting it first and if not successful then calling <c>ToList()</c>.
+        /// </summary>
+        [DebuggerStepThrough]
+        internal static IReadOnlyList<T> SpeculativeToReadOnlyList<T>(this IEnumerable<T> sequence)
+            => sequence as IReadOnlyList<T> ?? sequence.ToList();
+
+        /// <summary>
+        /// Attempts to convert the given <paramref name="sequence"/> to an <see cref="T:T[]"/>
+        /// by casting it first and if not successful then calling <c>ToArray()</c>.
+        /// </summary>
+        [DebuggerStepThrough]
+        internal static T[] SpeculativeToArray<T>(this IEnumerable<T> sequence)
+            => sequence as T[] ?? sequence.ToArray();
+
+        /// <summary>
         /// Allows exception handling when yield returning an IEnumerable
         /// <example>
         /// myList.HandleExceptionWhenYieldReturning{int}(e => 
@@ -230,7 +254,10 @@ namespace Easy.Common.Extensions
         /// <param name="actionToExecuteOnException">The action to which the handled exception will be passed to.</param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static IEnumerable<T> HandleExceptionWhenYieldReturning<T>(this IEnumerable<T> sequence, Func<Exception, bool> exceptionPredicate, Action<Exception> actionToExecuteOnException)
+        public static IEnumerable<T> HandleExceptionWhenYieldReturning<T>(
+            this IEnumerable<T> sequence, 
+            Func<Exception, bool> exceptionPredicate, 
+            Action<Exception> actionToExecuteOnException)
         {
             Ensure.NotNull(exceptionPredicate, nameof(exceptionPredicate));
             Ensure.NotNull(actionToExecuteOnException, nameof(actionToExecuteOnException));
