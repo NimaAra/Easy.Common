@@ -1,5 +1,6 @@
 ﻿namespace Easy.Common.Tests.Unit.FileAndDirectoryExtensions
 {
+    using System;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -66,6 +67,58 @@
             finally
             {
                 fileInfo.Delete();
+            }
+        }
+
+        [Test]
+        public void When_renaming_an_existing_file()
+        {
+            FileInfo file = null;
+            FileInfo renamedFile = null;
+            try
+            {
+                file = new FileInfo(Path.GetTempFileName());
+                file.Exists.ShouldBeTrue();
+                var newFileName = "foo.bar";
+                renamedFile = file.Rename(newFileName);
+            } finally
+            {
+                file?.Delete();
+                renamedFile?.Delete();
+            }
+        }
+
+        [Test]
+        public void When_renaming_a_non_existing_file()
+        {
+            FileInfo file = null;
+            Should.Throw<FileNotFoundException>(() =>
+            {
+                file = new FileInfo(Path.GetRandomFileName());
+                file.Exists.ShouldBeFalse();
+                var newFileName = "foo.bar";
+                file.Rename(newFileName);
+            })
+            .Message.ShouldBe($"Cannot find: '{file.FullName}'");
+        }
+
+        [Test]
+        public void When_renaming_to_an_invalid_filename()
+        {
+            FileInfo file = null;
+            try
+            {
+                file = new FileInfo(Path.GetTempFileName());
+                file.Exists.ShouldBeTrue();
+                var newFileName = "foo|bar";
+                Should.Throw<ArgumentException>(() =>
+                {
+                    file.Rename(newFileName);
+                })
+                .Message.ShouldBe($"Invalid file name: '{newFileName}'");
+            } finally
+            {
+                file?.Delete();
             }
         }
     }

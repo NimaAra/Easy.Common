@@ -6,29 +6,28 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using System.Threading;
 
     /// <summary>
     /// Provides a set of useful methods for working with <see cref="FileInfo"/> and <see cref="DirectoryInfo"/>.
     /// </summary>
     public static class FileAndDirectoryInfoExtensions
     {
+        private const int DefaultBufferSize = 4096;
         private const char CarriageReturn = '\r';
         private const char NewLine = '\n';
         private const char Tab = '\t';
 
-        private static readonly ThreadLocal<char[]> CharacterBuffer = new ThreadLocal<char[]>(() => new char[256]);
-
         /// <summary>
-        /// Returns the size in bytes of the <paramref name="directoryInfo"/> represented by the <paramref name="directoryInfo"/> instance.
+        /// Returns the size in bytes of the <paramref name="directoryInfo"/> represented 
+        /// by the <paramref name="directoryInfo"/> instance.
         /// </summary>
         /// <param name="directoryInfo">The <paramref name="directoryInfo"/> to get the size of.</param>
         /// <returns>The size of <paramref name="directoryInfo"/> in bytes.</returns>
         [DebuggerStepThrough]
-        public static long GetSizeInByte(this DirectoryInfo directoryInfo)
+        public static long GetSizeInBytes(this DirectoryInfo directoryInfo)
         {
             var length = directoryInfo.GetFiles().Sum(file => file.Exists ? file.Length : 0);
-            length += directoryInfo.GetDirectories().Sum(dir => dir.Exists ? dir.GetSizeInByte() : 0);
+            length += directoryInfo.GetDirectories().Sum(dir => dir.Exists ? dir.GetSizeInBytes() : 0);
             return length;
         }
 
@@ -38,7 +37,8 @@
         /// <param name="directoryInfo">The <paramref name="directoryInfo"/> to check.</param>
         /// <returns>Boolean indicating if the <paramref name="directoryInfo"/> is hidden.</returns>
         [DebuggerStepThrough]
-        public static bool IsHidden(this DirectoryInfo directoryInfo) => (directoryInfo.Attributes & FileAttributes.Hidden) != 0;
+        public static bool IsHidden(this DirectoryInfo directoryInfo) 
+            => (directoryInfo.Attributes & FileAttributes.Hidden) != 0;
 
         /// <summary>
         /// Indicates if a given <paramref name="fileInfo"/> is hidden.
@@ -48,60 +48,115 @@
         /// Boolean indicating if the <paramref name="fileInfo"/> is hidden.
         /// </returns>
         [DebuggerStepThrough]
-        public static bool IsHidden(this FileInfo fileInfo) => (fileInfo.Attributes & FileAttributes.Hidden) != 0;
+        public static bool IsHidden(this FileInfo fileInfo) 
+            => (fileInfo.Attributes & FileAttributes.Hidden) != 0;
 
         /// <summary>
-        /// Renames the given <paramref name="fileInfo"/> to <paramref name="newName"/>.
+        /// Renames the given <paramref name="fileInfo"/> to <paramref name="newName"/> and returns the 
+        /// renamed <see cref="FileInfo"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static void Rename(this FileInfo fileInfo, string newName)
+        public static FileInfo Rename(this FileInfo fileInfo, string newName)
         {
             Ensure.NotNull(fileInfo, nameof(fileInfo));
-            Ensure.NotNullOrEmptyOrWhiteSpace(newName);
-            Ensure.That(newName.IsValidFileName(), "Invalid file name: " + newName);
+            Ensure.Exists(fileInfo);
 
-            fileInfo.Refresh();
-            if (fileInfo.DirectoryName != null && fileInfo.Directory != null
-                && fileInfo.Directory.Exists && fileInfo.Exists)
-            {
-                fileInfo.MoveTo(Path.Combine(fileInfo.DirectoryName, newName));
-            }
-            else
-            {
-                throw new InvalidOperationException($"Unable to rename the file: {fileInfo.FullName} to: {newName}");
-            }
+            Ensure.NotNullOrEmptyOrWhiteSpace(newName);
+            Ensure.That(newName.IsValidFileName(), $"Invalid file name: '{newName}'");
+
+            var renamedFilePath = Path.Combine(fileInfo.DirectoryName 
+                                               ?? throw new InvalidOperationException(), newName);
+            fileInfo.MoveTo(renamedFilePath);
+            return new FileInfo(renamedFilePath);
         }
 
         /// <summary>
-        /// Lazily reads every line in the <paramref name="fileInfo"/> without requiring a file lock.
+        /// Opens a stream for reading with sequential optimization and providing 
+        /// <see cref="FileShare.ReadWrite"/> for others.
         /// <remarks>
-        /// This method is preferred over the <see cref="File.ReadLines(string)"/> which requires a file lock
-        /// that may result <see cref="IOException"/> if the file is opened exclusively by another process such as <c>Excel</c>.
+        /// A <see cref="FileNotFoundException"/> exception is 
+        /// thrown if the file does not exist.
         /// </remarks>
         /// </summary>
-        [DebuggerStepThrough]
-        public static IEnumerable<string> ReadLines(this FileInfo fileInfo) 
-            => fileInfo.ReadLines(Encoding.UTF8);
+        public static FileStream OpenSequentialRead(this FileSystemInfo file)
+            => new FileStream(
+                file.FullName,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite,
+                DefaultBufferSize,
+                FileOptions.SequentialScan);
 
         /// <summary>
-        /// Lazily reads every line in the <paramref name="fileInfo"/> without requiring a file lock.
+        /// Opens or creates a stream for reading with sequential optimization and providing 
+        /// <see cref="FileShare.ReadWrite"/> for others.
+        /// </summary>
+        public static FileStream OpenOrCreateSequentialRead(this FileSystemInfo file)
+            => new FileStream(
+                file.FullName,
+                FileMode.OpenOrCreate,
+                FileAccess.Read,
+                FileShare.ReadWrite,
+                DefaultBufferSize,
+                FileOptions.SequentialScan);
+
+        /// <summary>
+        /// Opens or creates a stream for writing with sequential optimization and providing 
+        /// <see cref="FileShare.Read"/> for others.
+        /// </summary>
+        public static FileStream OpenOrCreateSequentialWrite(this FileSystemInfo file)
+            => new FileStream(
+                file.FullName,
+                FileMode.OpenOrCreate,
+                FileAccess.Write,
+                FileShare.Read,
+                DefaultBufferSize,
+                FileOptions.SequentialScan);
+
+        /// <summary>
+        /// Opens or creates a stream for reading and writing with sequential optimization and providing 
+        /// <see cref="FileShare.ReadWrite"/> for others.
+        /// </summary>
+        public static FileStream OpenOrCreateSequentialReadWrite(this FileSystemInfo file)
+            => new FileStream(
+                file.FullName,
+                FileMode.OpenOrCreate,
+                FileAccess.ReadWrite,
+                FileShare.ReadWrite,
+                DefaultBufferSize,
+                FileOptions.SequentialScan);
+
+        /// <summary>
+        /// Lazily reads every line in the <paramref name="file"/> without requiring a file lock.
         /// <remarks>
-        /// This method is preferred over the <see cref="File.ReadLines(string)"/> which requires a file lock
-        /// that may result <see cref="IOException"/> if the file is opened exclusively by another process such as <c>Excel</c>.
+        /// This method is preferred over the <see cref="File.ReadLines(string)"/> which requires 
+        /// a file lock that may result <see cref="IOException"/> if the file is opened exclusively 
+        /// by another process such as <c>Excel</c>.
         /// </remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<string> ReadLines(this FileInfo fileInfo, Encoding encoding)
+        public static IEnumerable<string> ReadLines(this FileInfo file) => file.ReadLines(Encoding.UTF8);
+
+        /// <summary>
+        /// Lazily reads every line in the <paramref name="file"/> without requiring a file lock.
+        /// <remarks>
+        /// This method is preferred over the <see cref="File.ReadLines(string)"/> which requires 
+        /// a file lock that may result <see cref="IOException"/> if the file is opened exclusively 
+        /// by another process such as <c>Excel</c>.
+        /// </remarks>
+        /// </summary>
+        [DebuggerStepThrough]
+        public static IEnumerable<string> ReadLines(this FileInfo file, Encoding encoding)
         {
-            Ensure.NotNull(fileInfo, nameof(fileInfo));
+            Ensure.NotNull(file, nameof(file));
             Ensure.NotNull(encoding, nameof(encoding));
 
-            using (var stream = File.Open(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var reader = new StreamReader(stream, encoding))
+            using (var reader = new StreamReader(file.OpenOrCreateSequentialRead(), encoding))
             {
-                while (!reader.EndOfStream)
+                string line;
+                while ((line = reader.ReadLine()) != null)
                 {
-                    yield return reader.ReadLine();
+                    yield return line;
                 }
             }
         }
@@ -112,7 +167,9 @@
         /// </summary>
         [DebuggerStepThrough]
         public static IEnumerable<DirectoryInfo> EnumerateDirectoriesSafe(this DirectoryInfo directory,
-            string searchPattern = "*", SearchOption option = SearchOption.TopDirectoryOnly, bool throwOnPathTooLong = false)
+            string searchPattern = "*", 
+            SearchOption option = SearchOption.TopDirectoryOnly, 
+            bool throwOnPathTooLong = false)
         {
             try
             {
@@ -120,12 +177,14 @@
                 if (option == SearchOption.AllDirectories)
                 {
                     directories = directory.EnumerateDirectories()
-                        .SelectMany(d => d.EnumerateDirectoriesSafe(searchPattern, option, throwOnPathTooLong));
+                        .SelectMany(d => 
+                            d.EnumerateDirectoriesSafe(searchPattern, option, throwOnPathTooLong));
                 }
 
                 return directories.Concat(directory.EnumerateDirectories(searchPattern));
             }
-            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is PathTooLongException && !throwOnPathTooLong)
+            catch (Exception ex) when (
+                ex is UnauthorizedAccessException || ex is PathTooLongException && !throwOnPathTooLong)
             {
                 return Enumerable.Empty<DirectoryInfo>();
             }
@@ -137,7 +196,9 @@
         /// </summary>
         [DebuggerStepThrough]
         public static IEnumerable<FileInfo> EnumerateFilesSafe(this DirectoryInfo directory,
-            string searchPattern = "*", SearchOption option = SearchOption.TopDirectoryOnly, bool throwOnPathTooLong = false)
+            string searchPattern = "*", 
+            SearchOption option = SearchOption.TopDirectoryOnly, 
+            bool throwOnPathTooLong = false)
         {
             try
             {
@@ -150,7 +211,8 @@
 
                 return files.Concat(directory.EnumerateFiles(searchPattern));
             }
-            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is PathTooLongException && !throwOnPathTooLong)
+            catch (Exception ex) when (
+                ex is UnauthorizedAccessException || ex is PathTooLongException && !throwOnPathTooLong)
             {
                 return Enumerable.Empty<FileInfo>();
             }
@@ -162,10 +224,9 @@
         [DebuggerStepThrough]
         public static bool IsBinary(this FileSystemInfo file)
         {
-            var buffer = CharacterBuffer.Value;
+            var buffer = new char[256];
 
-            using (var fileStream = File.Open(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var reader = new StreamReader(fileStream))
+            using (var reader = new StreamReader(file.OpenOrCreateSequentialRead()))
             {
                 var read = reader.ReadBlock(buffer, 0, buffer.Length);
                 return ContainsBinary(buffer, read);
