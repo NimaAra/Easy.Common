@@ -440,11 +440,17 @@
         public void When_disposing_while_items_still_in_queue()
         {
             var exceptions = new List<Exception>();
-            var numbers = new List<int>();
+            var numbers = new ConcurrentBag<int>();
+            var counter = 0;
             Action<int> work = n =>
             {
-                Thread.Sleep(500.Milliseconds());
-                numbers.Add(n);
+                if (Interlocked.Increment(ref counter) == 1)
+                {
+                    numbers.Add(n);
+                } else
+                {
+                    Thread.Sleep(500.Milliseconds());
+                }
             };
 
             var pcq = new ProducerConsumerQueue<int>(work, 1);
@@ -453,6 +459,8 @@
             pcq.Add(1);
             pcq.Add(2);
             pcq.Add(3);
+
+            Thread.Sleep(100.Milliseconds());
 
             pcq.Dispose();
 
