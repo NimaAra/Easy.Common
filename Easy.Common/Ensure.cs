@@ -180,7 +180,7 @@
             NotNull(directoryInfo, nameof(directoryInfo));
 
             directoryInfo.Refresh();
-            That<DirectoryNotFoundException>(directoryInfo.Exists, "Cannot find: " + directoryInfo.FullName);
+            That<DirectoryNotFoundException>(directoryInfo.Exists, $"Cannot find: '{directoryInfo.FullName}'");
             return directoryInfo;
         }
 
@@ -201,7 +201,7 @@
             NotNull(fileInfo, nameof(fileInfo));
 
             fileInfo.Refresh();
-            That<FileNotFoundException>(fileInfo.Exists, "Cannot find: " + fileInfo.FullName);
+            That<FileNotFoundException>(fileInfo.Exists, $"Cannot find: '{fileInfo.FullName}'");
             return fileInfo;
         }
     }
