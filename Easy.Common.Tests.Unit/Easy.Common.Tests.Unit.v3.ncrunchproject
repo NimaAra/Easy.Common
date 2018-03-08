@@ -5,19 +5,31 @@
     </HiddenComponentWarnings>
     <IgnoredTests>
       <FixtureTestSelector>
-        <FixtureName>Easy.Common.Tests.Unit.ProducerConsumer.ProducerConsumerQueueTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
         <FixtureName>Easy.Common.Tests.Unit.TaskExtensions.TaskExceptionsTests</FixtureName>
       </FixtureTestSelector>
       <FixtureTestSelector>
         <FixtureName>Easy.Common.Tests.Unit.TaskExtensions.TaskWaitAllOrFailTests</FixtureName>
       </FixtureTestSelector>
       <FixtureTestSelector>
-        <FixtureName>Easy.Common.Tests.Unit.TimerAndClockTests.TimerClockTests</FixtureName>
+        <FixtureName>Easy.Common.Tests.Unit.RestClient.JSONContentTests</FixtureName>
       </FixtureTestSelector>
       <FixtureTestSelector>
-        <FixtureName>Easy.Common.Tests.Unit.DiagnosticReport.DiagnosticReportTests</FixtureName>
+        <FixtureName>Easy.Common.Tests.Unit.RestClient.RestClientTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Easy.Common.Tests.Unit.RestClient.XMLContentTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Easy.Common.Tests.Unit.TaskExtensions.TaskGeneralTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Easy.Common.Tests.Unit.TaskExtensions.TaskTimeoutTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Easy.Common.Tests.Unit.EasyTimer.EasyTimerTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Easy.Common.Tests.Unit.ProducerConsumer.ProducerConsumerQueueTests</FixtureName>
       </FixtureTestSelector>
     </IgnoredTests>
     <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
