@@ -42,7 +42,6 @@
             return (double)(Math.Floor(copy * power) / power);
         }
 
-
         /// <summary>
         /// Returns the Ceiling of the given <paramref name="value"/> to the specified <paramref name="decimalPlaces"/> decimal places.
         /// </summary>
@@ -84,5 +83,4 @@
             return false;
         }
     }
-
 }
