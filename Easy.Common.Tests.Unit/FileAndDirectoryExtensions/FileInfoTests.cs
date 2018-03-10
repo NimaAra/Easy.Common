@@ -99,7 +99,7 @@
                 var newFileName = "foo.bar";
                 file.Rename(newFileName);
             })
-            .Message.ShouldBe($"Cannot find: '{file.FullName}'");
+            .Message.ShouldBe($"Cannot find: '{file.FullName}'.");
         }
 
         [Test]

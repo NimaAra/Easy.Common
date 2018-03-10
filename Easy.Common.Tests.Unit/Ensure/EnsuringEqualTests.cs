@@ -85,8 +85,7 @@
 
             Action action = () => Ensure.Equal(firstString, SecondString);
 
-            action.ShouldThrow<NullReferenceException>("Because the first object is null")
-                    .Message.ShouldBe("Object reference not set to an instance of an object.");
+            action.ShouldThrow<ArgumentException>().Message.ShouldBe("Values must be equal.");
         }
 
         [Test]
@@ -97,8 +96,7 @@
 
             Action action = () => Ensure.Equal(firstString, secondSTring);
 
-            action.ShouldThrow<NullReferenceException>()
-                    .Message.ShouldBe("Object reference not set to an instance of an object.");
+            action.ShouldNotThrow();
         }
     }
 }

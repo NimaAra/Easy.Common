@@ -36,10 +36,8 @@
         ///     Thrown when <paramref name="condition"/> is <see langword="false"/>.
         /// </exception>
         [DebuggerStepThrough]
-        public static void That(bool condition, string message = "The given condition is false.")
-        {
-            That<ArgumentException>(condition, message);
-        }
+        public static void That(bool condition, string message = "The given condition is false.") 
+            => That<ArgumentException>(condition, message);
 
         /// <summary>
         /// Ensures given <paramref name="condition"/> is <see langword="false"/>.
@@ -52,9 +50,7 @@
         /// </exception>
         [DebuggerStepThrough]
         public static void Not<TException>(bool condition, string message = "The given condition is true.") where TException : Exception
-        {
-            That<TException>(!condition, message);
-        }
+            => That<TException>(!condition, message);
 
         /// <summary>
         /// Ensures given <paramref name="condition"/> is <see langword="false"/>.
@@ -66,9 +62,7 @@
         /// </exception>
         [DebuggerStepThrough]
         public static void Not(bool condition, string message = "The given condition is true.")
-        {
-            Not<ArgumentException>(condition, message);
-        }
+            => Not<ArgumentException>(condition, message);
 
         /// <summary>
         /// Ensures given <see langword="object"/> is not null.
@@ -102,10 +96,8 @@
         /// <remarks>Null values will cause an exception to be thrown</remarks>
         [DebuggerStepThrough]
         public static void Equal<T>(T left, T right, string message = "Values must be equal.")
-        {
-            That<ArgumentException>(left.Equals(right), message);
-        }
-
+            => That<ArgumentException>(Comparer<T>.Default.Compare(left, right) == 0, message);
+        
         /// <summary>
         /// Ensures given objects are not equal.
         /// </summary>
@@ -119,9 +111,7 @@
         /// <remarks>Null values will cause an exception to be thrown</remarks>
         [DebuggerStepThrough]
         public static void NotEqual<T>(T left, T right, string message = "Values must not be equal.")
-        {
-            That<ArgumentException>(!left.Equals(right), message);
-        }
+            => That<ArgumentException>(Comparer<T>.Default.Compare(left, right) != 0, message);
 
         /// <summary>
         /// Ensures a given <paramref name="collection"/> is not null or empty.
@@ -180,7 +170,7 @@
             NotNull(directoryInfo, nameof(directoryInfo));
 
             directoryInfo.Refresh();
-            That<DirectoryNotFoundException>(directoryInfo.Exists, $"Cannot find: '{directoryInfo.FullName}'");
+            That<DirectoryNotFoundException>(directoryInfo.Exists, $"Cannot find: '{directoryInfo.FullName}'.");
             return directoryInfo;
         }
 
@@ -201,9 +191,8 @@
             NotNull(fileInfo, nameof(fileInfo));
 
             fileInfo.Refresh();
-            That<FileNotFoundException>(fileInfo.Exists, $"Cannot find: '{fileInfo.FullName}'");
+            That<FileNotFoundException>(fileInfo.Exists, $"Cannot find: '{fileInfo.FullName}'.");
             return fileInfo;
         }
     }
-
 }
