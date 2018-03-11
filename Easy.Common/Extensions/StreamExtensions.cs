@@ -20,7 +20,7 @@
 
             try
             {
-                using (var reader = new StreamReader(stream, defaultEncodingIfNoBOM, true, 256, true))
+                using (var reader = new StreamReader(stream, defaultEncodingIfNoBOM, true, 1, true))
                 {
                     var _ = reader.Peek();
                     return reader.CurrentEncoding;
