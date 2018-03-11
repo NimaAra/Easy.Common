@@ -545,5 +545,21 @@
             string.Empty.NullIfEmpty().ShouldBeNull();
             ((string)null).NullIfEmpty().ShouldBeNull();
         }
+
+        [Test]
+        public void When_getting_size_of_string()
+        {
+            string.Empty.GetSize().ShouldBe(0);
+            "\r".GetSize().ShouldBe(2);
+            "\r\n".GetSize().ShouldBe(4);
+            "A".GetSize().ShouldBe(2);
+            "AB".GetSize().ShouldBe(4);
+            "ABC".GetSize().ShouldBe(6);
+            "֎".GetSize().ShouldBe(2);
+            "❤".GetSize().ShouldBe(2);
+
+            Should.Throw<NullReferenceException>(() => ((string) null).GetSize())
+                .Message.ShouldBe("Object reference not set to an instance of an object.");
+        }
     }
 }

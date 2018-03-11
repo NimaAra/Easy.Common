@@ -567,5 +567,11 @@
                 yield return result;
             }
         }
+
+        /// <summary>
+        /// Returns the size of the given <paramref name="input"/> in bytes.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static int GetSize(this string input) => input.Length * sizeof(char);
     }
 }
