@@ -569,7 +569,8 @@
         }
 
         /// <summary>
-        /// Returns the size of the given <paramref name="input"/> in bytes.
+        /// Returns the size of the given <paramref name="input"/> encoded 
+        /// as <c>UTF-16</c> characters in bytes.
         /// </summary>
         [DebuggerStepThrough]
         public static int GetSize(this string input) => input.Length * sizeof(char);
