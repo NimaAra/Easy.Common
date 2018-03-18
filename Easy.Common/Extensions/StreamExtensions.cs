@@ -1,6 +1,5 @@
 ﻿namespace Easy.Common.Extensions
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
@@ -15,6 +14,7 @@
     {
         private const char CR = '\r';
         private const char NL = '\n';
+        private const char NULL = (char)0;
         
         /// <summary>
         /// Detects the text encoding for the given <paramref name="stream"/>.
@@ -40,112 +40,47 @@
         }
         
         /// <summary>
-        /// Returns a sequence of lines read from the given <paramref name="stream"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static IEnumerable<string> ReadLines(this Stream stream) 
-            => stream.ReadLines(stream.DetectEncoding(Encoding.UTF8));
-
-        /// <summary>
-        /// Returns a sequence of lines read from the given <paramref name="stream"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static IEnumerable<string> ReadLines(this Stream stream, Encoding encoding)
-        {
-            Ensure.NotNull(stream, nameof(stream));
-
-            var decoder = encoding.GetDecoder();
-
-            var byteBuffer = new byte[1024 * 1024];
-            var charBuffer = new char[byteBuffer.Length];
-            var lineChars = new char[4096];
-            var lineCharsIdx = 0;
-
-            var prevChar = '\0';
-
-            int bytesRead;
-            while ((bytesRead = stream.Read(byteBuffer, 0, byteBuffer.Length)) > 0)
-            {
-                var charsConverted = decoder.GetChars(byteBuffer, 0, bytesRead, charBuffer, 0);
-
-                for (var i = 0; i < charsConverted; i++)
-                {
-                    var currentChar = charBuffer[i];
-                    
-                    if (currentChar == CR || currentChar == NL)
-                    {
-                        if (prevChar == CR && currentChar == NL) { continue; }
-
-                        yield return new string(lineChars, 0, lineCharsIdx);
-                        lineCharsIdx = 0;
-                    } else
-                    {
-                        if (lineCharsIdx == lineChars.Length)
-                        {
-                            Array.Resize(ref lineChars, lineChars.Length * 2);
-                        }
-                        lineChars[lineCharsIdx++] = currentChar;
-                    }
-
-                    prevChar = currentChar;
-                }
-            }
-
-            if (lineCharsIdx > 0)
-            {
-                yield return new string(lineChars, 0, lineCharsIdx);
-            }
-        }
-
-        /// <summary>
         /// Returns the number of lines in the given <paramref name="stream"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static long CountLines(this Stream stream, bool leaveOpen = false) 
-            => stream.CountLines(stream.DetectEncoding(Encoding.UTF8));
-
-        /// <summary>
-        /// Returns the number of lines in the given <paramref name="stream"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static long CountLines(this Stream stream, Encoding encoding)
+        public static long CountLines(this Stream stream)
         {
             Ensure.NotNull(stream, nameof(stream));
 
             var lineCount = 0L;
 
-            var decoder = encoding.GetDecoder();
-
             var byteBuffer = new byte[1024 * 1024];
-            var charBuffer = new char[byteBuffer.Length];
-            var lineTerminated = false;
-            var prevChar = '\0';
+            var prevChar = NULL;
+            var pendingTermination = false;
 
             int bytesRead;
             while ((bytesRead = stream.Read(byteBuffer, 0, byteBuffer.Length)) > 0)
             {
-                var charsConverted = decoder.GetChars(byteBuffer, 0, bytesRead, charBuffer, 0);
-
-                for (var i = 0; i < charsConverted; i++)
+                for (var i = 0; i < bytesRead; i++)
                 {
-                    var currentChar = charBuffer[i];
-                    
-                    if (currentChar == CR || currentChar == NL)
+                    var currentChar = (char)byteBuffer[i];
+                    switch (currentChar)
                     {
-                        if (prevChar == CR && currentChar == NL) { continue; }
-
-                        lineCount++;
-                        lineTerminated = false;
-                    } else
-                    {
-                        lineTerminated = true;
+                        case NULL:
+                        case NL when prevChar == CR:
+                            continue;
+                        case CR:
+                        case NL when prevChar != CR:
+                            lineCount++;
+                            pendingTermination = false;
+                            break;
+                        default:
+                            if (!pendingTermination)
+                            {
+                                pendingTermination = true;
+                            }
+                            break;
                     }
-
                     prevChar = currentChar;
                 }
             }
 
-            if (lineTerminated) { lineCount++; }
+            if (pendingTermination) { lineCount++; }
             return lineCount;
         }
 

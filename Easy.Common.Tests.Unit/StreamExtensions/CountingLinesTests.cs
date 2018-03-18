@@ -11,14 +11,14 @@
     internal sealed class CountingLinesTests
     {
         [Test]
-        public void When_reading_null_stream()
+        public void When_processing_null_stream()
         {
             Should.Throw<ArgumentNullException>(() => ((MemoryStream) null).CountLines())
                 .Message.ShouldBe("Value cannot be null.\r\nParameter name: stream");
         }
         
         [Test]
-        public void When_reading_empty_stream()
+        public void When_processing_empty_stream()
         {
             using (var mem = new MemoryStream())
             {
@@ -29,7 +29,7 @@
         [TestCase("\r")]
         [TestCase("\n")]
         [TestCase("\r\n")]
-        public void When_reading_stream_with_empty_line(string content)
+        public void When_processing_stream_with_empty_line(string content)
         {
             using (var mem = new MemoryStream())
             {
@@ -37,14 +37,14 @@
                 mem.Write(input, 0, input.Length);
                 mem.Position = 0;
 
-                mem.CountLines().ShouldBe(1);
+                mem.CountLines().ShouldBe(1, $"Content was: '{content}'");
             }
         }
 
         [TestCase("\r\r")]
         [TestCase("\n\n")]
         [TestCase("\r\n\r\n")]
-        public void When_reading_stream_with_empty_lines(string content)
+        public void When_processing_stream_with_empty_lines(string content)
         {
             using (var mem = new MemoryStream())
             {
@@ -52,7 +52,7 @@
                 mem.Write(input, 0, input.Length);
                 mem.Position = 0;
 
-                mem.CountLines().ShouldBe(2);
+                mem.CountLines().ShouldBe(2, $"Content was: '{content}'");
             }
         }
 
@@ -60,7 +60,7 @@
         [TestCase("A\r")]
         [TestCase("A\n")]
         [TestCase("A\r\n")]
-        public void When_reading_stream_with_single_line(string content)
+        public void When_processing_stream_with_single_line(string content)
         {
             using (var mem = new MemoryStream())
             {
@@ -68,12 +68,12 @@
                 mem.Write(input, 0, input.Length);
                 mem.Position = 0;
 
-                mem.CountLines().ShouldBe(1);
+                mem.CountLines().ShouldBe(1, $"Content was: '{content}'");
             }
         }
 
         [Test]
-        public void When_reading_stream_with_lines_terminated_by_carriage_return()
+        public void When_processing_stream_with_lines_terminated_by_carriage_return()
         {
             using (var mem = new MemoryStream())
             {
@@ -86,7 +86,7 @@
         }
 
         [Test]
-        public void When_reading_stream_with_lines_terminated_by_new_line()
+        public void When_processing_stream_with_lines_terminated_by_new_line()
         {
             using (var mem = new MemoryStream())
             {
@@ -99,7 +99,7 @@
         }
 
         [Test]
-        public void When_reading_stream_with_lines_terminated_by_carriage_return_followed_by_new_line()
+        public void When_processing_stream_with_lines_terminated_by_carriage_return_followed_by_new_line()
         {
             using (var mem = new MemoryStream())
             {
@@ -112,7 +112,7 @@
         }
 
         [Test]
-        public void When_reading_long_line_terminated_by_carriage_return()
+        public void When_processing_long_line_terminated_by_carriage_return()
         {
             using (var mem = new MemoryStream())
             {
@@ -125,7 +125,7 @@
         }
 
         [Test]
-        public void When_reading_long_line_terminated_by_carriage_by_new_line()
+        public void When_processing_long_line_terminated_by_carriage_by_new_line()
         {
             using (var mem = new MemoryStream())
             {
@@ -138,7 +138,7 @@
         }
 
         [Test]
-        public void When_reading_long_line_terminated_by_carriage_return_followed_by_new_line()
+        public void When_processing_long_line_terminated_by_carriage_return_followed_by_new_line()
         {
             using (var mem = new MemoryStream())
             {
@@ -147,6 +147,127 @@
                 mem.Position = 0;
 
                 mem.CountLines().ShouldBe(3);
+            }
+        }
+
+        [Test]
+        public void When_processing_a_ascii_file()
+        {
+            FileInfo file = null;
+            try
+            {
+                file = new FileInfo(Path.GetTempFileName());
+                using(var writer = new StreamWriter(File.OpenWrite(file.FullName), Encoding.ASCII))
+                {
+                    writer.WriteLine("A");
+                    writer.WriteLine("B");
+                    writer.WriteLine("❤");
+                    writer.WriteLine("C");
+                }
+
+                using (var stream = file.OpenRead())
+                {
+                    stream.CountLines().ShouldBe(4);
+                }
+            } finally
+            {
+                file.Delete();
+            }
+        }
+
+        [Test]
+        public void When_processing_a_utf8_file()
+        {
+            FileInfo file = null;
+            try
+            {
+                file = new FileInfo(Path.GetTempFileName());
+                using(var writer = new StreamWriter(File.OpenWrite(file.FullName), Encoding.UTF8))
+                {
+                    writer.WriteLine("A");
+                    writer.WriteLine("B");
+                    writer.WriteLine("C");
+                }
+
+                using (var stream = file.OpenRead())
+                {
+                    stream.CountLines().ShouldBe(3);
+                }
+            } finally
+            {
+                file.Delete();
+            }
+        }
+
+        [Test]
+        public void When_processing_a_utf7_file()
+        {
+            FileInfo file = null;
+            try
+            {
+                file = new FileInfo(Path.GetTempFileName());
+                using(var writer = new StreamWriter(File.OpenWrite(file.FullName), Encoding.UTF7))
+                {
+                    writer.WriteLine("A");
+                    writer.WriteLine("B");
+                    writer.WriteLine("C");
+                }
+
+                using (var stream = file.OpenRead())
+                {
+                    stream.CountLines().ShouldBe(3);
+                }
+            } finally
+            {
+                file.Delete();
+            }
+        }
+
+        [Test]
+        public void When_processing_a_utf16_file()
+        {
+            FileInfo file = null;
+            try
+            {
+                file = new FileInfo(Path.GetTempFileName());
+                using(var writer = new StreamWriter(File.OpenWrite(file.FullName), Encoding.Unicode))
+                {
+                    writer.WriteLine("A");
+                    writer.WriteLine("B");
+                    writer.WriteLine("C");
+                }
+
+                using (var stream = file.OpenRead())
+                {
+                    stream.CountLines().ShouldBe(3);
+                }
+            } finally
+            {
+                file.Delete();
+            }
+        }
+
+        [Test]
+        public void When_processing_a_utf32_file()
+        {
+            FileInfo file = null;
+            try
+            {
+                file = new FileInfo(Path.GetTempFileName());
+                using(var writer = new StreamWriter(File.OpenWrite(file.FullName), Encoding.UTF32))
+                {
+                    writer.WriteLine("A");
+                    writer.WriteLine("B");
+                    writer.WriteLine("C");
+                }
+
+                using (var stream = file.OpenRead())
+                {
+                    stream.CountLines().ShouldBe(3);
+                }
+            } finally
+            {
+                file.Delete();
             }
         }
     }
