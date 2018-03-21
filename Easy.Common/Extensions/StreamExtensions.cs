@@ -13,7 +13,7 @@
     public static class StreamExtensions
     {
         private const char CR = '\r';
-        private const char NL = '\n';
+        private const char LF = '\n';
         private const char NULL = (char)0;
         
         /// <summary>
@@ -62,10 +62,10 @@
                     switch (currentChar)
                     {
                         case NULL:
-                        case NL when prevChar == CR:
+                        case LF when prevChar == CR:
                             continue;
                         case CR:
-                        case NL when prevChar != CR:
+                        case LF when prevChar != CR:
                             lineCount++;
                             pendingTermination = false;
                             break;
