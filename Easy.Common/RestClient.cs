@@ -23,10 +23,7 @@
         private readonly HashSet<Uri> _endpoints;
         private readonly TimeSpan _connectionCloseTimeoutPeriod;
 
-       static RestClient()
-       {
-           ConfigureServicePointManager();
-       }
+        static RestClient() => ConfigureServicePointManager();
 
         /// <summary>
         /// Creates an instance of the <see cref="RestClient"/>.
@@ -51,7 +48,8 @@
         /// <summary>
         /// Gets the headers which should be sent with each request.
         /// </summary>
-        public IDictionary<string, string> DefaultRequestHeaders => _client.DefaultRequestHeaders.ToDictionary(x => x.Key, x => x.Value.First());
+        public IDictionary<string, string> DefaultRequestHeaders 
+            => _client.DefaultRequestHeaders.ToDictionary(x => x.Key, x => x.Value.First());
 
         /// <summary>
         /// Gets the time to wait before the request times out.
@@ -108,13 +106,15 @@
         /// </summary>
         /// <exception cref="UriFormatException"/>
         /// <exception cref="ArgumentException"/>
-        public Task<HttpResponseMessage> GetAsync(string uri) => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri));
+        public Task<HttpResponseMessage> GetAsync(string uri) 
+            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri));
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> GetAsync(Uri uri) => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri));
+        public Task<HttpResponseMessage> GetAsync(Uri uri) 
+            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri));
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="cToken"/>.
