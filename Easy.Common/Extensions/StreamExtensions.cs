@@ -38,7 +38,7 @@
                 if (stream.CanSeek) { stream.Position = startPos; }
             }
         }
-        
+
         /// <summary>
         /// Returns the number of lines in the given <paramref name="stream"/>.
         /// </summary>
@@ -50,37 +50,36 @@
             var lineCount = 0L;
 
             var byteBuffer = new byte[1024 * 1024];
-            var prevChar = NULL;
-            var pendingTermination = false;
+            var detectedEOL = NULL;
+            var currentChar = NULL;
 
             int bytesRead;
             while ((bytesRead = stream.Read(byteBuffer, 0, byteBuffer.Length)) > 0)
             {
                 for (var i = 0; i < bytesRead; i++)
                 {
-                    var currentChar = (char)byteBuffer[i];
-                    switch (currentChar)
+                    currentChar = (char)byteBuffer[i];
+
+                    if (detectedEOL != NULL)
                     {
-                        case NULL:
-                        case LF when prevChar == CR:
-                            continue;
-                        case CR:
-                        case LF when prevChar != CR:
+                        if (currentChar == detectedEOL)
+                        {
                             lineCount++;
-                            pendingTermination = false;
-                            break;
-                        default:
-                            if (!pendingTermination)
-                            {
-                                pendingTermination = true;
-                            }
-                            break;
+                        }
                     }
-                    prevChar = currentChar;
+                    else if (currentChar == LF || currentChar == CR)
+                    {
+                        detectedEOL = currentChar;
+                        lineCount++;
+                    }
                 }
             }
 
-            if (pendingTermination) { lineCount++; }
+            if (currentChar != LF && currentChar != CR && currentChar != NULL)
+            {
+                lineCount++;
+            }
+
             return lineCount;
         }
 
