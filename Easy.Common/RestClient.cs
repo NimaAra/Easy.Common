@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
@@ -9,7 +10,6 @@
     using System.Threading.Tasks;
     using Easy.Common.Extensions;
     using Easy.Common.Interfaces;
-    using System.IO;
 
     /// <summary>
     /// An abstraction over <see cref="HttpClient"/> to address the following issues:
@@ -22,6 +22,11 @@
         private readonly HttpClient _client;
         private readonly HashSet<Uri> _endpoints;
         private readonly TimeSpan _connectionCloseTimeoutPeriod;
+
+       static RestClient()
+       {
+           ConfigureServicePointManager();
+       }
 
         /// <summary>
         /// Creates an instance of the <see cref="RestClient"/>.
@@ -41,12 +46,6 @@
 
             _endpoints = new HashSet<Uri>();
             _connectionCloseTimeoutPeriod = 1.Minutes();
-
-            // Default is 2 minutes: https://msdn.microsoft.com/en-us/library/system.net.servicepointmanager.dnsrefreshtimeout(v=vs.110).aspx
-            ServicePointManager.DnsRefreshTimeout = (int)1.Minutes().TotalMilliseconds;
-
-            // Increases the concurrent outbound connections
-            ServicePointManager.DefaultConnectionLimit = 1024;
         }
 
         /// <summary>
@@ -350,6 +349,15 @@
         {
             _client.Dispose();
             lock (_endpoints) { _endpoints.Clear(); }
+        }
+        
+        private static void ConfigureServicePointManager()
+        {
+            // Default is 2 minutes, see https://msdn.microsoft.com/en-us/library/system.net.servicepointmanager.dnsrefreshtimeout(v=vs.110).aspx
+            ServicePointManager.DnsRefreshTimeout = (int)1.Minutes().TotalMilliseconds;
+
+            // Increases the concurrent outbound connections
+            ServicePointManager.DefaultConnectionLimit = 1024;
         }
 
         private void AddDefaultHeaders(IDictionary<string, string> headers)
