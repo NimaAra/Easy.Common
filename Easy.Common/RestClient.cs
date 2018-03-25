@@ -351,10 +351,7 @@
             lock (_endpoints) { _endpoints.Clear(); }
         }
         
-        /// <summary>
-        /// Makes the necessary changes to <see cref="ServicePointManager" /> properties.
-        /// </summay>
-        public static void ConfigureServicePointManager()
+        private static void ConfigureServicePointManager()
         {
             // Default is 2 minutes, see https://msdn.microsoft.com/en-us/library/system.net.servicepointmanager.dnsrefreshtimeout(v=vs.110).aspx
             ServicePointManager.DnsRefreshTimeout = (int)1.Minutes().TotalMilliseconds;
