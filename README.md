@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/ar3dp6i0kg9ii80o?svg=true)](https://ci.appveyor.com/project/NimaAra/easy-common)
+[![NuGet](https://img.shields.io/nuget/v/Easy.Common.svg)](https://www.nuget.org/packages/Easy.Common)[![Build status](https://ci.appveyor.com/api/projects/status/ar3dp6i0kg9ii80o?svg=true)](https://ci.appveyor.com/project/NimaAra/easy-common)
 
 # Easy Common
 A set of useful utilities and helpers used across Easy.* projects.
@@ -20,6 +20,3 @@ ___
 * [`Clock`](https://github.com/NimaAra/Easy.Common/blob/master/Easy.Common/Clock.cs) featured in [High Resolution Clock in .NET](http://www.nimaara.com/2016/07/06/high-resolution-clock-in-net/)
 
 And more to come...
-
-***
-* NuGet at: https://www.nuget.org/packages/Easy.Common/
