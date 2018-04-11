@@ -447,7 +447,6 @@ namespace Easy.Common
             Format(ProcessHeaders[21], $"{report.ProcessDetails.ThreadPoolMinCompletionPortCount:N0} <-> {report.ProcessDetails.ThreadPoolMaxCompletionPortCount:N0}");
             Format(ProcessHeaders[22], $"{report.ProcessDetails.ThreadPoolMinWorkerCount:N0} <-> {report.ProcessDetails.ThreadPoolMaxWorkerCount:N0}");
             Format(ProcessHeaders[12], report.ProcessDetails.FileVersion);
-            Format(ProcessHeaders[12], report.ProcessDetails.FileVersion);
             Format(ProcessHeaders[13], report.ProcessDetails.ProductVersion);
             Format(ProcessHeaders[14], report.ProcessDetails.Language);
             Format(ProcessHeaders[15], report.ProcessDetails.Copyright);
