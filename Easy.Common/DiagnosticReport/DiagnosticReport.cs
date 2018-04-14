@@ -12,6 +12,7 @@ namespace Easy.Common
     using System.Runtime;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Text.RegularExpressions;
     using System.Threading;
     using Easy.Common.Extensions;
     using Microsoft.Win32;
@@ -748,16 +749,16 @@ namespace Easy.Common
 
         private static string GetProcessorName()
         {
-            const string Result = "UNKNOWN";
+            var result = "UNKNOWN";
 
             try
             {
-                if (ApplicationHelper.IsWindows) { return GetProcessorNameWindows(); }
-                if (ApplicationHelper.IsLinux) { return GetProcessorNameLinux(); }
-                if (ApplicationHelper.IsOSX) { return GetProcessorNameOSX(); }
+                if (ApplicationHelper.IsWindows) { result = GetProcessorNameWindows(); }
+                if (ApplicationHelper.IsLinux) { result = GetProcessorNameLinux(); }
+                if (ApplicationHelper.IsOSX) { result = GetProcessorNameOSX(); }
 
-                return Result;
-            } catch (Exception) { return Result; }
+                return Regex.Replace(result, @"\s+", " ");
+            } catch (Exception) { return result; }
         }
 
         /// <summary>
