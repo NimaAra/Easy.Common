@@ -171,7 +171,7 @@
                 }
             } finally
             {
-                file.Delete();
+                file?.Delete();
             }
         }
 
@@ -195,7 +195,7 @@
                 }
             } finally
             {
-                file.Delete();
+                file?.Delete();
             }
         }
 
@@ -219,7 +219,7 @@
                 }
             } finally
             {
-                file.Delete();
+                file?.Delete();
             }
         }
 
@@ -243,7 +243,7 @@
                 }
             } finally
             {
-                file.Delete();
+                file?.Delete();
             }
         }
 
@@ -267,7 +267,7 @@
                 }
             } finally
             {
-                file.Delete();
+                file?.Delete();
             }
         }
     }
