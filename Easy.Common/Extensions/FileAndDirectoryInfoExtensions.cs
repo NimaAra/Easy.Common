@@ -177,8 +177,8 @@
                 if (option == SearchOption.AllDirectories)
                 {
                     directories = directory.EnumerateDirectories()
-                        .SelectMany(d => 
-                            d.EnumerateDirectoriesSafe(searchPattern, option, throwOnPathTooLong));
+                        .AsParallel()
+                        .SelectMany(d => d.EnumerateDirectoriesSafe(searchPattern, option, throwOnPathTooLong));
                 }
 
                 return directories.Concat(directory.EnumerateDirectories(searchPattern));
@@ -206,6 +206,7 @@
                 if (option == SearchOption.AllDirectories)
                 {
                     files = directory.EnumerateDirectories()
+                        .AsParallel()
                         .SelectMany(d => d.EnumerateFilesSafe(searchPattern, option, throwOnPathTooLong));
                 }
 
