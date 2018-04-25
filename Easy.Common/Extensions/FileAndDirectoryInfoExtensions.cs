@@ -6,6 +6,7 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Provides a set of useful methods for working with <see cref="FileInfo"/> and <see cref="DirectoryInfo"/>.
@@ -160,6 +161,41 @@
                 }
             }
         }
+
+        /// <summary>
+        /// Enumerates every directory inside the <paramref name="directory"/> without 
+        /// throwing <see cref="UnauthorizedAccessException"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static void EnumerateAllFilesSafe(this DirectoryInfo directory, Action<FileInfo> handler)
+        {
+            foreach (var f in directory.EnumerateFilesSafe()) { handler(f); }
+            EnumerateAllFilesSafeImpl(directory);
+
+            void EnumerateAllFilesSafeImpl(DirectoryInfo theDir)
+            {
+                Parallel.ForEach(
+                    theDir.EnumerateDirectoriesSafe(),
+                    d => {
+                        var files = d.EnumerateFilesSafe();
+                        foreach (var f in files) { handler(f); }
+                        EnumerateAllFilesSafeImpl(d);
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Enumerates every file inside the <paramref name="directory"/> without 
+        /// throwing <see cref="UnauthorizedAccessException"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static void EnumerateAllDirectoriesSafe(this DirectoryInfo directory, Action<DirectoryInfo> handler) 
+            => Parallel.ForEach(
+                directory.EnumerateDirectoriesSafe(),
+                dir => { 
+                    handler(dir);		
+                    dir.EnumerateAllDirectoriesSafe(handler);
+                });
 
         /// <summary>
         /// Enumerates every directory inside the <paramref name="directory"/> without 
