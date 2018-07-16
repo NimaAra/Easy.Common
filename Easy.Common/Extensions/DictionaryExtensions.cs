@@ -59,7 +59,7 @@
             this IDictionary<TKey, TValue> left,
             IDictionary<TKey, TValue> right,
             IEqualityComparer<TValue> valueComparer = null)
-                => Equals(((IReadOnlyDictionary<TKey, TValue>) left), (IReadOnlyDictionary<TKey, TValue>) right, valueComparer);
+                => Equals((IReadOnlyDictionary<TKey, TValue>) left, (IReadOnlyDictionary<TKey, TValue>) right, valueComparer);
 
         /// <summary>
         /// Compares the given <paramref name="left"/> against <paramref name="right"/> for equality.
@@ -79,36 +79,36 @@
 
             if (left is Dictionary<TKey, TValue> leftConcrete)
             {
-                foreach (var pair in leftConcrete) { if (!PairExists(pair, right, comparer)) { return false; } }
+                foreach (var pair in leftConcrete) { if (!KeyValuePairExists(pair, right, comparer)) { return false; } }
             }
             else if (right is Dictionary<TKey, TValue> rightConcrete)
             {
-                foreach (var pair in rightConcrete) { if (!PairExists(pair, left, comparer)) { return false; } }
+                foreach (var pair in rightConcrete) { if (!KeyValuePairExists(pair, left, comparer)) { return false; } }
             } 
             else if (left is EasyDictionary<TKey, TValue> leftEasyConcrete)
             {
                 var keySelector = leftEasyConcrete.KeySelector;
-                foreach (var item in leftEasyConcrete) { if (!ValueExists(keySelector(item), item, right, comparer)) { return false; } }
+                foreach (var item in leftEasyConcrete) { if (!KeyValueExists(keySelector(item), item, right, comparer)) { return false; } }
             }
             else if (right is EasyDictionary<TKey, TValue> rightEasyConcrete)
             {
                 var keySelector = rightEasyConcrete.KeySelector;
-                foreach (var item in rightEasyConcrete) { if (!ValueExists(keySelector(item), item, left, comparer)) { return false; } }
+                foreach (var item in rightEasyConcrete) { if (!KeyValueExists(keySelector(item), item, left, comparer)) { return false; } }
             }
             else
             {
-                foreach (var pair in left) { if (!PairExists(pair, right, comparer)) { return false; } }
+                foreach (var pair in left) { if (!KeyValuePairExists(pair, right, comparer)) { return false; } }
             }
             return true;
         }
 
-        private static bool ValueExists<TKey, TValue>(TKey key, TValue value,
+        private static bool KeyValueExists<TKey, TValue>(TKey key, TValue value,
             IReadOnlyDictionary<TKey, TValue> dictionary, IEqualityComparer<TValue> comparer)
-            => dictionary.TryGetValue(key, out var rightVal) && comparer.Equals(value, rightVal);
+                => dictionary.TryGetValue(key, out var rightVal) && comparer.Equals(value, rightVal);
 
-        private static bool PairExists<TKey, TValue>(KeyValuePair<TKey, TValue> pair, 
+        private static bool KeyValuePairExists<TKey, TValue>(KeyValuePair<TKey, TValue> pair, 
             IReadOnlyDictionary<TKey, TValue> dictionary, IEqualityComparer<TValue> comparer)
-                => dictionary.TryGetValue(pair.Key, out var rightVal) && comparer.Equals(pair.Value, rightVal);
+                => KeyValueExists(pair.Key, pair.Value, dictionary, comparer);
 
         /// <summary>
         /// Returns a <see cref="NameValueCollection"/> as a Dictionary

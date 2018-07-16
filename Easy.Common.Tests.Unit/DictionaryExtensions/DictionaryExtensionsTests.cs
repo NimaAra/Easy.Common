@@ -7,7 +7,6 @@
     using System.Diagnostics;
     using Easy.Common.Extensions;
     using Easy.Common.Interfaces;
-    using Easy.Common.Tests.Unit.EasyDictionary;
     using NUnit.Framework;
     using Shouldly;
     using HashHelper = Easy.Common.HashHelper;
@@ -40,8 +39,7 @@
         {
             var someDic = new Dictionary<int, string> { { 1, "A" } };
 
-            string value;
-            someDic.TryGetValue(1, out value).ShouldBeTrue();
+            someDic.TryGetValue(1, out var value).ShouldBeTrue();
             value.ShouldBe("A");
 
             someDic.GetOrDefault(1).ShouldBe("A");
@@ -121,12 +119,12 @@
             left["B"] = 3;
             DictionaryExtensions.Equals(left, right).ShouldBeTrue();
 
-            DictionaryExtensions.Equals(((IDictionary<string, int>) null), right).ShouldBeFalse();
+            DictionaryExtensions.Equals(null, right).ShouldBeFalse();
 
             left = right;
             DictionaryExtensions.Equals(left, null).ShouldBeFalse();
             
-            DictionaryExtensions.Equals(((IDictionary<string, int>) null), null).ShouldBeTrue();
+            DictionaryExtensions.Equals((IDictionary<string, int>) null, null).ShouldBeTrue();
         }
 
         [Test]
@@ -158,7 +156,7 @@
             left[3] = "b";
             DictionaryExtensions.Equals(left, right, comparer).ShouldBeTrue();
 
-            DictionaryExtensions.Equals(((IDictionary<int, string>)null), right, comparer).ShouldBeFalse();
+            DictionaryExtensions.Equals(null, right, comparer).ShouldBeFalse();
 
             left = right;
             DictionaryExtensions.Equals(left, null, comparer).ShouldBeFalse();
