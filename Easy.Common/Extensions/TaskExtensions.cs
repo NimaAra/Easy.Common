@@ -101,7 +101,7 @@ namespace Easy.Common.Extensions
             }
         }
 
-        #region Exception Handling
+    #region Exception Handling
 
         /// <summary>
         /// Suppresses default exception handling of a Task that would otherwise re-raise 
@@ -122,19 +122,6 @@ namespace Easy.Common.Extensions
             CancellationToken.None,
             TaskContinuationOptions.ExecuteSynchronously,
             TaskScheduler.Default);
-        }
-
-        /// <summary>
-        /// Suppresses default exception handling of a Task that would otherwise re-raise 
-        /// the exception on the finalizer thread.
-        /// </summary>
-        /// <param name="task">The Task to be monitored</param>
-        /// <returns>The original Task</returns>
-        [DebuggerStepThrough]
-        public static Task<T> IgnoreExceptions<T>(this Task<T> task)
-        {
-            Ensure.NotNull(task, nameof(task));
-            return (Task<T>)((Task)task).IgnoreExceptions();
         }
 
         /// <summary>
@@ -240,7 +227,7 @@ namespace Easy.Common.Extensions
             TaskScheduler.Default);
         }
 
-        #endregion
+    #endregion
 
         private static async Task TimeoutAfterImpl(
             this Task task, TimeSpan timeoutPeriod, CancellationToken cToken)
