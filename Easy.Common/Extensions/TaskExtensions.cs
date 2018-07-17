@@ -114,11 +114,7 @@ namespace Easy.Common.Extensions
         {
             Ensure.NotNull(task, nameof(task));
 
-            return task.ContinueWith(t =>
-            {
-                // ReSharper disable once UnusedVariable
-                var ignored = t.Exception;
-            },
+            return task.ContinueWith(t => { var _ = t.Exception; },
             CancellationToken.None,
             TaskContinuationOptions.ExecuteSynchronously,
             TaskScheduler.Default);
@@ -140,8 +136,7 @@ namespace Easy.Common.Extensions
             {
                 var e = t.Exception;
 
-                if (e == null)
-                { return; }
+                if (e == null) { return; }
 
                 e.Flatten().Handle(ie =>
                 {
@@ -172,8 +167,7 @@ namespace Easy.Common.Extensions
             {
                 var e = t.Exception;
 
-                if (e == null)
-                { return; }
+                if (e == null) { return; }
 
                 e.Flatten().Handle(ie =>
                 {
@@ -208,8 +202,7 @@ namespace Easy.Common.Extensions
             {
                 var e = t.Exception;
 
-                if (e == null)
-                { return; }
+                if (e == null) { return; }
 
                 e.Flatten().Handle(ie =>
                 {
