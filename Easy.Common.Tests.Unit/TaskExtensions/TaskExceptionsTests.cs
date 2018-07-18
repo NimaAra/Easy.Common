@@ -121,6 +121,23 @@
         }
 
         [Test]
+        public void ShouldIgnoreIgnoreExceptionsOnWrappedTasks()
+        {
+            Action action = () =>
+            {
+                var t = Task.Factory.StartNew<Task<int>>(async () =>
+                {
+                    await Task.Delay(1000);
+                    throw new DivideByZeroException();
+                }).IgnoreExceptions();
+
+                t.Wait();
+            };
+            
+            action.ShouldNotThrow();
+        }
+
+        [Test]
         public void ShouldHandleExpectedExceptionWhenNoException()
         {
             var exceptionsQueue = new Queue<Exception>();
