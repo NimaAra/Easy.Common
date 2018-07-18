@@ -13,7 +13,7 @@
         [Test]
         public void When_enumerating_files()
         {
-            var root = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "_-root-_", Path.GetRandomFileName()));
+            var root = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
             try
             {
                 root.Create();
@@ -46,7 +46,7 @@
         [Test]
         public void When_enumerating_files_recursive()
         {
-            var root = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "_-root-_", Path.GetRandomFileName()));
+            var root = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
             try
             {
                 root.Create();
@@ -84,7 +84,7 @@
         [Test]
         public void When_enumerating_files_search()
         {
-            var root = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "_-root-_", Path.GetRandomFileName()));
+            var root = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
             try
             {
                 root.Create();
@@ -118,7 +118,7 @@
         [Test]
         public void When_enumerating_all_files()
         {
-            var root = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "_-root-_", Path.GetRandomFileName()));
+            var root = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
             try
             {
                 root.Create();
