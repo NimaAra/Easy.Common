@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using Easy.Common.Extensions;
     using NUnit.Framework;
@@ -14,143 +13,19 @@
     public class TaskExceptionsTests
     {
         [Test]
-        public void ShouldIgnoreNoException()
-        {
-            Action action = () =>
-            {
-                var t1 = Task.Factory.StartNew(() =>
-                {
-                    try { throw new DivideByZeroException(); } catch (Exception) { /* Ignore */ }
-                }).IgnoreExceptions();
-
-                t1.Wait();
-            };
-
-            action.ShouldNotThrow();
-        }
-        
-        [Test]
-        public void ShouldIgnoreNoExceptionWithChildTask()
-        {
-            Action action = () =>
-            {
-                var t1 = Task.Factory.StartNew(() =>
-                {
-                    try { throw new DivideByZeroException(); } catch (Exception) { /* Ignore */ }
-
-                    Task.Factory.StartNew(() =>
-                    {
-                        try { throw new DivideByZeroException(); } catch (Exception) { /* Ignore */ }
-                    }, TaskCreationOptions.AttachedToParent);
-                }).IgnoreExceptions();
-
-                t1.Wait();
-            };
-
-            action.ShouldNotThrow();
-        }
-
-        [Test]
-        public void ShouldIgnoreCancelledTask()
-        {
-            Action action = () =>
-            {
-                var cts = new CancellationTokenSource();
-                var t1 = Task.Factory.StartNew(() =>
-                {
-                    cts.Cancel();
-                    cts.Token.ThrowIfCancellationRequested();
-                }, cts.Token).IgnoreExceptions();
-
-                t1.Wait();
-            };
-
-            action.ShouldNotThrow();
-        }
-
-        [Test]
-        public void ShouldIgnoreSingleException()
-        {
-            Action action = () =>
-            {
-                var t1 = Task.Factory.StartNew(() =>
-                {
-                    throw new DivideByZeroException();
-                }).IgnoreExceptions();
-
-                t1.Wait();
-            };
-
-            action.ShouldNotThrow();
-        }
-        
-        [Test]
-        public void ShouldIgnoreSingleExceptionWithChildTask()
-        {
-            Action action = () =>
-            {
-                var t1 = Task.Factory.StartNew(() =>
-                {
-                    Task.Factory.StartNew(() => {throw new InvalidOperationException();}, TaskCreationOptions.AttachedToParent);
-                    throw new DivideByZeroException();
-                }).IgnoreExceptions();
-
-                t1.Wait();
-            };
-
-            action.ShouldNotThrow();
-        }
-
-        [Test]
-        public void ShouldIgnoreMultipleExceptions()
-        {
-            Action action = () =>
-            {
-                var t1 = Task.Factory.StartNew(() =>
-                {
-                    Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
-                    Task.Factory.StartNew(() => { throw new InvalidCastException(); }, TaskCreationOptions.AttachedToParent);
-
-                    throw new DivideByZeroException();
-                }).IgnoreExceptions();
-
-                t1.Wait();
-            };
-
-            action.ShouldNotThrow();
-        }
-
-        [Test]
-        public void ShouldIgnoreIgnoreExceptionsOnWrappedTasks()
-        {
-            Action action = () =>
-            {
-                var t = Task.Factory.StartNew<Task<int>>(async () =>
-                {
-                    await Task.Delay(1000);
-                    throw new DivideByZeroException();
-                }).IgnoreExceptions();
-
-                t.Wait();
-            };
-            
-            action.ShouldNotThrow();
-        }
-
-        [Test]
         public void ShouldHandleExpectedExceptionWhenNoException()
         {
             var exceptionsQueue = new Queue<Exception>();
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() =>
+                var t = Task.Factory.StartNew(() =>
                 {
                     try { throw new InvalidOperationException(); } catch (Exception) { /* Ignore */ }
 
                 }).HandleException<InvalidOperationException>(e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldNotThrow();
@@ -165,11 +40,11 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
+                var t = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
                     .HandleException<InvalidOperationException>(
                         e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldThrow<AggregateException>()
@@ -187,11 +62,11 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
+                var t = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
                     .HandleException<DivideByZeroException>(
                         e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldNotThrow();
@@ -208,14 +83,14 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() =>
+                var t = Task.Factory.StartNew(() =>
                 {
                     Task.Factory.StartNew(() => { throw new InvalidOperationException(); }, TaskCreationOptions.AttachedToParent);
                     throw new DivideByZeroException();
                 }).HandleException<DivideByZeroException>(
                         e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldThrow<AggregateException>()
@@ -234,7 +109,7 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() =>
+                var t = Task.Factory.StartNew(() =>
                 {
                     try
                     {
@@ -243,7 +118,7 @@
                 })
                 .HandleExceptions(e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldNotThrow();
@@ -257,10 +132,10 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
+                var t = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
                     .HandleExceptions(e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldNotThrow();
@@ -275,13 +150,13 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() =>
+                var t = Task.Factory.StartNew(() =>
                 {
                     Task.Factory.StartNew(() => { throw new InvalidOperationException(); }, TaskCreationOptions.AttachedToParent);
                     throw new DivideByZeroException();
                 }).HandleExceptions(e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldNotThrow();
@@ -297,7 +172,7 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() =>
+                var t = Task.Factory.StartNew(() =>
                 {
                     Task.Factory.StartNew(() =>
                     {
@@ -311,7 +186,7 @@
                     throw new DivideByZeroException();
                 }).HandleExceptions(e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldNotThrow();
@@ -328,10 +203,10 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
+                var t = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
                     .HandleExceptions(e => e is InvalidOperationException, e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldThrow<AggregateException>()
@@ -349,10 +224,10 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
+                var t = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
                     .HandleExceptions(e => e is DivideByZeroException, e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldNotThrow();
@@ -369,10 +244,10 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
+                var t = Task.Factory.StartNew(() => { throw new DivideByZeroException(); })
                     .HandleExceptions(e => e is DivideByZeroException || e is FileNotFoundException, e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldNotThrow();
@@ -389,13 +264,13 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() =>
+                var t = Task.Factory.StartNew(() =>
                 {
                     Task.Factory.StartNew(() => { throw new InvalidOperationException(); }, TaskCreationOptions.AttachedToParent);
                     throw new DivideByZeroException();
                 }).HandleExceptions(e => e is DivideByZeroException, e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldThrow<AggregateException>()
@@ -414,13 +289,13 @@
 
             Action action = () =>
             {
-                var t1 = Task.Factory.StartNew(() =>
+                var t = Task.Factory.StartNew(() =>
                 {
                     Task.Factory.StartNew(() => { throw new InvalidOperationException(); }, TaskCreationOptions.AttachedToParent);
                     throw new DivideByZeroException();
                 }).HandleExceptions(e => e is DivideByZeroException || e is InvalidOperationException, e => { exceptionsQueue.Enqueue(e); });
 
-                t1.Wait();
+                t.Wait();
             };
 
             action.ShouldNotThrow();

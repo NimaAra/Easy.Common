@@ -153,11 +153,11 @@ namespace Easy.Common.Extensions
 
             return task.ContinueWith(t =>
             {
-                var e = t.Exception;
+                var aggEx = t.Exception;
 
-                if (e == null) { return; }
+                if (aggEx == null) { return; }
 
-                e.Flatten().Handle(ie =>
+                aggEx.Flatten().Handle(ie =>
                 {
                     exceptionsHandler(ie);
                     return true;
@@ -169,14 +169,16 @@ namespace Easy.Common.Extensions
         }
 
         /// <summary>
-        /// Handles expected exception(s) thrown by the <paramref name="task"/> which are specified by <paramref name="exceptionPredicate"/>.
+        /// Handles expected exception(s) thrown by the <paramref name="task"/>
+        /// which are specified by <paramref name="exceptionPredicate"/>.
         /// </summary>
         /// <param name="task">The task which might throw exceptions.</param>
         /// <param name="exceptionPredicate">The predicate specifying which exception(s) to handle</param>
         /// <param name="exceptionHandler">The handler to which every exception is passed</param>
         /// <returns>The continuation task added to the <paramref name="task"/></returns>
         [DebuggerStepThrough]
-        public static Task HandleExceptions(this Task task, Func<Exception, bool> exceptionPredicate, Action<Exception> exceptionHandler)
+        public static Task HandleExceptions(
+            this Task task, Func<Exception, bool> exceptionPredicate, Action<Exception> exceptionHandler)
         {
             Ensure.NotNull(task, nameof(task));
             Ensure.NotNull(exceptionPredicate, nameof(exceptionPredicate));
@@ -184,11 +186,11 @@ namespace Easy.Common.Extensions
 
             return task.ContinueWith(t =>
             {
-                var e = t.Exception;
+                var aggEx = t.Exception;
 
-                if (e == null) { return; }
+                if (aggEx == null) { return; }
 
-                e.Flatten().Handle(ie =>
+                aggEx.Flatten().Handle(ie =>
                 {
                     if (exceptionPredicate(ie))
                     {
@@ -211,23 +213,24 @@ namespace Easy.Common.Extensions
         /// <param name="task">The task which might throw exceptions</param>
         /// <param name="exceptionHandler">The handler to which every exception is passed</param>
         /// <returns>The continuation task added to the <paramref name="task"/></returns>
-        [DebuggerStepThrough]
-        public static Task HandleException<T>(this Task task, Action<T> exceptionHandler) where T : Exception
+        //[DebuggerStepThrough]
+        public static Task HandleException<T>(this Task task, Action<T> exceptionHandler)
+            where T : Exception
         {
             Ensure.NotNull(task, nameof(task));
             Ensure.NotNull(exceptionHandler, nameof(exceptionHandler));
 
             return task.ContinueWith(t =>
             {
-                var e = t.Exception;
+                var aggEx = t.Exception;
 
-                if (e == null) { return; }
+                if (aggEx == null) { return; }
 
-                e.Flatten().Handle(ie =>
+                aggEx.Flatten().Handle(ex =>
                 {
-                    if (ie.GetType() == typeof(T))
+                    if (ex is T expectedException)
                     {
-                        exceptionHandler((T)ie);
+                        exceptionHandler(expectedException);
                         return true;
                     }
 
@@ -252,7 +255,7 @@ namespace Easy.Common.Extensions
             
             if (finishedTask == timeoutTask)
             {
-                throw new TimeoutException("Task timed out after: " + timeoutPeriod);
+                throw new TimeoutException("Task timed out after: " + timeoutPeriod.ToString());
             }
         }
 
@@ -271,7 +274,8 @@ namespace Easy.Common.Extensions
                 
                 if (finishedTask == timeoutTask)
                 {
-                    throw new TimeoutException("At least one of the tasks timed out after: " + timeoutPeriod);
+                    throw new TimeoutException("At least one of the tasks timed out after: " 
+                                               + timeoutPeriod.ToString());
                 }
 
                 tasksList.Remove(finishedTask);
