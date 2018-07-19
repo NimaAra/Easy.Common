@@ -126,6 +126,22 @@ namespace Easy.Common.Extensions
         /// <param name="task">The Task to be monitored</param>
         /// <returns>The original task</returns>
         [DebuggerStepThrough]
+        public static Task<Task> IgnoreExceptions(this Task<Task> task)
+        {
+            Ensure.NotNull(task, nameof(task));
+
+            task.Unwrap().IgnoreExceptions();
+
+            return task;
+        }
+
+        /// <summary>
+        /// Suppresses default exception handling of the given <paramref name="task"/>
+        /// that would otherwise re-raise the exception on the finalizer thread.
+        /// </summary>
+        /// <param name="task">The Task to be monitored</param>
+        /// <returns>The original task</returns>
+        [DebuggerStepThrough]
         public static Task IgnoreExceptions(this Task task)
         {
             Ensure.NotNull(task, nameof(task));
