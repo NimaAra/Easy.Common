@@ -16,7 +16,8 @@ namespace Easy.Common
         /// </param>
         /// <param name="innerException">The inner exception.</param>
         public RetryException(uint retryCount, Exception innerException)
-            : base($"Retry failed after: {retryCount} attempts.", innerException) => RetryCount = retryCount;
+            : base($"Retry failed after: {retryCount.ToString()} attempts.", innerException) 
+                => RetryCount = retryCount;
 
         /// <summary>
         /// Gets the number of attempts after which this exception was thrown.
