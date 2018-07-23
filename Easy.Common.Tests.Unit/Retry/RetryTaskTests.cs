@@ -1,4 +1,4 @@
-﻿namespace Easy.Common.Tests.Unit.TryAndRetry
+﻿namespace Easy.Common.Tests.Unit.Retry
 {
     using System;
     using System.Threading;
@@ -6,6 +6,7 @@
     using Easy.Common.Extensions;
     using NUnit.Framework;
     using Shouldly;
+    using Retry = Easy.Common.Retry;
 
     [TestFixture]
     internal sealed class RetryTaskTests

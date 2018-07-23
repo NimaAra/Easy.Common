@@ -1,5 +1,5 @@
 ﻿#pragma warning disable 162
-namespace Easy.Common.Tests.Unit.TryAndRetry
+namespace Easy.Common.Tests.Unit.Retry
 {
     using System;
     using System.Threading;
@@ -7,6 +7,7 @@ namespace Easy.Common.Tests.Unit.TryAndRetry
     using Easy.Common.Extensions;
     using NUnit.Framework;
     using Shouldly;
+    using Retry = Easy.Common.Retry;
 
     [TestFixture]
     internal sealed class RetryTaskOfResultTests
