@@ -359,7 +359,7 @@ namespace Easy.Common.Tests.Unit.Retry
                     return 0.Seconds();
                 }
 
-                return 100.Milliseconds();
+                return Sigmoid(failureCount);
             };
 
             var executionCounter = 0;
@@ -382,5 +382,8 @@ namespace Easy.Common.Tests.Unit.Retry
             executionCounter.ShouldBe(4);
             predicateCounter.ShouldBe(4);
         }
+
+        private static Func<uint, TimeSpan> Sigmoid = x => TimeSpan.FromMilliseconds(
+            Convert.ToInt32(Math.Round((1 / (1 + Math.Exp(-x + 5))) * 100)) * 100);
     }
 }
