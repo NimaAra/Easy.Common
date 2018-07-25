@@ -30,7 +30,7 @@ namespace Easy.Common
         private const char Space = ' ';
         private const char Colon = ':';
         private static readonly string NewLine = Environment.NewLine;
-        private static readonly string LinePrefix = Pipe + "\t";
+        private static readonly string LinePrefix = Pipe.ToString() + "\t";
 
         private static readonly DiagnosticReportType[] ReportSections = 
         {
@@ -58,7 +58,7 @@ namespace Easy.Common
             "OS - Name",
             "OS - Type",
             "OS - 64Bit", 
-            "CLR Runtime", 
+            ".NET Framework", 
             "Machine Name", 
             "FQDN", 
             "Installed RAM", 
@@ -110,8 +110,8 @@ namespace Easy.Common
 
         private static readonly string[] NetworkHeaders =
         {
-            "Host", "Domain", "DHCP Scope", "Node Type", "Is WINS Proxy",
-            "Name", "MAC", "Type", "Status", "Is Receive Only", "Supports Multicast", "Speed", "IP Addresses"
+            "Host", "Domain", "DHCP Scope", "Node Type", "Is WINS Proxy", "Name", "MAC", 
+            "Type", "Status", "Is Receive Only", "Supports Multicast", "Speed", "IP Addresses"
         };
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace Easy.Common
                 OSName = RuntimeInformation.OSDescription,
                 OSType = GetOSPlatform(),
                 Is64BitOS = Environment.Is64BitOperatingSystem,
-                CLRRuntime = RuntimeInformation.FrameworkDescription,
+                DotNetFrameworkVersion = GetDotNetFrameworkVersion(),
                 MachineName = Environment.MachineName,
                 FQDN = NetworkHelper.GetFQDN(),
                 User = Environment.UserDomainName + "\\" + Environment.UserName,
@@ -393,7 +393,7 @@ namespace Easy.Common
             Format(SystemHeaders[0], report.SystemDetails.OSName);
             Format(SystemHeaders[1], report.SystemDetails.OSType);
             Format(SystemHeaders[2], report.SystemDetails.Is64BitOS);
-            Format(SystemHeaders[3], report.SystemDetails.CLRRuntime);
+            Format(SystemHeaders[3], report.SystemDetails.DotNetFrameworkVersion);
             Format(SystemHeaders[4], report.SystemDetails.MachineName);
             Format(SystemHeaders[5], report.SystemDetails.FQDN);
             Format(SystemHeaders[9], report.SystemDetails.User);
@@ -404,7 +404,7 @@ namespace Easy.Common
             Format(SystemHeaders[11], report.SystemDetails.CurrentDirectory);
             Format(SystemHeaders[12], report.SystemDetails.RuntimeDirectory);
 
-            string upTimeStr = "-";
+            var upTimeStr = "-";
             if (report.SystemDetails.Uptime != TimeSpan.MinValue)
             {
                 upTimeStr = report.SystemDetails.Uptime.ToString(@"dd\D\a\y\ hh\H\o\u\r\ mm\M\i\n\ ss\S\e\c");
@@ -633,7 +633,8 @@ namespace Easy.Common
 
             void Format(string key, object value)
             {
-                builder.AppendFormat(format, LinePrefix, Pipe, key, value?.ToString(), NewLine);
+                // ReSharper disable once RedundantToStringCall
+                builder.AppendFormat(format, LinePrefix, Pipe.ToString(), key, value?.ToString(), NewLine);
             }
         }
 
@@ -679,8 +680,8 @@ namespace Easy.Common
             for (var i = 0; i < columnHeaders.Length; i++)
             {
                 var headerVal = columnHeaders[i];
-                var formatter = "{0} {1,-" + (cellLengths[i] - 2) + "} ";
-                headerBuilder.AppendFormat(formatter, Pipe, headerVal);
+                var formatter = "{0} {1,-" + (cellLengths[i] - 2).ToString() + "} ";
+                headerBuilder.AppendFormat(formatter, Pipe.ToString(), headerVal);
             }
             headerBuilder.Append(Pipe).AppendLine();
 
@@ -704,8 +705,8 @@ namespace Easy.Common
                 builder.Append(LinePrefix);
                 for (var j = 0; j < row.Length; j++)
                 {
-                    var formatter = "{0} {1,-" + (cellLengths[j] - 2) + "} ";
-                    builder.AppendFormat(formatter, Pipe, row[j]);
+                    var formatter = "{0} {1,-" + (cellLengths[j] - 2).ToString() + "} ";
+                    builder.AppendFormat(formatter, Pipe.ToString(), row[j]);
                 }
                 builder.Append(Pipe).AppendLine();
             }
@@ -858,7 +859,7 @@ namespace Easy.Common
         }
 
         private static string GetSeperator(string title, int count) 
-            => $"{Pipe}{NewLine}{Pipe}{title}{Pipe}{new string(Dot, count - title.Length)}{NewLine}{Pipe}{NewLine}";
+            => $"{Pipe.ToString()}{NewLine}{Pipe.ToString()}{title}{Pipe.ToString()}{new string(Dot, count - title.Length)}{NewLine}{Pipe.ToString()}{NewLine}";
 
         private static string AsBashCommand(string command)
         {
@@ -883,7 +884,6 @@ namespace Easy.Common
             return result;
         }
 
-        // ReSharper disable once InconsistentNaming
         private static string GetOSPlatform()
         {
             if (ApplicationHelper.OSPlatform == OSPlatform.Windows)
@@ -898,6 +898,69 @@ namespace Easy.Common
         }
 
         private static bool IsWindowsServer() => IsOS(OS_ANYSERVER);
+
+        private static string GetDotNetFrameworkVersion()
+        {
+            Version version;
+
+            try
+            {
+                version = GetVersionFull();
+                return ".NET Framework " + version;
+            } catch (TypeInitializationException e) when (e.TypeName == "Microsoft.Win32.Registry")
+            {
+                try
+                {
+                    version = GetVersionCore();
+                    return ".NET Core " + version;
+                } catch (NotSupportedException)
+                {
+                    return RuntimeInformation.FrameworkDescription + " (Self Contained)";
+                }
+            }
+
+            Version GetVersionCore()
+            {
+                const string REGEX_PATTERN = @"Microsoft\.NETCore\.App[\\,/](?<version>\d+\.\d+.\d+(.\d+)?)$";
+                
+                var runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location);
+
+                var match = Regex.Match(runtimePath, REGEX_PATTERN);
+
+                if (!match.Success)
+                {
+                    throw new NotSupportedException("Unable to detect a DotNet Core version, runtime path found: " + runtimePath);
+                }
+
+                return new Version(match.Groups["version"].Value);
+            }
+            
+            // https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed
+            Version GetVersionFull()
+            {
+                const string REG_KEY = @"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full";
+                using (var ndpKey = Registry.LocalMachine.OpenSubKey(REG_KEY))
+                {
+                    if (ndpKey != null)
+                    {
+                        var value = (int)(ndpKey.GetValue("Release") ?? 0);
+                        if (value >= 461808) { return new Version(4, 7, 2); }
+                        if (value >= 461308) { return new Version(4, 7, 1); }
+                        if (value >= 460798) { return new Version(4, 7, 0); }
+                        if (value >= 394802) { return new Version(4, 6, 2); }
+                        if (value >= 394254) { return new Version(4, 6, 1); }
+                        if (value >= 393295) { return new Version(4, 6, 0); }
+                        if (value >= 379893) { return new Version(4, 5, 2); }
+                        if (value >= 378675) { return new Version(4, 5, 1); }
+                        if (value >= 378389) { return new Version(4, 5, 0); }
+
+                        throw new NotSupportedException("Unable to detect a DotNet framework version of 4.5 or later, framework key value found: " + value.ToString());
+                    }
+
+                    throw new NotSupportedException($"Unable to find a registry key under '{REG_KEY}'.");
+                }
+            }
+        }
 
         /// <summary>
         /// <see href="https://msdn.microsoft.com/en-us/library/windows/desktop/cc300158(v=vs.85).aspx"/>

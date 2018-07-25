@@ -26,9 +26,9 @@ namespace Easy.Common
         public bool Is64BitOS { get; internal set; }
         
         /// <summary>
-        /// Gets the version of the <c>CLR</c>.
+        /// Gets the version of the <c>.NET</c> framework.
         /// </summary>
-        public string CLRRuntime { get; internal set; }
+        public string DotNetFrameworkVersion { get; internal set; }
         
         /// <summary>
         /// Gets the machine name.

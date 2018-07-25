@@ -453,7 +453,6 @@
             report.EnvironmentVariables.ShouldNotBeEmpty();
             report.NetworkingDetails.ShouldNotBeNull();
 
-
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
             formattedReport.Length.ShouldBeGreaterThan(1000);
