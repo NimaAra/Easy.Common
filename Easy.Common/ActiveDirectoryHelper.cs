@@ -14,15 +14,31 @@
         /// Returns the groups the current user is member of.
         /// </summary>
         public static HashSet<string> GetGroupsForCurrentUser() 
-            => GetGroupsImpl(WindowsIdentity.GetCurrent());
+            => GetGroups(WindowsIdentity.GetCurrent());
 
         /// <summary>
         /// Returns the groups the given <paramref name="userPrincipalName"/> is a member of.
         /// </summary>
-        public static HashSet<string> GetGroupsForUser(string userPrincipalName)
+        public static HashSet<string> GetGroups(string userPrincipalName)
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(userPrincipalName);
-            return GetGroupsImpl(new WindowsIdentity(userPrincipalName));
+            return GetGroups(new WindowsIdentity(userPrincipalName));
+        }
+
+        /// <summary>
+        /// Returns the groups the given <paramref name="identity"/> is a member of.
+        /// </summary>
+        public static HashSet<string> GetGroups(WindowsIdentity identity)
+        {
+            var result = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            if (identity.Groups == null) { return result; }
+
+            var type = typeof(NTAccount);
+            foreach (var group in identity.Groups)
+            {
+                result.Add(group.Translate(type).ToString());
+            }
+            return result;
         }
 
         /// <summary>
@@ -34,7 +50,7 @@
             Ensure.NotNullOrEmptyOrWhiteSpace(userLogon);
             Ensure.NotNullOrEmptyOrWhiteSpace(groupName);
 
-            var groups = GetGroupsForUser(userLogon);
+            var groups = GetGroups(userLogon);
 
             const StringComparison CmpPolicy = StringComparison.InvariantCultureIgnoreCase;
             if (groupName.Equals("Everyone", CmpPolicy) || groupName.Equals("Administrators", CmpPolicy))
@@ -59,22 +75,9 @@
             var userAndRoles = userLogons
                 .AsParallel()
                 .WithDegreeOfParallelism(userLogons.Length)
-                .ToDictionary(u => u, GetGroupsForUser);
+                .ToDictionary(u => u, GetGroups);
 
             return GenerateHTML(new ComparisonResult(userAndRoles));
-        }
-
-        private static HashSet<string> GetGroupsImpl(WindowsIdentity identity)
-        {
-            var result = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-            if (identity.Groups == null) { return result; }
-
-            var type = typeof(NTAccount);
-            foreach (var group in identity.Groups)
-            {
-                result.Add(group.Translate(type).ToString());
-            }
-            return result;
         }
 
         // ReSharper disable once InconsistentNaming
