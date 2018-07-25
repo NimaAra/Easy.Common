@@ -64,66 +64,112 @@
         }
 
         /// <summary>
-        /// Compares the group membership for each of the items in <paramref name="userLogons"/>
+        /// Compares the group membership for each of the items in <paramref name="nameToUserLogonMap"/>
         /// and generates a <c>HTML</c> report indicating the commonality as well as differences 
         /// between each users.
         /// </summary>
-        public static string GenerateGroupComparisonReport(params string[] userLogons)
+        public static string GenerateGroupComparisonReport(IEnumerable<KeyValuePair<string, string>> nameToUserLogonMap)
         {
-            Ensure.NotNull(userLogons, nameof(userLogons));
-
-            var userAndRoles = userLogons
+            var userAndRoles = nameToUserLogonMap
                 .AsParallel()
-                .WithDegreeOfParallelism(userLogons.Length)
-                .ToDictionary(u => u, GetGroups);
+                .ToDictionary(kv => kv.Key, kv => GetGroups(kv.Value));
 
             return GenerateHTML(new ComparisonResult(userAndRoles));
         }
 
-        // ReSharper disable once InconsistentNaming
         private static string GenerateHTML(ComparisonResult result)
         {
+            const string HTML = @"
+            <!DOCTYPE html>
+            <html lang=""en"">
+            <head>
+                <style>
+                    table {
+                        border-collapse:collapse;
+                        font-family:arial;
+                        font-size:14px;
+                    }
+                    table, thead, th {
+                        height:10px;
+                        padding:10px;
+                        vertical-align:middle;
+                    }
+                    table, th, td {
+                        border:1px black solid;
+                        padding-left:5px;
+                        background-color:#fbf7f7;
+                        text-align:center;
+                    }
+                    table, tr {
+                        text-align:left;
+                    }
+
+                    .equalRowClass {
+                        background-color:#62f762;
+                        color:black;
+                        text-align:left;
+                    }
+                    .unEqualRowClass {
+                        background-color:#f74a4a;
+                        color:black;
+                        text-align:left;
+                    }
+
+                    .hasRoleClass {
+                        background-color:#99ddff;
+                    }
+                    .notHasRoleClass {
+                        background-color:#ffcc00;
+                    }
+                </style>
+            </head>
+            <body>
+                ~~~TABLE~~~
+            </body>
+            </html>";
+            
             var builder = StringBuilderCache.Acquire();
             builder.Append("<table><thead><th><b>Role</b></th>");
-
-            foreach (var userLogon in result.NamesToRolesMap.Keys)
+            foreach (var item in result.NamesToRolesMap.Keys)
             {
-                builder.AppendFormat("<th><b>{0}</b></th>", userLogon);
+                builder.AppendFormat("<th><b>{0}</b></th>", item);
             }
             builder.Append("</thead>");
 
-            const string EqualityRowStyle = "style=\"background-color:#1aff1a:color:black\"";
-            const string UnEqualityRowStyle = "style=\"background-color:#ff471a:color:black\"";
+            const string EqualityRowClass = "equalRowClass";
+            const string UnEqualityRowClass = "unEqualRowClass";
             const string HasRoleText = "Yes";
             const string NotHaveRoleText = "No";
-            const string HasRoleStyle = "style=\"background-color:#99ddff\"";
-            const string NotHaveRoleStyle = "style=\"background-color:#ffcc00\"";
+            const string HasRoleClass = "hasRoleClass";
+            const string NotHasRoleClass = "notHasRoleClass";
 
             foreach (var role in result.CommonRoles)
             {
-                builder.AppendFormat("<tr><td {0}>{1}</td>", EqualityRowStyle, role);
+                builder.AppendFormat("<tr><td class=\"{0}\">{1}</td>", EqualityRowClass, role);
 
                 foreach (var _ in result.NamesToRolesMap.Keys)
                 {
-                    builder.AppendFormat("<td {0}>{1}</td>", HasRoleStyle, HasRoleText);
+                    builder.AppendFormat("<td class=\"{0}\">{1}</td>", HasRoleClass, HasRoleText);
                 }
                 builder.Append("</tr>");
             }
 
             foreach (var role in result.AllRoles.Except(result.CommonRoles))
             {
-                builder.AppendFormat("<tr><td {0}>{1}</td>", UnEqualityRowStyle, role);
+                builder.AppendFormat("<tr><td class=\"{0}\">{1}</td>", UnEqualityRowClass, role);
 
                 foreach (var name in result.NamesToRolesMap.Keys)
                 {
-                    builder.AppendFormat("<td {0}>{1}</td>",
-                        result.NamesToRolesMap[name].Contains(role) ? HasRoleStyle : NotHaveRoleStyle,
+                    builder.AppendFormat("<td class=\"{0}\">{1}</td>",
+                        result.NamesToRolesMap[name].Contains(role) ? HasRoleClass : NotHasRoleClass,
                         result.NamesToRolesMap[name].Contains(role) ? HasRoleText : NotHaveRoleText);
                 }
                 builder.Append("</tr>");
             }
 
-            return builder.Append("</table>").ToString();
+            builder.Append("</table>");
+
+            return HTML.Replace("~~~TABLE~~~", StringBuilderCache.GetStringAndRelease(builder));
         }
 
         private sealed class ComparisonResult
