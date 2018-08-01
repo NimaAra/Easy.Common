@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using Easy.Common.Extensions;
     using NUnit.Framework;
     using Shouldly;
@@ -441,40 +440,6 @@
             "<MyFile>".IsValidPathName().ShouldBeFalse();
             "<MyFile".IsValidPathName().ShouldBeFalse();
             "<".IsValidPathName().ShouldBeFalse();
-        }
-
-        [Test]
-        public void When_converting_input_to_case_incensitive_regex_argument()
-        {
-            const string SampleInput = "this is some STUFF fOo-bar";
-            const string Argument = "foo-bAr";
-            var caseIncensitiveArgument = Argument.ToCaseIncensitiveRegexArgument();
-
-            caseIncensitiveArgument.ShouldBe("[fF][oO][oO]-[bB][aA][rR]");
-            Regex.IsMatch(SampleInput, Argument).ShouldBeFalse();
-            Regex.IsMatch(SampleInput, caseIncensitiveArgument).ShouldBeTrue();
-
-            ((string)null).ToCaseIncensitiveRegexArgument().ShouldBeNull();
-            string.Empty.ToCaseIncensitiveRegexArgument().ShouldBe(string.Empty);
-            " ".ToCaseIncensitiveRegexArgument().ShouldBe(" ");
-
-            "a".ToCaseIncensitiveRegexArgument().ShouldBe("[aA]");
-            "ab".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]");
-            "aB".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]");
-
-            "ab\\S".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]\\S");
-            "ab\\SS".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]\\S[sS]");
-            "ab\\Ss".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]\\S[sS]");
-
-            "ab\\m".ToCaseIncensitiveRegexArgument().ShouldBe("[aA][bB]\\[mM]");
-
-            "\\D".ToCaseIncensitiveRegexArgument().ShouldBe("\\D");
-            "\\DX\\Q".ToCaseIncensitiveRegexArgument().ShouldBe("\\D[xX]\\[qQ]");
-
-            "(?<name>ab\\SX)".ToCaseIncensitiveRegexArgument().ShouldBe("(?<name>[aA][bB]\\S[xX])");
-            "(?<name>ab\\SX)(?<foo>A)".ToCaseIncensitiveRegexArgument().ShouldBe("(?<name>[aA][bB]\\S[xX])(?<foo>[aA])");
-            "(?<name>ab\\SX)(<foo>A)".ToCaseIncensitiveRegexArgument().ShouldBe("(?<name>[aA][bB]\\S[xX])(<[fF][oO][oO]>[aA])");
-            "(?<name>ab\\SX)(?<fooA)".ToCaseIncensitiveRegexArgument().ShouldBe("(?<name>[aA][bB]\\S[xX])(?<[fF][oO][oO][aA])");
         }
 
         [Test]

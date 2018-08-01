@@ -18,11 +18,6 @@
     /// </summary>
     public static class StringExtensions
     {
-        /// <summary>
-        ///  Contains characters that may be used as regular expression arguments.
-        /// </summary>
-        private static readonly char[] RegexCharacters = { 'G', 'Z', 'A', 'n', 'W', 'w', 'v', 't', 's', 'S', 'r', 'k', 'f', 'D', 'd', 'B', 'b' };
-
         private static readonly char[] InvalidFileNameCharacters = Path.GetInvalidFileNameChars();
         private static readonly char[] InvalidPathCharacters = Path.GetInvalidPathChars();
 
@@ -481,65 +476,6 @@
             => trimmed ? new Guid(Convert.FromBase64String(input + "=="))
                 : new Guid(Convert.FromBase64String(input));
         
-        /// <summary>
-        /// Converts <c>API</c> to <c>[aA][pP][iI]</c>.
-        /// <remarks>
-        /// This should be used as much faster alternative to adding <see cref="RegexOptions.IgnoreCase"/> 
-        /// or using the <c>(?i)</c> for example <c>(?i)API(?-i)</c>
-        /// </remarks>
-        /// </summary>
-        [DebuggerStepThrough]
-        public static string ToCaseIncensitiveRegexArgument(this string input)
-        {
-            if (input.IsNullOrEmptyOrWhiteSpace()) { return input; }
-
-            var patternIndexes = input.GetStartAndEndIndexes("(?<", ">").ToArray();
-            var hasPattern = patternIndexes.Length > 0;
-            var isInPattern = false;
-
-            var builder = StringBuilderCache.Acquire();
-            for (var i = 0; i < input.Length; i++)
-            {
-                var prev = i == 0 ? new char() : input[i - 1];
-                var currChar = input[i];
-
-                if (hasPattern)
-                {
-                    foreach (var pair in patternIndexes)
-                    {
-                        if (i >= pair.Key && i <= pair.Value)
-                        {
-                            isInPattern = true;
-                            break;
-                        }
-
-                        isInPattern = false;
-                    }
-                }
-
-                if (!char.IsLetter(currChar) 
-                    || (prev == '\\' && RegexCharacters.Contains(currChar))
-                    || isInPattern)
-                {
-                    builder.Append(currChar);
-                    continue;
-                }
-
-                builder.Append('[');
-
-                if (char.IsUpper(currChar))
-                {
-                    builder.Append(char.ToLower(currChar)).Append(currChar);
-                }
-                else
-                {
-                    builder.Append(currChar).Append(char.ToUpper(currChar));
-                }
-                builder.Append(']');
-            }
-            return StringBuilderCache.GetStringAndRelease(builder);
-        }
-
         /// <summary>
         /// Returns all the start and end indexes of the occurrences of the 
         /// given <paramref name="startTag"/> and <paramref name="endTag"/> 
