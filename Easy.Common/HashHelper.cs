@@ -3,7 +3,7 @@
     using Easy.Common.Extensions;
 
     /// <summary>
-    /// Helper class for generating hash code
+    /// Helper class for generating hash code.
     /// </summary>
     public static class HashHelper
     {
