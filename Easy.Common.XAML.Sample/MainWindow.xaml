@@ -6,7 +6,48 @@
         mc:Ignorable="d"
         Title="{Binding Title}" Height="350" Width="525"
         DataContext="{Binding Source={StaticResource VMLocator}, Path=MainVM}">
-    <Grid>
-        <Frame Source="Components/Forms/FormsPage.xaml"/>
-    </Grid>
+    
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+
+            <StatusBarItem Grid.Column="0">
+                <TextBlock Text=""/>
+            </StatusBarItem>
+            <Separator Grid.Column="1"/>
+
+            <StatusBarItem Grid.Column="3">
+                <ProgressBar Height="15" 
+                             Minimum="0" Maximum="100" Width="100" 
+                             IsIndeterminate="{Binding IsBusy}"
+                             Visibility="{Binding IsBusy, Converter={StaticResource TrueToVisibleConverter}}"/>
+            </StatusBarItem>
+        </StatusBar>
+        
+        <TabControl DockPanel.Dock="Top">
+            <TabItem Header="Spinners">
+                <Frame Source="Components/Spinners/SpinnersPage.xaml"/>
+            </TabItem>
+            <TabItem Header="Forms">
+                <Frame Source="Components/Forms/FormsPage.xaml"/>
+            </TabItem>
+            <TabItem Header="Self Binding">
+                <Frame Source="Components/PageBoundToItself/PageBoundToItself.xaml"/>
+            </TabItem>
+            <TabItem Header="Logs">
+                <Frame Source="Components/LogViewer/LogViewerPage.xaml"/>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
 </Window>

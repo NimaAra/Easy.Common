@@ -1,23 +1,21 @@
-﻿namespace Easy.Common.XAML.ValueConverters
+﻿namespace Easy.Common.XAML
 {
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
-    using System.Linq;
     using System.Windows.Data;
     using System.Windows.Media.Imaging;
 
     /// <summary>
     /// An abstraction for converting a <c>Base64</c> encoded image to a <see cref="BitmapSource"/>.
     /// </summary>
-    public sealed class Base64ToBitmapSourceConverter : BaseValueConverter
+    public sealed class Base64ToBitmapSourceConverter : IValueConverter
     {
         /// <summary>
         /// Converts the given <paramref name="value"/> to <see cref="BitmapSource"/>.
         /// </summary>
         /// <returns>The resulting <see cref="BitmapSource"/>.</returns>
-        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is string base64Img)
             {
@@ -34,7 +32,7 @@
         /// <summary>
         /// This back conversion is not implemented.
         /// </summary>
-        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

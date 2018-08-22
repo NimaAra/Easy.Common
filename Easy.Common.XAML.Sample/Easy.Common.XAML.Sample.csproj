@@ -33,6 +33,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Easy.Common, Version=1.21.0.111, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Easy.Common.1.21.0\lib\net45\Easy.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Easy.Logger, Version=2.1.0.32, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Easy.Logger.2.1.0\lib\net40\Easy.Logger.dll</HintPath>
+    </Reference>
+    <Reference Include="Easy.MessageHub, Version=3.1.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Easy.MessageHub.3.1.0\lib\net35\Easy.MessageHub.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="SimpleInjector, Version=4.0.8.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\packages\SimpleInjector.4.0.8\lib\net45\SimpleInjector.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xaml">
@@ -47,18 +62,43 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Components\LogViewer\LogViewerPage.xaml.cs">
+      <DependentUpon>LogViewerPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Components\LogViewer\LogViewerVM.cs" />
+    <Compile Include="Components\PageBoundToItself\PageBoundToItself.xaml.cs">
+      <DependentUpon>PageBoundToItself.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Components\Spinners\PlainSpinner.xaml.cs">
       <DependentUpon>PlainSpinner.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Components\Spinners\SpinnersPage.xaml.cs">
+      <DependentUpon>SpinnersPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainVM.cs" />
+    <Compile Include="Messages\MessageBase.cs" />
+    <Compile Include="Messages\VMIdleState.cs" />
+    <Compile Include="ViewModelBase.cs" />
     <Compile Include="VMLocator.cs" />
     <Page Include="Components\Forms\FormsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Components\LogViewer\LogViewerPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Components\PageBoundToItself\PageBoundToItself.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Components\Spinners\PlainSpinner.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Components\Spinners\SpinnersPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -71,7 +111,7 @@
     <Compile Include="Components\Forms\FormsPage.xaml.cs">
       <DependentUpon>FormsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Components\Forms\FormsVM.cs" />
+    <Compile Include="Components\Spinners\SpinnersVM.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -95,6 +135,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -109,5 +153,6 @@
       <Name>Easy.Common.XAML</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

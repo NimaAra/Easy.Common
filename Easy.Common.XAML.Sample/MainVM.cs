@@ -1,6 +1,9 @@
 ﻿namespace Easy.Common.XAML.Sample
 {
-    public sealed class MainVM : BindableBase
+    using Easy.Common.XAML.Sample.Messages;
+    using Easy.MessageHub;
+
+    public sealed class MainVM : ViewModelBase
     {
         #region DataBinding
 
@@ -13,9 +16,25 @@
 
         #endregion
 
-        public MainVM()
+        public MainVM(IMessageHub hub) : base(hub)
+        {
+            Init();
+        }
+
+        private void Init()
         {
             Title = "Sample WPF Application";
+            Hub.Subscribe<MessageBase>(OnUIMessage);
+        }
+
+        private void OnUIMessage(MessageBase message)
+        {
+            if (message.Sender == this) { return; }
+            
+            if (message is VMIdleState vmState)
+            {
+                IsBusy = vmState.IsBusy;
+            }
         }
     }
 }

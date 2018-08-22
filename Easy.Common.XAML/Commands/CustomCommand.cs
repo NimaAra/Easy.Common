@@ -1,4 +1,4 @@
-﻿namespace Easy.Common.XAML.Commands
+﻿namespace Easy.Common.XAML
 {
     using System;
     using System.Windows.Input;

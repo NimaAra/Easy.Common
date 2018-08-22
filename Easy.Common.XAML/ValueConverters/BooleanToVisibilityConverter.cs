@@ -1,13 +1,14 @@
-﻿namespace Easy.Common.XAML.ValueConverters
+﻿namespace Easy.Common.XAML
 {
     using System;
     using System.Globalization;
     using System.Windows;
+    using System.Windows.Data;
 
     /// <summary>
     /// An abstraction for converting between <see cref="bool"/> and <see cref="Visibility"/>.
     /// </summary>
-    public sealed class BooleanToVisibilityConverter : BaseValueConverter
+    public sealed class BooleanToVisibilityConverter : IValueConverter
     {
         /// <summary>
         /// Gets or set the <see cref="TrueValue"/>.
@@ -22,7 +23,7 @@
         /// <summary>
         /// Converts the given <paramref name="value"/>.
         /// </summary>
-        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (!(value is bool)) { return null; }
             return (bool)value ? TrueValue : FalseValue;
@@ -31,7 +32,7 @@
         /// <summary>
         /// Converts the given <paramref name="value"/>.
         /// </summary>
-        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (Equals(value, TrueValue)) { return true; }
             if (Equals(value, FalseValue)) { return false; }
