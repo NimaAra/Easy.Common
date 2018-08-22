@@ -9,6 +9,42 @@
     internal sealed class RegexHelperTests
     {
         [Test]
+        public void When_validating_valid_emails()
+        {
+            var helper = new RegexHelper();
+
+            helper.IsValidEmail("david.jones@proseware.com").ShouldBeTrue();
+            helper.IsValidEmail("d.j@server1.proseware.com").ShouldBeTrue();
+            helper.IsValidEmail("jones@ms1.proseware.com").ShouldBeTrue();
+            helper.IsValidEmail("j@proseware.com9").ShouldBeTrue();
+            helper.IsValidEmail("js#internal@proseware.com").ShouldBeTrue();
+            helper.IsValidEmail("j_9@[129.126.118.1]").ShouldBeTrue();
+            helper.IsValidEmail("js@proseware.com9").ShouldBeTrue();
+            helper.IsValidEmail("j.s@server1.proseware.com").ShouldBeTrue();
+            helper.IsValidEmail("\"j\\\"s\\\"\"@proseware.com").ShouldBeTrue();
+            helper.IsValidEmail("js@contoso.中国").ShouldBeTrue();
+            helper.IsValidEmail("foo@bar.com").ShouldBeTrue();
+            
+            /*
+             * This is a valid email address but is being rejected.
+             * See: https://github.com/dotnet/docs/issues/5305
+             */
+            // [ToDo] - helper.IsValidEmail("#foo@bar.com").ShouldBeTrue();
+        }
+
+        [Test]
+        public void When_validating_invalid_emails()
+        {
+            var helper = new RegexHelper();
+
+            helper.IsValidEmail("j.@server1.proseware.com").ShouldBeFalse();
+            helper.IsValidEmail("j..s@proseware.com").ShouldBeFalse();
+            helper.IsValidEmail("js*@proseware.com").ShouldBeFalse();
+            helper.IsValidEmail("js@proseware..com").ShouldBeFalse();
+            helper.IsValidEmail("js@proseware..com").ShouldBeFalse();
+        }
+
+        [Test]
         public void When_converting_input_to_case_incensitive_regex_pattern()
         {
             const string SampleInput = "this is some STUFF fOo-bar";

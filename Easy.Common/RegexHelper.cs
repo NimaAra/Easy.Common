@@ -1,7 +1,10 @@
 ﻿namespace Easy.Common
 {
+    using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using Easy.Common.Extensions;
 
     /// <summary>
@@ -9,6 +12,20 @@
     /// </summary>
     public sealed class RegexHelper
     {
+        private static readonly Regex _emailPrimaryRegex = 
+            new Regex(@"(@)(.+)$", RegexOptions.Compiled, 200.Milliseconds());
+        
+        private static readonly Regex _emailSecondaryRegex = 
+            new Regex(
+                @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
+                @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
+                RegexOptions.Compiled | RegexOptions.IgnoreCase, 
+                250.Milliseconds());
+
+        private readonly IdnMapping _idn = new IdnMapping();
+
+        private bool _isValid = true;
+        
         /// <summary>
         ///  Contains characters that may be used as regular expression arguments.
         /// </summary>
@@ -16,6 +33,49 @@
         {
             'G', 'Z', 'A', 'n', 'W', 'w', 'v', 't', 's', 'S', 'r', 'k', 'f', 'D', 'd', 'B', 'b'
         };
+
+        /// <summary>
+        /// Evaluates the given <paramref name="input"/> as a valid email address.
+        /// <see href="https://docs.microsoft.com/en-us/dotnet/standard/base-types/how-to-verify-that-strings-are-in-valid-email-format"/>
+        /// </summary>
+        [DebuggerStepThrough]
+        public bool IsValidEmail(string input)
+        {
+            if (input.IsNullOrEmptyOrWhiteSpace()) { return false; }
+
+            _isValid = true;
+
+            string replaced;
+            try
+            {
+                replaced = _emailPrimaryRegex.Replace(input, DomainMapper);
+            } catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
+
+            if (!_isValid) { return false; }
+
+            try
+            {
+                return _emailSecondaryRegex.IsMatch(replaced);
+            } catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
+
+            string DomainMapper(Match match)
+            {
+                var domainName = match.Groups[2].Value;
+                try {
+                    domainName = _idn.GetAscii(domainName);
+                }
+                catch (ArgumentException) {
+                    _isValid = false;
+                }
+                return match.Groups[1].Value + domainName;
+            }
+        }
 
         /// <summary>
         /// Converts the given regex <paramref name="pattern"/> to a case-insensitive version.
