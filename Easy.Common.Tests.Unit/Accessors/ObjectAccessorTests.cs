@@ -20,13 +20,10 @@ namespace Easy.Common.Tests.Unit.Accessors
 
             parentAccessor.ShouldNotBeNull();
             parentAccessor.Properties.ShouldNotBeNull();
-            parentAccessor.Properties.Length.ShouldBe(2);
+            parentAccessor.Properties.Count.ShouldBe(2);
 
-            parentAccessor.Properties[0].Name.ShouldBe("Name");
-            parentAccessor.Properties[0].PropertyType.ShouldBe(typeof(string));
-
-            parentAccessor.Properties[1].Name.ShouldBe("Age");
-            parentAccessor.Properties[1].PropertyType.ShouldBe(typeof(int));
+            parentAccessor.Properties["Name"].PropertyType.ShouldBe(typeof(string));
+            parentAccessor.Properties["Age"].PropertyType.ShouldBe(typeof(int));
 
             parentAccessor[parent, "Name"].ShouldBeNull();
             parentAccessor[parent, "Name"] = "Foo";
@@ -45,16 +42,11 @@ namespace Easy.Common.Tests.Unit.Accessors
 
             childAccessor.ShouldNotBeNull();
             childAccessor.Properties.ShouldNotBeNull();
-            childAccessor.Properties.Length.ShouldBe(3);
+            childAccessor.Properties.Count.ShouldBe(3);
 
-            childAccessor.Properties[0].Name.ShouldBe("ChildName");
-            childAccessor.Properties[0].PropertyType.ShouldBe(typeof(string));
-
-            childAccessor.Properties[1].Name.ShouldBe("Name");
-            childAccessor.Properties[1].PropertyType.ShouldBe(typeof(string));
-
-            childAccessor.Properties[2].Name.ShouldBe("Age");
-            childAccessor.Properties[2].PropertyType.ShouldBe(typeof(int));
+            childAccessor.Properties["ChildName"].PropertyType.ShouldBe(typeof(string));
+            childAccessor.Properties["Name"].PropertyType.ShouldBe(typeof(string));
+            childAccessor.Properties["Age"].PropertyType.ShouldBe(typeof(int));
 
             childAccessor[child, "ChildName"].ShouldBe("Bar");
             childAccessor[child, "ChildName"] = "BarBar";
@@ -77,16 +69,11 @@ namespace Easy.Common.Tests.Unit.Accessors
 
             parentAccessor.ShouldNotBeNull();
             parentAccessor.Properties.ShouldNotBeNull();
-            parentAccessor.Properties.Length.ShouldBe(3);
+            parentAccessor.Properties.Count.ShouldBe(3);
 
-            parentAccessor.Properties[0].Name.ShouldBe("Name");
-            parentAccessor.Properties[0].PropertyType.ShouldBe(typeof(string));
-
-            parentAccessor.Properties[1].Name.ShouldBe("Age");
-            parentAccessor.Properties[1].PropertyType.ShouldBe(typeof(int));
-
-            parentAccessor.Properties[2].Name.ShouldBe("Job");
-            parentAccessor.Properties[2].PropertyType.ShouldBe(typeof(string));
+            parentAccessor.Properties["Name"].PropertyType.ShouldBe(typeof(string));
+            parentAccessor.Properties["Age"].PropertyType.ShouldBe(typeof(int));
+            parentAccessor.Properties["Job"].PropertyType.ShouldBe(typeof(string));
 
             parentAccessor[parent, "Name"].ShouldBeNull();
             parentAccessor[parent, "Name"] = "Foo";
@@ -113,16 +100,11 @@ namespace Easy.Common.Tests.Unit.Accessors
 
             childAccessor.ShouldNotBeNull();
             childAccessor.Properties.ShouldNotBeNull();
-            childAccessor.Properties.Length.ShouldBe(3);
+            childAccessor.Properties.Count.ShouldBe(3);
 
-            childAccessor.Properties[0].Name.ShouldBe("ChildName");
-            childAccessor.Properties[0].PropertyType.ShouldBe(typeof(string));
-
-            childAccessor.Properties[1].Name.ShouldBe("Name");
-            childAccessor.Properties[1].PropertyType.ShouldBe(typeof(string));
-
-            childAccessor.Properties[2].Name.ShouldBe("Age");
-            childAccessor.Properties[2].PropertyType.ShouldBe(typeof(int));
+            childAccessor.Properties["ChildName"].PropertyType.ShouldBe(typeof(string));
+            childAccessor.Properties["Name"].PropertyType.ShouldBe(typeof(string));
+            childAccessor.Properties["Age"].PropertyType.ShouldBe(typeof(int));
 
             childAccessor[child, "ChildName"].ShouldBe("Bar");
             childAccessor[child, "ChIldNAme"] = "BarBar";
@@ -144,7 +126,7 @@ namespace Easy.Common.Tests.Unit.Accessors
 
             var child = new Child();
 
-            Should.Throw<ArgumentException>(() => { var ignore = parentAccessor[child, "ChildName"]; })
+            Should.Throw<ArgumentException>(() => { var _ = parentAccessor[child, "ChildName"]; })
                 .Message.ShouldBe("Type: `Easy.Common.Tests.Unit.Accessors.ObjectAccessorTests+Child` does not have a property named: `ChildName` that supports reading.");
 
             Should.Throw<ArgumentException>(() => { parentAccessor[child, "ChildName"] = "foo"; })
@@ -162,7 +144,7 @@ namespace Easy.Common.Tests.Unit.Accessors
 
             var parent = new Parent();
 
-            Should.Throw<NullReferenceException>(() => { var ignore = childAccessor[parent, "Name"]; });
+            Should.Throw<NullReferenceException>(() => { var _ = childAccessor[parent, "Name"]; });
         }
 
         [Test]
@@ -189,11 +171,11 @@ namespace Easy.Common.Tests.Unit.Accessors
             ObjectAccessor accessor = Accessor.Build(instance);
             accessor.Type.ShouldBe(typeof(SpecialCase));
             accessor.IgnoreCase.ShouldBe(false);
-            accessor.Properties.Length.ShouldBe(2);
-            accessor.Properties.ShouldContain(x => x.Name == "GetterOnly");
-            accessor.Properties.ShouldContain(x => x.Name == "SetterOnly");
+            accessor.Properties.Count.ShouldBe(2);
+            accessor.Properties.ShouldContain(x => x.Key == "GetterOnly");
+            accessor.Properties.ShouldContain(x => x.Key == "SetterOnly");
             
-            Should.Throw<ArgumentException>(() => { var ignore = accessor[instance, "SetterOnly"]; })
+            Should.Throw<ArgumentException>(() => { var _ = accessor[instance, "SetterOnly"]; })
                 .Message.ShouldBe("Type: `Easy.Common.Tests.Unit.Accessors.ObjectAccessorTests+SpecialCase` does not have a property named: `SetterOnly` that supports reading.");
 
             Should.Throw<ArgumentException>(() => accessor[instance, "GetterOnly"] = "bar")

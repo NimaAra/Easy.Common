@@ -2,40 +2,47 @@
 namespace Easy.Common
 {
     using System;
-    using System.Collections.Generic;
+    using System.Collections;
     using System.Diagnostics;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// An abstraction for gaining fast access to all of the <see cref="PropertyInfo"/> of 
     /// the given <typeparamref name="TInstance"/>.
     /// </summary>
-    public sealed class GenericAccessor<TInstance> : Accessor where TInstance : class
+    public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance : class
     {
-        private readonly Dictionary<string, object> _genericInstanceGettersCache, _genericInstanceSettersCache;
-        private readonly Dictionary<string, Func<TInstance, object>> _genericPropertiesGettersCache;
-        private readonly Dictionary<string, Action<TInstance, object>> _genericPropertiesSettersCache;
+        private readonly Hashtable 
+            _genericInstanceGettersCache, 
+            _genericInstanceSettersCache, 
+            _genericPropertiesGettersCache, 
+            _genericPropertiesSettersCache;
 
         [DebuggerStepThrough]
-        internal GenericAccessor(bool ignoreCase, bool includeNonPublic) : base(typeof(TInstance), ignoreCase, includeNonPublic)
+        internal GenericAccessor(bool ignoreCase, bool includeNonPublic) 
+            : base(typeof(TInstance), ignoreCase, includeNonPublic)
         {
-            _genericPropertiesGettersCache = new Dictionary<string, Func<TInstance, object>>(Comparer);
-            _genericPropertiesSettersCache = new Dictionary<string, Action<TInstance, object>>(Comparer);
-            _genericInstanceGettersCache = new Dictionary<string, object>(Comparer);
-            _genericInstanceSettersCache = new Dictionary<string, object>(Comparer);
+            _genericPropertiesGettersCache = new Hashtable(Properties.Count, Comparer);
+            _genericPropertiesSettersCache = new Hashtable(Properties.Count, Comparer);
+            _genericInstanceGettersCache = new Hashtable(Properties.Count, Comparer);
+            _genericInstanceSettersCache = new Hashtable(Properties.Count, Comparer);
 
-            foreach (var prop in Properties)
+            foreach (var pair in Properties)
             {
-                var propName = prop.Name;
+                var propName = pair.Key;
+                var prop = pair.Value;
 
                 if (prop.CanRead)
                 {
-                    _genericPropertiesGettersCache[propName] = AccessorBuilder.BuildGetter<TInstance>(prop, IncludesNonPublic);
+                    _genericPropertiesGettersCache[propName] = 
+                        AccessorBuilder.BuildGetter<TInstance>(prop, IncludesNonPublic);
                 }
 
                 if (prop.CanWrite)
                 {
-                    _genericPropertiesSettersCache[propName] = AccessorBuilder.BuildSetter<TInstance>(prop, IncludesNonPublic);
+                    _genericPropertiesSettersCache[propName] = 
+                        AccessorBuilder.BuildSetter<TInstance>(prop, IncludesNonPublic);
                 }
             }
         }
@@ -48,20 +55,22 @@ namespace Easy.Common
         {
             get
             {
-                if (!_genericPropertiesGettersCache.TryGetValue(propertyName, out Func<TInstance, object> getter))
+                if (_genericPropertiesGettersCache[propertyName] is Func<TInstance, object> getter)
                 {
-                    throw new ArgumentException($"Type: `{instance.GetType().FullName}` does not have a property named: `{propertyName}` that supports reading.");
+                    return getter(instance);
                 }
-                return getter(instance);
+                throw new ArgumentException($"Type: `{instance.GetType().FullName}` does not have a property named: `{propertyName}` that supports reading.");
             }
 
             set
             {
-                if (!_genericPropertiesSettersCache.TryGetValue(propertyName, out Action<TInstance, object> setter))
+                if (_genericPropertiesSettersCache[propertyName] is Action<TInstance, object> setter)
+                {
+                    setter(instance, value);
+                } else
                 {
                     throw new ArgumentException($"Type: `{instance.GetType().FullName}` does not have a property named: `{propertyName}` that supports writing.");
                 }
-                setter(instance, value);
             }
         }
 
@@ -69,35 +78,37 @@ namespace Easy.Common
         /// Attempts to get the value of a property selected by the given <paramref name="propertyName"/> 
         /// for the given <paramref name="instance"/>.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGet<TProperty>(TInstance instance, string propertyName, out TProperty value)
         {
             var cache = _genericInstanceGettersCache;
 
-            Func<TInstance, TProperty> getter;
-            if (!cache.TryGetValue(propertyName, out object tmpGetter))
+            var getter = cache[propertyName] as Func<TInstance, TProperty>;
+            if (getter is null)
             {
+                if (!Properties.TryGetValue(propertyName, out var prop))
+                {
+                    value = default(TProperty);
+                    return false;
+                }
+                
                 lock (cache)
                 {
-                    if (!cache.TryGetValue(propertyName, out object tmp))
+                    getter = cache[propertyName] as Func<TInstance, TProperty>;
+                    if (getter is null)
                     {
                         try
                         {
-                            getter = AccessorBuilder.BuildGetter<TInstance, TProperty>(propertyName, IncludesNonPublic);
-                            cache[propertyName] = getter;
+                            getter = AccessorBuilder.BuildGetter<TInstance, TProperty>(
+                                prop.Name, IncludesNonPublic);
+                            cache[prop.Name] = getter;
                         } catch (ArgumentException)
                         {
                             value = default(TProperty);
                             return false;
                         }
-                    } else
-                    {
-                        getter = (Func<TInstance, TProperty>)tmp;
                     }
                 }
-            }
-            else
-            {
-                getter = (Func<TInstance, TProperty>)tmpGetter;
             }
 
             value = getter(instance);
@@ -105,36 +116,35 @@ namespace Easy.Common
         }
 
         /// <summary>
-        /// Attempts to set the value of the given <paramref name="propertyName"/> for the given <paramref name="instance"/>.
+        /// Attempts to set the value of the given <paramref name="propertyName"/>
+        /// for the given <paramref name="instance"/>.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TrySet<TProperty>(TInstance instance, string propertyName, TProperty value)
         {
             var cache = _genericInstanceSettersCache;
-
-            Action<TInstance, TProperty> setter;
-            if (!cache.TryGetValue(propertyName, out object tmpSetter))
+            
+            var setter = cache[propertyName] as Action<TInstance, TProperty>;
+            if (setter is null)
             {
+                if (!Properties.TryGetValue(propertyName, out var prop)) { return false; }
+                
                 lock (cache)
                 {
-                    if (!cache.TryGetValue(propertyName, out object tmp))
+                    setter = cache[propertyName] as Action<TInstance, TProperty>;
+                    if (setter is null)
                     {
                         try
                         {
-                            setter = AccessorBuilder.BuildSetter<TInstance, TProperty>(propertyName, IncludesNonPublic);
-                            cache[propertyName] = setter;
+                            setter = AccessorBuilder.BuildSetter<TInstance, TProperty>(
+                                prop.Name, IncludesNonPublic);
+                            cache[prop.Name] = setter;
                         } catch (ArgumentException)
                         {
                             return false;
                         }
-                    } else
-                    {
-                        setter = (Action<TInstance, TProperty>)tmp;
                     }
                 }
-            }
-            else
-            {
-                setter = (Action<TInstance, TProperty>)tmpSetter;
             }
 
             setter(instance, value);

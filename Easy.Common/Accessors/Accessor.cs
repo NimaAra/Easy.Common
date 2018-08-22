@@ -2,20 +2,28 @@
 namespace Easy.Common
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Reflection;
 
     /// <summary>
-    /// An abstraction for building a <see cref="ObjectAccessor"/> and <see cref="GenericAccessor{TInstance}"/>.
+    /// An abstraction for building a <see cref="ObjectAccessor"/> and
+    /// <see cref="GenericAccessor{TInstance}"/>.
     /// </summary>
     public abstract class Accessor
     {
         /// <summary>
         /// Creates an instance of the <see cref="Accessor"/> class.
         /// </summary>
-        /// <param name="type">The type of the object instance to access.</param>
-        /// <param name="ignoreCase">The flag indicating whether property names should be treated case insensitively</param>
-        /// <param name="includeNonPublic">The flag indicating whether non-public properties should be accessible or not</param>
+        /// <param name="type">
+        /// The type of the object instance to access.
+        /// </param>
+        /// <param name="ignoreCase">
+        /// The flag indicating whether property names should be treated case insensitively
+        /// </param>
+        /// <param name="includeNonPublic">
+        /// The flag indicating whether non-public properties should be accessible or not
+        /// </param>
         protected Accessor(IReflect type, bool ignoreCase, bool includeNonPublic)
         {
             Type = type;
@@ -25,12 +33,17 @@ namespace Easy.Common
             Comparer = IgnoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
 
             var flags = BindingFlags.Public | BindingFlags.Instance;
-            if (IncludesNonPublic)
+            if (IncludesNonPublic) 
             {
                 flags = flags | BindingFlags.NonPublic;
             }
 
-            Properties = Type.GetProperties(flags);
+            var props = Type.GetProperties(flags);
+            Properties = new SortedList<string, PropertyInfo>(props.Length, Comparer);
+            foreach (var prop in props)
+            {
+                Properties[prop.Name] = prop;
+            }
         }
 
         /// <summary>
@@ -57,8 +70,8 @@ namespace Easy.Common
         /// <summary>
         /// Gets the properties to which this instance can provide access to.
         /// </summary>
-        public PropertyInfo[] Properties { get; }
-        
+        public SortedList<string, PropertyInfo> Properties { get; }
+
         /// <summary>
         /// Builds an <see cref="ObjectAccessor"/> which provides easy access to all of 
         /// the <see cref="PropertyInfo"/> of the given <paramref name="instance"/>.
