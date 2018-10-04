@@ -271,7 +271,6 @@ namespace Easy.Common.Extensions
             
             if (finishedTask == timeoutTask)
             {
-                var _ = task.IgnoreExceptions();
                 throw new TimeoutException("Task timed out after: " + timeoutPeriod.ToString());
             }
         }
@@ -291,7 +290,6 @@ namespace Easy.Common.Extensions
                 
                 if (finishedTask == timeoutTask)
                 {
-                    tasksList.ForEach(t => t.IgnoreExceptions());
                     throw new TimeoutException("At least one of the tasks timed out after: " 
                                                + timeoutPeriod.ToString());
                 }
