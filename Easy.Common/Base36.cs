@@ -9,7 +9,7 @@
     /// </summary>
     public static class Base36
     {
-        private const string Base36Characters = "0123456789abcdefghijklmnopqrstuvwxyz";
+        private const string Base36Characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
         /// <summary>
         /// Encode the given number into a <see cref="Base36"/>string.
