@@ -19,7 +19,7 @@
         [Test]
         public void When_generating_an_id()
         {
-            var id = IDGenerator.Instance.Generate;
+            var id = IDGenerator.Instance.Next;
             
             id.ShouldNotBeNullOrWhiteSpace();
             id.Length.ShouldBe(13);
@@ -28,8 +28,8 @@
         [Test]
         public void When_generating_multiple_ids()
         {
-            var one = IDGenerator.Instance.Generate;
-            var two = IDGenerator.Instance.Generate;
+            var one = IDGenerator.Instance.Next;
+            var two = IDGenerator.Instance.Next;
 
             one.ShouldNotBeNullOrWhiteSpace();
             one.Length.ShouldBe(13);
