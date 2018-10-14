@@ -22,7 +22,7 @@
             var id = IDGenerator.Instance.Next;
             
             id.ShouldNotBeNullOrWhiteSpace();
-            id.Length.ShouldBe(13);
+            id.Length.ShouldBe(20);
         }
 
         [Test]
@@ -32,12 +32,16 @@
             var two = IDGenerator.Instance.Next;
 
             one.ShouldNotBeNullOrWhiteSpace();
-            one.Length.ShouldBe(13);
+            one.Length.ShouldBe(20);
 
             two.ShouldNotBeNullOrWhiteSpace();
-            two.Length.ShouldBe(13);
+            two.Length.ShouldBe(20);
 
             two.ShouldBeGreaterThan(one);
+
+            one.ShouldNotBe(two);
+
+            one.Substring(0, 7).ShouldBe(two.Substring(0, 7));
         }
     }
 }
