@@ -12,7 +12,7 @@
     {
         private const string Encode_32_Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUV";
         private static readonly char[] _prefix = new char[6];
-        private static long _lastId;
+        private static long _lastId = DateTime.UtcNow.Ticks;
 
         private static readonly ThreadLocal<char[]> _charBufferThreadLocal =
             new ThreadLocal<char[]>(() =>
@@ -28,11 +28,7 @@
                 return buffer;
             });
 
-        static IDGenerator()
-        {
-            PopulatePrefix();
-            SeedID();
-        }
+        static IDGenerator() => PopulatePrefix();
         private IDGenerator() { }
 
         /// <summary>
@@ -85,7 +81,5 @@
                 i--;
             }
         }
-
-        private static void SeedID() => _lastId = DateTime.UtcNow.Ticks - Guid.NewGuid().GetHashCode();
     }
 }
