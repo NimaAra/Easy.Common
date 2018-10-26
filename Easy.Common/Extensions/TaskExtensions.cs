@@ -4,7 +4,6 @@ namespace Easy.Common.Extensions
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -21,10 +20,9 @@ namespace Easy.Common.Extensions
         /// Thrown when the <paramref name="task"/> times out.
         /// </exception>
         [DebuggerStepThrough]
-        public static async Task<T> TimeoutAfter<T>(
-            this Task<T> task, TimeSpan timeout, CancellationToken cToken = default(CancellationToken))
+        public static async Task<T> TimeoutAfter<T>(this Task<T> task, TimeSpan timeout)
         {
-            await TimeoutAfterImpl(task, timeout, cToken).ConfigureAwait(false);
+            await TimeoutAfterImpl(task, timeout).ConfigureAwait(false);
             return task.Result;
         }
 
@@ -37,9 +35,9 @@ namespace Easy.Common.Extensions
         /// </exception>
         [DebuggerStepThrough]
         public static async Task<IEnumerable<Task<T>>> TimeoutAfter<T>(
-            this IEnumerable<Task<T>> tasks, TimeSpan timeout, CancellationToken cToken = default(CancellationToken))
+            this IEnumerable<Task<T>> tasks, TimeSpan timeout)
         {
-            await TimeoutAfterImpl(tasks, timeout, cToken).ConfigureAwait(false);
+            await TimeoutAfterImpl(tasks, timeout).ConfigureAwait(false);
             return tasks;
         }
 
@@ -51,9 +49,8 @@ namespace Easy.Common.Extensions
         /// Thrown the <paramref name="task"/> times out.
         /// </exception>
         [DebuggerStepThrough]
-        public static async Task TimeoutAfter(
-            this Task task, TimeSpan timeout, CancellationToken cToken = default(CancellationToken))
-                => await TimeoutAfterImpl(task, timeout, cToken).ConfigureAwait(false);
+        public static async Task TimeoutAfter(this Task task, TimeSpan timeout)
+                => await TimeoutAfterImpl(task, timeout).ConfigureAwait(false);
 
         /// <summary>
         /// Ensures that every task in the given <paramref name="tasks"/> finishes before a timeout 
@@ -63,9 +60,8 @@ namespace Easy.Common.Extensions
         /// Thrown when any of the <paramref name="tasks"/> times out.
         /// </exception>
         [DebuggerStepThrough]
-        public static async Task TimeoutAfter(
-            this IEnumerable<Task> tasks, TimeSpan timeout, CancellationToken cToken = default(CancellationToken)) 
-                => await TimeoutAfterImpl(tasks, timeout, cToken).ConfigureAwait(false);
+        public static async Task TimeoutAfter(this IEnumerable<Task> tasks, TimeSpan timeout) 
+                => await TimeoutAfterImpl(tasks, timeout).ConfigureAwait(false);
 
         /// <summary>
         /// Executes the given action on each of the tasks in turn, in the order of
@@ -260,45 +256,53 @@ namespace Easy.Common.Extensions
 
     #endregion
 
-        private static async Task TimeoutAfterImpl(
-            this Task task, TimeSpan timeoutPeriod, CancellationToken cToken)
+        private static async Task TimeoutAfterImpl(this Task task, TimeSpan timeoutPeriod)
         {
             if (task == null) { throw new ArgumentNullException(nameof(task)); }
 
-            var timeoutTask = Task.Delay(timeoutPeriod, cToken);
-            var finishedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
-            cToken.ThrowIfCancellationRequested();
-            
-            if (finishedTask == timeoutTask)
+            using (var cts = new CancellationTokenSource())
             {
-                throw new TimeoutException("Task timed out after: " + timeoutPeriod.ToString());
+                var timeoutTask = Task.Delay(timeoutPeriod, cts.Token);
+                var finishedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+                
+                if (finishedTask == timeoutTask)
+                {
+                    throw new TimeoutException("Task timed out after: " + timeoutPeriod.ToString());
+                }
+
+                cts.Cancel();
             }
         }
 
         private static async Task<IEnumerable<Task>> TimeoutAfterImpl(
-            this IEnumerable<Task> tasks, TimeSpan timeoutPeriod, CancellationToken cToken)
+            this IEnumerable<Task> tasks, TimeSpan timeoutPeriod)
         {
             if (tasks == null) { throw new ArgumentNullException(nameof(tasks)); }
 
-            var timeoutTask = Task.Delay(timeoutPeriod, cToken);
-            var tasksList = new List<Task>(tasks) { timeoutTask };
-            while (tasksList.Any())
+            using (var cts = new CancellationTokenSource())
             {
-                cToken.ThrowIfCancellationRequested();
-                var finishedTask = await Task.WhenAny(tasksList).ConfigureAwait(false);
-                cToken.ThrowIfCancellationRequested();
+                var cToken = cts.Token;
+                var timeoutTask = Task.Delay(timeoutPeriod, cToken);
+                var tasksList = new List<Task>(tasks) { timeoutTask };
                 
-                if (finishedTask == timeoutTask)
+                while (tasksList.Count > 0)
                 {
-                    throw new TimeoutException("At least one of the tasks timed out after: " 
-                                               + timeoutPeriod.ToString());
+                    var finishedTask = await Task.WhenAny(tasksList).ConfigureAwait(false);
+
+                    if (finishedTask == timeoutTask)
+                    {
+                        throw new TimeoutException(
+                            "At least one of the tasks timed out after: " + timeoutPeriod.ToString());
+                    }
+
+                    tasksList.Remove(finishedTask);
+
+                    if (tasksList.Count == 1 && tasksList[0] == timeoutTask) { break; }
                 }
 
-                tasksList.Remove(finishedTask);
-
-                if (tasksList.Count == 1 && tasksList[0] == timeoutTask) { break; }
+                cts.Cancel();
+                return tasks;
             }
-            return tasks;
         }
     }
 }

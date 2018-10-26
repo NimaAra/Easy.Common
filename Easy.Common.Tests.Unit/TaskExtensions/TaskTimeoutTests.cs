@@ -13,14 +13,12 @@
         [Test]
         public void When_executing_task_with_result_that_cancels_before_timeout()
         {
-            var task = GetSomethingAfter(5.Seconds());
-
-            var cts = new CancellationTokenSource(2.Seconds());
-
-            Should.Throw<OperationCanceledException>(async () =>
+            using (var cts = new CancellationTokenSource(1.Seconds()))
             {
-                await task.TimeoutAfter(3.Seconds(), cts.Token);
-            });
+                var task = GetSomethingAfter(5.Seconds(), cts.Token);
+
+                Should.Throw<TaskCanceledException>(async () => await task.TimeoutAfter(3.Seconds()));
+            }
         }
 
         [Test]
@@ -52,14 +50,12 @@
         [Test]
         public void When_executing_task_that_cancels_before_timeout()
         {
-            var task = DoSomethingAfter(5.Seconds());
-
-            var cts = new CancellationTokenSource(2.Seconds());
-
-            Should.Throw<OperationCanceledException>(async () =>
+            using (var cts = new CancellationTokenSource(1.Seconds()))
             {
-                await task.TimeoutAfter(3.Seconds(), cts.Token);
-            });
+                var task = DoSomethingAfter(5.Seconds(), cts.Token);
+
+                Should.NotThrow(async () => await task.TimeoutAfter(3.Seconds()));
+            }
         }
 
         [Test]
@@ -74,18 +70,16 @@
         [Test]
         public void When_executing_multiple_tasks_with_result_that_cancel_before_timeout()
         {
-            var task1 = GetSomethingAfter(2.Seconds());
-            var task2 = GetSomethingAfter(2.Seconds());
-            var task3 = GetSomethingAfter(2.Seconds());
-
-            var tasks = new[] {task1, task2, task3};
-
-            var cts = new CancellationTokenSource(500.Milliseconds());
-
-            Should.Throw<OperationCanceledException>(async () =>
+            using (var cts = new CancellationTokenSource(1.Seconds()))
             {
-                await tasks.TimeoutAfter(3.Seconds(), cts.Token);
-            });
+                var task1 = GetSomethingAfter(2.Seconds(), cts.Token);
+                var task2 = GetSomethingAfter(2.Seconds(), cts.Token);
+                var task3 = GetSomethingAfter(2.Seconds(), cts.Token);
+
+                var tasks = new[] {task1, task2, task3};
+
+                Should.NotThrow(async () => await tasks.TimeoutAfter(3.Seconds()));
+            }
         }
 
         [Test]
@@ -119,18 +113,21 @@
         [Test]
         public void When_executing_multiple_tasks_that_cancel_before_timeout()
         {
-            var task1 = DoSomethingAfter(2.Seconds());
-            var task2 = DoSomethingAfter(2.Seconds());
-            var task3 = DoSomethingAfter(2.Seconds());
-
-            var tasks = new[] {task1, task2, task3};
-
-            var cts = new CancellationTokenSource(500.Milliseconds());
-
-            Should.Throw<OperationCanceledException>(async () =>
+            using (var cts = new CancellationTokenSource(1.Seconds()))
             {
-                await tasks.TimeoutAfter(3.Seconds(), cts.Token);
-            });
+                var cToken = cts.Token;
+
+                var task1 = DoSomethingAfter(3.Seconds(), cToken);
+                var task2 = DoSomethingAfter(3.Seconds(), cToken);
+                var task3 = DoSomethingAfter(3.Seconds(), cToken);
+
+                var tasks = new[] {task1, task2, task3};
+
+                Should.NotThrow(async () =>
+                {
+                    await tasks.TimeoutAfter(4.Seconds());
+                });
+            }
         }
 
         [Test]
@@ -159,13 +156,33 @@
                 .Message.ShouldBe("At least one of the tasks timed out after: 00:00:03");
         }
 
-        private static async Task<int> GetSomethingAfter(TimeSpan waitFor)
+        private static async Task<int> GetSomethingAfter(TimeSpan waitFor, CancellationToken cToken = default)
         {
-            await Task.Delay(waitFor).ConfigureAwait(false);
+            Console.WriteLine("{0:HH:mm:ss.fff} - Task Starting", DateTime.UtcNow);
+            try
+            {
+                await Task.Delay(waitFor, cToken).ConfigureAwait(false);
+            } catch (TaskCanceledException)
+            {
+                Console.WriteLine("{0:HH:mm:ss.fff} - Task Exception", DateTime.UtcNow);
+                throw;
+            }
+            Console.WriteLine("{0:HH:mm:ss.fff} - Task Finished", DateTime.UtcNow);
             return 42;
         }
 
-        private static async Task DoSomethingAfter(TimeSpan waitFor) 
-            => await Task.Delay(waitFor).ConfigureAwait(false);
+        private static async Task DoSomethingAfter(TimeSpan waitFor, CancellationToken cToken = default) 
+        {
+            Console.WriteLine("{0:HH:mm:ss.fff} - Task Starting", DateTime.UtcNow);
+            try
+            {
+                await Task.Delay(waitFor, cToken).ConfigureAwait(false);
+            } catch (TaskCanceledException)
+            {
+                Console.WriteLine("{0:HH:mm:ss.fff} - Task Exception", DateTime.UtcNow);
+                throw;
+            }
+            Console.WriteLine("{0:HH:mm:ss.fff} - Task Finished", DateTime.UtcNow);
+        }
     }
 }
