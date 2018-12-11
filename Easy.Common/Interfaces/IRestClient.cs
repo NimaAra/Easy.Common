@@ -58,9 +58,19 @@
         Task<HttpResponseMessage> PutAsync(string uri, HttpContent content);
 
         /// <summary>
+        /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<HttpResponseMessage> PutAsync(string uri, HttpContent content, TimeSpan timeout);
+
+        /// <summary>
         /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/>.
         /// </summary>
         Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content);
+        
+        /// <summary>
+        /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content, TimeSpan timeout);
 
         /// <summary>
         /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> 
@@ -80,9 +90,19 @@
         Task<HttpResponseMessage> PostAsync(string uri, HttpContent content);
 
         /// <summary>
+        /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<HttpResponseMessage> PostAsync(string uri, HttpContent content, TimeSpan timeout);
+
+        /// <summary>
         /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/>.
         /// </summary>
         Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content);
+
+        /// <summary>
+        /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content, TimeSpan timeout);
 
         /// <summary>
         /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> 
@@ -100,6 +120,11 @@
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
         /// </summary>
         Task<string> GetStringAsync(string uri);
+        
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<string> GetStringAsync(string uri, TimeSpan timeout);
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
@@ -107,9 +132,19 @@
         Task<string> GetStringAsync(Uri uri);
 
         /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<string> GetStringAsync(Uri uri, TimeSpan timeout);
+
+        /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
         /// </summary>
         Task<Stream> GetStreamAsync(string uri);
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<Stream> GetStreamAsync(string uri, TimeSpan timeout);
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
@@ -117,14 +152,30 @@
         Task<Stream> GetStreamAsync(Uri uri);
 
         /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<Stream> GetStreamAsync(Uri uri, TimeSpan timeout);
+
+        /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
         /// </summary>
         Task<byte[]> GetByteArrayAsync(string uri);
 
         /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<byte[]> GetByteArrayAsync(string uri, TimeSpan timeout);
+
+        
+        /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
         /// </summary>
         Task<byte[]> GetByteArrayAsync(Uri uri);
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<byte[]> GetByteArrayAsync(Uri uri, TimeSpan timeout);
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
@@ -132,9 +183,19 @@
         Task<HttpResponseMessage> GetAsync(string uri);
 
         /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<HttpResponseMessage> GetAsync(string uri, TimeSpan timeout);
+
+        /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
         /// </summary>
         Task<HttpResponseMessage> GetAsync(Uri uri);
+
+        /// <summary>
+        /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<HttpResponseMessage> GetAsync(Uri uri, TimeSpan timeout);
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="cToken"/>.
@@ -172,9 +233,19 @@
         Task<HttpResponseMessage> DeleteAsync(string uri);
 
         /// <summary>
+        /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<HttpResponseMessage> DeleteAsync(string uri, TimeSpan timeout);
+
+        /// <summary>
         /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/>.
         /// </summary>
         Task<HttpResponseMessage> DeleteAsync(Uri uri);
+
+        /// <summary>
+        /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
+        /// </summary>
+        Task<HttpResponseMessage> DeleteAsync(Uri uri, TimeSpan timeout);
 
         /// <summary>
         /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/> with the given <paramref name="cToken"/>.
