@@ -20,11 +20,11 @@
         {
             Ensure.That<ArgumentException>(input >= 0, "Input cannot be negative.");
 
-            var clistarr = Base36Characters.ToCharArray();
+            var arr = Base36Characters.ToCharArray();
             var result = new Stack<char>();
             while (input != 0)
             {
-                result.Push(clistarr[input % 36]);
+                result.Push(arr[input % 36]);
                 input /= 36;
             }
             return new string(result.ToArray());

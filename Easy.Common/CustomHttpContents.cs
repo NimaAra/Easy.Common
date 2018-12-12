@@ -36,6 +36,6 @@
         /// <summary>
         /// Creates an instance of the <see cref="XMLContent"/> with the given <paramref name="encoding"/>.
         /// </summary>
-        public XMLContent(string xmlContent, Encoding encoding) : base(xmlContent, encoding, XMLMime) { }
+        public XMLContent(string xmlContent, Encoding encoding) : base(xmlContent, encoding, XMLMime) {}
     }
 }

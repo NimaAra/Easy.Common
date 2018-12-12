@@ -41,10 +41,7 @@
         /// <summary>
         /// Creates and returns the <see cref="string"/> representation of this instance for the current thread.
         /// </summary>
-        public override string ToString()
-        {
-            return _threadLocal.ToString();
-        }
+        public override string ToString() => _threadLocal.ToString();
 
         /// <summary>
         /// Releases all the resources used by this instance.

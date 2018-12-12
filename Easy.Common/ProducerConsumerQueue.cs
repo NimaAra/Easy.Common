@@ -85,10 +85,7 @@
         /// This method blocks if the queue is full and until there is more room.
         /// </summary>
         /// <param name="item">The item to be added to the collection. The value can be a null reference.</param>
-        public void Add(T item)
-        {
-            Add(item, CancellationToken.None);
-        }
+        public void Add(T item) => Add(item, CancellationToken.None);
 
         /// <summary>
         /// Adds the specified item to the <see cref="ProducerConsumerQueue{T}"/>. 
@@ -117,10 +114,7 @@
         /// not accept duplicate items, then an <see cref="InvalidOperationException"/> is thrown wrapped 
         /// in a <see cref="ProducerConsumerQueueException"/>.
         /// </returns>
-        public bool TryAdd(T item)
-        {
-            return TryAdd(item, TimeSpan.Zero, CancellationToken.None);
-        }
+        public bool TryAdd(T item) => TryAdd(item, TimeSpan.Zero, CancellationToken.None);
 
         /// <summary>
         /// Tries to add the specified item to the <see cref="ProducerConsumerQueue{T}"/> within the specified time period.
@@ -133,10 +127,7 @@
         /// not accept duplicate items, then an <see cref="InvalidOperationException"/> is thrown wrapped 
         /// in a <see cref="ProducerConsumerQueueException"/>.
         /// </returns>
-        public bool TryAdd(T item, TimeSpan timeout)
-        {
-            return TryAdd(item, timeout, CancellationToken.None);
-        }
+        public bool TryAdd(T item, TimeSpan timeout) => TryAdd(item, timeout, CancellationToken.None);
 
         /// <summary>
         /// Tries to add the specified item to the <see cref="ProducerConsumerQueue{T}"/> within the specified time period.
@@ -166,18 +157,12 @@
         /// <summary>
         /// Marks the <see cref="ProducerConsumerQueue{T}"/> instance as not accepting any new items.
         /// </summary>
-        public void CompleteAdding()
-        {
-            _queue.CompleteAdding();
-        }
+        public void CompleteAdding() => _queue.CompleteAdding();
 
         /// <summary>
         /// Releases all the resources used by this instance.
         /// </summary>
-        public void Dispose()
-        {
-            _queue?.Dispose();
-        }
+        public void Dispose() => _queue?.Dispose();
 
         private Task<bool> Configure(Action<T> consumer)
         {

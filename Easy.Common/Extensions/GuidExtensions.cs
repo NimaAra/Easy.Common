@@ -51,9 +51,6 @@
         /// See: <see href="http://madskristensen.net/post/generate-unique-strings-and-numbers-in-c"/>
         /// </remarks>
         /// </summary>
-        public static long AsNumber(this Guid guid)
-        {
-            return BitConverter.ToInt64(guid.ToByteArray(), 0);
-        }
+        public static long AsNumber(this Guid guid) => BitConverter.ToInt64(guid.ToByteArray(), 0);
     }
 }

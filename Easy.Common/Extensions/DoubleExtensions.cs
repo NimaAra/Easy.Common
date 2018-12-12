@@ -14,8 +14,12 @@
         /// <returns>The number of decimal places</returns>
         public static uint GetDecimalPlaces(this double value)
         {
-            Ensure.Not(double.IsNaN(value) || double.IsInfinity(value) || value.Equals(double.MaxValue)
-                || value.Equals(double.MinValue) || value.Equals(double.Epsilon),
+            Ensure.Not(
+                double.IsNaN(value) 
+                || double.IsInfinity(value) 
+                || value.Equals(double.MaxValue)
+                || value.Equals(double.MinValue) 
+                || value.Equals(double.Epsilon),
                 "Invalid double value, are you sure it's not NaN, Max/Min, Epsilon or infinity? Value: " + value);
 
             if (value.IsDefault()) { return 0; }
@@ -30,8 +34,12 @@
         /// <returns>The Floor as double value</returns>
         public static double Floor(this double value, uint decimalPlaces)
         {
-            if (decimalPlaces == 0 || double.IsNaN(value) || double.IsInfinity(value)
-                || value.Equals(double.MaxValue) || value.Equals(double.MinValue) || value.Equals(double.Epsilon))
+            if (decimalPlaces == 0 
+                || double.IsNaN(value) 
+                || double.IsInfinity(value)
+                || value.Equals(double.MaxValue) 
+                || value.Equals(double.MinValue) 
+                || value.Equals(double.Epsilon))
             {
                 return value;
             }
@@ -50,8 +58,12 @@
         /// <returns>The Ceiling as double value</returns>
         public static double Ceiling(this double value, uint decimalPlaces)
         {
-            if (decimalPlaces == 0 || double.IsNaN(value) || double.IsInfinity(value)
-                || value.Equals(double.MaxValue) || value.Equals(double.MinValue) || value.Equals(double.Epsilon))
+            if (decimalPlaces == 0 
+                || double.IsNaN(value) 
+                || double.IsInfinity(value)
+                || value.Equals(double.MaxValue) 
+                || value.Equals(double.MinValue) 
+                || value.Equals(double.Epsilon))
             {
                 return value;
             }
@@ -73,7 +85,10 @@
         {
             if (left.Equals(right)) { return true; }
 
-            if (double.IsInfinity(left) || double.IsNaN(left) || double.IsInfinity(right) || double.IsNaN(right))
+            if (double.IsInfinity(left) 
+                || double.IsNaN(left) 
+                || double.IsInfinity(right) 
+                || double.IsNaN(right))
             {
                 return left.Equals(right);
             }

@@ -4,8 +4,7 @@
     using Easy.Common.Extensions;
 
     /// <summary>
-    /// An efficient helper class for converting between <see cref="T:byte[]"/> 
-    /// and <c>Hexadecimal</c> values.
+    /// An efficient helper class for converting between <see cref="T:byte[]"/> and <c>Hexadecimal</c> values.
     /// <remarks>
     /// <see href="https://www.codeproject.com/Tips/447938/High-performance-Csharp-byte-array-to-hex-string-t"/>
     /// </remarks>
@@ -82,7 +81,7 @@
         /// <summary>
         /// Converts the given <paramref name="bytes"/> to <c>Hexadecimal</c> representation.
         /// </summary>
-        public static unsafe string ToHexString(byte[] bytes)
+        public static unsafe string ToHex(byte[] bytes)
         {
             Ensure.NotNull(bytes, nameof(bytes));
             
@@ -117,27 +116,27 @@
         }
 
         /// <summary>
-        /// Converts the given <paramref name="hexaDecimalInput"/> to <see cref="T:byte[]"/>.
+        /// Converts the given <paramref name="hexadecimalInput"/> to <see cref="T:byte[]"/>.
         /// </summary>
-        public static unsafe byte[] FromHexString(string hexaDecimalInput)
+        public static unsafe byte[] FromHex(string hexadecimalInput)
         {
-            Ensure.NotNull(hexaDecimalInput, nameof(hexaDecimalInput));
+            Ensure.NotNull(hexadecimalInput, nameof(hexadecimalInput));
 
-            if (hexaDecimalInput.IsNullOrEmpty()) { return new byte[0]; }
+            if (hexadecimalInput.IsNullOrEmpty()) { return new byte[0]; }
 
             // source length must be even
-            if (hexaDecimalInput.Length % 2 == 1) { throw new ArgumentException(); }
+            if (hexadecimalInput.Length % 2 == 1) { throw new ArgumentException(); }
 
             int
                 index = 0, // start position for parsing source
-                len = hexaDecimalInput.Length >> 1; // initial length of result
+                len = hexadecimalInput.Length >> 1; // initial length of result
 
             // take the first character address of source
-            fixed (char* sourceRef = hexaDecimalInput)
+            fixed (char* sourceRef = hexadecimalInput)
             {
                 if (*(int*)sourceRef == 7864368) // source starts with "0x"
                 {
-                    if (hexaDecimalInput.Length == 2) // source must not be just a "0x")
+                    if (hexadecimalInput.Length == 2) // source must not be just a "0x")
                     {
                         throw new ArgumentException();
                     }

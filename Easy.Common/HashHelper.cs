@@ -20,10 +20,7 @@
         /// <summary>
         /// Gets the hash using the given parameters.
         /// </summary>
-        public static int GetHashCode<T>(T param)
-        {
-            return param.IsDefault() ? 0 : param.GetHashCode();
-        }
+        public static int GetHashCode<T>(T param) => param.IsDefault() ? 0 : param.GetHashCode();
 
         /// <summary>
         /// Gets the hash using the given parameters.

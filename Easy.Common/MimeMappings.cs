@@ -9,14 +9,14 @@
     /// </summary>
     public static class MimeMappings
     {
-        private static readonly Dictionary<string, string> Mmappings = InitializeMapping();
-        
+        private static readonly Dictionary<string, string> _internalMappings = InitializeMapping();
+
         /// <summary>
         /// Returns a copy of the mappings.
         /// <remarks>The mappings use the <see cref="StringComparer.OrdinalIgnoreCase"/></remarks>
         /// </summary>
         public static Dictionary<string, string> Mappings =>
-            new Dictionary<string, string>(Mmappings, StringComparer.InvariantCultureIgnoreCase);
+            new Dictionary<string, string>(_internalMappings, StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
         /// Returns the MIME/Media mapped to the <paramref name="fileName"/>
@@ -41,7 +41,7 @@
         public static bool TryGetMimeMappingByExtension(string extension, out string mime)
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(extension);
-            return Mmappings.TryGetValue(extension, out mime);
+            return _internalMappings.TryGetValue(extension, out mime);
         }
 
         /// <summary>
@@ -54,12 +54,11 @@
             Ensure.NotNullOrEmptyOrWhiteSpace(extension);
             Ensure.NotNullOrEmptyOrWhiteSpace(mimeType);
 
-            Mmappings.Add(extension, mimeType);
+            _internalMappings.Add(extension, mimeType);
         }
 
         private static Dictionary<string, string> InitializeMapping()
-        {
-            return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+            => new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
                 {".*", "application/octet-stream"},
                 {".323", "text/h323"},
@@ -431,7 +430,5 @@
                 {".z", "application/x-compress"},
                 {".zip", "application/x-zip-compressed"}
             };
-        }
     }
-
 }

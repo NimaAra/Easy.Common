@@ -15,8 +15,7 @@ namespace Easy.Common.EasyComparer
     {
         private readonly ConcurrentDictionary<CacheKey, KeyValuePair<PropertyInfo, object>[]> _cache;
 
-        private EasyComparer() =>  _cache = 
-            new ConcurrentDictionary<CacheKey, KeyValuePair<PropertyInfo, object>[]>();
+        private EasyComparer() =>  _cache = new ConcurrentDictionary<CacheKey, KeyValuePair<PropertyInfo, object>[]>();
 
         /// <summary>
         /// Gets a single instance of the <see cref="EasyComparer"/>.

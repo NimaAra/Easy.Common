@@ -33,7 +33,6 @@ namespace Easy.Common.Extensions
             {
                 dynDic.Add(property.Name, property.GetValue(@object, null));
             }
-
             return dynDic;
         }
 
@@ -249,5 +248,4 @@ namespace Easy.Common.Extensions
             generator.Emit(OpCodes.Stfld, fieldDetail);
         }
     }
-
 }

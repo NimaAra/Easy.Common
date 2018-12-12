@@ -12,20 +12,17 @@
         /// <summary>
         /// Creates a predicate expression from the given lambda expression.
         /// </summary>
-        public static Expression<Func<T, bool>> Create<T>(Expression<Func<T, bool>> predicate)
-        {
-            return predicate;
-        }
+        public static Expression<Func<T, bool>> Create<T>(Expression<Func<T, bool>> predicate) => predicate;
 
         /// <summary>
         /// Creates a predicate that evaluates to <c>True</c>.
         /// </summary>
-        public static Expression<Func<T, bool>> True<T>() { return param => true; }
+        public static Expression<Func<T, bool>> True<T>() => param => true;
 
         /// <summary>
         /// Creates a predicate that evaluates to <c>False</c>.
         /// </summary>
-        public static Expression<Func<T, bool>> False<T>() { return param => false; }
+        public static Expression<Func<T, bool>> False<T>() => param => false;
 
         /// <summary>
         /// Combines the first predicate with the second using the logical <c>OR</c>.

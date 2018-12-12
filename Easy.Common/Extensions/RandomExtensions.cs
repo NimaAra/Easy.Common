@@ -27,9 +27,10 @@
         /// </summary>
         public static int[] GenerateRandomSequence(this Random random, int count, int min, int max)
         {
-            Ensure.Not(max <= min || count < 0 || count > max - min && max - min > 0, $"The given range of: {min.ToString()} to {max.ToString()} " +
-                                                      $"({((long)max - min).ToString()} value(s)), with the count of: " +
-                                                      $"{ count.ToString()} is illegal.");
+            Ensure.Not(max <= min || count < 0 || count > max - min && max - min > 0, 
+                $"The given range of: {min.ToString()} to {max.ToString()} " +
+                $"({((long)max - min).ToString()} value(s)), with the count of: " +
+                $"{ count.ToString()} is illegal.");
 
             var candidates = new HashSet<int>();
 

@@ -14,7 +14,7 @@
         private static readonly Lazy<BlockingTaskNotifier> Listener
             = new Lazy<BlockingTaskNotifier>(() => new BlockingTaskNotifier());
 
-        private BlockingTaskNotifier() { }
+        private BlockingTaskNotifier() {}
 
         /// <summary>
         /// Invoked when an incomplete task is blocked.
@@ -24,10 +24,7 @@
         /// <summary>
         /// Starts the alerter.
         /// </summary>
-        public static void Start()
-        {
-            var _ = Listener.Value;
-        }
+        public static void Start() => _ = Listener.Value;
 
         /// <summary>
         /// Called for all existing event sources when the event listener is created 

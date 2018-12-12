@@ -16,8 +16,8 @@
         /// Adds the <paramref name="key"/> and <paramref name="value"/> to the <paramref name="dictionary"/>
         /// if the <paramref name="key"/> does not already exists and returns the inserted value.
         /// </summary>
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, 
-            TKey key, TValue value)
+        public static TValue GetOrAdd<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
         {
             if (dictionary.TryGetValue(key, out var result)) { return result; }
             
@@ -30,8 +30,8 @@
         /// the <paramref name="dictionary"/> if the <paramref name="key"/> does not already exists 
         /// and returns the inserted value.
         /// </summary>
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, 
-            TKey key, Func<TValue> valueCreator)
+        public static TValue GetOrAdd<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> valueCreator)
         {
             if (dictionary.TryGetValue(key, out var result)) { return result; }
             
@@ -48,17 +48,15 @@
         /// <param name="key">The key whose value to get.</param>
         /// <param name="defaultValue">The default value to return if an item with the specified <paramref name="key"/> does not exist.</param>
         /// <returns>The value associated with the specified key or the <paramref name="defaultValue"/> if it does not exist.</returns>
-        public static TValue GetOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, 
-            TKey key, TValue defaultValue = default(TValue)) 
+        public static TValue GetOrDefault<TKey, TValue>(
+            this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default(TValue)) 
                 => dictionary.TryGetValue(key, out var value) ? value : defaultValue;
 
         /// <summary>
         /// Compares the given <paramref name="left"/> against <paramref name="right"/> for equality.
         /// </summary>
         public static bool Equals<TKey, TValue>(
-            this IDictionary<TKey, TValue> left,
-            IDictionary<TKey, TValue> right,
-            IEqualityComparer<TValue> valueComparer = null)
+            this IDictionary<TKey, TValue> left, IDictionary<TKey, TValue> right, IEqualityComparer<TValue> valueComparer = null)
                 => Equals((IReadOnlyDictionary<TKey, TValue>) left, (IReadOnlyDictionary<TKey, TValue>) right, valueComparer);
 
         /// <summary>
@@ -66,9 +64,7 @@
         /// </summary>
         [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
         public static bool Equals<TKey, TValue>(
-            this IReadOnlyDictionary<TKey, TValue> left,
-            IReadOnlyDictionary<TKey, TValue> right, 
-            IEqualityComparer<TValue> valueComparer = null)
+            this IReadOnlyDictionary<TKey, TValue> left, IReadOnlyDictionary<TKey, TValue> right, IEqualityComparer<TValue> valueComparer = null)
         {
             if (left == right) { return true; }
             if (left == null || right == null) { return false; }
@@ -117,8 +113,8 @@
             return true;
         }
 
-        private static bool KeyValueExists<TKey, TValue>(TKey key, TValue value,
-            IReadOnlyDictionary<TKey, TValue> dictionary, IEqualityComparer<TValue> comparer)
+        private static bool KeyValueExists<TKey, TValue>(
+            TKey key, TValue value, IReadOnlyDictionary<TKey, TValue> dictionary, IEqualityComparer<TValue> comparer)
                 => dictionary.TryGetValue(key, out var rightVal) && comparer.Equals(value, rightVal);
 
         /// <summary>

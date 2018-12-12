@@ -155,17 +155,11 @@
         /// <summary>
         /// Read the value of the process property identified by the given <paramref name="selector"/>.
         /// </summary>
-        public T ReadProcessInfo<T>(Func<Process, T> selector)
-        {
-            return selector(_process);
-        }
+        public T ReadProcessInfo<T>(Func<Process, T> selector) => selector(_process);
 
         /// <summary>
         /// Releases all resources used by the underlying process.
         /// </summary>
-        public void Dispose()
-        {
-            _process?.Dispose();
-        }
+        public void Dispose() => _process?.Dispose();
     }
 }

@@ -62,8 +62,8 @@
         /// </summary>
         public bool Enabled
         {
-            get { return NextSchedule != DateTime.MaxValue; }
-            set { NextSchedule = value ? Clock.UtcNow.Add(TickInterval) : DateTime.MaxValue; }
+            get => NextSchedule != DateTime.MaxValue;
+            set => NextSchedule = value ? Clock.UtcNow.Add(TickInterval) : DateTime.MaxValue;
         }
 
         /// <summary>
@@ -80,10 +80,8 @@
         /// Converts the value of the <see cref="TimerClock"/> to its equivalent <see cref="string"/>.
         /// </summary>
         /// <returns>The <see cref="string"/> representation of the <see cref="TimerClock"/></returns>
-        public override string ToString()
-        {
-            return $"Interval: {TickInterval.ToString()} - DateTime: {Clock.UtcNow:yyyy-MM-dd HH:mm.ss.fff}";
-        }
+        public override string ToString() 
+            => $"Interval: {TickInterval.ToString()} - DateTime: {Clock.UtcNow.ToString("yyyy-MM-dd HH:mm.ss.fff")}";
 
         private void OnTick(object sender, EventArgs args)
         {
