@@ -8,7 +8,7 @@
     <Title>Easy Common</Title>
     <PackageTags>Easy;Common</PackageTags>
     <PackageProjectUrl>https://github.com/NimaAra/Easy.Common</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/NimaAra/Easy.Common/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes>-</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/NimaAra/Easy.Common</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -48,5 +48,4 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
 </Project>
