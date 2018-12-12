@@ -8,7 +8,7 @@
     /// <summary>
     /// Provides a set of useful methods for working with <see cref="Random"/>.
     /// </summary>
-    public static class RandomExtensionsTests
+    public static class RandomExtensions
     {
         /// <summary>
         /// Generates a random <see cref="double"/> between the given <paramref name="min"/> and <paramref name="max"/>.

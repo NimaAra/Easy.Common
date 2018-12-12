@@ -13,7 +13,6 @@
         {
             var random = new Random();
             random.GenerateRandomBetween(1, 2).ShouldBeInRange(1, 2);
-
             random.GenerateRandomBetween(1, 1).ShouldBe(1);
         }
 
