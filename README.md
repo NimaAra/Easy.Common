@@ -25,3 +25,5 @@ Supports _.NET Core_ (_.NET 4.5_ & _netstandard2.0_) running on:
 - [`Clock`](https://github.com/NimaAra/Easy.Common/blob/master/Easy.Common/Clock.cs) featured in [High Resolution Clock in .NET](http://www.nimaara.com/2016/07/06/high-resolution-clock-in-net/)
 
 And more to come...
+
+##### If you enjoy what I build then please <a href="https://www.buymeacoffee.com/sP0BhM9n6" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" width="120px" ></a> :-)
