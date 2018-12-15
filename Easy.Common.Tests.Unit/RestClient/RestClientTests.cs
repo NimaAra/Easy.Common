@@ -40,7 +40,6 @@
             using (var client = new RestClient())
             {
                 client.DefaultRequestHeaders.ShouldBeEmpty();
-                client.Endpoints.ShouldBeEmpty();
                 client.MaxResponseContentBufferSize.ShouldBe((uint)int.MaxValue);
                 client.Timeout.ShouldBe(Timeout.InfiniteTimeSpan);
             }
@@ -61,7 +60,6 @@
                 client.DefaultRequestHeaders["Accept"].ShouldBe("application/json");
                 client.DefaultRequestHeaders["UserAgent"].ShouldBe("foo-bar");
 
-                client.Endpoints.ShouldBeEmpty();
                 client.MaxResponseContentBufferSize.ShouldBe((uint)10);
                 client.Timeout.ShouldBe(15.Seconds());
             }
@@ -80,12 +78,6 @@
                 ServicePointManager.FindServicePoint(endpoint)
                     .ConnectionLeaseTimeout
                     .ShouldBe((int)1.Minutes().TotalMilliseconds);
-
-                client.Endpoints.Length.ShouldBe(1);
-                client.Endpoints[0].ShouldBe(endpoint);
-
-                client.ClearEndpoints();
-                client.Endpoints.ShouldBeEmpty();
             }
         }
 
@@ -103,12 +95,6 @@
                 ServicePointManager.FindServicePoint(endpointUri)
                     .ConnectionLeaseTimeout
                     .ShouldBe((int)1.Minutes().TotalMilliseconds);
-
-                client.Endpoints.Length.ShouldBe(1);
-                client.Endpoints[0].OriginalString.ShouldBe(Endpoint);
-
-                client.ClearEndpoints();
-                client.Endpoints.ShouldBeEmpty();
             }
         }
 

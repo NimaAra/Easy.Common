@@ -28,11 +28,6 @@
         uint MaxResponseContentBufferSize { get; }
 
         /// <summary>
-        /// Gets all of the endpoints which this instance has sent a request to.
-        /// </summary>
-        Uri[] Endpoints { get; }
-
-        /// <summary>
         /// Sends the given <paramref name="request"/>.
         /// </summary>
         Task<HttpResponseMessage> SendAsync(HttpRequestMessage request);
@@ -256,11 +251,6 @@
         /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/> with the given <paramref name="cToken"/>.
         /// </summary>
         Task<HttpResponseMessage> DeleteAsync(Uri uri, CancellationToken cToken);
-
-        /// <summary>
-        /// Clears all of the endpoints which this instance has sent a request to.
-        /// </summary>
-        void ClearEndpoints();
 
         /// <summary>
         /// Cancels all pending requests on this instance.

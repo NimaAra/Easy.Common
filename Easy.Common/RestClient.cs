@@ -20,7 +20,7 @@
     public sealed class RestClient : IRestClient
     {
         private readonly HttpClient _client;
-        private readonly HashSet<Uri> _endpoints;
+        private readonly HashSet<EndpointCacheKey> _endpoints;
         private readonly TimeSpan _connectionCloseTimeoutPeriod;
 
         static RestClient() => ConfigureServicePointManager();
@@ -41,7 +41,7 @@
             AddRequestTimeout(timeout);
             AddMaxResponseBufferSize(maxResponseContentBufferSize);
             
-            _endpoints = new HashSet<Uri>();
+            _endpoints = new HashSet<EndpointCacheKey>();
             _connectionCloseTimeoutPeriod = 1.Minutes();
         }
 
@@ -60,14 +60,6 @@
         /// Gets the maximum number of bytes to buffer when reading the response content.
         /// </summary>
         public uint MaxResponseContentBufferSize => (uint)_client.MaxResponseContentBufferSize;
-
-        /// <summary>
-        /// Gets all of the endpoints which this instance has sent a request to.
-        /// </summary>
-        public Uri[] Endpoints
-        {
-            get { lock (_endpoints) { return _endpoints.ToArray(); } }
-        }
 
         /// <summary>
         /// Sends the given <paramref name="request"/>.
@@ -463,14 +455,6 @@
         }
 
         /// <summary>
-        /// Clears all of the endpoints which this instance has sent a request to.
-        /// </summary>
-        public void ClearEndpoints()
-        {
-            lock (_endpoints) { _endpoints.Clear(); }
-        }
-
-        /// <summary>
         /// Cancels all pending requests on this instance.
         /// </summary>
         public void CancelPendingRequests() => _client.CancelPendingRequests();
@@ -478,11 +462,7 @@
         /// <summary>
         /// Releases the unmanaged resources and disposes of the managed resources used by the <see cref="HttpClient"/>.
         /// </summary>
-        public void Dispose()
-        {
-            _client.Dispose();
-            lock (_endpoints) { _endpoints.Clear(); }
-        }
+        public void Dispose() => _client.Dispose();
         
         private static void ConfigureServicePointManager()
         {
@@ -495,7 +475,7 @@
 
         private void AddDefaultHeaders(IDictionary<string, string> headers)
         {
-            if (headers == null) { return; }
+            if (headers is null) { return; }
 
             foreach (var item in headers)
             {
@@ -514,14 +494,39 @@
 
         private void AddConnectionLeaseTimeout(Uri endpoint)
         {
+            var key = new EndpointCacheKey(endpoint);
             lock (_endpoints)
             {
-                if (_endpoints.Contains(endpoint)) { return; }
+                if (_endpoints.Contains(key)) { return; }
 
                 ServicePointManager.FindServicePoint(endpoint)
                     .ConnectionLeaseTimeout = (int)_connectionCloseTimeoutPeriod.TotalMilliseconds;
-                _endpoints.Add(endpoint);
+                _endpoints.Add(key);
             }
+        }
+
+        private struct EndpointCacheKey : IEquatable<EndpointCacheKey>
+        {
+            private readonly int _hash;
+
+            public EndpointCacheKey(Uri uri) 
+                => _hash = HashHelper.GetHashCode(uri.Scheme, uri.DnsSafeHost, uri.Port);
+
+            public bool Equals(EndpointCacheKey other) => _hash == other._hash;
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                return obj is EndpointCacheKey other && Equals(other);
+            }
+
+            public override int GetHashCode() => _hash;
+
+            public static bool operator ==(EndpointCacheKey left, EndpointCacheKey right) 
+                => left.Equals(right);
+
+            public static bool operator !=(EndpointCacheKey left, EndpointCacheKey right) 
+                => !left.Equals(right);
         }
     }
 }
