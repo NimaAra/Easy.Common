@@ -28,6 +28,11 @@
         uint MaxResponseContentBufferSize { get; }
 
         /// <summary>
+        /// Gets the base address of Uniform Resource Identifier (URI) of the Internet resource used when sending requests.
+        /// </summary>
+        Uri BaseAddress { get; }
+
+        /// <summary>
         /// Sends the given <paramref name="request"/>.
         /// </summary>
         Task<HttpResponseMessage> SendAsync(HttpRequestMessage request);

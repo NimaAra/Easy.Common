@@ -39,6 +39,7 @@
         {
             using (var client = new RestClient())
             {
+                client.BaseAddress.ShouldBeNull();
                 client.DefaultRequestHeaders.ShouldBeEmpty();
                 client.MaxResponseContentBufferSize.ShouldBe((uint)int.MaxValue);
                 client.Timeout.ShouldBe(Timeout.InfiniteTimeSpan);
@@ -54,12 +55,18 @@
                 { HttpRequestHeader.UserAgent.ToString(), "foo-bar" }
             };
 
-            using (IRestClient client = new RestClient(defaultHeaders, timeout: 15.Seconds(), maxResponseContentBufferSize: 10))
+            var baseAddress = new Uri("https://foo.bar:1234/");
+            using (IRestClient client = new RestClient(
+                defaultHeaders, 
+                timeout: 15.Seconds(), 
+                maxResponseContentBufferSize: 10, 
+                baseAddress: baseAddress))
             {
                 client.DefaultRequestHeaders.Count.ShouldBe(defaultHeaders.Count);
                 client.DefaultRequestHeaders["Accept"].ShouldBe("application/json");
                 client.DefaultRequestHeaders["UserAgent"].ShouldBe("foo-bar");
 
+                client.BaseAddress.ShouldBe(baseAddress);
                 client.MaxResponseContentBufferSize.ShouldBe((uint)10);
                 client.Timeout.ShouldBe(15.Seconds());
             }
@@ -95,6 +102,47 @@
                 ServicePointManager.FindServicePoint(endpointUri)
                     .ConnectionLeaseTimeout
                     .ShouldBe((int)1.Minutes().TotalMilliseconds);
+            }
+        }
+
+        [Test]
+        public async Task When_sending_a_request_with_base_address()
+        {
+            var endpoint1 = new Uri("http://foo.bar/api/1");
+            var resp1 = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("A") };
+            
+            var endpoint2 = new Uri("http://foo.bar/api/2");
+            var resp2 = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("B") };
+
+            var endpoint3 = new Uri("http://foo.bar/api/3");
+            var resp3 = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("C") };
+
+            using (var handler = new FakeResponseHandler())
+            using (resp1)
+            using (resp2)
+            using (resp3)
+            {
+                handler.AddFakeResponse(endpoint1, resp1);
+                handler.AddFakeResponse(endpoint2, resp2);
+                handler.AddFakeResponse(endpoint3, resp3);
+
+                var baseAddress = new Uri("http://foo.bar");
+                using (IRestClient client = new RestClient(handler: handler, baseAddress: baseAddress))
+                {
+                    client.BaseAddress.ShouldBe(baseAddress);
+
+                    (await client.GetStringAsync(endpoint1)).ShouldBe("A");
+                    (await client.GetStringAsync(endpoint2)).ShouldBe("B");
+                    (await client.GetStringAsync(endpoint3)).ShouldBe("C");
+                    
+                    (await client.GetStringAsync(endpoint1.OriginalString)).ShouldBe("A");
+                    (await client.GetStringAsync(endpoint2.OriginalString)).ShouldBe("B");
+                    (await client.GetStringAsync(endpoint3.OriginalString)).ShouldBe("C");
+
+                    (await client.GetStringAsync("api/1")).ShouldBe("A");
+                    (await client.GetStringAsync("api/2")).ShouldBe("B");
+                    (await client.GetStringAsync("api/3")).ShouldBe("C");
+                }
             }
         }
 

@@ -31,18 +31,20 @@
         public RestClient(
             IDictionary<string, string> defaultRequestHeaders = null,
             HttpMessageHandler handler = null,
+            Uri baseAddress = null,
             bool disposeHandler = true,
             TimeSpan? timeout = null,
             ulong? maxResponseContentBufferSize = null)
         {
             _client = handler == null ? new HttpClient() : new HttpClient(handler, disposeHandler);
 
+            _endpoints = new HashSet<EndpointCacheKey>();
+            _connectionCloseTimeoutPeriod = 1.Minutes();
+            
+            AddBaseAddress(baseAddress);
             AddDefaultHeaders(defaultRequestHeaders);
             AddRequestTimeout(timeout);
             AddMaxResponseBufferSize(maxResponseContentBufferSize);
-            
-            _endpoints = new HashSet<EndpointCacheKey>();
-            _connectionCloseTimeoutPeriod = 1.Minutes();
         }
 
         /// <summary>
@@ -60,6 +62,11 @@
         /// Gets the maximum number of bytes to buffer when reading the response content.
         /// </summary>
         public uint MaxResponseContentBufferSize => (uint)_client.MaxResponseContentBufferSize;
+
+        /// <summary>
+        /// Gets the base address of Uniform Resource Identifier (URI) of the Internet resource used when sending requests.
+        /// </summary>
+        public Uri BaseAddress => _client.BaseAddress;
 
         /// <summary>
         /// Sends the given <paramref name="request"/>.
@@ -473,6 +480,14 @@
             ServicePointManager.DefaultConnectionLimit = 1024;
         }
 
+        private void AddBaseAddress(Uri uri)
+        {
+            if (uri is null) { return; }
+
+            AddConnectionLeaseTimeout(uri);
+            _client.BaseAddress = uri;
+        }
+
         private void AddDefaultHeaders(IDictionary<string, string> headers)
         {
             if (headers is null) { return; }
@@ -494,6 +509,8 @@
 
         private void AddConnectionLeaseTimeout(Uri endpoint)
         {
+            if (!endpoint.IsAbsoluteUri) { return; }
+            
             var key = new EndpointCacheKey(endpoint);
             lock (_endpoints)
             {
