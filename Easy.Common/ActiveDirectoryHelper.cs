@@ -1,4 +1,5 @@
-﻿namespace Easy.Common
+﻿#if NETFRAMEWORK || NETSTANDARD2_0
+namespace Easy.Common
 {
     using System;
     using System.Collections.Generic;
@@ -195,3 +196,4 @@
         }
     }
 }
+#endif

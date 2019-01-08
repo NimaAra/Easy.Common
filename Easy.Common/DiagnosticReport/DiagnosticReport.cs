@@ -15,7 +15,6 @@ namespace Easy.Common
     using System.Text.RegularExpressions;
     using System.Threading;
     using Easy.Common.Extensions;
-    using Microsoft.Win32;
 
     /// <summary>
     /// A helper class for generating a report containing details related to 
@@ -769,8 +768,13 @@ namespace Easy.Common
         /// <returns>The CPU Name</returns>
         private static string GetProcessorNameWindows()
         {
-            var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0\");
+#if NETFRAMEWORK || NETSTANDARD2_0
+            var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0\");
             return key?.GetValue("ProcessorNameString").ToString() ?? "Not Found";
+            
+#else
+            return "<INVALID>"; // This should be unreachable.
+#endif
         }
 
         private static string GetProcessorNameLinux()
@@ -780,8 +784,10 @@ namespace Easy.Common
             var cpuLine = File.ReadLines(CPUFile)
                 .FirstOrDefault(l => l.StartsWith("model name", StringComparison.InvariantCultureIgnoreCase));
 
-            const string Seperator = ": ";
-            var startIdx = cpuLine.IndexOf(Seperator, StringComparison.Ordinal) + Seperator.Length;
+            if (cpuLine is null) { return "<UNKNOWN>"; }
+
+            const string Separator = ": ";
+            var startIdx = cpuLine.IndexOf(Separator, StringComparison.Ordinal) + Separator.Length;
             return cpuLine.Substring(startIdx, cpuLine.Length - startIdx);
         }
 
@@ -813,10 +819,12 @@ namespace Easy.Common
             var memLine = File.ReadLines(MemFile)
                 .FirstOrDefault(l => l.StartsWith("MemTotal:", StringComparison.InvariantCultureIgnoreCase));
 
-            const string BeginSeperator = ":";
-            const string EndSeperator = "kB";
-            var startIdx = memLine.IndexOf(BeginSeperator, StringComparison.Ordinal) + BeginSeperator.Length;
-            var endIdx = memLine.IndexOf(EndSeperator, StringComparison.Ordinal);
+            if (memLine is null) { return -1; }
+            
+            const string BeginSeparator = ":";
+            const string EndSeparator = "kB";
+            var startIdx = memLine.IndexOf(BeginSeparator, StringComparison.Ordinal) + BeginSeparator.Length;
+            var endIdx = memLine.IndexOf(EndSeparator, StringComparison.Ordinal);
             var memStr = memLine.Substring(startIdx, endIdx - startIdx);
             return long.Parse(memStr) / 1000_000;
         }
@@ -901,45 +909,14 @@ namespace Easy.Common
 
         private static string GetDotNetFrameworkVersion()
         {
-            Version version;
+#if NETFRAMEWORK
+            return ".NET Framework " + GetVersionFull();
 
-            try
-            {
-                version = GetVersionFull();
-                return ".NET Framework " + version;
-            } catch (TypeInitializationException e) when (e.TypeName == "Microsoft.Win32.Registry")
-            {
-                try
-                {
-                    version = GetVersionCore();
-                    return ".NET Core " + version;
-                } catch (NotSupportedException)
-                {
-                    return RuntimeInformation.FrameworkDescription + " (Self Contained)";
-                }
-            }
-
-            Version GetVersionCore()
-            {
-                const string REGEX_PATTERN = @"Microsoft\.NETCore\.App[\\,/](?<version>\d+\.\d+.\d+(.\d+)?)$";
-                
-                var runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location);
-
-                var match = Regex.Match(runtimePath, REGEX_PATTERN);
-
-                if (!match.Success)
-                {
-                    throw new NotSupportedException("Unable to detect a DotNet Core version, runtime path found: " + runtimePath);
-                }
-
-                return new Version(match.Groups["version"].Value);
-            }
-            
             // https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed
             Version GetVersionFull()
             {
                 const string REG_KEY = @"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full";
-                using (var ndpKey = Registry.LocalMachine.OpenSubKey(REG_KEY))
+                using (var ndpKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(REG_KEY))
                 {
                     if (ndpKey != null)
                     {
@@ -960,8 +937,32 @@ namespace Easy.Common
                     throw new NotSupportedException($"Unable to find a registry key under '{REG_KEY}'.");
                 }
             }
-        }
+#else
+            try
+            {
+                return ".NET Core " + GetVersionCore();
+            } catch (NotSupportedException)
+            {
+                return RuntimeInformation.FrameworkDescription + " (Self Contained)";
+            }
 
+            Version GetVersionCore()
+            {
+                const string REGEX_PATTERN = @"Microsoft\.NETCore\.App[\\,/](?<version>\d+\.\d+.\d+(.\d+)?)$";
+                
+                var runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location);
+
+                var match = Regex.Match(runtimePath, REGEX_PATTERN);
+
+                if (!match.Success)
+                {
+                    throw new NotSupportedException("Unable to detect a DotNet Core version, runtime path found: " + runtimePath);
+                }
+
+                return new Version(match.Groups["version"].Value);
+            }
+#endif
+        }
         /// <summary>
         /// <see href="https://msdn.microsoft.com/en-us/library/windows/desktop/cc300158(v=vs.85).aspx"/>
         /// </summary>

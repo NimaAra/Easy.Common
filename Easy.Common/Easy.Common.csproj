@@ -4,7 +4,7 @@
     <PackageId>Easy.Common</PackageId>
     <Description>A set of useful methods used across Easy.* projects.</Description>
     <Authors>Nima Ara</Authors>
-    <Copyright>2018 Nima Ara</Copyright>
+    <Copyright>2019 Nima Ara</Copyright>
     <Title>Easy Common</Title>
     <PackageTags>Easy;Common</PackageTags>
     <PackageProjectUrl>https://github.com/NimaAra/Easy.Common</PackageProjectUrl>
@@ -15,7 +15,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard2.0;netcoreapp2.1</TargetFrameworks>
     <AssemblyTitle>Easy Common</AssemblyTitle>
     <AssemblyName>Easy.Common</AssemblyName>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
