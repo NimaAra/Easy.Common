@@ -17,58 +17,21 @@
         /// <summary>
         /// Determines whether this object is equal <paramref name="other"/>.
         /// </summary>
-        public virtual bool Equals(T other)
-        {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return GetHashCode() == other.GetHashCode();
-        }
+        public virtual bool Equals(T other) => other is T notNull && notNull.GetHashCode() == GetHashCode();
 
         /// <summary>
         /// Determines whether this object is equal <paramref name="obj"/>.
         /// </summary>
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
-
-            return Equals((T)obj);
-        }
+        public override bool Equals(object obj) => obj is T other && Equals(other);
 
         /// <summary>
         /// Determines whether the given <paramref name="left"/> is equal <paramref name="right"/>.
         /// </summary>
-        public static bool operator ==(Equatable<T> left, Equatable<T> right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(Equatable<T> left, Equatable<T> right) => Equals(left, right);
 
         /// <summary>
         /// Determines whether the given <paramref name="left"/> is equal <paramref name="right"/>.
         /// </summary>
-        public static bool operator !=(Equatable<T> left, Equatable<T> right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(Equatable<T> left, Equatable<T> right) => !Equals(left, right);
     }
 }
