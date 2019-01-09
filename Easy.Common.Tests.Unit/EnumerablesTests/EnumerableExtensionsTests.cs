@@ -301,7 +301,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
 
             Should.Throw<KeyNotFoundException>(() =>
             {
-                var ignore = keyedCollection["name-10"];
+                var _ = keyedCollection["name-10"];
             }).Message.ShouldBe("The given key was not present in the dictionary.");
         }
 
