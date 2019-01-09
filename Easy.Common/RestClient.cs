@@ -524,20 +524,16 @@
 
         private struct EndpointCacheKey : IEquatable<EndpointCacheKey>
         {
-            private readonly int _hash;
+            private readonly Uri _uri;
 
-            public EndpointCacheKey(Uri uri) 
-                => _hash = HashHelper.GetHashCode(uri.Scheme, uri.DnsSafeHost, uri.Port);
+            public EndpointCacheKey(Uri uri) => _uri = uri;
 
-            public bool Equals(EndpointCacheKey other) => _hash == other._hash;
+            public bool Equals(EndpointCacheKey other) => _uri == other._uri;
 
-            public override bool Equals(object obj)
-            {
-                if (ReferenceEquals(null, obj)) return false;
-                return obj is EndpointCacheKey other && Equals(other);
-            }
+            public override bool Equals(object obj) => obj is EndpointCacheKey other && Equals(other);
 
-            public override int GetHashCode() => _hash;
+            public override int GetHashCode() => 
+                HashHelper.GetHashCode(_uri.Scheme, _uri.DnsSafeHost, _uri.Port);
 
             public static bool operator ==(EndpointCacheKey left, EndpointCacheKey right) 
                 => left.Equals(right);
