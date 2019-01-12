@@ -40,17 +40,16 @@
             Ensure.That(maxConcurrencyLevel > 0, $"{nameof(maxConcurrencyLevel)} should be greater than zero.");
             Ensure.That(boundedCapacity != 0, $"{nameof(boundedCapacity)} should be greater than zero.");
 
-            WorkerCount = maxConcurrencyLevel;
-
             _queue = boundedCapacity < 0 ? new BlockingCollection<T>() : new BlockingCollection<T>(boundedCapacity);
 
+            MaximumConcurrencyLevel = maxConcurrencyLevel;
             Completion = Configure(consumer);
         }
 
         /// <summary>
-        /// Gets the number of consumer threads.
+        /// Gets the maximum number of consumer threads.
         /// </summary>
-        public uint WorkerCount { get; }
+        public uint MaximumConcurrencyLevel { get; }
 
         /// <summary>
         /// Gets the bounded capacity of the underlying queue. -1 for unbounded.
@@ -166,40 +165,38 @@
 
         private Task<bool> Configure(Action<T> consumer)
         {
-            var scheduler = TaskScheduler.Default;
-            var tasks = new Task[WorkerCount];
-            for (var i = 0; i < WorkerCount; i++)
-            {
-                tasks[i] = Task.Factory.StartNew(() =>
+            var workers = Task.Factory.StartNew(() =>
                 {
-                    foreach (var item in _queue.GetConsumingEnumerable())
-                    {
-                        try
-                        {
-                            consumer(item);
-                        } catch (Exception e)
-                        {
-                            OnException?.Invoke(this, new ProducerConsumerQueueException("Exception occurred.", e));
-                        }
-                    }
-                }, CancellationToken.None, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, scheduler);
-            }
+                    Parallel.ForEach(
+                        Partitioner.Create(
+                            _queue.GetConsumingEnumerable(), 
+                            EnumerablePartitionerOptions.NoBuffering), 
+                        new ParallelOptions { MaxDegreeOfParallelism = (int)MaximumConcurrencyLevel }, 
+                        WrapConsumer);
+                }, 
+                CancellationToken.None, 
+                TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, 
+                TaskScheduler.Default);
 
             var tcs = new TaskCompletionSource<bool>();
-            
-            var workersDone = Task.WhenAll(tasks);
+            workers.ContinueWith(task => tcs.SetResult(false), 
+                TaskContinuationOptions.NotOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
 
-            workersDone.ContinueWith(task =>
-            {
-                tcs.SetResult(false);
-            }, TaskContinuationOptions.NotOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
-
-            workersDone.ContinueWith(task =>
-            {
-                tcs.SetResult(true);
-            }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
+            workers.ContinueWith(task => tcs.SetResult(true), 
+                TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
 
             return tcs.Task;
+
+            void WrapConsumer(T x)
+            {
+                try
+                {
+                    consumer(x);
+                } catch (Exception e)
+                {
+                    OnException?.Invoke(this, new ProducerConsumerQueueException("Exception occurred.", e));
+                }
+            }
         }
     }
 

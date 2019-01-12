@@ -13,10 +13,7 @@
     [TestFixture]
     public sealed class ProducerConsumerQueueTests
     {
-        readonly Func<int, MyClass> _getData = n => new MyClass
-        {
-            Id = n
-        };
+        readonly Func<int, MyClass> _getData = n => new MyClass { Id = n };
 
         [Test]
         public void CreatingWithNegativeBoundedCapacity()
@@ -25,7 +22,7 @@
 
             Action action = () =>
             {
-                new ProducerConsumerQueue<int>(i => { /* do nothing; */ }, 1, BoundedCapacity);
+                var _ = new ProducerConsumerQueue<int>(i => { /* do nothing; */ }, 1, BoundedCapacity);
             };
 
             action.ShouldThrow<ArgumentException>()
@@ -37,7 +34,7 @@
         {
             Action action = () =>
             {
-                new ProducerConsumerQueue<int>(null, 1, 1);
+                var _ = new ProducerConsumerQueue<int>(null, 1, 1);
             };
 
             action.ShouldThrow<ArgumentNullException>()
@@ -56,7 +53,7 @@
         {
             Action action = () =>
             {
-                new ProducerConsumerQueue<int>(i => { /* do nothing; */ }, 0, 1);
+                var _ = new ProducerConsumerQueue<int>(i => { /* do nothing; */ }, 0, 1);
             };
 
             action.ShouldThrow<ArgumentException>()
@@ -69,7 +66,7 @@
             var queue = new ProducerConsumerQueue<int>(i => { /* do nothing; */ }, 2, 1);
 
             queue.Capacity.ShouldBe(1);
-            queue.WorkerCount.ShouldBe<uint>(2);
+            queue.MaximumConcurrencyLevel.ShouldBe<uint>(2);
             queue.PendingCount.ShouldBe<uint>(0);
             queue.PendingItems.ShouldBeEmpty();
         }
@@ -78,7 +75,7 @@
         public void ConsumerWithOneWorkerShouldProcessEveryAddedItems()
         {
             Exception exceptionThrown = null;
-            var consumed = new List<MyClass>();
+            var consumed = new ConcurrentBag<MyClass>();
 
             Action<MyClass> consumer = x => { consumed.Add(x); };
 
@@ -101,7 +98,7 @@
         public void BlockingConsumerWithOneWorkerShouldBlockEverything()
         {
             var exceptionThrown = false;
-            var consumed = new List<MyClass>();
+            var consumed = new ConcurrentBag<MyClass>();
 
             Action<MyClass> consumer = x =>
             {
@@ -132,7 +129,7 @@
         public void BlockingConsumerWithTwoWorkersShouldBlockOnlyOneItem()
         {
             var exceptionThrown = false;
-            var consumed = new List<MyClass>();
+            var consumed = new ConcurrentBag<MyClass>();
 
             var counter = 0;
             Action<MyClass> consumer = x =>
@@ -155,10 +152,10 @@
 
             Thread.Sleep(100);
 
+            exceptionThrown.ShouldBeFalse();
             queue.PendingCount.ShouldBe<uint>(0);
             queue.Completion.Wait(500.Milliseconds()).ShouldBeFalse();
             consumed.Count.ShouldBe(9);
-            exceptionThrown.ShouldBeFalse();
         }
 
         [Test]
@@ -175,7 +172,7 @@
                 }
             };
 
-            queue.WorkerCount.ShouldBe<uint>(1);
+            queue.MaximumConcurrencyLevel.ShouldBe<uint>(1);
             queue.Capacity.ShouldBe(2);
             queue.PendingCount.ShouldBe<uint>(0);
 
@@ -206,44 +203,54 @@
         [Test]
         public void SlowConsumerWithFullCapacityShouldReturnFalseWhenTryingToAddNewItemWithinSpecifiedTimeout()
         {
-            var consumedItems = new List<int>();
+            var exceptions = new ConcurrentBag<Exception>();
+            var consumedItems = new ConcurrentBag<int>();
 
-            var queue = new ProducerConsumerQueue<int>(i =>
+            using (var queue = new ProducerConsumerQueue<int>(i =>
+                {
+                    Thread.Sleep(25);
+                    consumedItems.Add(i);
+                },
+                maxConcurrencyLevel: 1,
+                boundedCapacity: 1))
             {
-                Thread.Sleep(25);
-                consumedItems.Add(i);
-            }, 1, 1);
+                queue.OnException += (sender, e) => exceptions.Add(e);
+                
+                // Sanity checks
+                consumedItems.ShouldBeEmpty();
+                queue.MaximumConcurrencyLevel.ShouldBe<uint>(1);
+                queue.Capacity.ShouldBe(1);
+                queue.PendingCount.ShouldBe<uint>(0);
 
-            // Sanity checks
-            consumedItems.ShouldBeEmpty();
-            queue.WorkerCount.ShouldBe<uint>(1);
-            queue.Capacity.ShouldBe(1);
-            queue.PendingCount.ShouldBe<uint>(0);
+                queue.TryAdd(1, 10.Milliseconds()).ShouldBeTrue();
 
-            queue.TryAdd(1, 10.Milliseconds()).ShouldBeTrue();
+                Thread.Sleep(50);
+                consumedItems.Count.ShouldBe(1);
 
-            Thread.Sleep(50);
-            consumedItems.Count.ShouldBe(1);
+                queue.TryAdd(2, 10.Milliseconds()).ShouldBeTrue();
+                queue.TryAdd(3, 10.Milliseconds()).ShouldBeTrue();
+                queue.PendingCount.ShouldBe<uint>(1);
 
-            queue.TryAdd(2, 10.Milliseconds()).ShouldBeTrue();
-            queue.TryAdd(3, 10.Milliseconds()).ShouldBeTrue();
-            queue.PendingCount.ShouldBe<uint>(1);
+                queue.TryAdd(4, 10.Milliseconds()).ShouldBeFalse();
 
-            queue.TryAdd(4, 10.Milliseconds()).ShouldBeFalse();
+                Thread.Sleep(100);
 
-            Thread.Sleep(100);
+                queue.PendingCount.ShouldBe<uint>(0);
+                queue.TryAdd(5, 10.Milliseconds()).ShouldBeTrue();
 
-            queue.TryAdd(5, 10.Milliseconds()).ShouldBeTrue();
+                Thread.Sleep(100);
 
-            Thread.Sleep(100);
+                exceptions.Count.ShouldBe(0);
 
-            consumedItems.Count.ShouldBe(4);
+                queue.PendingCount.ShouldBe<uint>(0);
+                consumedItems.Count.ShouldBe(4);
+            }
         }
 
         [Test]
         public void DisposedQueueShouldNotAllowAddingNewItems()
         {
-            var consumed = new List<MyClass>();
+            var consumed = new ConcurrentBag<MyClass>();
             Action<MyClass> consumer = x => { consumed.Add(x); };
 
             var queue = new ProducerConsumerQueue<MyClass>(consumer, 1);
@@ -277,7 +284,7 @@
         public void DisposedQueueShouldCancelConsumersCorrectly()
         {
             Exception exceptionThrown = null;
-            var consumed = new List<int>();
+            var consumed = new ConcurrentBag<int>();
 
             var queue = new ProducerConsumerQueue<int>(i =>
             {
@@ -308,7 +315,7 @@
         [Test]
         public void ShutdownQueueAfterSomeAddsShouldResultInTheProcessOfAllAddedItemsBeforeDisposal()
         {
-            var consumed = new List<MyClass>();
+            var consumed = new ConcurrentBag<MyClass>();
 
             Action<MyClass> consumer = x => { consumed.Add(x); };
 
@@ -340,7 +347,7 @@
         public void ThrownExceptionBySingleWorkerShouldBePublishedCorrectly()
         {
             Exception exception = null;
-            var consumed = new List<MyClass>();
+            var consumed = new ConcurrentBag<MyClass>();
 
             Action<MyClass> consumer = x =>
             {
@@ -408,12 +415,12 @@
         [Test]
         public void When_waiting_for_consumption_to_complete()
         {
-            var exceptions = new List<Exception>();
-            var numbers = new List<int>();
+            var exceptions = new ConcurrentBag<Exception>();
+            var numbers = new ConcurrentQueue<int>();
             Action<int> work = n =>
             {
                 Thread.Sleep(50.Milliseconds());
-                numbers.Add(n);
+                numbers.Enqueue(n);
             };
 
             using (var pcq = new ProducerConsumerQueue<int>(work, 1))
@@ -439,7 +446,7 @@
         [Test]
         public void When_disposing_while_items_still_in_queue()
         {
-            var exceptions = new List<Exception>();
+            var exceptions = new ConcurrentBag<Exception>();
             var numbers = new ConcurrentBag<int>();
             var counter = 0;
             Action<int> work = n =>
