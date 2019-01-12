@@ -29,7 +29,7 @@
         /// <param name="maxConcurrencyLevel">Maximum number of consumers</param>
         /// <param name="boundedCapacity">
         /// The bounded capacity of the queue. Any more items added will block the publisher 
-        /// until there is more space available. For an unbounded queue, enter a negative number.
+        /// until there is more space available.
         /// </param>
         public ProducerConsumerQueue(Action<T> consumer, uint maxConcurrencyLevel, uint boundedCapacity)
             : this(consumer, maxConcurrencyLevel, (int)boundedCapacity) { }
