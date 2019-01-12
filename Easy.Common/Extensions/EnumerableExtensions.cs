@@ -101,9 +101,7 @@ namespace Easy.Common.Extensions
         [DebuggerStepThrough]
         public static T SelectRandom<T>(this IEnumerable<T> sequence, Random random)
         {
-            // Optimization for ICollection<T>
-            var collection = sequence as ICollection<T>;
-            if (collection != null)
+            if (sequence is ICollection<T> collection)
             {
                 return collection.ElementAt(random.Next(collection.Count));
             }
