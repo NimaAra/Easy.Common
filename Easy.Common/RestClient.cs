@@ -19,9 +19,14 @@
     /// </summary>
     public sealed class RestClient : IRestClient
     {
+        private const int MAX_CONNECTION_PER_SERVER = 20;
+        private static readonly TimeSpan ConnectionLifeTime = 1.Minutes();
+        
         private readonly HttpClient _client;
+        
+#if !NETCOREAPP2_1
         private readonly HashSet<EndpointCacheKey> _endpoints;
-        private readonly TimeSpan _connectionCloseTimeoutPeriod;
+#endif
 
         static RestClient() => ConfigureServicePointManager();
 
@@ -36,15 +41,37 @@
             TimeSpan? timeout = null,
             ulong? maxResponseContentBufferSize = null)
         {
-            _client = handler == null ? new HttpClient() : new HttpClient(handler, disposeHandler);
+            _client = new HttpClient(handler ?? GetHandler(), disposeHandler);
 
+#if !NETCOREAPP2_1
             _endpoints = new HashSet<EndpointCacheKey>();
-            _connectionCloseTimeoutPeriod = 1.Minutes();
-            
+#endif
             AddBaseAddress(baseAddress);
             AddDefaultHeaders(defaultRequestHeaders);
             AddRequestTimeout(timeout);
             AddMaxResponseBufferSize(maxResponseContentBufferSize);
+        }
+
+        private static HttpMessageHandler GetHandler()
+        {
+#if NETSTANDARD2_0 || NET471
+            return new HttpClientHandler
+            {
+                MaxConnectionsPerServer = 20
+            };
+#elif NETCOREAPP2_1
+            return new SocketsHttpHandler
+            {
+                // https://github.com/dotnet/corefx/issues/26895
+                // https://github.com/dotnet/corefx/issues/26331
+                // https://github.com/dotnet/corefx/pull/26839
+                PooledConnectionLifetime = ConnectionLifeTime,
+                PooledConnectionIdleTimeout = ConnectionLifeTime,
+                MaxConnectionsPerServer = MAX_CONNECTION_PER_SERVER
+            };
+#else
+            return new HttpClientHandler();
+#endif
         }
 
         /// <summary>
@@ -474,10 +501,10 @@
         private static void ConfigureServicePointManager()
         {
             // Default is 2 minutes, see https://msdn.microsoft.com/en-us/library/system.net.servicepointmanager.dnsrefreshtimeout(v=vs.110).aspx
-            ServicePointManager.DnsRefreshTimeout = (int)1.Minutes().TotalMilliseconds;
+            ServicePointManager.DnsRefreshTimeout = (int)ConnectionLifeTime.TotalMilliseconds;
 
             // Increases the concurrent outbound connections
-            ServicePointManager.DefaultConnectionLimit = 1024;
+            ServicePointManager.DefaultConnectionLimit = MAX_CONNECTION_PER_SERVER;
         }
 
         private void AddBaseAddress(Uri uri)
@@ -507,8 +534,11 @@
             _client.MaxResponseContentBufferSize = (long)size.Value;
         }
 
+        // ReSharper disable once MemberCanBeMadeStatic.Local
+        // ReSharper disable once UnusedParameter.Local
         private void AddConnectionLeaseTimeout(Uri endpoint)
         {
+#if !NETCOREAPP2_1
             if (!endpoint.IsAbsoluteUri) { return; }
             
             var key = new EndpointCacheKey(endpoint);
@@ -517,11 +547,13 @@
                 if (_endpoints.Contains(key)) { return; }
 
                 ServicePointManager.FindServicePoint(endpoint)
-                    .ConnectionLeaseTimeout = (int)_connectionCloseTimeoutPeriod.TotalMilliseconds;
+                    .ConnectionLeaseTimeout = (int)ConnectionLifeTime.TotalMilliseconds;
                 _endpoints.Add(key);
             }
+#endif
         }
 
+#if !NETCOREAPP2_1
         private struct EndpointCacheKey : IEquatable<EndpointCacheKey>
         {
             private readonly Uri _uri;
@@ -541,5 +573,6 @@
             public static bool operator !=(EndpointCacheKey left, EndpointCacheKey right) 
                 => !left.Equals(right);
         }
+#endif
     }
 }
