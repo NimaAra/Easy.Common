@@ -86,53 +86,53 @@
         [Test]
         public void When_testing_case_sensitivity()
         {
-            DynamicDictionary caseSensetiveDic = new DynamicDictionary(false)
+            DynamicDictionary caseSensitiveDic = new DynamicDictionary(false)
             {
                 ["A"] = 1,
                 ["Id"] = 66
             };
 
-            caseSensetiveDic["A"].ShouldBe(1);
-            caseSensetiveDic["Id"].ShouldBe(66);
+            caseSensitiveDic["A"].ShouldBe(1);
+            caseSensitiveDic["Id"].ShouldBe(66);
 
-            caseSensetiveDic["a"].ShouldBeNull();
-            caseSensetiveDic["ID"].ShouldBeNull();
-            caseSensetiveDic["iD"].ShouldBeNull();
+            caseSensitiveDic["a"].ShouldBeNull();
+            caseSensitiveDic["ID"].ShouldBeNull();
+            caseSensitiveDic["iD"].ShouldBeNull();
 
-            dynamic dynCaseSensetiveDic = caseSensetiveDic;
-            dynCaseSensetiveDic.A = "sample";
-            ((string)dynCaseSensetiveDic.A).ShouldBe("sample");
-            ((int)dynCaseSensetiveDic.Id).ShouldBe(66);
+            dynamic dynCaseSensitiveDic = caseSensitiveDic;
+            dynCaseSensitiveDic.A = "sample";
+            ((string)dynCaseSensitiveDic.A).ShouldBe("sample");
+            ((int)dynCaseSensitiveDic.Id).ShouldBe(66);
 
-            ((string)dynCaseSensetiveDic.a).ShouldBeNull();
-            ((string)dynCaseSensetiveDic.ID).ShouldBeNull();
+            ((string)dynCaseSensitiveDic.a).ShouldBeNull();
+            ((string)dynCaseSensitiveDic.ID).ShouldBeNull();
 
-            ((DynamicDictionary)dynCaseSensetiveDic).GetDynamicMemberNames()
+            ((DynamicDictionary)dynCaseSensitiveDic).GetDynamicMemberNames()
                 .ShouldBe(new[] { "A", "Id" });
 
-            DynamicDictionary caseInSensetiveDic = new DynamicDictionary()
+            DynamicDictionary caseInSensitiveDic = new DynamicDictionary()
             {
                 ["A"] = 1,
                 ["Id"] = 66
             };
 
-            caseInSensetiveDic["A"].ShouldBe(1);
-            caseInSensetiveDic["Id"].ShouldBe(66);
+            caseInSensitiveDic["A"].ShouldBe(1);
+            caseInSensitiveDic["Id"].ShouldBe(66);
 
-            caseInSensetiveDic["a"].ShouldBe(1);
-            caseInSensetiveDic["ID"].ShouldBe(66);
-            caseInSensetiveDic["iD"].ShouldBe(66);
+            caseInSensitiveDic["a"].ShouldBe(1);
+            caseInSensitiveDic["ID"].ShouldBe(66);
+            caseInSensitiveDic["iD"].ShouldBe(66);
 
-            dynamic dynCaseInSensetiveDic = caseInSensetiveDic;
-            dynCaseInSensetiveDic.A = "sample";
-            ((string)dynCaseInSensetiveDic.A).ShouldBe("sample");
-            ((string)dynCaseInSensetiveDic.a).ShouldBe("sample");
+            dynamic dynCaseInSensitiveDic = caseInSensitiveDic;
+            dynCaseInSensitiveDic.A = "sample";
+            ((string)dynCaseInSensitiveDic.A).ShouldBe("sample");
+            ((string)dynCaseInSensitiveDic.a).ShouldBe("sample");
 
-            ((int)dynCaseInSensetiveDic.Id).ShouldBe(66);
-            ((int)dynCaseInSensetiveDic.ID).ShouldBe(66);
-            ((int)dynCaseInSensetiveDic.id).ShouldBe(66);
+            ((int)dynCaseInSensitiveDic.Id).ShouldBe(66);
+            ((int)dynCaseInSensitiveDic.ID).ShouldBe(66);
+            ((int)dynCaseInSensitiveDic.id).ShouldBe(66);
 
-            ((DynamicDictionary)dynCaseInSensetiveDic).GetDynamicMemberNames()
+            ((DynamicDictionary)dynCaseInSensitiveDic).GetDynamicMemberNames()
                 .ShouldBe(new[] { "A", "Id" });
         }
 
@@ -224,15 +224,15 @@
         public void When_getting_a_model_as_dynamic_dictionary()
         {
             var model = new Child { Name = "Foo", Age = 10 };
-            DynamicDictionary dicWithInherittedProp = model.ToDynamic();
+            DynamicDictionary dicWithInheritedProp = model.ToDynamic();
             
-            dicWithInherittedProp.ShouldNotBeNull();
-            dicWithInherittedProp.Count.ShouldBe(3);
-            dicWithInherittedProp["OriginalName"].ShouldBe("PaPa");
-            dicWithInherittedProp["Name"].ShouldBe("Foo");
-            dicWithInherittedProp["Age"].ShouldBe(10);
+            dicWithInheritedProp.ShouldNotBeNull();
+            dicWithInheritedProp.Count.ShouldBe(3);
+            dicWithInheritedProp["OriginalName"].ShouldBe("PaPa");
+            dicWithInheritedProp["Name"].ShouldBe("Foo");
+            dicWithInheritedProp["Age"].ShouldBe(10);
 
-            dicWithInherittedProp.GetDynamicMemberNames().ShouldBe(new[] { "Name", "Age", "OriginalName" });
+            dicWithInheritedProp.GetDynamicMemberNames().ShouldBe(new[] { "Name", "Age", "OriginalName" });
 
             var dicWithDeclaredProp = model.ToDynamic(false);
 
@@ -249,16 +249,16 @@
         public void When_getting_a_model_as_dynamic()
         {
             var model = new Child { Name = "Foo", Age = 10 };
-            dynamic dicWithInherittedProp = model.ToDynamic();
+            dynamic dicWithInheritedProp = model.ToDynamic();
 
-            ((DynamicDictionary)dicWithInherittedProp).ShouldNotBeNull();
-            ((DynamicDictionary)dicWithInherittedProp).Count.ShouldBe(3);
+            ((DynamicDictionary)dicWithInheritedProp).ShouldNotBeNull();
+            ((DynamicDictionary)dicWithInheritedProp).Count.ShouldBe(3);
 
-            ((string)dicWithInherittedProp["OriginalName"]).ShouldBe("PaPa");
-            ((string)dicWithInherittedProp["Name"]).ShouldBe("Foo");
-            ((int)dicWithInherittedProp["Age"]).ShouldBe(10);
+            ((string)dicWithInheritedProp["OriginalName"]).ShouldBe("PaPa");
+            ((string)dicWithInheritedProp["Name"]).ShouldBe("Foo");
+            ((int)dicWithInheritedProp["Age"]).ShouldBe(10);
 
-            ((DynamicDictionary)dicWithInherittedProp).GetDynamicMemberNames()
+            ((DynamicDictionary)dicWithInheritedProp).GetDynamicMemberNames()
                 .ShouldBe(new[] { "Name", "Age", "OriginalName" });
 
             dynamic dicWithDeclaredProp = model.ToDynamic(false);
