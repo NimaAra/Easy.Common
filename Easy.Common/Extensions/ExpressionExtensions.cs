@@ -32,13 +32,13 @@ namespace Easy.Common.Extensions
             var type = typeof(TInstance);
 
             var member = selector.Body as MemberExpression;
-            if (member == null)
+            if (member is null)
             {
                 throw new ArgumentException($"Expression '{selector}' refers to a method, not a property.");
             }
 
             var propInfo = member.Member as PropertyInfo;
-            if (propInfo == null)
+            if (propInfo is null)
             {
                 throw new ArgumentException($"Expression '{selector}' refers to a field, not a property.");
             }

@@ -22,7 +22,7 @@
             var targetFrameAttribute = assembly.GetCustomAttributes(true)
                 .OfType<TargetFrameworkAttribute>().FirstOrDefault();
 
-            if (targetFrameAttribute == null) { return ".NET 2, 3 or 3.5"; }
+            if (targetFrameAttribute is null) { return ".NET 2, 3 or 3.5"; }
 
             return targetFrameAttribute.FrameworkName;
         }
