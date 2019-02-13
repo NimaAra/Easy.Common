@@ -33,7 +33,7 @@
             while (!cToken.IsCancellationRequested)
             {
                 await WaitFor(interval, cToken).ConfigureAwait(false);
-                if (!cToken.IsCancellationRequested) { await work(); }
+                if (!cToken.IsCancellationRequested) { await work().ConfigureAwait(false); }
             }
         }
 
