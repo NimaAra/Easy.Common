@@ -7,7 +7,7 @@ namespace Easy.Common.Extensions
     using System.Linq;
 
     /// <summary>
-    /// Extension methods for <see cref="System.Collections.Generic.IEnumerable{T}"/>
+    /// Extension methods for <see cref="IEnumerable{T}"/>
     /// </summary>
     public static class EnumerableExtensions
     {
