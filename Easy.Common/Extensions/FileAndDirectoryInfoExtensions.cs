@@ -27,7 +27,7 @@
         [DebuggerStepThrough]
         public static long GetSizeInBytes(this DirectoryInfo directoryInfo)
         {
-            var length = directoryInfo.GetFiles().Sum(file => file.Exists ? file.Length : 0);
+            var length = directoryInfo.GetFiles().AsParallel().Sum(file => file.Exists ? file.Length : 0);
             length += directoryInfo.GetDirectories().Sum(dir => dir.Exists ? dir.GetSizeInBytes() : 0);
             return length;
         }
