@@ -79,8 +79,7 @@
             {
                 file = new FileInfo(Path.GetTempFileName());
                 file.Exists.ShouldBeTrue();
-                var newFileName = "foo.bar";
-                renamedFile = file.Rename(newFileName);
+                renamedFile = file.Rename("foo.bar");
             } finally
             {
                 file?.Delete();
@@ -96,8 +95,7 @@
             {
                 file = new FileInfo(Path.GetRandomFileName());
                 file.Exists.ShouldBeFalse();
-                var newFileName = "foo.bar";
-                file.Rename(newFileName);
+                file.Rename("foo.bar");
             })
             .Message.ShouldBe($"Cannot find: '{file.FullName}'.");
         }
@@ -110,12 +108,11 @@
             {
                 file = new FileInfo(Path.GetTempFileName());
                 file.Exists.ShouldBeTrue();
-                var newFileName = "foo|bar";
                 Should.Throw<ArgumentException>(() =>
                 {
-                    file.Rename(newFileName);
+                    file.Rename("foo|bar");
                 })
-                .Message.ShouldBe($"Invalid file name: '{newFileName}'");
+                .Message.ShouldBe($"Invalid file name: '{"foo|bar"}'");
             } finally
             {
                 file?.Delete();

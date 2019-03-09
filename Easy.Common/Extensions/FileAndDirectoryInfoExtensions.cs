@@ -6,7 +6,6 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Provides a set of useful methods for working with <see cref="FileInfo"/> and <see cref="DirectoryInfo"/>.
@@ -19,11 +18,8 @@
         private const char Tab = '\t';
 
         /// <summary>
-        /// Returns the size in bytes of the <paramref name="directoryInfo"/> represented 
-        /// by the <paramref name="directoryInfo"/> instance.
+        /// Returns the size of the <paramref name="directoryInfo"/> and its sub-directories in bytes.
         /// </summary>
-        /// <param name="directoryInfo">The <paramref name="directoryInfo"/> to get the size of.</param>
-        /// <returns>The size of <paramref name="directoryInfo"/> in bytes.</returns>
         [DebuggerStepThrough]
         public static long GetSizeInBytes(this DirectoryInfo directoryInfo)
         {
@@ -152,7 +148,8 @@
             Ensure.NotNull(file, nameof(file));
             Ensure.NotNull(encoding, nameof(encoding));
 
-            using (var reader = new StreamReader(file.OpenOrCreateSequentialRead(), encoding))
+            using (var fs = file.OpenOrCreateSequentialRead())
+            using (var reader = new StreamReader(fs, encoding))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
@@ -163,42 +160,7 @@
         }
 
         /// <summary>
-        /// Enumerates every directory inside the <paramref name="directory"/> without 
-        /// throwing <see cref="UnauthorizedAccessException"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static void EnumerateAllFilesSafe(this DirectoryInfo directory, Action<FileInfo> handler)
-        {
-            foreach (var f in directory.EnumerateFilesSafe()) { handler(f); }
-            EnumerateAllFilesSafeImpl(directory);
-
-            void EnumerateAllFilesSafeImpl(DirectoryInfo theDir)
-            {
-                Parallel.ForEach(
-                    theDir.EnumerateDirectoriesSafe(),
-                    d => {
-                        var files = d.EnumerateFilesSafe();
-                        foreach (var f in files) { handler(f); }
-                        EnumerateAllFilesSafeImpl(d);
-                    });
-            }
-        }
-
-        /// <summary>
-        /// Enumerates every file inside the <paramref name="directory"/> without 
-        /// throwing <see cref="UnauthorizedAccessException"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static void EnumerateAllDirectoriesSafe(this DirectoryInfo directory, Action<DirectoryInfo> handler) 
-            => Parallel.ForEach(
-                directory.EnumerateDirectoriesSafe(),
-                dir => { 
-                    handler(dir);		
-                    dir.EnumerateAllDirectoriesSafe(handler);
-                });
-
-        /// <summary>
-        /// Enumerates every directory inside the <paramref name="directory"/> without 
+        /// Enumerates every sub-directory inside the <paramref name="directory"/> in-parallel without 
         /// throwing <see cref="UnauthorizedAccessException"/>.
         /// </summary>
         [DebuggerStepThrough]
@@ -214,6 +176,7 @@
                 {
                     directories = directory.EnumerateDirectories()
                         .AsParallel()
+                        .WithMergeOptions(ParallelMergeOptions.NotBuffered)
                         .SelectMany(d => d.EnumerateDirectoriesSafe(searchPattern, option, throwOnPathTooLong));
                 }
 
@@ -227,7 +190,7 @@
         }
 
         /// <summary>
-        /// Enumerates every file inside the <paramref name="directory"/> without 
+        /// Enumerates every file inside the <paramref name="directory"/> in-parallel without 
         /// throwing <see cref="UnauthorizedAccessException"/>.
         /// </summary>
         [DebuggerStepThrough]
@@ -243,6 +206,7 @@
                 {
                     files = directory.EnumerateDirectories()
                         .AsParallel()
+                        .WithMergeOptions(ParallelMergeOptions.NotBuffered)
                         .SelectMany(d => d.EnumerateFilesSafe(searchPattern, option, throwOnPathTooLong));
                 }
 
@@ -263,7 +227,8 @@
         {
             var buffer = new char[256];
 
-            using (var reader = new StreamReader(file.OpenOrCreateSequentialRead()))
+            using(var fs = file.OpenOrCreateSequentialRead())
+            using (var reader = new StreamReader(fs))
             {
                 var read = reader.ReadBlock(buffer, 0, buffer.Length);
                 return ContainsBinary(buffer, read);
