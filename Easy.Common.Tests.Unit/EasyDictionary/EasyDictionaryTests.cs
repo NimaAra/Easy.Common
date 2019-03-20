@@ -450,17 +450,17 @@
 
             dic.Count.ShouldBe(0);
 
-            dic.AddOrReplace(p1).ShouldBeTrue();
+            dic.AddOrReplace(p1);
 
             dic.Count.ShouldBe(1);
             dic["A"].ShouldBe(p1);
 
-            dic.AddOrReplace(p1).ShouldBeFalse();
+            dic.AddOrReplace(p1);
 
             dic.Count.ShouldBe(1);
             dic["A"].ShouldBe(p1);
 
-            dic.AddOrReplace(p2).ShouldBeTrue();
+            dic.AddOrReplace(p2);
 
             dic.Count.ShouldBe(1);
             dic["A"].ShouldNotBe(p1);

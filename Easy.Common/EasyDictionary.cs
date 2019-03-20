@@ -155,25 +155,8 @@
 
         /// <summary>
         /// Adds the <paramref name="value"/> if it does not already exist or replaces the existing value.
-        /// <returns>
-        /// <c>True</c> if the <paramref name="value"/> was added and <c>False</c> otherwise.
-        /// </returns>
         /// </summary>
-        public bool AddOrReplace(TValue value)
-        {
-            var key = KeySelector(value);
-            
-            if (!_dictionary.ContainsKey(key))
-            {
-                Add(value);
-                return true;
-            }
-
-            if (_dictionary.ContainsValue(value)) { return false; }
-
-            _dictionary[key] = value;
-            return true;
-        }
+        public void AddOrReplace(TValue value) => _dictionary[KeySelector(value)] = value;
 
         /// <summary>
         /// Removes the given <paramref name="key"/> from the dictionary.
@@ -183,16 +166,7 @@
         /// <summary>
         /// Removes the given <paramref name="value"/> from the dictionary.
         /// </summary>
-        public bool Remove(TValue value)
-        {
-            var key = KeySelector(value);
-            if (!_dictionary.ContainsKey(key) || !_dictionary.ContainsValue(value))
-            {
-                return false;
-            }
-            
-            return _dictionary.Remove(key);
-        }
+        public bool Remove(TValue value) => _dictionary.Remove(KeySelector(value));
 
         /// <summary>
         /// Removes all items from the dictionary.

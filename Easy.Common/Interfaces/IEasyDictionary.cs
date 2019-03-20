@@ -51,10 +51,7 @@
 
         /// <summary>
         /// Adds the <paramref name="value"/> if it does not already exist or replaces the existing value.
-        /// <returns>
-        /// <c>True</c> if the <paramref name="value"/> was added and <c>False</c> otherwise.
-        /// </returns>
         /// </summary>
-        bool AddOrReplace(TValue value);
+        void AddOrReplace(TValue value);
     }
 }
