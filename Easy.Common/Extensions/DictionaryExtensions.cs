@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.Specialized;
+    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
@@ -51,6 +52,20 @@
         public static TValue GetOrDefault<TKey, TValue>(
             this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default(TValue)) 
                 => dictionary.TryGetValue(key, out var value) ? value : defaultValue;
+
+        /// <summary>
+        /// Adds the given <paramref name="pairsToAdd"/> to the given <paramref name="dictionary"/>.
+        /// <remarks>This method is used to duck-type <see cref="IDictionary{TKey, TValue}"/> with multiple pairs.</remarks>
+        /// </summary>
+        [DebuggerStepThrough]
+        public static void Add<TKey, TValue>(this IDictionary<TKey, TValue> dictionary,
+            IDictionary<TKey, TValue> pairsToAdd)
+        {
+            foreach (var pair in pairsToAdd)
+            {
+                dictionary.Add(pair.Key, pair.Value);
+            }
+        }
 
         /// <summary>
         /// Compares the given <paramref name="left"/> against <paramref name="right"/> for equality.

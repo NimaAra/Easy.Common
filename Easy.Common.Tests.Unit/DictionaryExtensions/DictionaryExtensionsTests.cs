@@ -181,6 +181,31 @@
             DictionaryExtensions.Equals(((IDictionary<int, string>)null), null).ShouldBeTrue();
         }
 
+        [Test]
+        public void When_initializing_a_dictionary_with_multiple_items()
+        {
+            var itemsToAdd = new Dictionary<int, string>
+            {
+                [2] = "B",
+                [3] = "C",
+                [4] = "D",
+            };
+
+            var dic = new Dictionary<int, string>
+            {
+                {1, "A"},
+                itemsToAdd, 
+                {5, "E"}
+            };
+
+            dic.Count.ShouldBe(5);
+            dic[1].ShouldBe("A");
+            dic[2].ShouldBe("B");
+            dic[3].ShouldBe("C");
+            dic[4].ShouldBe("D");
+            dic[5].ShouldBe("E");
+        }
+
         private sealed class Person : Equatable<Person>
         {
             public Person(string id, int age)
