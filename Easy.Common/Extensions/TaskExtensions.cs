@@ -4,6 +4,7 @@ namespace Easy.Common.Extensions
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -70,7 +71,7 @@ namespace Easy.Common.Extensions
         [DebuggerStepThrough]
         public static async Task ForEachInOrder<T>(this IEnumerable<Task<T>> tasks, Action<T> action)
         {
-            Ensure.NotNull(tasks, nameof(tasks));
+            if (tasks is null) { throw new ArgumentNullException(nameof(tasks)); }
             Ensure.NotNull(action, nameof(action));
 
             foreach (var task in tasks)
@@ -87,7 +88,7 @@ namespace Easy.Common.Extensions
         [DebuggerStepThrough]
         public static async Task ForEachInOrder(this IEnumerable<Task> tasks, Action<Task> action)
         {
-            Ensure.NotNull(tasks, nameof(tasks));
+            if (tasks is null) { throw new ArgumentNullException(nameof(tasks)); }
             Ensure.NotNull(action, nameof(action));
 
             foreach (var task in tasks)
@@ -97,8 +98,21 @@ namespace Easy.Common.Extensions
             }
         }
 
-    #region Exception Handling
+        /// <summary>
+        /// Awaits all of the given <paramref name="tasks"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static TaskAwaiter<T[]> GetAwaiter<T>(this IEnumerable<Task<T>> tasks)
+            => Task.WhenAll(tasks).GetAwaiter();
 
+        /// <summary>
+        /// Awaits all of the given <paramref name="tasks"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static TaskAwaiter GetAwaiter(this IEnumerable<Task> tasks)
+            => Task.WhenAll(tasks).GetAwaiter();
+
+    #region Exception Handling
         /// <summary>
         /// Suppresses default exception handling of the given <paramref name="task"/>
         /// that would otherwise re-raise the exception on the finalizer thread.
@@ -225,7 +239,7 @@ namespace Easy.Common.Extensions
         /// <param name="task">The task which might throw exceptions</param>
         /// <param name="exceptionHandler">The handler to which every exception is passed</param>
         /// <returns>The continuation task added to the <paramref name="task"/></returns>
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static Task HandleException<T>(this Task task, Action<T> exceptionHandler)
             where T : Exception
         {
@@ -253,7 +267,6 @@ namespace Easy.Common.Extensions
             TaskContinuationOptions.ExecuteSynchronously,
             TaskScheduler.Default);
         }
-
     #endregion
 
         private static async Task TimeoutAfterImpl(this Task task, TimeSpan timeoutPeriod)

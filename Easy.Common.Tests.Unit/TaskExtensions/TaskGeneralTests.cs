@@ -1,6 +1,7 @@
 ﻿namespace Easy.Common.Tests.Unit.TaskExtensions
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Easy.Common.Extensions;
@@ -102,9 +103,55 @@
             finishedTasksIds[2].ShouldBe(3);
         }
 
+        [Test]
+        public async Task When_awaiting_multiple_tasks()
+        {
+            var bag = new ConcurrentBag<int>();
+            
+            var tasks = new Task[3];
+
+            tasks[0] = Task.Run(() => bag.Add(1));
+            tasks[1] = Task.Run(async () =>
+            {
+                await Task.Delay(100);
+                bag.Add(2);
+            });
+            tasks[2] = Task.Run(async () =>
+            {
+                await Task.Delay(500);
+                bag.Add(3);
+            });
+
+            await tasks;
+
+            bag.Count.ShouldBe(3);
+            bag.ShouldContain(1);
+            bag.ShouldContain(2);
+            bag.ShouldContain(3);
+        }
+
+        [Test]
+        public async Task When_awaiting_multiple_tasks_returning_value()
+        {
+            var tasks = new[]
+            {
+                Task.FromResult(1),
+                Task.FromResult(2),
+                Task.FromResult(3)
+            };
+
+            var result = await tasks;
+
+            result.ShouldBeOfType<int[]>();
+            result.Length.ShouldBe(tasks.Length);
+            result[0].ShouldBe(1);
+            result[1].ShouldBe(2);
+            result[2].ShouldBe(3);
+        }
+
         private static Task DoSomethingAfter(TimeSpan waitFor) => Task.Delay(waitFor);
 
-        private async Task<int> GetSomethingAfter(TimeSpan waitFor, int resultToReturn)
+        private static async Task<int> GetSomethingAfter(TimeSpan waitFor, int resultToReturn)
         {
             await Task.Delay(waitFor);
             return resultToReturn;
