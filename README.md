@@ -17,6 +17,7 @@ Supports _.NET Core_ (_.NET 4.5_ & _netstandard2.0_) running on:
 
 #### Includes:
 
+- [`EasyDictionary`](https://github.com/NimaAra/Easy.Common/blob/master/Easy.Common/EasyDictionary.cs) featured in [Tranquillity in C# with EasyDictionary](http://www.nimaara.com/2019/04/10/easier-dictionary-in-c/)
 - [`IDGenerator`](https://github.com/NimaAra/Easy.Common/blob/master/Easy.Common/IDGenerator.cs) featured in [Generating IDs in C#, 'safely' and efficiently](http://www.nimaara.com/2018/10/10/generating-ids-in-csharp/)
 - [`StreamExtensions.CountLines`](https://github.com/NimaAra/Easy.Common/blob/master/Easy.Common/Extensions/StreamExtensions.cs#L46) featured in [Counting Lines of a Text File in C#, the Smart Way](http://www.nimaara.com/2018/03/20/counting-lines-of-a-text-file/)
 - [`DiagnosticReport`](https://github.com/NimaAra/Easy.Common/blob/master/Easy.Common/DiagnosticReport/DiagnosticReport.cs) featured in [Stuff Every .NET App Should be Logging at Startup](http://www.nimaara.com/2017/11/07/stuff-every-dotnet-app-should-be-logging-at-startup/)
