@@ -15,7 +15,7 @@
         /// <summary>
         /// Gets the headers which should be sent with each request.
         /// </summary>
-        IDictionary<string, string> DefaultRequestHeaders { get; }
+        IReadOnlyDictionary<string, string[]> DefaultRequestHeaders { get; }
 
         /// <summary>
         /// Gets the time to wait before the request times out.

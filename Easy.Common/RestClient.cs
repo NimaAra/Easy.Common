@@ -34,7 +34,7 @@
         /// Creates an instance of the <see cref="RestClient"/>.
         /// </summary>
         public RestClient(
-            IDictionary<string, string> defaultRequestHeaders = null,
+            IDictionary<string, IEnumerable<string>> defaultRequestHeaders = null,
             HttpMessageHandler handler = null,
             Uri baseAddress = null,
             bool disposeHandler = true,
@@ -77,8 +77,8 @@
         /// <summary>
         /// Gets the headers which should be sent with each request.
         /// </summary>
-        public IDictionary<string, string> DefaultRequestHeaders 
-            => _client.DefaultRequestHeaders.ToDictionary(x => x.Key, x => x.Value.First());
+        public IReadOnlyDictionary<string, string[]> DefaultRequestHeaders => 
+            _client.DefaultRequestHeaders.ToDictionary(x => x.Key, x => x.Value.ToArray());
 
         /// <summary>
         /// Gets the time to wait before the request times out.
@@ -539,7 +539,7 @@
             _client.BaseAddress = uri;
         }
 
-        private void AddDefaultHeaders(IDictionary<string, string> headers)
+        private void AddDefaultHeaders(IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers)
         {
             if (headers is null) { return; }
 

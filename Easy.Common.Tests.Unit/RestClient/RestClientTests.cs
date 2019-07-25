@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Text;
@@ -49,10 +50,10 @@
         [Test]
         public void When_creating_a_client_with_custom_constructor()
         {
-            var defaultHeaders = new Dictionary<string, string>
+            var defaultHeaders = new Dictionary<string, IEnumerable<string>>
             {
-                { HttpRequestHeader.Accept.ToString(), "application/json" },
-                { HttpRequestHeader.UserAgent.ToString(), "foo-bar" }
+                { HttpRequestHeader.Accept.ToString(), new [] { "application/json" } },
+                { HttpRequestHeader.UserAgent.ToString(), new [] { "foo-bar" } }
             };
 
             var baseAddress = new Uri("https://foo.bar:1234/");
@@ -62,9 +63,13 @@
                 maxResponseContentBufferSize: 10, 
                 baseAddress: baseAddress))
             {
+                var headers = client.DefaultRequestHeaders.ToArray();
+
+                headers.Length.ShouldBe(defaultHeaders.Count);
+                
                 client.DefaultRequestHeaders.Count.ShouldBe(defaultHeaders.Count);
-                client.DefaultRequestHeaders["Accept"].ShouldBe("application/json");
-                client.DefaultRequestHeaders["UserAgent"].ShouldBe("foo-bar");
+                client.DefaultRequestHeaders["Accept"].Single().ShouldBe("application/json");
+                client.DefaultRequestHeaders["UserAgent"].Single().ShouldBe("foo-bar");
 
                 client.BaseAddress.ShouldBe(baseAddress);
                 client.MaxResponseContentBufferSize.ShouldBe((uint)10);
