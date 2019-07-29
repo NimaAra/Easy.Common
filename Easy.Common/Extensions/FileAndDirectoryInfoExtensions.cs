@@ -75,7 +75,7 @@
         /// thrown if the file does not exist.
         /// </remarks>
         /// </summary>
-        public static FileStream OpenSequentialRead(this FileSystemInfo file)
+        public static FileStream OpenSequentialRead(this FileInfo file)
             => new FileStream(
                 file.FullName,
                 FileMode.Open,
@@ -88,7 +88,7 @@
         /// Opens or creates a stream for reading with sequential optimization and providing 
         /// <see cref="FileShare.ReadWrite"/> for others.
         /// </summary>
-        public static FileStream OpenOrCreateSequentialRead(this FileSystemInfo file)
+        public static FileStream OpenOrCreateSequentialRead(this FileInfo file)
             => new FileStream(
                 file.FullName,
                 FileMode.OpenOrCreate,
@@ -101,7 +101,7 @@
         /// Opens or creates a stream for writing with sequential optimization and providing 
         /// <see cref="FileShare.Read"/> for others.
         /// </summary>
-        public static FileStream OpenOrCreateSequentialWrite(this FileSystemInfo file)
+        public static FileStream OpenOrCreateSequentialWrite(this FileInfo file)
             => new FileStream(
                 file.FullName,
                 FileMode.OpenOrCreate,
@@ -114,7 +114,7 @@
         /// Opens or creates a stream for reading and writing with sequential optimization and providing 
         /// <see cref="FileShare.ReadWrite"/> for others.
         /// </summary>
-        public static FileStream OpenOrCreateSequentialReadWrite(this FileSystemInfo file)
+        public static FileStream OpenOrCreateSequentialReadWrite(this FileInfo file)
             => new FileStream(
                 file.FullName,
                 FileMode.OpenOrCreate,
@@ -219,7 +219,7 @@
         /// Determines whether the given <paramref name="file"/> is binary or a text file.
         /// </summary>
         [DebuggerStepThrough]
-        public static bool IsBinary(this FileSystemInfo file)
+        public static bool IsBinary(this FileInfo file)
         {
             var buffer = new char[256];
 
