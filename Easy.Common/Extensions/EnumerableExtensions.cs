@@ -139,10 +139,10 @@ namespace Easy.Common.Extensions
             Ensure.NotNull(sequence, nameof(sequence));
             Ensure.NotNull(random, nameof(random));
 
-            var buffer = sequence.ToList();
-            for (var i = 0; i < buffer.Count; i++)
+            var buffer = sequence.ToArray();
+            for (var i = 0; i < buffer.Length; i++)
             {
-                var j = random.Next(i, buffer.Count);
+                var j = random.Next(i, buffer.Length);
                 yield return buffer[j];
 
                 buffer[j] = buffer[i];
