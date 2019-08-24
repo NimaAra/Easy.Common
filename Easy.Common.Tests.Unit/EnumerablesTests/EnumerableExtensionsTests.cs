@@ -316,5 +316,48 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
             keyedCollection["Name-10"].Age.ShouldBe(10);
             keyedCollection["name-10"].Age.ShouldBe(10);
         }
+
+        [Test]
+        public void When_creating_batch_from_list_with_buckets_of_size_zero() =>
+            Should.Throw<ArgumentOutOfRangeException>(() => new List<int>().Batch(0).ToArray())
+                .Message.ShouldBe("Specified argument was out of the range of valid values.\r\nParameter name: size");
+
+        [Test]
+        public void When_creating_batch_from_empty_list()
+        {
+            var batches = new List<int>().Batch(2);
+
+            batches.ShouldBeEmpty();
+        }
+
+        [Test]
+        public void When_creating_batch_from_list_with_odd_number_of_items()
+        {
+            var list = new List<int> { 1, 2, 3, 4, 5, 6, 6 };
+
+            var batches = list.Batch(2).ToArray();
+
+            batches.Length.ShouldBe(4);
+
+            batches[0].ShouldBe(new[] { 1, 2 });
+            batches[1].ShouldBe(new[] { 3, 4 });
+            batches[2].ShouldBe(new[] { 5, 6 });
+            batches[3].ShouldBe(new[] { 6 });
+        }
+
+        [Test]
+        public void When_creating_batch_from_list_with_even_number_of_items()
+        {
+            var list = new List<int> { 1, 2, 3, 4, 5, 6, 6, 7 };
+
+            var batches = list.Batch(2).ToArray();
+
+            batches.Length.ShouldBe(4);
+
+            batches[0].ShouldBe(new[] { 1, 2 });
+            batches[1].ShouldBe(new[] { 3, 4 });
+            batches[2].ShouldBe(new[] { 5, 6 });
+            batches[3].ShouldBe(new[] { 6, 7 });
+        }
     }
 }

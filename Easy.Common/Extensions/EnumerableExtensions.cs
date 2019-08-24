@@ -284,5 +284,43 @@ namespace Easy.Common.Extensions
 
             enumerator.Dispose();
         }
+
+        /// <summary>
+        /// Batches the source sequence into sized buckets.
+        /// </summary>
+        /// <typeparam name="TSource">Type of elements in <paramref name="source"/> sequence.</typeparam>
+        /// <param name="source">The source sequence.</param>
+        /// <param name="size">Size of buckets.</param>
+        /// <returns>A sequence of equally sized buckets containing elements of the source collection.</returns>
+        /// <remarks>
+        /// This operator uses deferred execution and streams its results (buckets and bucket content).
+        /// </remarks>
+        public static IEnumerable<IEnumerable<TSource>> Batch<TSource>(this IEnumerable<TSource> source, uint size) 
+        {
+            Ensure.NotNull(source, nameof(source));
+            Ensure.That<ArgumentOutOfRangeException>(size > 0, nameof(size));
+
+            TSource[] bucket = null;
+            var count = 0;
+
+            foreach (var item in source)
+            {
+                if (bucket is null) { bucket = new TSource[size]; }
+
+                bucket[count++] = item;
+
+                if (count != size) { continue; }
+
+                yield return bucket;
+
+                bucket = null;
+                count = 0;
+            }
+
+            if (bucket is null || count <= 0) { yield break; }
+            
+            Array.Resize(ref bucket, count);
+            yield return bucket;
+        }
     }
 }
