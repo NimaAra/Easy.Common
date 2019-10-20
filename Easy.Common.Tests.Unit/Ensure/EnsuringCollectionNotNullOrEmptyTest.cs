@@ -19,7 +19,7 @@
             Action action = () => Ensure.NotNullOrEmpty(collection);
 
             action.ShouldThrow<ArgumentNullException>("Because collection is null.")
-                .Message.ShouldBe("Value cannot be null.\r\nParameter name: collection");
+                .Message.ShouldBe("Value cannot be null. (Parameter 'collection')");
         }
 
         [Test]

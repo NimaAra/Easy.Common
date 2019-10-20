@@ -230,7 +230,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
             sequence.Count(x => x == "C").ShouldBe(3);
             sequence.Count(x => x == "D").ShouldBe(1);
 
-            var hashSet = sequence.ToHashSet();
+            var hashSet = EnumerableExtensions.ToHashSet(sequence);
 
             hashSet.Count.ShouldBe(4);
 
@@ -265,7 +265,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
             sequence.Count(x => x == "C").ShouldBe(3);
             sequence.Count(x => x == "D").ShouldBe(1);
 
-            var hashSet = sequence.ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var hashSet = EnumerableExtensions.ToHashSet(sequence, StringComparer.OrdinalIgnoreCase);
 
             hashSet.Count.ShouldBe(4);
 
@@ -302,7 +302,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
             Should.Throw<KeyNotFoundException>(() =>
             {
                 var _ = keyedCollection["name-10"];
-            }).Message.ShouldBe("The given key was not present in the dictionary.");
+            }).Message.ShouldBe("The given key 'name-10' was not present in the dictionary.");
         }
 
         [Test]
@@ -320,7 +320,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
         [Test]
         public void When_creating_batch_from_list_with_buckets_of_size_zero() =>
             Should.Throw<ArgumentOutOfRangeException>(() => new List<int>().Batch(0).ToArray())
-                .Message.ShouldBe("Specified argument was out of the range of valid values.\r\nParameter name: size");
+                .Message.ShouldBe("Specified argument was out of the range of valid values. (Parameter 'size')");
 
         [Test]
         public void When_creating_batch_from_empty_list()

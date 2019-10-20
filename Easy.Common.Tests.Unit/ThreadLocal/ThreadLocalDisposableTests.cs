@@ -19,19 +19,19 @@
             threadLocal.IsValueCreated.ShouldBeFalse();
             threadLocal.Value.ShouldBe(someDisposable);
             threadLocal.IsValueCreated.ShouldBeTrue();
-            threadLocal.ToString().ShouldBe("Castle.Proxies.IDisposableProxy");
+            threadLocal.ToString().ShouldStartWith("Substitute.IDisposable|");
             threadLocal.Dispose();
             Should.Throw<ObjectDisposedException>(() => threadLocal.Value.ShouldBe(someDisposable))
                 .Message.ShouldBe("Cannot access a disposed object.\r\nObject name: 'The ThreadLocal object has been disposed.'.");
             someDisposable.DidNotReceive().Dispose();
 
-            var threadLocalDisposeable = new ThreadLocalDisposable<IDisposable>(() => someDisposable);
-            threadLocalDisposeable.IsValueCreated.ShouldBeFalse();
-            threadLocalDisposeable.Value.ShouldBe(someDisposable);
-            threadLocalDisposeable.IsValueCreated.ShouldBeTrue();
-            threadLocalDisposeable.ToString().ShouldBe("Castle.Proxies.IDisposableProxy");
-            threadLocalDisposeable.Dispose();
-            Should.Throw<ObjectDisposedException>(() => threadLocalDisposeable.Value.ShouldBe(someDisposable))
+            var threadLocalDisposable = new ThreadLocalDisposable<IDisposable>(() => someDisposable);
+            threadLocalDisposable.IsValueCreated.ShouldBeFalse();
+            threadLocalDisposable.Value.ShouldBe(someDisposable);
+            threadLocalDisposable.IsValueCreated.ShouldBeTrue();
+            threadLocalDisposable.ToString().ShouldStartWith("Substitute.IDisposable|");
+            threadLocalDisposable.Dispose();
+            Should.Throw<ObjectDisposedException>(() => threadLocalDisposable.Value.ShouldBe(someDisposable))
                 .Message.ShouldBe("Cannot access a disposed object.\r\nObject name: 'The ThreadLocal object has been disposed.'.");
             someDisposable.Received(1).Dispose();
         }

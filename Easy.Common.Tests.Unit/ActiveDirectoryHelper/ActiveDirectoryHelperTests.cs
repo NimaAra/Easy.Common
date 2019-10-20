@@ -1,5 +1,6 @@
 ﻿namespace Easy.Common.Tests.Unit.ActiveDirectoryHelper
 {
+#if NETFRAMEWORK
     using NUnit.Framework;
     using Shouldly;
     using ActiveDirectoryHelper = Easy.Common.ActiveDirectoryHelper;
@@ -16,4 +17,5 @@
             groups.ShouldContain("Everyone");
         }
     }
+#endif
 }

@@ -477,16 +477,8 @@
                 return false;
             }
 
-            try
-            {
-                value = new FileInfo(Path.GetFullPath(valStr));
-                return true;
-            }
-            catch (Exception)
-            {
-                value = null;
-                return false;
-            }
+            value = new FileInfo(Path.GetFullPath(valStr));
+            return true;
         }
 
         /// <summary>
@@ -503,16 +495,8 @@
                 return false;
             }
 
-            try
-            {
-                value = new DirectoryInfo(Path.GetFullPath(valStr));
-                return true;
-            }
-            catch (Exception)
-            {
-                value = null;
-                return false;
-            }
+            value = new DirectoryInfo(Path.GetFullPath(valStr));
+            return true;
         }
 
         /// <summary>

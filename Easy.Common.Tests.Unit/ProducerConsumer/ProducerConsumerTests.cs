@@ -38,7 +38,7 @@
             };
 
             action.ShouldThrow<ArgumentNullException>()
-                .Message.ShouldBe("Value cannot be null.\r\nParameter name: consumer");
+                .Message.ShouldBe("Value cannot be null. (Parameter 'consumer')");
         }
 
         [Test]

@@ -24,7 +24,7 @@
                 nullType.IsSequence(out sequenceType);
             });
 
-            e.Message.ShouldBe("Value cannot be null.\r\nParameter name: type");
+            e.Message.ShouldBe("Value cannot be null. (Parameter 'type')");
             e.ParamName.ShouldBe("type");
         }
 

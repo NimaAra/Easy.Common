@@ -37,7 +37,7 @@
             sender.ShouldNotBeNull();
             sender.ShouldBeOfType<BlockingTaskNotifier>();
             stackTrace.ShouldNotBeNullOrEmpty();
-            stackTrace.ShouldContain("at System.Environment.GetStackTrace(Exception e, Boolean needFileInfo)");
+            stackTrace.ShouldContain("at System.Environment.get_StackTrace()");
             count.ShouldBe(1);
         }
     }

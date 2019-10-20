@@ -182,7 +182,7 @@
         {
             Uri uri = null;
             Should.Throw<ArgumentException>(() => uri.AddParametersToQueryString("foo", "bar"))
-                .Message.ShouldBe("Value cannot be null.\r\nParameter name: uri");
+                .Message.ShouldBe("Value cannot be null. (Parameter 'uri')");
 
             uri = new Uri("http://www.foo.com");
 

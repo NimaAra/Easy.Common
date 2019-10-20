@@ -23,7 +23,7 @@
             ConfigReader.ConfigFile.Name.ShouldBe("Configuration.config");
 
             ConfigReader.Settings.ShouldNotBeNull();
-            ConfigReader.Settings.Count.ShouldBe(58);
+            ConfigReader.Settings.Count.ShouldBe(56);
 
             ConfigReader.Settings.ShouldContainKey("should-not-be-ignored");
 
@@ -232,9 +232,6 @@
             ConfigReader.TryRead("file-path-2", out fileInfoVal).ShouldBeTrue();
             fileInfoVal.FullName.ShouldBe(@"C:\some-folder\some-file.txt");
 
-            ConfigReader.TryRead("file-path-invalid", out fileInfoVal).ShouldBeFalse();
-            fileInfoVal.ShouldBe(default(FileInfo));
-
             ConfigReader.TryRead("non-existent-key", out fileInfoVal).ShouldBeFalse();
             fileInfoVal.ShouldBe(default(FileInfo));
 
@@ -243,9 +240,6 @@
 
             ConfigReader.TryRead("directory-path-2", out directoryInfoVal).ShouldBeTrue();
             directoryInfoVal.FullName.ShouldBe(@"C:\some-folder\");
-
-            ConfigReader.TryRead("directory-path-invalid", out directoryInfoVal).ShouldBeFalse();
-            directoryInfoVal.ShouldBe(default(DirectoryInfo));
 
             ConfigReader.TryRead("non-existent-key", out directoryInfoVal).ShouldBeFalse();
             directoryInfoVal.ShouldBe(default(DirectoryInfo));

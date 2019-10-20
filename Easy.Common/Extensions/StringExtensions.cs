@@ -449,18 +449,18 @@
         }
 
         /// <summary>
-        /// Ensures the given <paramref name="input"/> can be used as a file name.
+        /// Ensures the given <paramref name="fileName"/> can be used as a file name.
         /// </summary>
         [DebuggerStepThrough]
-        public static bool IsValidFileName(this string input) 
-            => input.IsNotNullOrEmptyOrWhiteSpace() && input.IndexOfAny(InvalidFileNameCharacters) == -1;
+        public static bool IsValidFileName(this string fileName) =>
+            fileName.IsNotNullOrEmptyOrWhiteSpace() && fileName.IndexOfAny(InvalidFileNameCharacters) == -1;
 
         /// <summary>
-        /// Ensures the given <paramref name="input"/> can be used as a path.
+        /// Ensures the given <paramref name="path"/> can be used as a path.
         /// </summary>
         [DebuggerStepThrough]
-        public static bool IsValidPathName(this string input) 
-            => input.IsNotNullOrEmptyOrWhiteSpace() && input.IndexOfAny(InvalidPathCharacters) == -1;
+        public static bool IsValidPathName(this string path) => 
+            path.IsNotNullOrEmptyOrWhiteSpace() && path.IndexOfAny(InvalidPathCharacters) == -1;
 
         /// <summary>
         /// Returns a <see cref="Guid"/> from a <c>Base64</c> encoded <paramref name="input"/>.

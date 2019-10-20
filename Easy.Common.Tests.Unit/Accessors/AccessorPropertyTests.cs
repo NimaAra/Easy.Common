@@ -19,31 +19,31 @@
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person, string>(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person, string>(nullStr))
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person, string>(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person>(nullStr))
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person>(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person>(nullStr))
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person>(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
         }
 
         [Test]

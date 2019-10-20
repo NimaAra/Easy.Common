@@ -13,7 +13,7 @@
         {
             string nullStr = null;
             Should.Throw<ArgumentException>(() => Ensure.NotNull(nullStr, "nullStr"))
-                .Message.ShouldBe("Value cannot be null.\r\nParameter name: nullStr");
+                .Message.ShouldBe("Value cannot be null. (Parameter 'nullStr')");
         }
 
         [Test]
@@ -21,7 +21,7 @@
         {
             object nullObj = null;
             Should.Throw<ArgumentException>(() => Ensure.NotNull(nullObj, "nullObj"))
-                    .Message.ShouldBe("Value cannot be null.\r\nParameter name: nullObj");
+                    .Message.ShouldBe("Value cannot be null. (Parameter 'nullObj')");
         }
 
         [Test]
@@ -45,7 +45,7 @@
         {
             object nullObject = null;
             Should.Throw<ArgumentException>(() => Ensure.NotNull(nullObject, null))
-                .Message.ShouldBe("Value cannot be null.\r\nParameter name: Invalid");
+                .Message.ShouldBe("Value cannot be null. (Parameter 'Invalid')");
         }
     }
 }

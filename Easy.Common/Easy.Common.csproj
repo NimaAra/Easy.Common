@@ -15,7 +15,8 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <TargetFrameworks>net45;net471;netcoreapp2.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;net471;netcoreapp2.1;netcoreapp3.0;netstandard2.0</TargetFrameworks>
+    <LangVersion>8.0</LangVersion>
     <AssemblyTitle>Easy Common</AssemblyTitle>
     <AssemblyName>Easy.Common</AssemblyName>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -41,7 +42,11 @@
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
   </ItemGroup>
-  
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.0' ">
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>

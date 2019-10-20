@@ -27,6 +27,8 @@
             report.EnvironmentVariables.ShouldNotBeEmpty();
             report.NetworkingDetails.ShouldNotBeNull();
 
+            report.SystemDetails.CPU.ShouldNotBe("<INVALID>");
+
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
             formattedReport.Length.ShouldBeGreaterThan(1000);
