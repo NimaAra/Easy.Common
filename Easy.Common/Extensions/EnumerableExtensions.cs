@@ -176,6 +176,7 @@ namespace Easy.Common.Extensions
             }
         }
 
+#if NETSTANDARD2_0 || NET45 || NET471
         /// <summary>
         /// Returns a <see cref="HashSet{T}"/> from the given <paramref name="sequence"/> 
         /// based on the <see cref="EqualityComparer{TKey}.Default"/> eliminating any duplicate values.
@@ -191,6 +192,7 @@ namespace Easy.Common.Extensions
         [DebuggerStepThrough]
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence, IEqualityComparer<T> comparer) 
             => new HashSet<T>(sequence, comparer);
+#endif
 
         /// <summary>
         /// Returns a <see cref="EasyDictionary{TKey,TValue}"/> for the given <paramref name="sequence"/>

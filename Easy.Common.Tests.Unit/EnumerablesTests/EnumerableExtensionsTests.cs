@@ -220,6 +220,7 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
             distinct.ShouldBe(new[] { "one", "three", "four" });
         }
 
+#if NETSTANDARD2_0 || NET45 || NET471
         [Test]
         public void When_converting_sequence_to_hashset_with_default_comparer()
         {
@@ -289,6 +290,8 @@ namespace Easy.Common.Tests.Unit.EnumerablesTests
             hashSet.Contains("E").ShouldBeFalse();
             hashSet.Contains("e").ShouldBeFalse();
         }
+
+#endif
 
         [Test]
         public void When_converting_sequence_to_easy_dictionary_with_default_comparer()
