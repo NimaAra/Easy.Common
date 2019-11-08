@@ -44,7 +44,7 @@ namespace Easy.Common.Extensions
         /// <returns><c>True</c> if <paramref name="object"/> has default or null value otherwise <c>False</c>.</returns>
         [DebuggerStepThrough]
         public static bool IsDefault<T>(this T @object) 
-            => EqualityComparer<T>.Default.Equals(@object, default(T));
+            => EqualityComparer<T>.Default.Equals(@object, default);
 
         /// <summary>
         /// Returns an uninitialized instance of the <typeparamref name="T"/> without calling any of its constructor(s).
@@ -102,7 +102,7 @@ namespace Easy.Common.Extensions
         public static T CloneShallowUsingIl<T>(this T @object)
         {
             var type = typeof(T);
-            if (!CachedIlShallow.TryGetValue(type, out var myExec))
+            if (!CachedIlShallow.TryGetValue(type, out Delegate myExec))
             {
                 // Create ILGenerator (both DM declarations work)
                 var dymMethod = new DynamicMethod(
@@ -140,7 +140,7 @@ namespace Easy.Common.Extensions
         public static T CloneDeepUsingIl<T>(this T myObject)
         {
             var type = typeof(T);
-            if (!CachedIlDeep.TryGetValue(type, out var myExec))
+            if (!CachedIlDeep.TryGetValue(type, out Delegate myExec))
             {
                 // Create ILGenerator (both DM declarations work)
                 var dymMethod = new DynamicMethod(

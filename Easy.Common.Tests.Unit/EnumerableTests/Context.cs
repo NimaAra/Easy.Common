@@ -1,4 +1,4 @@
-﻿namespace Easy.Common.Tests.Unit.EnumerablesTests
+﻿namespace Easy.Common.Tests.Unit.EnumerableTests
 {
     using System;
     using System.Collections.Generic;
