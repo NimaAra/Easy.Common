@@ -9,6 +9,7 @@ namespace Easy.Common.Extensions
     using System.Reflection;
     using System.Reflection.Emit;
     using System.Runtime.Serialization;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// A set of extension methods for generic types.
@@ -169,6 +170,20 @@ namespace Easy.Common.Extensions
             }
             return ((Func<T, T>)myExec)(myObject);
         }
+
+        /// <summary>
+        /// Creates a Task that's completed successfully with the specified <paramref name="result"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static Task<T> ToTask<T>(this T result) => Task.FromResult(result);
+
+#if NETCOREAPP2_1 || NETCOREAPP3_0 || NETSTANDARD2_1
+        /// <summary>
+        /// Creates a ValueTask that's completed successfully with the specified <paramref name="result"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static ValueTask<T> ToValueTask<T>(this T result) => new ValueTask<T>(result);
+#endif
 
         private static void CopyValueType(ILGenerator generator, FieldInfo field)
         {
