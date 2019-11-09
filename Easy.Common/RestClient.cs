@@ -54,7 +54,7 @@
 
         private static HttpMessageHandler GetHandler()
         {
-#if NETSTANDARD2_0 || NET471
+#if NETSTANDARD2_0 || NET471 || NET472
             return new HttpClientHandler
             {
                 MaxConnectionsPerServer = 20

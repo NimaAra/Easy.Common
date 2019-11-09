@@ -15,15 +15,15 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <TargetFrameworks>net45;net471;netcoreapp2.1;netcoreapp3.0;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net45;net471;net472;netcoreapp2.1;netcoreapp3.0;netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <AssemblyTitle>Easy Common</AssemblyTitle>
     <AssemblyName>Easy.Common</AssemblyName>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>    
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net471'">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net471' Or '$(TargetFramework)' == 'net472' ">
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression.FileSystem" />
@@ -54,4 +54,10 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net471' Or '$(TargetFramework)' == 'netstandard2.0' ">
+    <DefineConstants>USE_TO_HASHSET</DefineConstants>
+  </PropertyGroup>
+  
+  
 </Project>

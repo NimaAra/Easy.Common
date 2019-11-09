@@ -176,7 +176,7 @@ namespace Easy.Common.Extensions
             }
         }
 
-#if NETSTANDARD2_0 || NET45 || NET471
+#if USE_TO_HASHSET
         /// <summary>
         /// Returns a <see cref="HashSet{T}"/> from the given <paramref name="sequence"/> 
         /// based on the <see cref="EqualityComparer{TKey}.Default"/> eliminating any duplicate values.
