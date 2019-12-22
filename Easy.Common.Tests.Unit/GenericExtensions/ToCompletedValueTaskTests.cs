@@ -5,14 +5,14 @@
     using Shouldly;
 
     [TestFixture]
-    internal sealed class ToValueTaskTests
+    internal sealed class ToCompletedValueTaskTests
     {
         [Test]
-        public void When_creating_a_task_from_reference_type()
+        public void When_creating_a_completed_task_from_reference_type()
         {
             const string SOURCE = "some-text";
 
-            var task = SOURCE.ToValueTask();
+            var task = SOURCE.ToCompletedValueTask();
             task.IsCompleted.ShouldBeTrue();
             task.IsCompletedSuccessfully.ShouldBeTrue();
 
@@ -20,11 +20,11 @@
         }
 
         [Test]
-        public void When_creating_a_task_from_value_type()
+        public void When_creating_a_completed_task_from_value_type()
         {
             const int SOURCE = 42;
 
-            var task = SOURCE.ToValueTask();
+            var task = SOURCE.ToCompletedValueTask();
             task.IsCompleted.ShouldBeTrue();
             task.IsCompletedSuccessfully.ShouldBeTrue();
 
@@ -32,11 +32,11 @@
         }
 
         [Test]
-        public void When_creating_task_from_null_value()
+        public void When_creating_a_completed_task_from_null_value()
         {
             const string SOURCE = null;
 
-            var task = SOURCE.ToValueTask();
+            var task = SOURCE.ToCompletedValueTask();
             task.IsCompleted.ShouldBeTrue();
             task.IsCompletedSuccessfully.ShouldBeTrue();
 

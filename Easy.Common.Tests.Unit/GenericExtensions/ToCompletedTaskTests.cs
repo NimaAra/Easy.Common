@@ -6,36 +6,36 @@
     using Shouldly;
 
     [TestFixture]
-    internal sealed class ToTaskTests
+    internal sealed class ToCompletedTaskTests
     {
         [Test]
-        public void When_creating_a_task_from_reference_type()
+        public void When_creating_a_completed_task_from_reference_type()
         {
             const string SOURCE = "some-text";
 
-            var task = SOURCE.ToTask();
+            var task = SOURCE.ToCompletedTask();
             task.Status.ShouldBe(TaskStatus.RanToCompletion);
             
             task.Result.ShouldBe(SOURCE);
         }
 
         [Test]
-        public void When_creating_a_task_from_value_type()
+        public void When_creating_a_completed_task_from_value_type()
         {
             const int SOURCE = 42;
 
-            var task = SOURCE.ToTask();
+            var task = SOURCE.ToCompletedTask();
             task.Status.ShouldBe(TaskStatus.RanToCompletion);
 
             task.Result.ShouldBe(SOURCE);
         }
 
         [Test]
-        public void When_creating_task_from_null_value()
+        public void When_creating_a_completed_task_from_null_value()
         {
             const string SOURCE = null;
 
-            var task = SOURCE.ToTask();
+            var task = SOURCE.ToCompletedTask();
             task.Status.ShouldBe(TaskStatus.RanToCompletion);
 
             task.Result.ShouldBe(SOURCE);

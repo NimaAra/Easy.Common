@@ -173,12 +173,6 @@ namespace Easy.Common.Extensions
         }
 
         /// <summary>
-        /// Creates a Task that's completed successfully with the specified <paramref name="result"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Task<T> ToTask<T>(this T result) => Task.FromResult(result);
-
-        /// <summary>
         /// Provides a lock with a timeout.
         /// </summary>
         /// <example>
@@ -229,12 +223,18 @@ namespace Easy.Common.Extensions
             public void Dispose() => Monitor.Exit(_obj);
         }
 
+        /// <summary>
+        /// Creates a Task that's completed successfully with the specified <paramref name="result"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static Task<T> ToCompletedTask<T>(this T result) => Task.FromResult(result);
+
 #if NETCOREAPP2_1 || NETCOREAPP3_0 || NETSTANDARD2_1
         /// <summary>
         /// Creates a ValueTask that's completed successfully with the specified <paramref name="result"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static ValueTask<T> ToValueTask<T>(this T result) => new ValueTask<T>(result);
+        public static ValueTask<T> ToCompletedValueTask<T>(this T result) => new ValueTask<T>(result);
 #endif
 
         private static void CopyValueType(ILGenerator generator, FieldInfo field)
