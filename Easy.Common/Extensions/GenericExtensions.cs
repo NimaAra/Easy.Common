@@ -9,6 +9,7 @@ namespace Easy.Common.Extensions
     using System.Reflection;
     using System.Reflection.Emit;
     using System.Runtime.Serialization;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -176,6 +177,57 @@ namespace Easy.Common.Extensions
         /// </summary>
         [DebuggerStepThrough]
         public static Task<T> ToTask<T>(this T result) => Task.FromResult(result);
+
+        /// <summary>
+        /// Provides a lock with a timeout.
+        /// </summary>
+        /// <example>
+        /// var locker = new object();
+        /// using(locker.Lock(TimeSpan.FromSeconds(1)))
+        /// {
+        ///     sharedVariable++;
+        /// }
+        /// </example>
+        /// <param name="obj">Object on which lock is taken.</param>
+        /// <param name="timeout">Timeout for the lock.</param>
+        /// <returns>A locker on which lock will be taken.</returns>
+        [DebuggerStepThrough]
+        public static Locker Lock<T>(this T obj, TimeSpan timeout) where T : class
+        {
+            var lockTaken = false;
+
+            try
+            {
+                Monitor.TryEnter(obj, timeout, ref lockTaken);
+                if (lockTaken) { return new Locker(obj); }
+                throw new TimeoutException("Failed to acquire a lock within the timeout period of: " + timeout.ToString());
+            }
+            catch
+            {
+                if (lockTaken) { Monitor.Exit(obj); }
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// As part of the Lock extension method on <c>object</c>s 
+        /// it provides a timeout mechanism for acquiring locks.
+        /// </summary>
+        public struct Locker : IDisposable
+        {
+            private readonly object _obj;
+
+            /// <summary>
+            /// Returns an instance of <see cref="Locker"/>.
+            /// </summary>
+            /// <param name="obj">The <c>object</c> on which lock is taken.</param>
+            internal Locker(object obj) => _obj = obj;
+
+            /// <summary>
+            /// Releases any locks taken by this instance.
+            /// </summary>
+            public void Dispose() => Monitor.Exit(_obj);
+        }
 
 #if NETCOREAPP2_1 || NETCOREAPP3_0 || NETSTANDARD2_1
         /// <summary>
