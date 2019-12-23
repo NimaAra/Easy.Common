@@ -768,7 +768,7 @@ namespace Easy.Common
         /// <returns>The CPU Name</returns>
         private static string GetProcessorNameWindows()
         {
-#if NETCOREAPP3_0 || NETFRAMEWORK || NETSTANDARD2_0
+#if NETCOREAPP || NETFRAMEWORK || NETSTANDARD2_0
             var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0\");
             return key?.GetValue("ProcessorNameString").ToString() ?? "Not Found";
 #else

@@ -229,7 +229,7 @@ namespace Easy.Common.Extensions
         [DebuggerStepThrough]
         public static Task<T> ToCompletedTask<T>(this T result) => Task.FromResult(result);
 
-#if NETCOREAPP2_1 || NETCOREAPP3_0 || NETSTANDARD2_1
+#if NETCOREAPP || NETSTANDARD2_1
         /// <summary>
         /// Creates a ValueTask that's completed successfully with the specified <paramref name="result"/>.
         /// </summary>

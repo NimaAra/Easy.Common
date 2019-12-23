@@ -82,9 +82,8 @@
             using IRestClient client = new RestClient();
             client.SendAsync(new HttpRequestMessage(HttpMethod.Get, endpoint));
 
-            ServicePointManager.FindServicePoint(endpoint)
-                .ConnectionLeaseTimeout
-                .ShouldBe((int)1.Minutes().TotalMilliseconds);
+            ServicePointManager.FindServicePoint(endpoint).ConnectionLeaseTimeout
+                .ShouldBe(-1);
         }
 
         [Test]
@@ -97,9 +96,8 @@
             using IRestClient client = new RestClient();
             client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Endpoint));
 
-            ServicePointManager.FindServicePoint(endpointUri)
-                .ConnectionLeaseTimeout
-                .ShouldBe((int)1.Minutes().TotalMilliseconds);
+            ServicePointManager.FindServicePoint(endpointUri).ConnectionLeaseTimeout
+                .ShouldBe(-1);
         }
 
         [Test]

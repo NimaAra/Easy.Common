@@ -24,8 +24,8 @@
         
         private readonly HttpClient _client;
         
-#if !NETCOREAPP2_1
-        private readonly HashSet<EndpointCacheKey> _endpoints;
+#if !NETCOREAPP
+        private readonly HashSet<EndpointCacheKey> _endpoints = new HashSet<EndpointCacheKey>();
 #endif
 
         static RestClient() => ConfigureServicePointManager();
@@ -43,9 +43,6 @@
         {
             _client = new HttpClient(handler ?? GetHandler(), disposeHandler);
 
-#if !NETCOREAPP2_1
-            _endpoints = new HashSet<EndpointCacheKey>();
-#endif
             AddBaseAddress(baseAddress);
             AddDefaultHeaders(defaultRequestHeaders);
             AddRequestTimeout(timeout);
@@ -59,7 +56,7 @@
             {
                 MaxConnectionsPerServer = 20
             };
-#elif NETCOREAPP2_1
+#elif NETCOREAPP
             return new SocketsHttpHandler
             {
                 // https://github.com/dotnet/corefx/issues/26895
@@ -99,22 +96,22 @@
         /// Sends the given <paramref name="request"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
-            => SendAsync(request, HttpCompletionOption.ResponseContentRead, CancellationToken.None);
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request) => 
+            SendAsync(request, HttpCompletionOption.ResponseContentRead, CancellationToken.None);
 
         /// <summary>
         /// Sends the given <paramref name="request"/> with the given <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cToken)
-            => SendAsync(request, HttpCompletionOption.ResponseContentRead, cToken);
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cToken) => 
+            SendAsync(request, HttpCompletionOption.ResponseContentRead, cToken);
 
         /// <summary>
         /// Sends the given <paramref name="request"/> with the given <paramref name="option"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption option)
-            => SendAsync(request, option, CancellationToken.None);
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption option) => 
+            SendAsync(request, option, CancellationToken.None);
 
         /// <summary>
         /// Sends the given <paramref name="request"/> with the given <paramref name="option"/> and <paramref name="cToken"/>.
@@ -132,23 +129,23 @@
         /// </summary>
         /// <exception cref="UriFormatException"/>
         /// <exception cref="ArgumentException"/>
-        public Task<HttpResponseMessage> GetAsync(string uri) 
-            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri));
+        public Task<HttpResponseMessage> GetAsync(string uri) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Get, uri));
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
         /// </summary>
         /// <exception cref="UriFormatException"/>
         /// <exception cref="ArgumentException"/>
-        public Task<HttpResponseMessage> GetAsync(string uri, TimeSpan timeout)
-            => GetAsync(new Uri(uri, UriKind.RelativeOrAbsolute), timeout);
+        public Task<HttpResponseMessage> GetAsync(string uri, TimeSpan timeout) => 
+            GetAsync(new Uri(uri, UriKind.RelativeOrAbsolute), timeout);
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> GetAsync(Uri uri) 
-            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri));
+        public Task<HttpResponseMessage> GetAsync(Uri uri) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Get, uri));
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
@@ -156,11 +153,9 @@
         /// <exception cref="ArgumentNullException"/>
         public async Task<HttpResponseMessage> GetAsync(Uri uri, TimeSpan timeout)
         {
-            using (var cts = new CancellationTokenSource(timeout))
-            {
-                return await SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), cts.Token)
-                    .ConfigureAwait(false);
-            }
+            using var cts = new CancellationTokenSource(timeout);
+            return await SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), cts.Token)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -168,45 +163,45 @@
         /// </summary>
         /// <exception cref="UriFormatException"/>
         /// <exception cref="ArgumentException"/>
-        public Task<HttpResponseMessage> GetAsync(string uri, CancellationToken cToken)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), cToken);
+        public Task<HttpResponseMessage> GetAsync(string uri, CancellationToken cToken) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), cToken);
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> GetAsync(Uri uri, CancellationToken cToken)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), cToken);
+        public Task<HttpResponseMessage> GetAsync(Uri uri, CancellationToken cToken) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), cToken);
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="option"/>.
         /// </summary>
         /// <exception cref="UriFormatException"/>
         /// <exception cref="ArgumentException"/>
-        public Task<HttpResponseMessage> GetAsync(string uri, HttpCompletionOption option)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option);
+        public Task<HttpResponseMessage> GetAsync(string uri, HttpCompletionOption option) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option);
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="option"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> GetAsync(Uri uri, HttpCompletionOption option)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option);
+        public Task<HttpResponseMessage> GetAsync(Uri uri, HttpCompletionOption option) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option);
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="option"/> and <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="UriFormatException"/>
         /// <exception cref="ArgumentException"/>
-        public Task<HttpResponseMessage> GetAsync(string uri, HttpCompletionOption option, CancellationToken cToken)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option, cToken);
+        public Task<HttpResponseMessage> GetAsync(string uri, HttpCompletionOption option, CancellationToken cToken) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option, cToken);
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/> with the given <paramref name="option"/> and <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> GetAsync(Uri uri, HttpCompletionOption option, CancellationToken cToken)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option, cToken);
+        public Task<HttpResponseMessage> GetAsync(Uri uri, HttpCompletionOption option, CancellationToken cToken) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), option, cToken);
 
         /// <summary>
         /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/>.
@@ -214,8 +209,8 @@
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="UriFormatException"/>
-        public Task<HttpResponseMessage> PutAsync(string uri, HttpContent content)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content });
+        public Task<HttpResponseMessage> PutAsync(string uri, HttpContent content) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content });
 
         /// <summary>
         /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
@@ -223,15 +218,15 @@
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="UriFormatException"/>
-        public Task<HttpResponseMessage> PutAsync(string uri, HttpContent content, TimeSpan timeout)
-            => PutAsync(new Uri(uri, UriKind.RelativeOrAbsolute), content, timeout);
+        public Task<HttpResponseMessage> PutAsync(string uri, HttpContent content, TimeSpan timeout) => 
+            PutAsync(new Uri(uri, UriKind.RelativeOrAbsolute), content, timeout);
 
         /// <summary>
         /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content });
+        public Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content });
 
         /// <summary>
         /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
@@ -239,11 +234,9 @@
         /// <exception cref="ArgumentNullException"/>
         public async Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content, TimeSpan timeout)
         {
-            using (var cts = new CancellationTokenSource(timeout))
-            {
-                return await SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content }, cts.Token)
-                    .ConfigureAwait(false);
-            }
+            using var cts = new CancellationTokenSource(timeout);
+            return await SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content }, cts.Token)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -251,8 +244,8 @@
         /// with the given <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content, CancellationToken cToken)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content }, cToken);
+        public Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content, CancellationToken cToken) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content }, cToken);
 
         /// <summary>
         /// Sends a <c>PUT</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> 
@@ -261,8 +254,8 @@
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="UriFormatException"/>
-        public Task<HttpResponseMessage> PutAsync(string uri, HttpContent content, CancellationToken cToken)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content }, cToken);
+        public Task<HttpResponseMessage> PutAsync(string uri, HttpContent content, CancellationToken cToken) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Put, uri) { Content = content }, cToken);
 
         /// <summary>
         /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/>.
@@ -270,8 +263,8 @@
         /// <exception cref="ArgumentException"/>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="UriFormatException"/>
-        public Task<HttpResponseMessage> PostAsync(string uri, HttpContent content)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content });
+        public Task<HttpResponseMessage> PostAsync(string uri, HttpContent content) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content });
 
         /// <summary>
         /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
@@ -279,15 +272,15 @@
         /// <exception cref="ArgumentException"/>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="UriFormatException"/>
-        public Task<HttpResponseMessage> PostAsync(string uri, HttpContent content, TimeSpan timeout)
-            => PostAsync(new Uri(uri, UriKind.RelativeOrAbsolute), content, timeout);
+        public Task<HttpResponseMessage> PostAsync(string uri, HttpContent content, TimeSpan timeout) => 
+            PostAsync(new Uri(uri, UriKind.RelativeOrAbsolute), content, timeout);
 
         /// <summary>
         /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content });
+        public Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content });
 
         /// <summary>
         /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
@@ -295,11 +288,9 @@
         /// <exception cref="ArgumentNullException"/>
         public async Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content, TimeSpan timeout)
         {
-            using (var cts = new CancellationTokenSource(timeout))
-            {
-                return await SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content }, cts.Token)
-                    .ConfigureAwait(false);
-            }
+            using var cts = new CancellationTokenSource(timeout);
+            return await SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content }, cts.Token)
+                .ConfigureAwait(false);
         } 
         
         /// <summary>
@@ -307,8 +298,8 @@
         /// with the given <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
-        public Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content, CancellationToken cToken)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content }, cToken);
+        public Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content, CancellationToken cToken) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content }, cToken);
 
         /// <summary>
         /// Sends a <c>POST</c> request with the given <paramref name="content"/> to the specified <paramref name="uri"/> 
@@ -317,8 +308,8 @@
         /// <exception cref="ArgumentException"/>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="UriFormatException"/>
-        public Task<HttpResponseMessage> PostAsync(string uri, HttpContent content, CancellationToken cToken)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content }, cToken);
+        public Task<HttpResponseMessage> PostAsync(string uri, HttpContent content, CancellationToken cToken) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Post, uri) { Content = content }, cToken);
 
         /// <summary>
         /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/>.
@@ -326,8 +317,8 @@
         /// <exception cref="UriFormatException"/>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="InvalidOperationException"/>
-        public Task<HttpResponseMessage> DeleteAsync(string uri)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri));
+        public Task<HttpResponseMessage> DeleteAsync(string uri) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri));
 
         /// <summary>
         /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
@@ -335,29 +326,27 @@
         /// <exception cref="UriFormatException"/>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="InvalidOperationException"/>
-        public Task<HttpResponseMessage> DeleteAsync(string uri, TimeSpan timeout)
-            => DeleteAsync(new Uri(uri, UriKind.RelativeOrAbsolute), timeout);
+        public Task<HttpResponseMessage> DeleteAsync(string uri, TimeSpan timeout) => 
+            DeleteAsync(new Uri(uri, UriKind.RelativeOrAbsolute), timeout);
 
         /// <summary>
         /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="InvalidOperationException"/>
-        public Task<HttpResponseMessage> DeleteAsync(Uri uri)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri));
+        public Task<HttpResponseMessage> DeleteAsync(Uri uri) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri));
 
         /// <summary>
         /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/> with the given <paramref name="timeout"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="InvalidOperationException"/>
-        public async Task<HttpResponseMessage> DeleteAsync(Uri uri, TimeSpan timeout) 
+        public async Task<HttpResponseMessage> DeleteAsync(Uri uri, TimeSpan timeout)
         {
-            using (var cts = new CancellationTokenSource(timeout))
-            {
-                return await SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri), cts.Token)
-                    .ConfigureAwait(false);
-            }
+            using var cts = new CancellationTokenSource(timeout);
+            return await SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri), cts.Token)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -366,16 +355,16 @@
         /// <exception cref="UriFormatException"/>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="InvalidOperationException"/>
-        public Task<HttpResponseMessage> DeleteAsync(string uri, CancellationToken cToken)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri), cToken);
+        public Task<HttpResponseMessage> DeleteAsync(string uri, CancellationToken cToken) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri), cToken);
 
         /// <summary>
         /// Sends a <c>DELETE</c> request to the specified <paramref name="uri"/> with the given <paramref name="cToken"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="InvalidOperationException"/>
-        public Task<HttpResponseMessage> DeleteAsync(Uri uri, CancellationToken cToken)
-            => SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri), cToken);
+        public Task<HttpResponseMessage> DeleteAsync(Uri uri, CancellationToken cToken) => 
+            SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri), cToken);
 
         /// <summary>
         /// Sends a <c>GET</c> request to the specified <paramref name="uri"/>.
@@ -549,8 +538,8 @@
             }
         }
 
-        private void AddRequestTimeout(TimeSpan? timeout) 
-            => _client.Timeout = timeout ?? System.Threading.Timeout.InfiniteTimeSpan;
+        private void AddRequestTimeout(TimeSpan? timeout) => 
+            _client.Timeout = timeout ?? System.Threading.Timeout.InfiniteTimeSpan;
 
         private void AddMaxResponseBufferSize(ulong? size)
         {
@@ -562,7 +551,7 @@
         // ReSharper disable once UnusedParameter.Local
         private void AddConnectionLeaseTimeout(Uri endpoint)
         {
-#if !NETCOREAPP2_1
+#if !NETCOREAPP
             if (!endpoint.IsAbsoluteUri) { return; }
             
             var key = new EndpointCacheKey(endpoint);
@@ -577,7 +566,7 @@
 #endif
         }
 
-#if !NETCOREAPP2_1
+#if !NETCOREAPP
         private struct EndpointCacheKey : IEquatable<EndpointCacheKey>
         {
             private readonly Uri _uri;
@@ -591,11 +580,9 @@
             public override int GetHashCode() => 
                 HashHelper.GetHashCode(_uri.Scheme, _uri.DnsSafeHost, _uri.Port);
 
-            public static bool operator ==(EndpointCacheKey left, EndpointCacheKey right) 
-                => left.Equals(right);
+            public static bool operator ==(EndpointCacheKey left, EndpointCacheKey right) => left.Equals(right);
 
-            public static bool operator !=(EndpointCacheKey left, EndpointCacheKey right) 
-                => !left.Equals(right);
+            public static bool operator !=(EndpointCacheKey left, EndpointCacheKey right) => !left.Equals(right);
         }
 #endif
     }
