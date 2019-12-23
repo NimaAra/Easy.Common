@@ -356,7 +356,7 @@ namespace Easy.Common
                         return new NetworkInterfaceDetails
                         {
                             Interface = nic,
-                            Addresses = NetworkHelper.GetLocalIPAddresses(nic).ToArray(),
+                            Addresses = NetworkHelper.GetLocalIPAddresses(nic).Select(IPAddressDetails.From).ToArray(),
                             MAC = string.Join(":", macAsBytes.Select(b => b.ToString("X2")))
                         };
                     })
