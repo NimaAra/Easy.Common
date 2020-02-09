@@ -30,7 +30,7 @@
             var currentChar = NULL;
             int bytesRead;
 
-            if (encoding is null || Equals(encoding, Encoding.UTF8))
+            if (encoding is null || Equals(encoding, Encoding.ASCII) || Equals(encoding, Encoding.UTF8))
             {
                 while ((bytesRead = stream.Read(byteBuffer, 0, byteBuffer.Length)) > 0)
                 {
