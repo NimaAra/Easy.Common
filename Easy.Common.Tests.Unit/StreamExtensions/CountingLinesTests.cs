@@ -65,6 +65,14 @@
         }
 
         [Test]
+        public void When_processing_stream_with_utf16_characters()
+        {
+            byte[] bytes = Encoding.BigEndianUnicode.GetBytes(" ਊ ");
+            using var stream = new MemoryStream(bytes);
+            stream.CountLines(Encoding.BigEndianUnicode).ShouldBe(1);
+        }
+
+        [Test]
         public void When_processing_stream_with_lines_terminated_by_carriage_return()
         {
             using var mem = new MemoryStream();
