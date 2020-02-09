@@ -120,12 +120,10 @@
             Ensure.NotNull(name, nameof(name));
             Ensure.NotNull(settings, nameof(settings));
 
-            using (var reader = XmlReader.Create(stream, settings))
+            using var reader = XmlReader.Create(stream, settings);
+            foreach (var xElement in reader.GetEelements(name, ignoreCase))
             {
-                foreach (var xElement in reader.GetEelements(name, ignoreCase))
-                {
-                    yield return xElement;
-                }
+                yield return xElement;
             }
         }
     }
