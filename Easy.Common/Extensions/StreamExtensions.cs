@@ -17,29 +17,6 @@
         private const char NULL = (char)0;
         
         /// <summary>
-        /// Detects the text encoding for the given <paramref name="stream"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static Encoding DetectEncoding(this Stream stream, Encoding defaultEncodingIfNoBOM)
-        {
-            Ensure.NotNull(stream, nameof(stream));
-            
-            var startPos = stream.Position;
-
-            try
-            {
-                using (var reader = new StreamReader(stream, defaultEncodingIfNoBOM, true, 1, true))
-                {
-                    var _ = reader.Peek();
-                    return reader.CurrentEncoding;
-                }
-            } finally
-            {
-                if (stream.CanSeek) { stream.Position = startPos; }
-            }
-        }
-
-        /// <summary>
         /// Returns the number of lines in the given <paramref name="stream"/>.
         /// </summary>
         [DebuggerStepThrough]
