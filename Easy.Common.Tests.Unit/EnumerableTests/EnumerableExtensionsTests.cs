@@ -60,52 +60,41 @@
         }
 
         [Test]
-        public void When_converting_an_enumerable_to_a_read_only_collection()
+        public void When_converting_a_list_to_a_read_only_sequence()
         {
-            var intArray = new[] { 1, 2, 3, 4, 5 };
-            var readOnlyIntSequence = intArray.ToReadOnlyCollection();
+            var list = new List<int> { 1, 2, 3, 4, 5 };
+            var readOnlyIntSequence = list.ToReadOnlySequence();
 
-            readOnlyIntSequence.Count().ShouldBe(intArray.Length);
-            readOnlyIntSequence.ShouldBe(intArray);
+            readOnlyIntSequence.Count().ShouldBe(list.Count);
+            readOnlyIntSequence.ShouldBe(list);
 
-            var localCopy = readOnlyIntSequence;
-            Action convertBackToOriginalArray = () =>
-            {
-                // ReSharper disable once UnusedVariable
-                var originalIntArray = (int[])localCopy;
-            };
+            Should.NotThrow(() => (List<int>)readOnlyIntSequence);
 
-            convertBackToOriginalArray.ShouldThrow<InvalidCastException>();
+            readOnlyIntSequence.ShouldNotContain(42);
+            list.Add(42);
+            readOnlyIntSequence.ShouldContain(42);
+        }
 
-            var intList = new List<int> { 1, 2, 3, 4, 5 };
-            readOnlyIntSequence = intList.ToReadOnlyCollection();
+        [Test]
+        public void When_converting_an_array_to_a_read_only_sequence()
+        {
+            var array = new[] { 1, 2, 3, 4, 5 };
+            var readOnlyIntSequence = array.ToReadOnlySequence();
 
-            readOnlyIntSequence.Count().ShouldBe(intList.Count);
-            readOnlyIntSequence.ShouldBe(intList);
+            readOnlyIntSequence.Count().ShouldBe(array.Length);
+            readOnlyIntSequence.ShouldBe(array);
 
-            Action convertBackToOriginalList = () =>
-            {
-                // ReSharper disable once UnusedVariable
-                var originalIntArray = (int[])readOnlyIntSequence;
-            };
-
-            convertBackToOriginalList.ShouldThrow<InvalidCastException>();
-
-            readOnlyIntSequence.ShouldNotContain(-1);
-            intList.Add(-1);
-            readOnlyIntSequence.ShouldContain(-1);
+            Should.NotThrow(() => (int[])readOnlyIntSequence);
         }
 
         [Test]
         public void When_selecting_a_random_element_from_a_sequence()
         {
-            var collection = Enumerable.Range(1, 50).ToList();
-            collection.ShouldBe(new[]
-            {
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-                29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50
-            });
-            Assert.That(collection, Is.Ordered);
+            var input = Enumerable.Range(1, 50).ToArray();
+
+            var collection = input.ToList();
+            collection.ShouldBe(input);
+            collection.ShouldBeInOrder();
 
             var firstElement = collection.First();
             var secondElement = collection.First();
@@ -118,7 +107,7 @@
             firstRandomElement.ShouldNotBe(secondRandomElement);
 
             var sequence = collection.Skip(0);
-            Assert.That(sequence, Is.Ordered);
+            sequence.ShouldBeInOrder();
 
             firstRandomElement = sequence.SelectRandom();
             secondRandomElement = sequence.SelectRandom();
@@ -129,13 +118,11 @@
         [Test]
         public void When_randomizing_a_collection()
         {
-            var collection = Enumerable.Range(1, 50).ToList();
-            collection.ShouldBe(new[]
-            {
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-                29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50
-            });
-            Assert.That(collection, Is.Ordered);
+            var input = Enumerable.Range(1, 50).ToArray();
+
+            var collection = input.ToList();
+            collection.ShouldBe(input);
+            collection.ShouldBeInOrder();
 
             var randomized = collection.Randomize().ToList();
             Assert.That(randomized, Is.Not.Ordered);

@@ -20,18 +20,8 @@ namespace Easy.Common.Extensions
         /// <param name="pageSize">The size of the elements in the page</param>
         /// <returns>The returned paged sequence</returns>
         [DebuggerStepThrough]
-        public static IEnumerable<T> GetPage<T>(this IEnumerable<T> sequence, uint pageIndex, uint pageSize)
-            => sequence.Skip((int)pageIndex * (int)pageSize).Take((int)pageSize);
-
-        /// <summary>
-        /// Converts an Enumerable into a read-only collection
-        /// </summary>
-        [DebuggerStepThrough]
-        public static IEnumerable<T> ToReadOnlyCollection<T>(this IEnumerable<T> sequence)
-        {
-            Ensure.NotNull(sequence, nameof(sequence));
-            return sequence.Skip(0);
-        }
+        public static IEnumerable<T> GetPage<T>(this IEnumerable<T> sequence, uint pageIndex, uint pageSize) => 
+            sequence.Skip((int)pageIndex * (int)pageSize).Take((int)pageSize);
 
         /// <summary>
         /// Validates that the <paramref name="sequence"/> is not null and contains items.
@@ -56,15 +46,15 @@ namespace Easy.Common.Extensions
         /// Converts <paramref name="sequence"/> to a <paramref name="delimiter"/> separated <see cref="string"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static string ToCharSeparated<T>(this IEnumerable<T> sequence, char delimiter) 
-            => ToStringSeparated(sequence, delimiter.ToString());
+        public static string ToCharSeparated<T>(this IEnumerable<T> sequence, char delimiter) => 
+            ToStringSeparated(sequence, delimiter.ToString());
 
         /// <summary>
         /// Converts <paramref name="sequence"/> to a <c>Comma</c> separated string.
         /// </summary>
         [DebuggerStepThrough]
-        public static string ToCommaSeparated<T>(this IEnumerable<T> sequence) 
-            => ToCharSeparated(sequence, ',');
+        public static string ToCommaSeparated<T>(this IEnumerable<T> sequence) => 
+            ToCharSeparated(sequence, ',');
 
         /// <summary>
         /// Executes an <paramref name="action"/> for each of the items in the sequence
@@ -154,8 +144,8 @@ namespace Easy.Common.Extensions
         /// via a projection and the <see cref="EqualityComparer{TKey}.Default"/> for the given <paramref name="sequence"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, Func<T, TKey> selector) 
-            => DistinctBy(sequence, selector, EqualityComparer<TKey>.Default);
+        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, Func<T, TKey> selector) => 
+            DistinctBy(sequence, selector, EqualityComparer<TKey>.Default);
 
         /// <summary>
         /// Returns all the distinct elements of the given source where <c>distictness</c> is determined
@@ -183,8 +173,8 @@ namespace Easy.Common.Extensions
         /// </summary>
         [DebuggerStepThrough]
         public static EasyDictionary<TKey, TValue> ToEasyDictionary<TKey, TValue>(
-            this IEnumerable<TValue> sequence, Func<TValue, TKey> keySelector)
-                => ToEasyDictionary(sequence, keySelector, EqualityComparer<TKey>.Default);
+            this IEnumerable<TValue> sequence, Func<TValue, TKey> keySelector) => 
+                ToEasyDictionary(sequence, keySelector, EqualityComparer<TKey>.Default);
         
         /// <summary>
         /// Returns a <see cref="EasyDictionary{TKey,TValue}"/> for the given <paramref name="sequence"/>
@@ -194,32 +184,42 @@ namespace Easy.Common.Extensions
         public static EasyDictionary<TKey, TValue> ToEasyDictionary<TKey, TValue>(
             this IEnumerable<TValue> sequence, 
             Func<TValue, TKey> keySelector, 
-            IEqualityComparer<TKey> comparer) 
-                => new EasyDictionary<TKey, TValue>(keySelector, sequence, comparer);
+            IEqualityComparer<TKey> comparer) => 
+                new EasyDictionary<TKey, TValue>(keySelector, sequence, comparer);
 
         /// <summary>
         /// Attempts to convert the given <paramref name="sequence"/> to an <see cref="IList{T}"/>
         /// by casting it first and if not successful then calling <c>ToList()</c>.
         /// </summary>
         [DebuggerStepThrough]
-        public static IList<T> SpeculativeToList<T>(this IEnumerable<T> sequence)
-            => sequence as IList<T> ?? sequence.ToList();
+        public static IList<T> SpeculativeToList<T>(this IEnumerable<T> sequence) => 
+            sequence as IList<T> ?? sequence.ToList();
 
         /// <summary>
         /// Attempts to convert the given <paramref name="sequence"/> to an <see cref="IReadOnlyList{T}"/>
         /// by casting it first and if not successful then calling <c>ToList()</c>.
         /// </summary>
         [DebuggerStepThrough]
-        public static IReadOnlyList<T> SpeculativeToReadOnlyList<T>(this IEnumerable<T> sequence)
-            => sequence as IReadOnlyList<T> ?? sequence.ToList();
+        public static IReadOnlyList<T> SpeculativeToReadOnlyList<T>(this IEnumerable<T> sequence) => 
+            sequence as IReadOnlyList<T> ?? sequence.ToList();
 
         /// <summary>
         /// Attempts to convert the given <paramref name="sequence"/> to an <see cref="T:T[]"/>
         /// by casting it first and if not successful then calling <c>ToArray()</c>.
         /// </summary>
         [DebuggerStepThrough]
-        public static T[] SpeculativeToArray<T>(this IEnumerable<T> sequence)
-            => sequence as T[] ?? sequence.ToArray();
+        public static T[] SpeculativeToArray<T>(this IEnumerable<T> sequence) => 
+            sequence as T[] ?? sequence.ToArray();
+
+        /// <summary>
+        /// Converts an Enumerable into a read-only collection
+        /// </summary>
+        // [DebuggerStepThrough]
+        public static IEnumerable<T> ToReadOnlySequence<T>(this IEnumerable<T> sequence)
+        {
+            Ensure.NotNull(sequence, nameof(sequence));
+            return sequence is IReadOnlyList<T> ? sequence : sequence.Skip(0);
+        }
 
         /// <summary>
         /// Allows exception handling when yield returning an IEnumerable
