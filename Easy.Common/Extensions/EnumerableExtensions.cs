@@ -1,14 +1,15 @@
-﻿// ReSharper disable PossibleMultipleEnumeration
-namespace Easy.Common.Extensions
+﻿namespace Easy.Common.Extensions
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     /// <summary>
     /// Extension methods for <see cref="IEnumerable{T}"/>
     /// </summary>
+    [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
     public static class EnumerableExtensions
     {
         /// <summary>
@@ -214,7 +215,7 @@ namespace Easy.Common.Extensions
         /// <summary>
         /// Converts an Enumerable into a read-only collection
         /// </summary>
-        // [DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static IEnumerable<T> ToReadOnlySequence<T>(this IEnumerable<T> sequence)
         {
             Ensure.NotNull(sequence, nameof(sequence));
