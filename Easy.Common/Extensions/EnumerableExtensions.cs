@@ -162,7 +162,8 @@ namespace Easy.Common.Extensions
         /// via a projection and the <paramref name="comparer"/> and the given <paramref name="comparer"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, 
+        public static IEnumerable<T> DistinctBy<T, TKey>(
+            this IEnumerable<T> sequence, 
             Func<T, TKey> selector, 
             IEqualityComparer<TKey> comparer)
         {
@@ -175,24 +176,6 @@ namespace Easy.Common.Extensions
                 }
             }
         }
-
-#if USE_TO_HASHSET
-        /// <summary>
-        /// Returns a <see cref="HashSet{T}"/> from the given <paramref name="sequence"/> 
-        /// based on the <see cref="EqualityComparer{TKey}.Default"/> eliminating any duplicate values.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence)
-            => ToHashSet(sequence, EqualityComparer<T>.Default);
-
-        /// <summary>
-        /// Returns a <see cref="HashSet{T}"/> from the given <paramref name="sequence"/> 
-        /// base on the given <paramref name="comparer"/> eliminating any duplicate values.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence, IEqualityComparer<T> comparer) 
-            => new HashSet<T>(sequence, comparer);
-#endif
 
         /// <summary>
         /// Returns a <see cref="EasyDictionary{TKey,TValue}"/> for the given <paramref name="sequence"/>

@@ -54,10 +54,5 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net471' Or '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>USE_TO_HASHSET</DefineConstants>
-  </PropertyGroup>
-  
   
 </Project>
