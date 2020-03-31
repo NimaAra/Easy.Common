@@ -22,9 +22,8 @@
         /// The flag indicating whether property names should be treated case sensitively.
         /// </param>
         [DebuggerStepThrough]
-        public DynamicDictionary(bool ignoreCase = true)
-            => _dictionary = new Dictionary<string, object>(
-                    ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+        public DynamicDictionary(bool ignoreCase = true) => 
+            _dictionary = new Dictionary<string, object>(ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
 
         /// <summary>
         /// Add the given <paramref name="item"/> to this instance.
@@ -45,8 +44,8 @@
         /// <summary>
         /// Copies the elements of this instance to the given <paramref name="array"/>, starting at a particular <paramref name="array"/>.
         /// </summary>
-        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex) 
-            => _dictionary.CopyTo(array, arrayIndex);
+        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex) => 
+            _dictionary.CopyTo(array, arrayIndex);
 
         /// <summary>
         /// Removes the given <paramref name="item"/> from this instance.
@@ -91,8 +90,7 @@
         /// <summary>
         /// Attempts to get the value associated to the given <paramref name="key"/>.
         /// </summary>
-        public bool TryGetValue(string key, out object value) => 
-            _dictionary.TryGetValue(key, out value);
+        public bool TryGetValue(string key, out object value) => _dictionary.TryGetValue(key, out value);
 
         /// <summary>
         /// Gets or sets the value stored against the given <paramref name="key"/>.
@@ -150,7 +148,8 @@
             if (!_dictionary.ContainsKey(binder.Name))
             {
                 _dictionary.Add(binder.Name, result);
-            } else
+            } 
+            else
             {
                 _dictionary[binder.Name] = result;
             }

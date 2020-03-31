@@ -97,8 +97,7 @@
         /// <param name="ignoreCase">The flag indicating whether the name should be looked up in a case sensitive manner</param>
         /// <returns>The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/></returns>
         [DebuggerStepThrough]
-        public static IEnumerable<XElement> GetElements(
-            this Stream stream, XName name, bool ignoreCase = true)
+        public static IEnumerable<XElement> GetElements(this Stream stream, XName name, bool ignoreCase = true)
         {
             Ensure.NotNull(stream, nameof(stream));
             return stream.GetElements(name, new XmlReaderSettings(), ignoreCase);
@@ -113,8 +112,7 @@
         /// <param name="ignoreCase">The flag indicating whether the name should be looked up in a case sensitive manner</param>
         /// <returns>The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/></returns>
         [DebuggerStepThrough]
-        public static IEnumerable<XElement> GetElements(
-            this Stream stream, XName name, XmlReaderSettings settings, bool ignoreCase = true)
+        public static IEnumerable<XElement> GetElements(this Stream stream, XName name, XmlReaderSettings settings, bool ignoreCase = true)
         {
             Ensure.NotNull(stream, nameof(stream));
             Ensure.NotNull(name, nameof(name));

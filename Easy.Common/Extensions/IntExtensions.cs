@@ -15,8 +15,7 @@
         /// <param name="epochMilliseconds">Milliseconds since Epoch as <see cref="long"/></param>
         /// <returns><see cref="DateTime"/></returns>
         [DebuggerStepThrough]
-        public static DateTime FromEpochMilliseconds(this long epochMilliseconds) 
-            => DateTimeExtensions.Epoch.AddMilliseconds(epochMilliseconds);
+        public static DateTime FromEpochMilliseconds(this long epochMilliseconds) => DateTimeExtensions.Epoch.AddMilliseconds(epochMilliseconds);
 
         /// <summary>
         /// Returns an <see cref="IEnumerable{T}"/> containing <paramref name="times"/> item.
@@ -56,7 +55,7 @@
         /// <param name="times">The number of times the <paramref name="actionFn"/> should be executed</param>
         /// <param name="actionFn">The action to execute</param>
         [DebuggerStepThrough]
-        public static IList<T> Times<T>(this long times, Func<T> actionFn)
+        public static IReadOnlyList<T> Times<T>(this long times, Func<T> actionFn)
         {
             var list = new List<T>();
             for (long index = 1; index <= times; ++index) { list.Add(actionFn()); }
@@ -69,7 +68,7 @@
         /// <param name="times">The number of times the <paramref name="actionFn"/> should be executed</param>
         /// <param name="actionFn">The action to execute</param>
         [DebuggerStepThrough]
-        public static IList<T> Times<T>(this long times, Func<long, T> actionFn)
+        public static IReadOnlyList<T> Times<T>(this long times, Func<long, T> actionFn)
         {
             var list = new List<T>();
             for (long index = 1; index <= times; ++index) { list.Add(actionFn(index)); }
@@ -162,7 +161,7 @@
         /// <param name="times">The number of times the <paramref name="actionFn"/> should be executed</param>
         /// <param name="actionFn">The action to execute</param>
         [DebuggerStepThrough]
-        public static IList<T> Times<T>(this int times, Func<T> actionFn)
+        public static IReadOnlyList<T> Times<T>(this int times, Func<T> actionFn)
         {
             var list = new List<T>();
             for (var index = 1; index <= times; ++index) { list.Add(actionFn()); }
@@ -175,7 +174,7 @@
         /// <param name="times">The number of times the <paramref name="actionFn"/> should be executed</param>
         /// <param name="actionFn">The action to execute</param>
         [DebuggerStepThrough]
-        public static IList<T> Times<T>(this int times, Func<int, T> actionFn)
+        public static IReadOnlyList<T> Times<T>(this int times, Func<int, T> actionFn)
         {
             var list = new List<T>();
             for (var index = 1; index <= times; ++index) { list.Add(actionFn(index)); }
@@ -268,7 +267,7 @@
         /// <param name="times">The number of times the <paramref name="actionFn"/> should be executed</param>
         /// <param name="actionFn">The action to execute</param>
         [DebuggerStepThrough]
-        public static IList<T> Times<T>(this short times, Func<T> actionFn)
+        public static IReadOnlyList<T> Times<T>(this short times, Func<T> actionFn)
         {
             var list = new List<T>();
             for (short index = 1; index <= times; ++index) { list.Add(actionFn()); }
@@ -281,7 +280,7 @@
         /// <param name="times">The number of times the <paramref name="actionFn"/> should be executed</param>
         /// <param name="actionFn">The action to execute</param>
         [DebuggerStepThrough]
-        public static IList<T> Times<T>(this short times, Func<short, T> actionFn)
+        public static IReadOnlyList<T> Times<T>(this short times, Func<short, T> actionFn)
         {
             var list = new List<T>();
             for (short index = 1; index <= times; ++index) { list.Add(actionFn(index)); }

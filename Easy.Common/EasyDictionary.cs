@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using Easy.Common.Interfaces;
 
     /// <summary>
@@ -34,8 +35,8 @@
         public EasyDictionary(
             Func<TValue, TKey> keySelector,
             IEnumerable<TValue> sequence,
-            IEqualityComparer<TKey> comparer = null)
-            : this(keySelector, comparer: comparer) => PopulateFrom(sequence);
+            IEqualityComparer<TKey> comparer = default)
+                : this(keySelector, comparer: comparer) => PopulateFrom(sequence);
 
         /// <summary>
         /// Creates an instance of <see cref="EasyDictionary{TKey,TValue}"/>.
@@ -54,8 +55,8 @@
         public EasyDictionary(
             Func<TValue, TKey> keySelector,
             ICollection<TValue> collection,
-            IEqualityComparer<TKey> comparer = null)
-            : this(keySelector, (uint)collection.Count, comparer) => PopulateFrom(collection);
+            IEqualityComparer<TKey> comparer = default)
+                : this(keySelector, (uint)collection.Count, comparer) => PopulateFrom(collection);
 
         /// <summary>
         /// Creates an instance of <see cref="EasyDictionary{TKey,TValue}"/>.
@@ -78,8 +79,8 @@
         public EasyDictionary(
             Func<TValue, TKey> keySelector,
             IDictionary<TKey, TValue> dictionary, 
-            IEqualityComparer<TKey> comparer = null) 
-            : this(keySelector, (uint)dictionary.Count, comparer) => PopulateFrom(dictionary);
+            IEqualityComparer<TKey> comparer = default) 
+                : this(keySelector, (uint)dictionary.Count, comparer) => PopulateFrom(dictionary);
 
         /// <summary>
         /// Creates an instance of <see cref="EasyDictionary{TKey,TValue}"/>.
@@ -96,7 +97,7 @@
         public EasyDictionary(
             Func<TValue, TKey> keySelector,
             uint capacity = 0,
-            IEqualityComparer<TKey> comparer = null)
+            IEqualityComparer<TKey> comparer = default)
         {
             KeySelector = Ensure.NotNull(keySelector, nameof(keySelector));
             _dictionary = new Dictionary<TKey, TValue>((int)capacity, comparer);
@@ -199,8 +200,8 @@
         /// Return an enumerator that iterates through the dictionary.
         /// </summary>
         /// <returns></returns>
-        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() 
-            => _dictionary.GetEnumerator();
+        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => 
+            _dictionary.GetEnumerator();
 
         /// <summary>
         /// Returns an enumerator that iterates through the collection.
@@ -212,13 +213,16 @@
         /// </summary>
         IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
 
+        [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
         private void PopulateFrom(IEnumerable<TValue> sequence)
         {
             switch (sequence)
             {
-                case IList<TValue> indexible:
-                    // ReSharper disable once ForCanBeConvertedToForeach
-                    for (var i = 0; i < indexible.Count; i++) { Add(indexible[i]); }
+                case IReadOnlyList<TValue> readonlyList:
+                    for (var i = 0; i < readonlyList.Count; i++) { Add(readonlyList[i]); }
+                    break;
+                case IList<TValue> list:
+                    for (var i = 0; i < list.Count; i++) { Add(list[i]); }
                     break;
                 default:
                     foreach (var item in sequence) { Add(item); }
@@ -231,7 +235,8 @@
             if (dictionary is Dictionary<TKey, TValue> concrete)
             {
                 foreach (var pair in concrete) { Add(pair.Value); }
-            } else
+            } 
+            else
             {
                 foreach (var pair in dictionary) { Add(pair.Value); }
             }

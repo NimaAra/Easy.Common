@@ -8,36 +8,36 @@ namespace Easy.Common
         /// <summary>
         /// Gets a delimiter as <c>','</c>.
         /// </summary>
-        public static char[] Comma = { ',' };
+        public static char[] Comma { get; } = { ',' };
 
         /// <summary>
         /// Gets a delimiter as <c>'.'</c>.
         /// </summary>
-        public static char[] Dot = { '.' };
+        public static char[] Dot { get; } = { '.' };
 
         /// <summary>
         /// Gets a delimiter as <c>';'</c>.
         /// </summary>
-        public static char[] SemiColon = { ';' };
+        public static char[] SemiColon { get; } = { ';' };
 
         /// <summary>
         /// Gets a delimiter as <c>':'</c>.
         /// </summary>
-        public static char[] Colon = { ':' };
+        public static char[] Colon { get; } = { ':' };
 
         /// <summary>
         /// Gets a delimiter as <c>' '</c>.
         /// </summary>
-        public static char[] Space = { ' ' };
+        public static char[] Space { get; } = { ' ' };
 
         /// <summary>
         /// Gets a delimiter as <c>'\t'</c>.
         /// </summary>
-        public static char[] Tab = { '\t' };
+        public static char[] Tab { get; } = { '\t' };
 
         /// <summary>
         /// Gets a delimiter as <c>'|'</c>.
         /// </summary>
-        public static char[] Pipe = { '|' };
+        public static char[] Pipe { get; } = { '|' };
     }
 }

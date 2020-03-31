@@ -13,8 +13,8 @@
         /// Determines whether the given <paramref name="ex"/> is of type <typeparamref name="TEx"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static bool IsExpectedException<TEx>(this Exception ex) where TEx : Exception
-            => ex.IsExpectedException(e => e is TEx);
+        public static bool IsExpectedException<TEx>(this Exception ex) where TEx : Exception => 
+            ex.IsExpectedException(e => e is TEx);
 
         /// <summary>
         /// Determines whether the given <paramref name="ex"/> is any of the types <typeparamref name="TEx1"/>
@@ -23,7 +23,7 @@
         [DebuggerStepThrough]
         public static bool IsExpectedException<TEx1, TEx2>(this Exception ex) 
             where TEx1 : Exception
-            where TEx2 : Exception
+            where TEx2 : Exception 
                 => ex.IsExpectedException(e => e is TEx1 || e is TEx2);
 
         /// <summary>

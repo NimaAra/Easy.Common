@@ -133,7 +133,7 @@
             {
                 var attributes = property.GetCustomAttributes<T>(inherit);
                 var attr = attributes.FirstOrDefault();
-                if (attr == null) { continue; }
+                if (attr is null) { continue; }
 
                 result[attr] = property;
             }
@@ -389,10 +389,7 @@
         /// <param name="type">The type of object.</param>
         /// <returns><c>True</c> or <c>False</c></returns>
         [DebuggerStepThrough]
-        public static bool IsArrayOf<T>(this Type type)
-        {
-            return type == typeof(T[]);
-        }
+        public static bool IsArrayOf<T>(this Type type) => type == typeof(T[]);
 
         /// <summary>
         /// Determines whether the given <paramref name="type"/> is a generic list
@@ -417,7 +414,7 @@
         [DebuggerStepThrough]
         public static bool IsNumeric(this Type type)
         {
-            if (type == null) { return false; }
+            if (type is null) { return false; }
 
             var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
             if (underlyingType.GetTypeInfo().IsEnum) { return false; }

@@ -34,8 +34,7 @@
         /// <param name="directoryInfo">The <paramref name="directoryInfo"/> to check.</param>
         /// <returns>Boolean indicating if the <paramref name="directoryInfo"/> is hidden.</returns>
         [DebuggerStepThrough]
-        public static bool IsHidden(this DirectoryInfo directoryInfo) 
-            => (directoryInfo.Attributes & FileAttributes.Hidden) != 0;
+        public static bool IsHidden(this DirectoryInfo directoryInfo) => (directoryInfo.Attributes & FileAttributes.Hidden) != 0;
 
         /// <summary>
         /// Indicates if a given <paramref name="fileInfo"/> is hidden.
@@ -45,8 +44,7 @@
         /// Boolean indicating if the <paramref name="fileInfo"/> is hidden.
         /// </returns>
         [DebuggerStepThrough]
-        public static bool IsHidden(this FileInfo fileInfo) 
-            => (fileInfo.Attributes & FileAttributes.Hidden) != 0;
+        public static bool IsHidden(this FileInfo fileInfo) => (fileInfo.Attributes & FileAttributes.Hidden) != 0;
 
         /// <summary>
         /// Renames the given <paramref name="fileInfo"/> to <paramref name="newName"/> and returns the 
@@ -75,8 +73,8 @@
         /// thrown if the file does not exist.
         /// </remarks>
         /// </summary>
-        public static FileStream OpenSequentialRead(this FileInfo file)
-            => new FileStream(
+        public static FileStream OpenSequentialRead(this FileInfo file) => 
+            new FileStream(
                 file.FullName,
                 FileMode.Open,
                 FileAccess.Read,
@@ -88,8 +86,8 @@
         /// Opens or creates a stream for reading with sequential optimization and providing 
         /// <see cref="FileShare.ReadWrite"/> for others.
         /// </summary>
-        public static FileStream OpenOrCreateSequentialRead(this FileInfo file)
-            => new FileStream(
+        public static FileStream OpenOrCreateSequentialRead(this FileInfo file) => 
+            new FileStream(
                 file.FullName,
                 FileMode.OpenOrCreate,
                 FileAccess.Read,
@@ -101,8 +99,8 @@
         /// Opens or creates a stream for writing with sequential optimization and providing 
         /// <see cref="FileShare.Read"/> for others.
         /// </summary>
-        public static FileStream OpenOrCreateSequentialWrite(this FileInfo file)
-            => new FileStream(
+        public static FileStream OpenOrCreateSequentialWrite(this FileInfo file) => 
+            new FileStream(
                 file.FullName,
                 FileMode.OpenOrCreate,
                 FileAccess.Write,
@@ -114,8 +112,8 @@
         /// Opens or creates a stream for reading and writing with sequential optimization and providing 
         /// <see cref="FileShare.ReadWrite"/> for others.
         /// </summary>
-        public static FileStream OpenOrCreateSequentialReadWrite(this FileInfo file)
-            => new FileStream(
+        public static FileStream OpenOrCreateSequentialReadWrite(this FileInfo file) => 
+            new FileStream(
                 file.FullName,
                 FileMode.OpenOrCreate,
                 FileAccess.ReadWrite,
@@ -148,14 +146,13 @@
             Ensure.NotNull(file, nameof(file));
             Ensure.NotNull(encoding, nameof(encoding));
 
-            using (var fs = file.OpenOrCreateSequentialRead())
-            using (var reader = new StreamReader(fs, encoding))
+            using var fs = file.OpenOrCreateSequentialRead();
+            using var reader = new StreamReader(fs, encoding);
+            
+            string line;
+            while ((line = reader.ReadLine()) != null)
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    yield return line;
-                }
+                yield return line;
             }
         }
 
@@ -180,8 +177,7 @@
 
                 return directories.Concat(directory.EnumerateDirectories(searchPattern));
             }
-            catch (Exception ex) when (
-                ex is UnauthorizedAccessException || ex is PathTooLongException && !throwOnPathTooLong)
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is PathTooLongException && !throwOnPathTooLong)
             {
                 return Enumerable.Empty<DirectoryInfo>();
             }
@@ -208,8 +204,7 @@
 
                 return files.Concat(directory.EnumerateFiles(searchPattern));
             }
-            catch (Exception ex) when (
-                ex is UnauthorizedAccessException || ex is PathTooLongException && !throwOnPathTooLong)
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is PathTooLongException && !throwOnPathTooLong)
             {
                 return Enumerable.Empty<FileInfo>();
             }
@@ -223,14 +218,13 @@
         {
             var buffer = new char[256];
 
-            using(var fs = file.OpenOrCreateSequentialRead())
-            using (var reader = new StreamReader(fs))
-            {
-                var read = reader.ReadBlock(buffer, 0, buffer.Length);
-                return ContainsBinary(buffer, read);
-            }
+            using var fs = file.OpenOrCreateSequentialRead();
+            using var reader = new StreamReader(fs);
+            
+            var read = reader.ReadBlock(buffer, 0, buffer.Length);
+            return ContainsBinary(buffer, read);
 
-            bool ContainsBinary(char[] bytes, int count)
+            static bool ContainsBinary(char[] bytes, int count)
             {
                 for (var i = 0; i < count; i++)
                 {

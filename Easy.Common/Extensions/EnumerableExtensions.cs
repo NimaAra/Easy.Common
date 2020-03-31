@@ -153,8 +153,7 @@
         /// via a projection and the <paramref name="comparer"/> and the given <paramref name="comparer"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static IEnumerable<T> DistinctBy<T, TKey>(
-            this IEnumerable<T> sequence, 
+        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, 
             Func<T, TKey> selector, 
             IEqualityComparer<TKey> comparer)
         {
@@ -173,44 +172,39 @@
         /// based on the <paramref name="keySelector"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static EasyDictionary<TKey, TValue> ToEasyDictionary<TKey, TValue>(
-            this IEnumerable<TValue> sequence, Func<TValue, TKey> keySelector) => 
-                ToEasyDictionary(sequence, keySelector, EqualityComparer<TKey>.Default);
+        public static EasyDictionary<TKey, TValue> ToEasyDictionary<TKey, TValue>(this IEnumerable<TValue> sequence, Func<TValue, TKey> keySelector) => 
+            ToEasyDictionary(sequence, keySelector, EqualityComparer<TKey>.Default);
         
         /// <summary>
         /// Returns a <see cref="EasyDictionary{TKey,TValue}"/> for the given <paramref name="sequence"/>
         /// based on the <paramref name="keySelector"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static EasyDictionary<TKey, TValue> ToEasyDictionary<TKey, TValue>(
-            this IEnumerable<TValue> sequence, 
+        public static EasyDictionary<TKey, TValue> ToEasyDictionary<TKey, TValue>(this IEnumerable<TValue> sequence, 
             Func<TValue, TKey> keySelector, 
-            IEqualityComparer<TKey> comparer) => 
-                new EasyDictionary<TKey, TValue>(keySelector, sequence, comparer);
+            IEqualityComparer<TKey> comparer) 
+                => new EasyDictionary<TKey, TValue>(keySelector, sequence, comparer);
 
         /// <summary>
         /// Attempts to convert the given <paramref name="sequence"/> to an <see cref="IList{T}"/>
         /// by casting it first and if not successful then calling <c>ToList()</c>.
         /// </summary>
         [DebuggerStepThrough]
-        public static IList<T> SpeculativeToList<T>(this IEnumerable<T> sequence) => 
-            sequence as IList<T> ?? sequence.ToList();
+        public static IList<T> SpeculativeToList<T>(this IEnumerable<T> sequence) => sequence as IList<T> ?? sequence.ToList();
 
         /// <summary>
         /// Attempts to convert the given <paramref name="sequence"/> to an <see cref="IReadOnlyList{T}"/>
         /// by casting it first and if not successful then calling <c>ToList()</c>.
         /// </summary>
         [DebuggerStepThrough]
-        public static IReadOnlyList<T> SpeculativeToReadOnlyList<T>(this IEnumerable<T> sequence) => 
-            sequence as IReadOnlyList<T> ?? sequence.ToList();
+        public static IReadOnlyList<T> SpeculativeToReadOnlyList<T>(this IEnumerable<T> sequence) => sequence as IReadOnlyList<T> ?? sequence.ToList();
 
         /// <summary>
         /// Attempts to convert the given <paramref name="sequence"/> to an <see cref="T:T[]"/>
         /// by casting it first and if not successful then calling <c>ToArray()</c>.
         /// </summary>
         [DebuggerStepThrough]
-        public static T[] SpeculativeToArray<T>(this IEnumerable<T> sequence) => 
-            sequence as T[] ?? sequence.ToArray();
+        public static T[] SpeculativeToArray<T>(this IEnumerable<T> sequence) => sequence as T[] ?? sequence.ToArray();
 
         /// <summary>
         /// Converts an Enumerable into a read-only collection

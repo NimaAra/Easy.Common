@@ -44,10 +44,8 @@
         /// </summary>
         public static bool IsProcessLargeAddressAware()
         {
-            using (var p = Process.GetCurrentProcess())
-            {
-                return IsLargeAddressAware(p.MainModule.FileName);
-            }
+            using var p = Process.GetCurrentProcess();
+            return IsLargeAddressAware(p.MainModule?.FileName);
         }
 
         /// <summary>
@@ -61,23 +59,22 @@
 
             const int ImageFileLargeAddressAware = 0x20;
 
-            using (var stream = File.Open(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var reader = new BinaryReader(stream))
-            {
-                //No MZ Header
-                if (reader.ReadInt16() != 0x5A4D) { return false; }
+            using var stream = File.Open(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var reader = new BinaryReader(stream);
+            
+            //No MZ Header
+            if (reader.ReadInt16() != 0x5A4D) { return false; }
 
-                reader.BaseStream.Position = 0x3C;
-                var peloc = reader.ReadInt32(); //Get the PE header location.
+            reader.BaseStream.Position = 0x3C;
+            var peloc = reader.ReadInt32(); //Get the PE header location.
 
-                reader.BaseStream.Position = peloc;
+            reader.BaseStream.Position = peloc;
                 
-                //No PE header
-                if (reader.ReadInt32() != 0x4550) { return false; }
+            //No PE header
+            if (reader.ReadInt32() != 0x4550) { return false; }
 
-                reader.BaseStream.Position += 0x12;
-                return (reader.ReadInt16() & ImageFileLargeAddressAware) == ImageFileLargeAddressAware;
-            }
+            reader.BaseStream.Position += 0x12;
+            return (reader.ReadInt16() & ImageFileLargeAddressAware) == ImageFileLargeAddressAware;
         }
 
         // ReSharper disable once InconsistentNaming

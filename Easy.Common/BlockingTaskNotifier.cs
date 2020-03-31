@@ -10,9 +10,7 @@
     public sealed class BlockingTaskNotifier : EventListener
     {
         private static readonly Guid Guid = new Guid("2e5dba47-a3d2-4d16-8ee0-6671ffdcd7b5");
-
-        private static readonly Lazy<BlockingTaskNotifier> Listener
-            = new Lazy<BlockingTaskNotifier>(() => new BlockingTaskNotifier());
+        private static readonly Lazy<BlockingTaskNotifier> Listener = new Lazy<BlockingTaskNotifier>(() => new BlockingTaskNotifier());
 
         private BlockingTaskNotifier() {}
 

@@ -146,32 +146,30 @@
         /// Checks if the <paramref name="input"/> contains the <paramref name="stringToCheckFor"/> 
         /// based on the provided <paramref name="comparison"/> rules.
         /// </summary>
-        public static bool Contains(this string input, string stringToCheckFor, StringComparison comparison)
-            => input.IndexOf(stringToCheckFor, comparison) >= 0;
+        public static bool Contains(this string input, string stringToCheckFor, StringComparison comparison) =>
+            input.IndexOf(stringToCheckFor, comparison) >= 0;
 
         /// <summary>
         /// Checks that given <paramref name="input"/> matches any of the potential matches.
         /// Inspired by: http://stackoverflow.com/a/20644611/23199
         /// </summary>
-        public static bool EqualsAny(
-            this string input, StringComparer comparer, string match1, string match2) 
-                => comparer.Equals(input, match1) || comparer.Equals(input, match2);
+        public static bool EqualsAny(this string input, StringComparer comparer, string match1, string match2) => 
+            comparer.Equals(input, match1) || comparer.Equals(input, match2);
 
         /// <summary>
         /// Checks that given <paramref name="input"/> matches any of the potential matches.
         /// Inspired by: http://stackoverflow.com/a/20644611/23199
         /// </summary>
-        public static bool EqualsAny(
-            this string input, StringComparer comparer, string match1, string match2, string match3) 
-                => comparer.Equals(input, match1) || comparer.Equals(input, match2) || comparer.Equals(input, match3);
+        public static bool EqualsAny(this string input, StringComparer comparer, string match1, string match2, string match3) => 
+            comparer.Equals(input, match1) || comparer.Equals(input, match2) || comparer.Equals(input, match3);
 
         /// <summary>
         /// Checks that given <paramref name="input"/> is in a list of 
         /// potential <paramref name="matches"/>.
         /// <remarks>Inspired by: <see href="http://stackoverflow.com/a/20644611/23199"/> </remarks>
         /// </summary>
-        public static bool EqualsAny(this string input, StringComparer comparer, params string[] matches) 
-            => matches.Any(x => comparer.Equals(x, input));
+        public static bool EqualsAny(this string input, StringComparer comparer, params string[] matches) => 
+            matches.Any(x => comparer.Equals(x, input));
 
         /// <summary>
         /// Checks to see if the given input is a valid palindrome or not.
@@ -265,8 +263,8 @@
         /// <param name="target">The target string</param>
         public static bool IsEqualTo(this string input, string target)
         {
-            if (input == null && target == null) { return true; }
-            if (input == null || target == null) { return false; }
+            if (input is null && target is null) { return true; }
+            if (input is null || target is null) { return false; }
             if (input.Length != target.Length) { return false; }
 
             return string.CompareOrdinal(input, target) == 0;
@@ -357,8 +355,7 @@
         /// The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/>.
         /// </returns>
         [DebuggerStepThrough]
-        public static IEnumerable<XElement> GetElements(
-            this string xmlInput, XName name, bool ignoreCase = true)
+        public static IEnumerable<XElement> GetElements(this string xmlInput, XName name, bool ignoreCase = true)
         {
             Ensure.NotNull(xmlInput, nameof(xmlInput));
             return xmlInput.GetElements(name, new XmlReaderSettings(), ignoreCase);
@@ -375,20 +372,18 @@
         /// The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/>.
         /// </returns>
         [DebuggerStepThrough]
-        public static IEnumerable<XElement> GetElements(
-            this string xmlInput, XName name, XmlReaderSettings settings, bool ignoreCase = true)
+        public static IEnumerable<XElement> GetElements(this string xmlInput, XName name, XmlReaderSettings settings, bool ignoreCase = true)
         {
             Ensure.NotNull(xmlInput, nameof(xmlInput));
             Ensure.NotNull(name, nameof(name));
             Ensure.NotNull(settings, nameof(settings));
 
-            using (var stringReader = new StringReader(xmlInput))
-            using (var xmlReader = XmlReader.Create(stringReader, settings))
+            using var stringReader = new StringReader(xmlInput);
+            using var xmlReader = XmlReader.Create(stringReader, settings);
+            
+            foreach (var xElement in xmlReader.GetEelements(name, ignoreCase))
             {
-                foreach (var xElement in xmlReader.GetEelements(name, ignoreCase))
-                {
-                    yield return xElement;
-                }
+                yield return xElement;
             }
         }
 
@@ -403,22 +398,21 @@
             Ensure.NotNull(input, nameof(input));
 
             var buffer = Encoding.UTF8.GetBytes(input);
-            using (var memStream = new MemoryStream())
-            using (var zipStream = new GZipStream(memStream, CompressionMode.Compress, true))
-            {
-                zipStream.Write(buffer, 0, buffer.Length);
-                zipStream.Close();
+            using var memStream = new MemoryStream();
+            using var zipStream = new GZipStream(memStream, CompressionMode.Compress, true);
+            
+            zipStream.Write(buffer, 0, buffer.Length);
+            zipStream.Close();
 
-                memStream.Position = 0;
+            memStream.Position = 0;
 
-                var compressedData = new byte[memStream.Length];
-                memStream.Read(compressedData, 0, compressedData.Length);
+            var compressedData = new byte[memStream.Length];
+            memStream.Read(compressedData, 0, compressedData.Length);
 
-                var gZipBuffer = new byte[compressedData.Length + 4];
-                Buffer.BlockCopy(compressedData, 0, gZipBuffer, 4, compressedData.Length);
-                Buffer.BlockCopy(BitConverter.GetBytes(buffer.Length), 0, gZipBuffer, 0, 4);
-                return Convert.ToBase64String(gZipBuffer);
-            }
+            var gZipBuffer = new byte[compressedData.Length + 4];
+            Buffer.BlockCopy(compressedData, 0, gZipBuffer, 4, compressedData.Length);
+            Buffer.BlockCopy(BitConverter.GetBytes(buffer.Length), 0, gZipBuffer, 0, 4);
+            return Convert.ToBase64String(gZipBuffer);
         }
 
         /// <summary>
@@ -432,20 +426,19 @@
             Ensure.NotNull(compressedInput, nameof(compressedInput));
 
             var gZipBuffer = Convert.FromBase64String(compressedInput);
-            using (var memStream = new MemoryStream())
+            using var memStream = new MemoryStream();
+            
+            var dataLength = BitConverter.ToInt32(gZipBuffer, 0);
+            memStream.Write(gZipBuffer, 4, gZipBuffer.Length - 4);
+            memStream.Position = 0;
+
+            var buffer = new byte[dataLength];
+            using (var zipStream = new GZipStream(memStream, CompressionMode.Decompress))
             {
-                var dataLength = BitConverter.ToInt32(gZipBuffer, 0);
-                memStream.Write(gZipBuffer, 4, gZipBuffer.Length - 4);
-                memStream.Position = 0;
-
-                var buffer = new byte[dataLength];
-                using (var zipStream = new GZipStream(memStream, CompressionMode.Decompress))
-                {
-                    zipStream.Read(buffer, 0, buffer.Length);
-                }
-
-                return Encoding.UTF8.GetString(buffer);
+                zipStream.Read(buffer, 0, buffer.Length);
             }
+
+            return Encoding.UTF8.GetString(buffer);
         }
 
         /// <summary>
@@ -472,8 +465,8 @@
         /// </remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static Guid ToGuid(this string input, bool trimmed = true) 
-            => trimmed ? new Guid(Convert.FromBase64String(input + "=="))
+        public static Guid ToGuid(this string input, bool trimmed = true) => 
+            trimmed ? new Guid(Convert.FromBase64String(input + "=="))
                 : new Guid(Convert.FromBase64String(input));
         
         /// <summary>
@@ -489,8 +482,7 @@
         /// the starting position and value is the end position.
         /// </returns>
         [DebuggerStepThrough]
-        public static IEnumerable<KeyValuePair<int, int>> GetStartAndEndIndexes(
-            this string input, string startTag, string endTag)
+        public static IEnumerable<KeyValuePair<int, int>> GetStartAndEndIndexes(this string input, string startTag, string endTag)
         {
             var startIdx = 0;
             int endIdx;

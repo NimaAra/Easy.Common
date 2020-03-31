@@ -54,7 +54,6 @@
             _secondary = Interlocked.Exchange(ref _primary, updatedPrimary);
         }
 
-        private static T ReadFresh(ref T location) => 
-            Interlocked.CompareExchange(ref location, default, default);
+        private static T ReadFresh(ref T location) => Interlocked.CompareExchange(ref location, default, default);
     }
 }

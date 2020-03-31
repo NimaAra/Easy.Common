@@ -39,11 +39,8 @@
         /// <param name="element">Name of the node which stores the key value pairs</param>
         /// <param name="keyAttribute">Attribute identifying the key</param>
         /// <param name="valueAttribute">Attribute identifying the value</param>
-        public ConfigReader(
-            FileInfo configFile, 
-            XName element, 
-            string keyAttribute = "key", 
-            string valueAttribute = "value") => Init(configFile, element, keyAttribute, valueAttribute);
+        public ConfigReader(FileInfo configFile, XName element, string keyAttribute = "key", string valueAttribute = "value") => 
+            Init(configFile, element, keyAttribute, valueAttribute);
 
         private void Init(FileInfo configFile, XName element, string keyAttribute, string valueAttribute)
         {
@@ -54,22 +51,21 @@
 
             ConfigFile = Ensure.Exists(configFile);
             Settings = new Dictionary<string, string>();
+
+            using FileStream fs = ConfigFile.OpenRead();
             
-            using (var fs = ConfigFile.OpenRead())
+            foreach (var item in fs.GetElements(element))
             {
-                foreach (var item in fs.GetElements(element))
-                {
-                    var itemKey = item.Attribute(keyAttribute);
-                    var itemVal = item.Attribute(valueAttribute);
+                XAttribute itemKey = item.Attribute(keyAttribute);
+                XAttribute itemVal = item.Attribute(valueAttribute);
 
-                    if (itemKey == null || itemVal == null) { continue; }
+                if (itemKey is null || itemVal is null) { continue; }
 
-                    var key = itemKey.Value;
+                var key = itemKey.Value;
 
-                    if (key.IsNullOrEmptyOrWhiteSpace()) { continue; }
+                if (key.IsNullOrEmptyOrWhiteSpace()) { continue; }
 
-                    Settings[key] = itemVal.Value;
-                }
+                Settings[key] = itemVal.Value;
             }
         }
 
@@ -93,40 +89,39 @@
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(key);
 
-            using (var fs = ConfigFile.OpenRead())
+            using FileStream fs = ConfigFile.OpenRead();
+            
+            var result = new Dictionary<string, string>();
+
+            var elements = fs.GetElements(key).ToArray();
+
+            if (!elements.Any())
             {
-                var result = new Dictionary<string, string>();
-
-                var elements = fs.GetElements(key).ToArray();
-
-                if (!elements.Any())
-                {
-                    values = null;
-                    return false;
-                }
-
-                if (elements.Length > 1)
-                {
-                    throw new InvalidDataException($"Multiple keys with the name: {key} was found.");
-                }
-
-                foreach (var item in elements[0].Attributes())
-                {
-                    var attrName = item.Name.ToString();
-                    var attrValue = item.Value;
-
-                    result[attrName] = attrValue;
-                }
-
-                if (result.Any())
-                {
-                    values = result;
-                    return true;
-                }
-
                 values = null;
                 return false;
             }
+
+            if (elements.Length > 1)
+            {
+                throw new InvalidDataException($"Multiple keys with the name: {key} was found.");
+            }
+
+            foreach (var item in elements[0].Attributes())
+            {
+                var attrName = item.Name.ToString();
+                var attrValue = item.Value;
+
+                result[attrName] = attrValue;
+            }
+
+            if (result.Any())
+            {
+                values = result;
+                return true;
+            }
+
+            values = null;
+            return false;
         }
 
         /// <summary>
@@ -527,7 +522,7 @@
 
         private bool TryGetString<T>(string key, out T defaultVal, out string value)
         {
-            defaultVal = default(T);
+            defaultVal = default;
 
             if (!TryRead(key, out string valStr))
             {

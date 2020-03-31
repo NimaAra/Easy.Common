@@ -155,10 +155,10 @@
                 fixed (byte* resultRef = result)
                 {
                     // take first parsing position of source - allow incremental memory position
-                    var s = &sourceRef[index];
+                    char* s = &sourceRef[index];
 
                     // take first byte position of result - allow incremental memory position
-                    var r = resultRef;
+                    byte* r = resultRef;
 
                     // source has more characters to parse
                     while (*s != 0)

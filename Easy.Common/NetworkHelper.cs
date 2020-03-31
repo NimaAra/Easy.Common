@@ -41,19 +41,18 @@
         /// <returns>The local IP address</returns>
         public static IPAddress GetLocalIPAddress()
         {
-            using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0);
+            
+            try
             {
-                try
-                {
-                    // can be any address
-                    socket.Connect("10.0.2.4", 65530);
-                    var endPoint = socket.LocalEndPoint as IPEndPoint;
-                    // ReSharper disable once PossibleNullReferenceException
-                    return IPAddress.Parse(endPoint.Address.ToString());
-                } catch (SocketException)
-                {
-                    return IPAddress.Parse("127.0.0.1");
-                }
+                // can be any address
+                socket.Connect("10.0.2.4", 65530);
+                var endPoint = socket.LocalEndPoint as IPEndPoint;
+                // ReSharper disable once PossibleNullReferenceException
+                return IPAddress.Parse(endPoint.Address.ToString());
+            } catch (SocketException)
+            {
+                return IPAddress.Parse("127.0.0.1");
             }
         }
 

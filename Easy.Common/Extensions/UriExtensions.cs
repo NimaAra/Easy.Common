@@ -65,8 +65,7 @@
 
             if (!pairs.Any()) { return uri; }
 
-            var keysAndVals = pairs
-                .Select(kv => string.Concat(WebUtility.UrlEncode(kv.Key), "=", WebUtility.UrlEncode(kv.Value)));
+            var keysAndVals = pairs.Select(kv => string.Concat(WebUtility.UrlEncode(kv.Key), "=", WebUtility.UrlEncode(kv.Value)));
 
             return AddOrAppendToQueryString(uri, string.Join("&", keysAndVals));
         }

@@ -17,9 +17,6 @@
     <ProjectReference Include="..\Easy.Common\Easy.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
     <None Update="Assembly\DotNet2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

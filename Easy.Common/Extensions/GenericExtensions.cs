@@ -44,8 +44,7 @@ namespace Easy.Common.Extensions
         /// <param name="object">The object to check for default.</param>
         /// <returns><c>True</c> if <paramref name="object"/> has default or null value otherwise <c>False</c>.</returns>
         [DebuggerStepThrough]
-        public static bool IsDefault<T>(this T @object) 
-            => EqualityComparer<T>.Default.Equals(@object, default);
+        public static bool IsDefault<T>(this T @object) => EqualityComparer<T>.Default.Equals(@object, default);
 
         /// <summary>
         /// Returns an uninitialized instance of the <typeparamref name="T"/> without calling any of its constructor(s).
@@ -63,8 +62,7 @@ namespace Easy.Common.Extensions
         /// with all its <c>non-static</c> fields initialized to its default value.
         /// </returns>
         [DebuggerStepThrough]
-        public static T GetUninitializedInstance<T>() 
-            => (T)FormatterServices.GetUninitializedObject(typeof(T));
+        public static T GetUninitializedInstance<T>() => (T)FormatterServices.GetUninitializedObject(typeof(T));
 
         /// <summary>
         /// Gets all the private, public, inherited instance property names for the given <paramref name="object"/>.
@@ -77,8 +75,7 @@ namespace Easy.Common.Extensions
         /// <param name="includePrivate">The flag indicating whether private properties should be included or not</param>
         /// </summary>
         [DebuggerStepThrough]
-        public static string[] GetPropertyNames<T>(
-            this T @object, bool inherit = true, bool includePrivate = true)
+        public static string[] GetPropertyNames<T>(this T @object, bool inherit = true, bool includePrivate = true)
         {
             if (@object is IDynamicMetaObjectProvider expando)
             {
@@ -106,8 +103,7 @@ namespace Easy.Common.Extensions
             if (!CachedIlShallow.TryGetValue(type, out Delegate myExec))
             {
                 // Create ILGenerator (both DM declarations work)
-                var dymMethod = new DynamicMethod(
-                    "DoClone", type, new[] { type }, Assembly.GetExecutingAssembly().ManifestModule, true);
+                var dymMethod = new DynamicMethod("DoClone", type, new[] { type }, Assembly.GetExecutingAssembly().ManifestModule, true);
                 var cInfo = @object.GetType().GetConstructor(new Type[] { });
                 var generator = dymMethod.GetILGenerator();
 

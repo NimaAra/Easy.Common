@@ -40,7 +40,7 @@
         /// Appends space <paramref name="count"/> times.
         /// </summary>
         /// <returns></returns>
-        public static StringBuilder AppendSpace(this StringBuilder builder, uint count)
-            => builder.AppendMultiple(' ', count);
+        public static StringBuilder AppendSpace(this StringBuilder builder, uint count) => 
+            builder.AppendMultiple(' ', count);
     }
 }

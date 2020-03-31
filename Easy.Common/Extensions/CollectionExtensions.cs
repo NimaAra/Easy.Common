@@ -15,15 +15,13 @@
         /// </summary>
         /// <typeparam name="T">The type of each value in the node.</typeparam>
         /// <typeparam name="TId">The type of the key used for determining parent-child relationship.</typeparam>
-        public static TreeNode<T>[] ToTree<T, TId>(
-            this ICollection<T> collection,
+        public static TreeNode<T>[] ToTree<T, TId>(this ICollection<T> collection,
             Func<T, TId> idSelector,
             Func<T, TId> parentIdSelector,
-            TId rootId = default(TId)) => 
-            collection
-                .Where(x => EqualityComparer<TId>.Default.Equals(parentIdSelector(x), rootId))
-                .Select(x => new TreeNode<T>(x, collection.ToTree(idSelector, parentIdSelector, idSelector(x))))
-                .ToArray();
+            TId rootId = default) 
+                => collection.Where(x => EqualityComparer<TId>.Default.Equals(parentIdSelector(x), rootId))
+                    .Select(x => new TreeNode<T>(x, collection.ToTree(idSelector, parentIdSelector, idSelector(x))))
+                    .ToArray();
     }
 
     /// <summary>

@@ -20,8 +20,7 @@
         {
             const int RpcSOk = 0;
 
-            Guid guid;
-            var result = NativeMethods.UuidCreateSequential(out guid);
+            var result = NativeMethods.UuidCreateSequential(out Guid guid);
             return result == RpcSOk ? guid : Guid.NewGuid();
         }
 

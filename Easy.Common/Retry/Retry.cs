@@ -209,7 +209,7 @@ namespace Easy.Common
         [DebuggerStepThrough]
         public static Task<TResult> On<TEx, TResult>(Func<Task<TResult>> func, params TimeSpan[] delays) 
             where TEx : Exception 
-            => On(func, e => e.IsExpectedException<TEx>(), delays);
+                => On(func, e => e.IsExpectedException<TEx>(), delays);
 
         /// <summary>
         /// Retries the given <paramref name="func"/> in case of any of the given exceptions specified by 

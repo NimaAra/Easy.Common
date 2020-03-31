@@ -577,8 +577,7 @@
 
             public override bool Equals(object obj) => obj is EndpointCacheKey other && Equals(other);
 
-            public override int GetHashCode() => 
-                HashHelper.GetHashCode(_uri.Scheme, _uri.DnsSafeHost, _uri.Port);
+            public override int GetHashCode() => HashHelper.GetHashCode(_uri.Scheme, _uri.DnsSafeHost, _uri.Port);
 
             public static bool operator ==(EndpointCacheKey left, EndpointCacheKey right) => left.Equals(right);
 

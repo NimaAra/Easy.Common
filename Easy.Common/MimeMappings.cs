@@ -57,8 +57,8 @@
             _internalMappings.Add(extension, mimeType);
         }
 
-        private static Dictionary<string, string> InitializeMapping()
-            => new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+        private static Dictionary<string, string> InitializeMapping() => 
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
                 {".*", "application/octet-stream"},
                 {".323", "text/h323"},

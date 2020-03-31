@@ -42,18 +42,25 @@
             process.OutputDataReceived += (sender, args) =>
             {
                 if (args.Data != null)
+                {
                     standardOutput.Add(args.Data);
+                } 
                 else
+                {
                     standardOutputResults.SetResult(standardOutput.ToArray());
+                }
             };
 
             var standardErrorResults = new TaskCompletionSource<string[]>();
             process.ErrorDataReceived += (sender, args) =>
             {
                 if (args.Data != null)
+                {
                     standardError.Add(args.Data);
-                else
+                } else
+                {
                     standardErrorResults.SetResult(standardError.ToArray());
+                }
             };
 
             process.Exited += (sender, args) =>

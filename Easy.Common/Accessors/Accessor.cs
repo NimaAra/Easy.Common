@@ -77,8 +77,7 @@ namespace Easy.Common
         /// the <see cref="PropertyInfo"/> of the given <paramref name="instance"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static ObjectAccessor Build(
-            object instance, bool ignoreCase = false, bool includeNonPublic = false)
+        public static ObjectAccessor Build(object instance, bool ignoreCase = false, bool includeNonPublic = false)
         {
             Ensure.NotNull(instance, nameof(instance));
             return Build(instance.GetType(), ignoreCase, includeNonPublic);
@@ -89,8 +88,7 @@ namespace Easy.Common
         /// the <see cref="PropertyInfo"/> of the given <paramref name="instanceType"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static ObjectAccessor Build(
-            Type instanceType, bool ignoreCase = false, bool includeNonPublic = false)
+        public static ObjectAccessor Build(Type instanceType, bool ignoreCase = false, bool includeNonPublic = false)
         {
             Ensure.NotNull(instanceType, nameof(instanceType));
             return new ObjectAccessor(instanceType, ignoreCase, includeNonPublic);

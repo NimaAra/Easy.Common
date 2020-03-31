@@ -19,6 +19,8 @@
         /// <returns>The .NET framework version</returns>
         public static string GetFrameworkVersion(this Assembly assembly)
         {
+            Ensure.NotNull(assembly, nameof(assembly));
+
             var targetFrameAttribute = assembly.GetCustomAttributes(true)
                 .OfType<TargetFrameworkAttribute>().FirstOrDefault();
 
@@ -45,9 +47,12 @@
         /// </summary>
         /// <param name="assembly">The assembly for which location is returned</param>
         /// <returns>The location as <see cref="DirectoryInfo"/></returns>
-        public static DirectoryInfo GetAssemblyLocation(this Assembly assembly) => 
-            // ReSharper disable once AssignNullToNotNullAttribute
-            new DirectoryInfo(Path.GetDirectoryName(assembly.Location));
+        public static DirectoryInfo GetAssemblyLocation(this Assembly assembly)
+        {
+            Ensure.NotNull(assembly, nameof(assembly));
+
+            return new DirectoryInfo(Path.GetDirectoryName(assembly.Location) ?? throw new InvalidOperationException());
+        }
 
         /// <summary>
         /// Obtains the location from which the <paramref name="assembly"/> was found.
@@ -69,6 +74,8 @@
         /// <returns>The location as <see cref="DirectoryInfo"/></returns>
         public static DirectoryInfo GetAssemblyCodeBase(this Assembly assembly)
         {
+            Ensure.NotNull(assembly, nameof(assembly));
+
             var uri = new Uri(assembly.CodeBase);
             // ReSharper disable once AssignNullToNotNullAttribute
             return new DirectoryInfo(Path.GetDirectoryName(uri.LocalPath));
@@ -82,20 +89,20 @@
         /// <returns><c>True</c> if the <paramref name="assembly"/> is optimized otherwise <c>False</c></returns>
         public static bool IsOptimized(this Assembly assembly)
         {
+            Ensure.NotNull(assembly, nameof(assembly));
+
             var attributes = assembly.GetCustomAttributes(typeof(DebuggableAttribute), false);
 
             if (attributes.Length == 0) { return true; }
 
             foreach (Attribute attr in attributes)
             {
-                if (attr is DebuggableAttribute)
+                if (attr is DebuggableAttribute d)
                 {
-                    var d = attr as DebuggableAttribute;
                     // FYI
                     // "Run time Optimizer is enabled: " + !d.IsJITOptimizerDisabled
                     // "Run time Tracking is enabled: " + d.IsJITTrackingEnabled
-                    if (d.IsJITOptimizerDisabled) { return false; }
-                    return true;
+                    return !d.IsJITOptimizerDisabled;
                 }
             }
             return false;
@@ -107,6 +114,7 @@
         public static bool Is32Bit(this Assembly assembly)
         {
             Ensure.NotNull(assembly, nameof(assembly));
+            
             var location = assembly.Location;
             if (location.IsNullOrEmptyOrWhiteSpace()) { location = assembly.CodeBase; }
             
@@ -121,7 +129,11 @@
         /// Queries the assembly's headers to find if it is <c>LARGEADDRESSAWARE</c>.
         /// <remarks>The method is equivalent to running <c>DumpBin</c> on the assembly.</remarks>
         /// </summary>
-        public static bool IsAssemblyLargeAddressAware(this Assembly assembly) =>
-            ApplicationHelper.IsLargeAddressAware(assembly.Location);
+        public static bool IsAssemblyLargeAddressAware(this Assembly assembly)
+        {
+            Ensure.NotNull(assembly, nameof(assembly));
+
+            return ApplicationHelper.IsLargeAddressAware(assembly.Location);
+        }
     }
 }

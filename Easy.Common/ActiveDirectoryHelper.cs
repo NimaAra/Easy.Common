@@ -14,8 +14,8 @@ namespace Easy.Common
         /// <summary>
         /// Returns the groups the current user is member of.
         /// </summary>
-        public static HashSet<string> GetGroupsForCurrentUser() 
-            => GetGroups(WindowsIdentity.GetCurrent());
+        public static HashSet<string> GetGroupsForCurrentUser() => 
+            GetGroups(WindowsIdentity.GetCurrent());
 
         /// <summary>
         /// Returns the groups the given <paramref name="userPrincipalName"/> is a member of.
@@ -32,7 +32,7 @@ namespace Easy.Common
         public static HashSet<string> GetGroups(WindowsIdentity identity)
         {
             var result = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-            if (identity.Groups == null) { return result; }
+            if (identity.Groups is null) { return result; }
 
             var type = typeof(NTAccount);
             foreach (var group in identity.Groups)
@@ -71,8 +71,7 @@ namespace Easy.Common
         /// </summary>
         public static string GenerateGroupComparisonReport(IEnumerable<KeyValuePair<string, string>> nameToUserLogonMap)
         {
-            var userAndRoles = nameToUserLogonMap
-                .AsParallel()
+            var userAndRoles = nameToUserLogonMap.AsParallel()
                 .ToDictionary(kv => kv.Key, kv => GetGroups(kv.Value));
 
             return GenerateHTML(new ComparisonResult(userAndRoles));

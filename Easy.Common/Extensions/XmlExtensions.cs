@@ -48,8 +48,7 @@
             reader.MoveToElement();
             while (reader.Read())
             {
-                while (reader.NodeType == XmlNodeType.Element
-                       && reader.Name.Equals(name.LocalName, compPolicy))
+                while (reader.NodeType == XmlNodeType.Element && reader.Name.Equals(name.LocalName, compPolicy))
                 {
                     yield return (XElement)XNode.ReadFrom(reader);
                 }

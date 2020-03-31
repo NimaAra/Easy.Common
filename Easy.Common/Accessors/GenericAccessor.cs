@@ -35,14 +35,12 @@ namespace Easy.Common
 
                 if (prop.CanRead)
                 {
-                    _genericPropertiesGettersCache[propName] = 
-                        AccessorBuilder.BuildGetter<TInstance>(prop, IncludesNonPublic);
+                    _genericPropertiesGettersCache[propName] = AccessorBuilder.BuildGetter<TInstance>(prop, IncludesNonPublic);
                 }
 
                 if (prop.CanWrite)
                 {
-                    _genericPropertiesSettersCache[propName] = 
-                        AccessorBuilder.BuildSetter<TInstance>(prop, IncludesNonPublic);
+                    _genericPropertiesSettersCache[propName] = AccessorBuilder.BuildSetter<TInstance>(prop, IncludesNonPublic);
                 }
             }
         }
@@ -88,7 +86,7 @@ namespace Easy.Common
             {
                 if (!Properties.TryGetValue(propertyName, out var prop))
                 {
-                    value = default(TProperty);
+                    value = default;
                     return false;
                 }
                 
@@ -104,7 +102,7 @@ namespace Easy.Common
                             cache[prop.Name] = getter;
                         } catch (ArgumentException)
                         {
-                            value = default(TProperty);
+                            value = default;
                             return false;
                         }
                     }

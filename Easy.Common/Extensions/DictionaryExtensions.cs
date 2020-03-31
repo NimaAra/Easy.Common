@@ -17,8 +17,7 @@
         /// Adds the <paramref name="key"/> and <paramref name="value"/> to the <paramref name="dictionary"/>
         /// if the <paramref name="key"/> does not already exists and returns the inserted value.
         /// </summary>
-        public static TValue GetOrAdd<TKey, TValue>(
-            this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
         {
             if (dictionary.TryGetValue(key, out var result)) { return result; }
             
@@ -31,8 +30,7 @@
         /// the <paramref name="dictionary"/> if the <paramref name="key"/> does not already exists 
         /// and returns the inserted value.
         /// </summary>
-        public static TValue GetOrAdd<TKey, TValue>(
-            this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> valueCreator)
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> valueCreator)
         {
             if (dictionary.TryGetValue(key, out var result)) { return result; }
             
@@ -49,8 +47,8 @@
         /// <param name="key">The key whose value to get.</param>
         /// <param name="defaultValue">The default value to return if an item with the specified <paramref name="key"/> does not exist.</param>
         /// <returns>The value associated with the specified key or the <paramref name="defaultValue"/> if it does not exist.</returns>
-        public static TValue GetOrDefault<TKey, TValue>(
-            this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default(TValue)) 
+        public static TValue GetOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, 
+            TKey key, TValue defaultValue = default) 
                 => dictionary.TryGetValue(key, out var value) ? value : defaultValue;
 
         /// <summary>
@@ -58,8 +56,7 @@
         /// <remarks>This method is used to duck-type <see cref="IDictionary{TKey, TValue}"/> with multiple pairs.</remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static void Add<TKey, TValue>(this IDictionary<TKey, TValue> dictionary,
-            IDictionary<TKey, TValue> pairsToAdd)
+        public static void Add<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, IDictionary<TKey, TValue> pairsToAdd)
         {
             foreach (var pair in pairsToAdd)
             {
@@ -70,19 +67,38 @@
         /// <summary>
         /// Compares the given <paramref name="left"/> against <paramref name="right"/> for equality.
         /// </summary>
-        public static bool Equals<TKey, TValue>(
-            this IDictionary<TKey, TValue> left, IDictionary<TKey, TValue> right, IEqualityComparer<TValue> valueComparer = null)
+        public static bool Equals<TKey, TValue>(this IDictionary<TKey, TValue> left, 
+            IDictionary<TKey, TValue> right, IEqualityComparer<TValue> valueComparer = default)
                 => Equals((IReadOnlyDictionary<TKey, TValue>) left, (IReadOnlyDictionary<TKey, TValue>) right, valueComparer);
+
+        /// <summary>
+        /// Returns a <see cref="NameValueCollection"/> as a Dictionary
+        /// </summary>
+        public static Dictionary<string, string> ToDictionary(this NameValueCollection namedValueCollection)
+            => namedValueCollection.AllKeys.ToDictionary(key => key, key => namedValueCollection[key]);
+
+        /// <summary>
+        /// Returns a <see cref="ConcurrentDictionary{TKey,TValue}"/> from an <see cref="IDictionary{TKey,TValue}"/>.
+        /// </summary>
+        public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary) =>
+            new ConcurrentDictionary<TKey, TValue>(dictionary);
+
+        /// <summary>
+        /// Returns a <see cref="ConcurrentDictionary{TKey,TValue}"/> from an <see cref="IDictionary{TKey,TValue}"/>.
+        /// </summary>
+        public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary,
+            IEqualityComparer<TKey> comparer)
+                => new ConcurrentDictionary<TKey, TValue>(dictionary, comparer);
 
         /// <summary>
         /// Compares the given <paramref name="left"/> against <paramref name="right"/> for equality.
         /// </summary>
         [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
-        public static bool Equals<TKey, TValue>(
-            this IReadOnlyDictionary<TKey, TValue> left, IReadOnlyDictionary<TKey, TValue> right, IEqualityComparer<TValue> valueComparer = null)
+        public static bool Equals<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> left, 
+            IReadOnlyDictionary<TKey, TValue> right, IEqualityComparer<TValue> valueComparer = default)
         {
             if (left == right) { return true; }
-            if (left == null || right == null) { return false; }
+            if (left is null || right == null) { return false; }
             if (left.Count != right.Count) { return false; }
             if (left.Count == 0) { return true; }
 
@@ -131,25 +147,5 @@
         private static bool KeyValueExists<TKey, TValue>(
             TKey key, TValue value, IReadOnlyDictionary<TKey, TValue> dictionary, IEqualityComparer<TValue> comparer)
                 => dictionary.TryGetValue(key, out var rightVal) && comparer.Equals(value, rightVal);
-
-        /// <summary>
-        /// Returns a <see cref="NameValueCollection"/> as a Dictionary
-        /// </summary>
-        public static Dictionary<string, string> ToDictionary(this NameValueCollection namedValueCollection)
-            => namedValueCollection.AllKeys.ToDictionary(key => key, key => namedValueCollection[key]);
-
-        /// <summary>
-        /// Returns a <see cref="ConcurrentDictionary{TKey,TValue}"/> from an <see cref="IDictionary{TKey,TValue}"/>.
-        /// </summary>
-        public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(
-            this IReadOnlyDictionary<TKey, TValue> dictionary) 
-                => new ConcurrentDictionary<TKey, TValue>(dictionary);
-
-        /// <summary>
-        /// Returns a <see cref="ConcurrentDictionary{TKey,TValue}"/> from an <see cref="IDictionary{TKey,TValue}"/>.
-        /// </summary>
-        public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(
-            this IReadOnlyDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
-                => new ConcurrentDictionary<TKey, TValue>(dictionary, comparer);
     }
 }

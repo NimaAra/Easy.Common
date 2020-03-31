@@ -13,14 +13,12 @@
     /// </summary>
     public sealed class Clock : IClock
     {
-        private readonly long _maxIdleTime = TimeSpan.FromSeconds(10).Ticks;
         private const long TicksMultiplier = 1000 * TimeSpan.TicksPerMillisecond;
+        
+        private readonly long _maxIdleTime = TimeSpan.FromSeconds(10).Ticks;
 
-        private readonly ThreadLocal<DateTime> _startTime =
-            new ThreadLocal<DateTime>(() => DateTime.UtcNow, false);
-
-        private readonly ThreadLocal<double> _startTimestamp =
-            new ThreadLocal<double>(() => Stopwatch.GetTimestamp(), false);
+        private readonly ThreadLocal<DateTime> _startTime = new ThreadLocal<DateTime>(() => DateTime.UtcNow, false);
+        private readonly ThreadLocal<double> _startTimestamp = new ThreadLocal<double>(() => Stopwatch.GetTimestamp(), false);
 
         /// <summary>
         /// Creates an instance of the <see cref="Clock"/>.
