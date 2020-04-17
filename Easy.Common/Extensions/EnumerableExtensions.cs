@@ -275,7 +275,8 @@
         /// <remarks>
         /// This operator uses deferred execution and streams its results (buckets and bucket content).
         /// </remarks>
-        public static IEnumerable<IEnumerable<TSource>> Batch<TSource>(this IEnumerable<TSource> source, uint size) 
+        [DebuggerStepThrough]
+        public static IEnumerable<TSource[]> Batch<TSource>(this IEnumerable<TSource> source, uint size) 
         {
             Ensure.NotNull(source, nameof(source));
             Ensure.That<ArgumentOutOfRangeException>(size > 0, nameof(size));
@@ -283,18 +284,40 @@
             TSource[] bucket = null;
             var count = 0;
 
-            foreach (var item in source)
+            if (source is IReadOnlyList<TSource> indexibale)
             {
-                if (bucket is null) { bucket = new TSource[size]; }
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for (var i = 0; i < indexibale.Count; i++)
+                {
+                    if (bucket is null) { bucket = new TSource[size]; }
 
-                bucket[count++] = item;
+                    TSource item = indexibale[i];
 
-                if (count != size) { continue; }
+                    bucket[count++] = item;
 
-                yield return bucket;
+                    if (count != size) { continue; }
 
-                bucket = null;
-                count = 0;
+                    yield return bucket;
+
+                    bucket = null;
+                    count = 0;
+                }
+            } 
+            else
+            {
+                foreach (var item in source)
+                {
+                    if (bucket is null) { bucket = new TSource[size]; }
+
+                    bucket[count++] = item;
+
+                    if (count != size) { continue; }
+
+                    yield return bucket;
+
+                    bucket = null;
+                    count = 0;
+                }
             }
 
             if (bucket is null || count <= 0) { yield break; }
