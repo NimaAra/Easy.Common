@@ -39,7 +39,7 @@
         {
             Ensure.NotNull(input, nameof(input));
 
-            var reversed = input.ToLower().Reverse();
+            var reversed = input.ToUpper().Reverse();
             long result = 0;
             var pos = 0;
             foreach (var c in reversed)
