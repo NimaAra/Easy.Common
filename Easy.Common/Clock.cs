@@ -2,36 +2,31 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Threading;
     using Easy.Common.Interfaces;
 
     /// <summary>
     /// This class provides a high resolution clock by using the new API available in <c>Windows 8</c>/ 
-    /// <c>Windows Server 2012</c> and higher. In all other operating systems it returns time by using 
-    /// a manually tuned and compensated <c>DateTime</c> which takes advantage of the high resolution
-    /// available in <see cref="Stopwatch"/>.
+    /// <c>Windows Server 2012</c> and higher.
     /// </summary>
     public sealed class Clock : IClock
     {
-        private const long TicksMultiplier = 1000 * TimeSpan.TicksPerMillisecond;
-        
-        private readonly long _maxIdleTime = TimeSpan.FromSeconds(10).Ticks;
-
-        private readonly ThreadLocal<DateTime> _startTime = new ThreadLocal<DateTime>(() => DateTime.UtcNow, false);
-        private readonly ThreadLocal<double> _startTimestamp = new ThreadLocal<double>(() => Stopwatch.GetTimestamp(), false);
+        /// <summary>
+        /// Returns the single instance of the <see cref="Clock"/>.
+        /// </summary>
+        public static Clock Instance { get; } = new Clock();
 
         /// <summary>
         /// Creates an instance of the <see cref="Clock"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public Clock()
+        private Clock()
         {
             try
             {
                 NativeMethods.GetSystemTimePreciseAsFileTime(out _);
                 IsPrecise = true;
             }
-            catch (Exception e) when(e is EntryPointNotFoundException || e is DllNotFoundException)
+            catch (Exception e) when (e is EntryPointNotFoundException || e is DllNotFoundException)
             {
                 IsPrecise = false;
             }
@@ -41,56 +36,54 @@
         /// Gets the flag indicating whether the instance of <see cref="Clock"/> provides high resolution time.
         /// <remarks>
         /// <para>
-        /// This only returns <c>True</c> on <c>Windows 8</c>/<c>Windows Server 2012</c> and higher.
+        /// Only returns <c>True</c> on <c>Windows 8</c>/<c>Windows Server 2012</c> and higher.
         /// </para>
         /// </remarks>
         /// </summary>
         public bool IsPrecise { get; }
 
         /// <summary>
-        /// Gets the date and time in <c>UTC</c>.
+        /// Gets a <see cref="DateTimeOffset"/> object that is set to the current date and time on the current computer,
+        /// with the offset set to the local time's offset from Coordinated Universal Time (UTC).
         /// </summary>
-        public DateTime UtcNow
+        public DateTimeOffset Now
         {
             get
             {
                 if (IsPrecise)
                 {
                     NativeMethods.GetSystemTimePreciseAsFileTime(out long preciseTime);
-                    return DateTime.FromFileTimeUtc(preciseTime);
+                    return DateTimeOffset.FromFileTime(preciseTime);
                 }
 
-                double endTimestamp = Stopwatch.GetTimestamp();
-
-                /* FYI
-                * var durationInMsec = (endTimestamp - _startTimestamp.Value) / Stopwatch.Frequency * 1000;
-                * var durationInSec = (endTimestamp - _startTimestamp.Value) / Stopwatch.Frequency;
-                */            
-                var durationInTicks = (endTimestamp - _startTimestamp.Value) / Stopwatch.Frequency * TicksMultiplier;
-                if (durationInTicks >= _maxIdleTime)
-                {
-                    _startTimestamp.Value = Stopwatch.GetTimestamp();
-                    _startTime.Value = DateTime.UtcNow;
-                    return _startTime.Value;
-                }
-
-                return _startTime.Value.AddTicks((long)durationInTicks);
+                return DateTimeOffset.Now;
             }
         }
+    }
 
+    /// <summary>
+    /// This class provides a fake clock to be used for testing of cases when an <see cref="IClock"/> is used.
+    /// </summary>
+    public sealed class FakeClock : IClock
+    {
         /// <summary>
-        /// Gets the local date time.
+        /// Creates an instance of the <see cref="FakeClock"/>.
         /// </summary>
-        public DateTime Now => UtcNow.ToLocalTime();
-
-        /// <summary>
-        /// Releases all resources used by the instance of <see cref="Clock"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public void Dispose()
+        public FakeClock(DateTimeOffset offset, bool isPrecise = true)
         {
-            _startTime.Dispose();
-            _startTimestamp.Dispose();
+            Now = offset;
+            IsPrecise = isPrecise;
         }
+
+        /// <summary>
+        /// Gets the flag indicating whether the instance of <see cref="FakeClock"/> provides high resolution time.
+        /// </summary>
+        public bool IsPrecise {get; }
+
+        /// <summary>
+        /// Gets a <see cref="DateTimeOffset"/> object that is set to the current date and time on the current computer,
+        /// with the offset set to the local time's offset from Coordinated Universal Time (UTC).
+        /// </summary>
+        public DateTimeOffset Now { get; }
     }
 }

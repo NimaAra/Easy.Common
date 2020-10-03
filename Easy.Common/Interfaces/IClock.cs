@@ -5,7 +5,7 @@
     /// <summary>
     /// Provides the contract for representing a clock.
     /// </summary>
-    public interface IClock : IDisposable
+    public interface IClock
     {
         /// <summary>
         /// Gets the flag indicating whether the instance of <see cref="IClock"/> provides high resolution time.
@@ -18,13 +18,8 @@
         bool IsPrecise { get; }
 
         /// <summary>
-        /// Gets the date and time in <c>UTC</c>.
-        /// </summary>
-        DateTime UtcNow { get; }
-
-        /// <summary>
         /// Gets the local date time.
         /// </summary>
-        DateTime Now { get; }
+        DateTimeOffset Now { get; }
     }
 }

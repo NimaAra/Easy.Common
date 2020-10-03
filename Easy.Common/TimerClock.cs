@@ -9,8 +9,8 @@
     /// </summary>
     public sealed class TimerClock : ITimerClock
     {
-        private DateTime _nextSchedule;
-        private DateTime NextSchedule
+        private DateTimeOffset _nextSchedule;
+        private DateTimeOffset NextSchedule
         {
             get
             {
@@ -45,9 +45,9 @@
         /// <param name="interval">The interval at which to raise the <see cref="Tick"/> event</param>
         public TimerClock(TimeSpan interval)
         {
-            Clock = new Clock();
+            Clock = Easy.Common.Clock.Instance;
             TickInterval = interval;
-            NextSchedule = DateTime.MaxValue;
+            NextSchedule = DateTimeOffset.MaxValue;
             InternalTimer.Tick += OnTick;
         }
 
@@ -62,8 +62,8 @@
         /// </summary>
         public bool Enabled
         {
-            get => NextSchedule != DateTime.MaxValue;
-            set => NextSchedule = value ? Clock.UtcNow.Add(TickInterval) : DateTime.MaxValue;
+            get => NextSchedule != DateTimeOffset.MaxValue;
+            set => NextSchedule = value ? Clock.Now.Add(TickInterval) : DateTimeOffset.MaxValue;
         }
 
         /// <summary>
@@ -71,23 +71,22 @@
         /// </summary>
         public void Dispose()
         {
-            NextSchedule = DateTime.MaxValue;
+            NextSchedule = DateTimeOffset.MaxValue;
             InternalTimer.Tick -= OnTick;
-            Clock.Dispose();
         }
 
         /// <summary>
         /// Converts the value of the <see cref="TimerClock"/> to its equivalent <see cref="string"/>.
         /// </summary>
         /// <returns>The <see cref="string"/> representation of the <see cref="TimerClock"/></returns>
-        public override string ToString() 
-            => $"Interval: {TickInterval.ToString()} - DateTime: {Clock.UtcNow.ToString("yyyy-MM-dd HH:mm.ss.fff")}";
+        public override string ToString() => 
+            $"Interval: {TickInterval.ToString()} - DateTime: {Clock.Now.ToString("yyyy-MM-dd HH:mm.ss.fff")}";
 
         private void OnTick(object sender, EventArgs args)
         {
-            if (NextSchedule == DateTime.MaxValue) { return; }
+            if (NextSchedule == DateTimeOffset.MaxValue) { return; }
 
-            var now = Clock.UtcNow;
+            DateTimeOffset now = Clock.Now;
             if (now < NextSchedule) { return; }
 
             NextSchedule = now.Add(TickInterval);
@@ -101,7 +100,7 @@
 
             static InternalTimer()
             {
-                var flowControl = ExecutionContext.SuppressFlow();
+                AsyncFlowControl flowControl = ExecutionContext.SuppressFlow();
                 new Thread(() =>
                 {
                     var spinner = new SpinWait();
@@ -116,7 +115,8 @@
                     Priority = ThreadPriority.Highest,
                     Name = "InternalTimer",
                     IsBackground = true
-                }.Start();
+                }
+                .Start();
                 flowControl.Undo();
             }
         }

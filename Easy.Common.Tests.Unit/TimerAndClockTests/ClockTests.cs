@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Threading.Tasks;
     using Easy.Common;
+    using Easy.Common.Interfaces;
     using NUnit.Framework;
     using Shouldly;
 
@@ -12,68 +13,44 @@
     internal sealed class ClockTests
     {
         [Test]
-        public void When_testing_clock_as_utc()
-        {
-            using (var clock = new Clock())
-            {
-                var utcNowFromDateTime = DateTime.UtcNow;
-                var utcNowFromClock = clock.UtcNow;
-
-                utcNowFromClock.Kind.ShouldBe(utcNowFromDateTime.Kind);
-                utcNowFromClock.Date.ShouldBe(utcNowFromDateTime.Date);
-                utcNowFromClock.Year.ShouldBe(utcNowFromDateTime.Year);
-                utcNowFromClock.Month.ShouldBe(utcNowFromDateTime.Month);
-                utcNowFromClock.Day.ShouldBe(utcNowFromDateTime.Day);
-                utcNowFromClock.DayOfYear.ShouldBe(utcNowFromDateTime.DayOfYear);
-                utcNowFromClock.DayOfWeek.ShouldBe(utcNowFromDateTime.DayOfWeek);
-                utcNowFromClock.Hour.ShouldBe(utcNowFromDateTime.Hour);
-                utcNowFromClock.Minute.ShouldBe(utcNowFromDateTime.Minute);
-                utcNowFromClock.Second.ShouldBe(utcNowFromDateTime.Second);
-            }
-        }
-
-        [Test]
         public void When_testing_clock_as_local()
         {
-            using (var clock = new Clock())
-            {
-                var localNowFromDateTime = DateTime.Now;
-                var localNowFromClock = clock.Now;
+            IClock clock = Clock.Instance;
+            DateTime localNowFromDateTime = DateTime.Now;
+            DateTimeOffset localNowFromClock = clock.Now;
 
-                localNowFromClock.Kind.ShouldBe(localNowFromDateTime.Kind);
-                localNowFromClock.Date.ShouldBe(localNowFromDateTime.Date);
-                localNowFromClock.Year.ShouldBe(localNowFromDateTime.Year);
-                localNowFromClock.Month.ShouldBe(localNowFromDateTime.Month);
-                localNowFromClock.Day.ShouldBe(localNowFromDateTime.Day);
-                localNowFromClock.DayOfYear.ShouldBe(localNowFromDateTime.DayOfYear);
-                localNowFromClock.DayOfWeek.ShouldBe(localNowFromDateTime.DayOfWeek);
-                localNowFromClock.Hour.ShouldBe(localNowFromDateTime.Hour);
-                localNowFromClock.Minute.ShouldBe(localNowFromDateTime.Minute);
-            }
+            localNowFromClock.DateTime.Kind.ShouldBe(DateTimeKind.Unspecified);
+            localNowFromClock.Date.ShouldBe(localNowFromDateTime.Date);
+            localNowFromClock.Year.ShouldBe(localNowFromDateTime.Year);
+            localNowFromClock.Month.ShouldBe(localNowFromDateTime.Month);
+            localNowFromClock.Day.ShouldBe(localNowFromDateTime.Day);
+            localNowFromClock.DayOfYear.ShouldBe(localNowFromDateTime.DayOfYear);
+            localNowFromClock.DayOfWeek.ShouldBe(localNowFromDateTime.DayOfWeek);
+            localNowFromClock.Hour.ShouldBe(localNowFromDateTime.Hour);
+            localNowFromClock.Minute.ShouldBe(localNowFromDateTime.Minute);
         }
 
         [Test]
         [Ignore("Performance monitoring only")]
         public void When_running_clock_to_measure_performance()
         {
-            Action action = () =>
+            Parallel.Invoke(Action, Action, Action, Action);
+
+            static void Action()
             {
-                var clock = new Clock();
-                var distinctValues = new HashSet<DateTime>();
+                IClock clock = Clock.Instance;
+                var distinctValues = new HashSet<DateTimeOffset>();
                 var sw = Stopwatch.StartNew();
 
                 while (sw.Elapsed.TotalSeconds < 5)
                 {
-                    distinctValues.Add(clock.UtcNow);
+                    distinctValues.Add(clock.Now);
                 }
 
                 sw.Stop();
 
                 Trace.WriteLine($"Precision: {sw.Elapsed.TotalMilliseconds / distinctValues.Count:0.000000} ms ({distinctValues.Count.ToString()} samples)");
-                clock.Dispose();
-            };
-
-            Parallel.Invoke(action, action, action, action);
+            }
 
             /*
              * Precision: 0.005160 ms(969122 samples)
