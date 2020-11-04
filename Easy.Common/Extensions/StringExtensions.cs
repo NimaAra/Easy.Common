@@ -433,10 +433,8 @@
             memStream.Position = 0;
 
             var buffer = new byte[dataLength];
-            using (var zipStream = new GZipStream(memStream, CompressionMode.Decompress))
-            {
-                zipStream.Read(buffer, 0, buffer.Length);
-            }
+            using var zipStream = new GZipStream(memStream, CompressionMode.Decompress);
+            zipStream.Read(buffer, 0, buffer.Length);
 
             return Encoding.UTF8.GetString(buffer);
         }
@@ -502,5 +500,19 @@
         /// </summary>
         [DebuggerStepThrough]
         public static int GetSize(this string input) => input.Length * sizeof(char);
+
+#if NETSTANDARD2_1
+        /// <summary>
+        /// Obfuscates the given <paramref name="input"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static string Obfuscate(string input, char fillWith) =>
+	        string.Create(input.Length, input, (buffer, v) =>
+	        {
+		        int prefixLength = input.Length * 25 / 100;
+		        v.AsSpan(0, prefixLength).CopyTo(buffer);
+		        buffer[prefixLength..].Fill(fillWith);
+	        });
+#endif
     }
 }
