@@ -8,11 +8,11 @@
     using System.Threading.Tasks;
     using System.Windows.Input;
     using Easy.Common.Extensions;
-    using Easy.Logger;
+    using Easy.Logger.Interfaces;
 
     public sealed class LogViewerVM : BindableBase
     {
-        private readonly ILogger _logger;
+        private readonly IEasyLogger _logger;
         private readonly IUDPListener<string> _logListener;
         private readonly SynchronizationContext _ctx;
         private CancellationTokenSource _cts;

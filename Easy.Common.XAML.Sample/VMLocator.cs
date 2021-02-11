@@ -1,12 +1,12 @@
 ﻿namespace Easy.Common.XAML.Sample
 {
-    using System;
     using System.Net;
     using System.Text;
     using Easy.Common.Interfaces;
     using Easy.Common.XAML.Sample.Components.LogViewer;
     using Easy.Common.XAML.Sample.Components.Spinners;
     using Easy.Logger;
+    using Easy.Logger.Interfaces;
     using Easy.MessageHub;
     using SimpleInjector;
 
@@ -31,7 +31,7 @@
 
             result.Register<IConfigReader>(() => new ConfigReader(), lifeStyle);
             result.Register<ILogService>(() => Log4NetService.Instance, lifeStyle);
-            result.Register<IMessageHub>(() => MessageHub.Instance, lifeStyle);
+            result.Register<IMessageHub>(() => new MessageHub(), lifeStyle);
 
             result.Register<IUDPListener<string>>(() =>
             {
