@@ -44,13 +44,13 @@
             // Anyone reading the Value is will still get the _primary
             var latestSecondary = ReadFresh(ref _secondary);
             var updatedSecondary = updater(latestSecondary);
-		
+
             // now atomically set the _primary to be the latest update value
             var primary = Interlocked.Exchange(ref _primary, updatedSecondary);
-		
+
             // time to also update the old primary location to the latest value
             var updatedPrimary = updater(primary);
-		
+
             _secondary = Interlocked.Exchange(ref _primary, updatedPrimary);
         }
 

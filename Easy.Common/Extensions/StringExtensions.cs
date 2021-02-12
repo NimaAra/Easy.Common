@@ -59,7 +59,7 @@
         /// <see langword="true"/> if the format parameter is not null or an empty string (""); otherwise, <see langword="false"/>.
         /// </returns>
         [DebuggerStepThrough]
-        public static bool IsNotNullOrEmptyOrWhiteSpace(this string value) 
+        public static bool IsNotNullOrEmptyOrWhiteSpace(this string value)
             => !value.IsNullOrEmptyOrWhiteSpace();
 
         /// <summary>
@@ -153,14 +153,14 @@
         /// Checks that given <paramref name="input"/> matches any of the potential matches.
         /// Inspired by: http://stackoverflow.com/a/20644611/23199
         /// </summary>
-        public static bool EqualsAny(this string input, StringComparer comparer, string match1, string match2) => 
+        public static bool EqualsAny(this string input, StringComparer comparer, string match1, string match2) =>
             comparer.Equals(input, match1) || comparer.Equals(input, match2);
 
         /// <summary>
         /// Checks that given <paramref name="input"/> matches any of the potential matches.
         /// Inspired by: http://stackoverflow.com/a/20644611/23199
         /// </summary>
-        public static bool EqualsAny(this string input, StringComparer comparer, string match1, string match2, string match3) => 
+        public static bool EqualsAny(this string input, StringComparer comparer, string match1, string match2, string match3) =>
             comparer.Equals(input, match1) || comparer.Equals(input, match2) || comparer.Equals(input, match3);
 
         /// <summary>
@@ -168,7 +168,7 @@
         /// potential <paramref name="matches"/>.
         /// <remarks>Inspired by: <see href="http://stackoverflow.com/a/20644611/23199"/> </remarks>
         /// </summary>
-        public static bool EqualsAny(this string input, StringComparer comparer, params string[] matches) => 
+        public static bool EqualsAny(this string input, StringComparer comparer, params string[] matches) =>
             matches.Any(x => comparer.Equals(x, input));
 
         /// <summary>
@@ -295,7 +295,7 @@
 
             if (maxLength.HasValue)
             {
-                result = result.Substring(0, result.Length <= maxLength 
+                result = result.Substring(0, result.Length <= maxLength
                     ? result.Length : (int)maxLength.Value).Trim();
             }
             return Regex.Replace(result, @"\s", "-");
@@ -380,7 +380,7 @@
 
             using var stringReader = new StringReader(xmlInput);
             using var xmlReader = XmlReader.Create(stringReader, settings);
-            
+
             foreach (var xElement in xmlReader.GetEelements(name, ignoreCase))
             {
                 yield return xElement;
@@ -400,7 +400,7 @@
             var buffer = Encoding.UTF8.GetBytes(input);
             using var memStream = new MemoryStream();
             using var zipStream = new GZipStream(memStream, CompressionMode.Compress, true);
-            
+
             zipStream.Write(buffer, 0, buffer.Length);
             zipStream.Close();
 
@@ -427,7 +427,7 @@
 
             var gZipBuffer = Convert.FromBase64String(compressedInput);
             using var memStream = new MemoryStream();
-            
+
             var dataLength = BitConverter.ToInt32(gZipBuffer, 0);
             memStream.Write(gZipBuffer, 4, gZipBuffer.Length - 4);
             memStream.Position = 0;
@@ -450,7 +450,7 @@
         /// Ensures the given <paramref name="path"/> can be used as a path.
         /// </summary>
         [DebuggerStepThrough]
-        public static bool IsValidPathName(this string path) => 
+        public static bool IsValidPathName(this string path) =>
             path.IsNotNullOrEmptyOrWhiteSpace() && path.IndexOfAny(InvalidPathCharacters) == -1;
 
         /// <summary>
@@ -463,10 +463,10 @@
         /// </remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static Guid ToGuid(this string input, bool trimmed = true) => 
+        public static Guid ToGuid(this string input, bool trimmed = true) =>
             trimmed ? new Guid(Convert.FromBase64String(input + "=="))
                 : new Guid(Convert.FromBase64String(input));
-        
+
         /// <summary>
         /// Returns all the start and end indexes of the occurrences of the 
         /// given <paramref name="startTag"/> and <paramref name="endTag"/> 
@@ -507,12 +507,12 @@
         /// </summary>
         [DebuggerStepThrough]
         public static string Obfuscate(string input, char fillWith) =>
-	        string.Create(input.Length, input, (buffer, v) =>
-	        {
-		        int prefixLength = input.Length * 25 / 100;
-		        v.AsSpan(0, prefixLength).CopyTo(buffer);
-		        buffer[prefixLength..].Fill(fillWith);
-	        });
+            string.Create(input.Length, input, (buffer, v) =>
+            {
+                int prefixLength = input.Length * 25 / 100;
+                v.AsSpan(0, prefixLength).CopyTo(buffer);
+                buffer[prefixLength..].Fill(fillWith);
+            });
 #endif
     }
 }

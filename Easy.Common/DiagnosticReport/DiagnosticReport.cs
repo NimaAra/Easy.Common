@@ -15,13 +15,14 @@ namespace Easy.Common
     using System.Text.RegularExpressions;
     using System.Threading;
     using Easy.Common.Extensions;
+    using Microsoft.Win32;
 
     /// <summary>
     /// A helper class for generating a report containing details related to 
     /// <c>System</c>, <c>Process</c>, <c>Assemblies</c>, <c>Networks</c> and <c>Environment</c> 
     /// on which the application executes.
     /// </summary>
-    public class DiagnosticReport
+    public sealed class DiagnosticReport
     {
         private const char Pipe = '|';
         private const char Dot = '.';
@@ -31,7 +32,7 @@ namespace Easy.Common
         private static readonly string NewLine = Environment.NewLine;
         private static readonly string LinePrefix = Pipe.ToString() + "\t";
 
-        private static readonly DiagnosticReportType[] ReportSections = 
+        private static readonly DiagnosticReportType[] ReportSections =
         {
             DiagnosticReportType.System,
             DiagnosticReportType.Process,
@@ -56,15 +57,15 @@ namespace Easy.Common
         {
             "OS - Name",
             "OS - Type",
-            "OS - 64Bit", 
-            ".NET Framework", 
-            "Machine Name", 
-            "FQDN", 
-            "Installed RAM", 
-            "CPU", 
-            "CPU Core Count", 
-            "User", 
-            "System Directory", 
+            "OS - 64Bit",
+            ".NET Framework",
+            "Machine Name",
+            "FQDN",
+            "Installed RAM",
+            "CPU",
+            "CPU Core Count",
+            "User",
+            "System Directory",
             "Current Directory",
             "Runtime Directory",
             "Uptime"
@@ -109,7 +110,7 @@ namespace Easy.Common
 
         private static readonly string[] NetworkHeaders =
         {
-            "Host", "Domain", "DHCP Scope", "Node Type", "Is WINS Proxy", "Name", "MAC", 
+            "Host", "Domain", "DHCP Scope", "Node Type", "Is WINS Proxy", "Name", "MAC",
             "Type", "Status", "Is Receive Only", "Supports Multicast", "Speed", "IP Addresses"
         };
 
@@ -118,18 +119,18 @@ namespace Easy.Common
         /// </summary>
         private DiagnosticReport(DiagnosticReportType type)
         {
-            var sw = Stopwatch.StartNew();
+            Stopwatch sw = Stopwatch.StartNew();
 
             Timestamp = DateTimeOffset.Now;
             Type = type;
-            
+
             SystemDetails = GetSystemDetails(type);
             ProcessDetails = GetProcessDetails(type);
             DriveDetails = GetDriveDetails(type);
             Assemblies = GetAssemblies(type);
             EnvironmentVariables = GetEnvironmentVariables(type);
             NetworkingDetails = GetNetworkDetails(type);
-            
+
             TimeTaken = sw.Elapsed;
         }
 
@@ -137,17 +138,17 @@ namespace Easy.Common
         /// Get the time at which this report was generated.
         /// </summary>
         public DateTimeOffset Timestamp { get; }
-        
+
         /// <summary>
         /// Gets the time taken to generate this report.
         /// </summary>
         public TimeSpan TimeTaken { get; }
-        
+
         /// <summary>
         /// Gets the type of this report.
         /// </summary>
         public DiagnosticReportType Type { get; }
-        
+
         /// <summary>
         /// Gets the information relating to the <c>System</c>.
         /// </summary>
@@ -191,7 +192,8 @@ namespace Easy.Common
             try
             {
                 return GenerateImpl(this);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 return $"Unable to generate the Diagnostic Report. Error:{NewLine}\t{e}";
             }
@@ -224,10 +226,14 @@ namespace Easy.Common
         {
             if (!IsReportEnabled(type, DiagnosticReportType.Process)) { return default; }
 
-            using var p = Process.GetCurrentProcess();
-            
-            var pVerInfo = p.MainModule.FileVersionInfo;
-            var result = new ProcessDetails
+            using Process p = Process.GetCurrentProcess();
+
+            FileVersionInfo pVerInfo = p.MainModule.FileVersionInfo;
+
+            ThreadPool.GetMinThreads(out int minWrkrs, out int minComplWrkers);
+            ThreadPool.GetMaxThreads(out int maxWrkrs, out int maxComplWrkers);
+
+            return new()
             {
                 PID = p.Id,
                 Name = p.ProcessName,
@@ -248,18 +254,13 @@ namespace Easy.Common
                 ModuleName = p.MainModule.ModuleName,
                 ModuleFileName = p.MainModule.FileName,
                 ProductName = pVerInfo.ProductName,
-                CommandLine = Environment.GetCommandLineArgs()
+                CommandLine = Environment.GetCommandLineArgs(),
+                ThreadPoolMinCompletionPortCount = (uint)minComplWrkers,
+                ThreadPoolMaxCompletionPortCount = (uint)maxComplWrkers,
+                ThreadPoolMinWorkerCount = (uint)minWrkrs,
+                ThreadPoolMaxWorkerCount = (uint)maxWrkrs,
+                ThreadCount = (uint)p.Threads.OfType<ProcessThread>().Count()
             };
-
-            ThreadPool.GetMinThreads(out int minWrkrs, out int minComplWrkers);
-            ThreadPool.GetMaxThreads(out int maxWrkrs, out int maxComplWrkers);
-            result.ThreadPoolMinCompletionPortCount = (uint)minComplWrkers;
-            result.ThreadPoolMaxCompletionPortCount = (uint)maxComplWrkers;
-            result.ThreadPoolMinWorkerCount = (uint)minWrkrs;
-            result.ThreadPoolMaxWorkerCount = (uint)maxWrkrs;
-
-            result.ThreadCount = (uint) p.Threads.OfType<ProcessThread>().Count();
-            return result;
 
             static string IsOptimized()
             {
@@ -270,7 +271,7 @@ namespace Easy.Common
             }
         }
 
-        private static IDictionary<string, string> GetEnvironmentVariables(DiagnosticReportType type)
+        private static Dictionary<string, string> GetEnvironmentVariables(DiagnosticReportType type)
         {
             if (!IsReportEnabled(type, DiagnosticReportType.EnvironmentVariables)) { return default; }
 
@@ -286,7 +287,7 @@ namespace Easy.Common
             return DriveInfo.GetDrives()
                 .Select(d =>
                 {
-                    var dashString = Dash.ToString();
+                    string dashString = Dash.ToString();
                     string driveFormat = string.Empty, volumeLabel = string.Empty;
                     double capacity = 0, free = 0, available = 0;
 
@@ -338,7 +339,7 @@ namespace Easy.Common
         {
             if (!IsReportEnabled(type, DiagnosticReportType.Networks)) { return default; }
 
-            var globalProps = IPGlobalProperties.GetIPGlobalProperties();
+            IPGlobalProperties globalProps = IPGlobalProperties.GetIPGlobalProperties();
 
             return new NetworkDetails
             {
@@ -364,9 +365,9 @@ namespace Easy.Common
 
         private static string GenerateImpl(DiagnosticReport report)
         {
-            var builder = StringBuilderCache.Acquire();
+            StringBuilder builder = StringBuilderCache.Acquire();
 
-            foreach (var section in ReportSections) 
+            foreach (var section in ReportSections)
             {
                 if (IsReportEnabled(report.Type, section))
                 {
@@ -374,9 +375,9 @@ namespace Easy.Common
                 }
             }
 
-            builder.Insert(0, $"/{NewLine}{Pipe}Diagnostic Report generated at: " +
-                              $"{report.Timestamp:dd-MM-yyyy HH:mm:ss.fff (zzzz)} in: " +
-                              $"{report.TimeTaken.TotalMilliseconds} milliseconds.{NewLine}")
+            builder.Insert(0, $"/{NewLine}{Pipe.ToString()}Diagnostic Report generated at: " +
+                              $"{report.Timestamp.ToString("dd-MM-yyyy HH:mm:ss.fff (zzzz)")} in: " +
+                              $"{report.TimeTaken.TotalMilliseconds.ToString()} milliseconds.{NewLine}")
                 .Append('\\');
 
             return StringBuilderCache.GetStringAndRelease(builder);
@@ -384,25 +385,25 @@ namespace Easy.Common
 
         private static void AddSystem(StringBuilder builder, DiagnosticReport report)
         {
-            var maxHeaderLength = SystemHeaders.Max(h => h.Length);
-            var formatter = "{0,-" + (maxHeaderLength + 1) + "}";
+            int maxHeaderLength = SystemHeaders.Max(h => h.Length);
+            string formatter = "{0,-" + (maxHeaderLength + 1) + "}";
 
-            var sectionIndex = builder.Length;
+            int sectionIndex = builder.Length;
             Format(SystemHeaders[0], report.SystemDetails.OSName);
             Format(SystemHeaders[1], report.SystemDetails.OSType);
-            Format(SystemHeaders[2], report.SystemDetails.Is64BitOS);
+            Format(SystemHeaders[2], report.SystemDetails.Is64BitOS.ToString());
             Format(SystemHeaders[3], report.SystemDetails.DotNetFrameworkVersion);
             Format(SystemHeaders[4], report.SystemDetails.MachineName);
             Format(SystemHeaders[5], report.SystemDetails.FQDN);
             Format(SystemHeaders[9], report.SystemDetails.User);
             Format(SystemHeaders[7], report.SystemDetails.CPU);
-            Format(SystemHeaders[8], report.SystemDetails.CPUCoreCount);
+            Format(SystemHeaders[8], report.SystemDetails.CPUCoreCount.ToString());
             Format(SystemHeaders[6], report.SystemDetails.InstalledRAMInGigaBytes.ToString("N0") + "GB");
             Format(SystemHeaders[10], report.SystemDetails.SystemDirectory);
             Format(SystemHeaders[11], report.SystemDetails.CurrentDirectory);
             Format(SystemHeaders[12], report.SystemDetails.RuntimeDirectory);
 
-            var upTimeStr = "-";
+            string upTimeStr = "-";
             if (report.SystemDetails.Uptime != TimeSpan.MinValue)
             {
                 upTimeStr = report.SystemDetails.Uptime.ToString(@"dd\D\a\y\ hh\H\o\u\r\ mm\M\i\n\ ss\S\e\c");
@@ -410,11 +411,10 @@ namespace Easy.Common
 
             Format(SystemHeaders[13], upTimeStr);
 
-            var maxLineLength = GetMaximumLineLength(builder, sectionIndex);
+            int maxLineLength = GetMaximumLineLength(builder, sectionIndex);
             builder.Insert(sectionIndex, GetSeperator("System", maxLineLength));
 
-            void Format(string key, object value)
-            {
+            void Format(string key, object value) =>
                 builder.Append(LinePrefix)
                     .Append(Dot)
                     .Append(Space)
@@ -422,28 +422,27 @@ namespace Easy.Common
                     .Append(Colon)
                     .Append(Space)
                     .AppendLine(value?.ToString());
-            }
         }
 
         private static void AddProcess(StringBuilder builder, DiagnosticReport report)
         {
-            var maxHeaderLength = ProcessHeaders.Max(h => h.Length);
-            var formatter = "{0,-" +(maxHeaderLength + 1) + "}";
+            int maxHeaderLength = ProcessHeaders.Max(h => h.Length);
+            string formatter = "{0,-" + (maxHeaderLength + 1) + "}";
 
-            var sectionIndex = builder.Length;
-            Format(ProcessHeaders[0], report.ProcessDetails.PID);
+            int sectionIndex = builder.Length;
+            Format(ProcessHeaders[0], report.ProcessDetails.PID.ToString());
             Format(ProcessHeaders[1], report.ProcessDetails.Name);
             Format(ProcessHeaders[2], report.ProcessDetails.Started.ToString("dd-MM-yyyy HH:mm:ss.fff (zzzz)"));
-            Format(ProcessHeaders[3], report.ProcessDetails.LoadedIn);
-            Format(ProcessHeaders[17], report.ProcessDetails.IsInteractive);
+            Format(ProcessHeaders[3], report.ProcessDetails.LoadedIn.ToString());
+            Format(ProcessHeaders[17], report.ProcessDetails.IsInteractive.ToString());
             Format(ProcessHeaders[4], report.ProcessDetails.IsOptimized);
-            Format(ProcessHeaders[5], report.ProcessDetails.Is64Bit);
-            Format(ProcessHeaders[19], report.ProcessDetails.IsServerGC);
-            Format(ProcessHeaders[6], report.ProcessDetails.IsLargeAddressAware);
+            Format(ProcessHeaders[5], report.ProcessDetails.Is64Bit.ToString());
+            Format(ProcessHeaders[19], report.ProcessDetails.IsServerGC.ToString());
+            Format(ProcessHeaders[6], report.ProcessDetails.IsLargeAddressAware.ToString());
             Format(ProcessHeaders[16], report.ProcessDetails.WorkingSetInMegaBytes.ToString("N0") + "MB");
             Format(ProcessHeaders[20], report.ProcessDetails.ThreadCount.ToString("N0"));
-            Format(ProcessHeaders[21], $"{report.ProcessDetails.ThreadPoolMinCompletionPortCount:N0} <-> {report.ProcessDetails.ThreadPoolMaxCompletionPortCount:N0}");
-            Format(ProcessHeaders[22], $"{report.ProcessDetails.ThreadPoolMinWorkerCount:N0} <-> {report.ProcessDetails.ThreadPoolMaxWorkerCount:N0}");
+            Format(ProcessHeaders[21], $"{report.ProcessDetails.ThreadPoolMinCompletionPortCount.ToString("N0")} <-> {report.ProcessDetails.ThreadPoolMaxCompletionPortCount.ToString("N0")}");
+            Format(ProcessHeaders[22], $"{report.ProcessDetails.ThreadPoolMinWorkerCount.ToString("N0")} <-> {report.ProcessDetails.ThreadPoolMaxWorkerCount.ToString("N0")}");
             Format(ProcessHeaders[12], report.ProcessDetails.FileVersion);
             Format(ProcessHeaders[13], report.ProcessDetails.ProductVersion);
             Format(ProcessHeaders[14], report.ProcessDetails.Language);
@@ -455,8 +454,8 @@ namespace Easy.Common
             Format(ProcessHeaders[9], report.ProcessDetails.ProductName);
             Format(ProcessHeaders[18], report.ProcessDetails.CommandLine[0]);
 
-            var cmdArgs = report.ProcessDetails.CommandLine;
-            for (var i = 1; i < cmdArgs.Length; i++)
+            string[] cmdArgs = report.ProcessDetails.CommandLine;
+            for (int i = 1; i < cmdArgs.Length; i++)
             {
                 builder.Append(LinePrefix)
                     .Append(Space).Append(Space)
@@ -465,11 +464,10 @@ namespace Easy.Common
                     .AppendLine(cmdArgs[i]);
             }
 
-            var maxLineLength = GetMaximumLineLength(builder, sectionIndex);
+            int maxLineLength = GetMaximumLineLength(builder, sectionIndex);
             builder.Insert(sectionIndex, GetSeperator("Process", maxLineLength));
 
-            void Format(string key, object value)
-            {
+            void Format(string key, object value) =>
                 builder.Append(LinePrefix)
                     .Append(Dot)
                     .Append(Space)
@@ -477,14 +475,13 @@ namespace Easy.Common
                     .Append(Colon)
                     .Append(Space)
                     .AppendLine(value?.ToString());
-            }
         }
 
         private static void AddDrives(StringBuilder builder, DiagnosticReport report)
         {
-            var values = new List<string[]>();
+            List<string[]> values = new();
 
-            foreach (var d in report.DriveDetails)
+            foreach (DriveDetails d in report.DriveDetails)
             {
                 var row = new string[7];
                 row[0] = d.Name;
@@ -502,23 +499,23 @@ namespace Easy.Common
 
         private static void AddAssemblies(StringBuilder builder, DiagnosticReport report)
         {
-            var sectionIndex = builder.Length;
+            int sectionIndex = builder.Length;
 
-            var maxHeaderLength = AssemblyHeaders.Max(h => h.Length);
+            int maxHeaderLength = AssemblyHeaders.Max(h => h.Length);
 
-            var nameFormatter = "{0}{1:D3}{2} {3,-" + (maxHeaderLength + 1) + "}: {4}{5}";
-            var formatter = "{0,-" + (maxHeaderLength + 1) + "}";
+            string nameFormatter = "{0}{1:D3}{2} {3,-" + (maxHeaderLength + 1) + "}: {4}{5}";
+            string formatter = "{0,-" + (maxHeaderLength + 1) + "}";
 
-            var assCounter = 1;
+            int assCounter = 1;
             report.Assemblies
                 .OrderByDescending(a => a.IsGAC)
                 .ForEach(ass =>
                 {
-                    builder.AppendFormat(nameFormatter, LinePrefix, assCounter, Pipe, AssemblyHeaders[0], ass.Name, NewLine);
+                    builder.AppendFormat(nameFormatter, LinePrefix, assCounter.ToString(), Pipe.ToString(), AssemblyHeaders[0], ass.Name, NewLine);
 
-                    Format(AssemblyHeaders[1], ass.IsGAC);
-                    Format(AssemblyHeaders[2], ass.Is64Bit);
-                    Format(AssemblyHeaders[3], ass.IsOptimized);
+                    Format(AssemblyHeaders[1], ass.IsGAC.ToString());
+                    Format(AssemblyHeaders[2], ass.Is64Bit.ToString());
+                    Format(AssemblyHeaders[3], ass.IsOptimized.ToString());
                     Format(AssemblyHeaders[4], ass.Framework);
                     Format(AssemblyHeaders[5], ass.Location);
                     Format(AssemblyHeaders[6], ass.CodeBase);
@@ -527,11 +524,11 @@ namespace Easy.Common
                     {
                         builder.Append(LinePrefix).AppendLine();
                     }
-                    
+
                     assCounter++;
                 });
 
-            var maxLineLength = GetMaximumLineLength(builder, sectionIndex);
+            int maxLineLength = GetMaximumLineLength(builder, sectionIndex);
             builder.Insert(sectionIndex, GetSeperator("Assemblies", maxLineLength));
 
             void Format(string key, object value) =>
@@ -547,29 +544,30 @@ namespace Easy.Common
 
         private static void AddEnvironmentVariables(StringBuilder builder, DiagnosticReport report)
         {
-            var envKeyVals = report.EnvironmentVariables.OrderBy(kv => kv.Key)
+            Dictionary<string, string> envKeyVals = report.EnvironmentVariables
+                .OrderBy(kv => kv.Key)
                 .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-            var sectionIndex = builder.Length;
+            int sectionIndex = builder.Length;
 
-            var envVarCounter = 1;
-            var maxKeyLength = envKeyVals.Keys.Max(key => key.Length);
-            var format = "{0}{1:D3}{2} {3,-" + maxKeyLength + "} : {4}{5}";
+            int envVarCounter = 1;
+            int maxKeyLength = envKeyVals.Keys.Max(key => key.Length);
+            string format = "{0}{1:D3}{2} {3,-" + maxKeyLength + "} : {4}{5}";
             envKeyVals.ForEach(kv =>
             {
-                builder.AppendFormat(format, LinePrefix, envVarCounter, Dot, kv.Key, kv.Value, NewLine);
+                builder.AppendFormat(format, LinePrefix, envVarCounter.ToString(), Dot.ToString(), kv.Key, kv.Value, NewLine);
                 envVarCounter++;
             });
 
-            var maxLineLength = GetMaximumLineLength(builder, sectionIndex);
+            int maxLineLength = GetMaximumLineLength(builder, sectionIndex);
             builder.Insert(sectionIndex, GetSeperator("Environment-Variables", maxLineLength));
         }
 
         private static void AddNetwork(StringBuilder builder, DiagnosticReport report)
         {
-            var net = report.NetworkingDetails;
+            NetworkDetails net = report.NetworkingDetails;
 
-            var sectionIndex = builder.Length;
+            int sectionIndex = builder.Length;
 
             builder.Append(LinePrefix)
                 .Append(Dot).Append(Space)
@@ -578,18 +576,18 @@ namespace Easy.Common
                 .Append(Space).Append(Space)
                 .AppendLine("-------------------------");
 
-            var maxKeyLength = NetworkHeaders.Max(h => h.Length);
-            var format = "{0}  {1} {2,-" + maxKeyLength.ToString() + "} : {3}{4}";
+            int maxKeyLength = NetworkHeaders.Max(h => h.Length);
+            string format = "{0}  {1} {2,-" + maxKeyLength.ToString() + "} : {3}{4}";
 
             Format(NetworkHeaders[0], net.Host);
             Format(NetworkHeaders[1], net.Domain);
             Format(NetworkHeaders[2], net.DHCPScope);
             Format(NetworkHeaders[3], net.NodeType);
-            Format(NetworkHeaders[4], net.IsWINSProxy);
+            Format(NetworkHeaders[4], net.IsWINSProxy.ToString());
 
             builder.Append(LinePrefix).AppendLine();
 
-            foreach (var item in net.InterfaceDetails)
+            foreach (NetworkInterfaceDetails item in net.InterfaceDetails)
             {
                 builder.Append(LinePrefix)
                     .Append(Dot).Append(Space)
@@ -602,24 +600,24 @@ namespace Easy.Common
                 Format(NetworkHeaders[6], item.MAC);
                 Format(NetworkHeaders[7], item.Interface.NetworkInterfaceType);
                 Format(NetworkHeaders[8], item.Interface.OperationalStatus);
-                Format(NetworkHeaders[10], item.Interface.SupportsMulticast);
+                Format(NetworkHeaders[10], item.Interface.SupportsMulticast.ToString());
 
                 if (ApplicationHelper.IsWindows)
                 {
-                    Format(NetworkHeaders[9], item.Interface.IsReceiveOnly);
+                    Format(NetworkHeaders[9], item.Interface.IsReceiveOnly.ToString());
                     Format(NetworkHeaders[11], (item.Interface.Speed / 1000000).ToString("N0") + " Mbit/s");
                 }
 
                 if (item.Addresses.Any())
                 {
-                    var ipAddresses = "[" + string.Join(" | ", item.Addresses.Select(i => i.ToString())) + "]";
+                    string ipAddresses = "[" + string.Join(" | ", item.Addresses.Select(i => i.ToString())) + "]";
                     Format(NetworkHeaders[12], ipAddresses);
                 }
-                
+
                 builder.Append(LinePrefix).AppendLine();
             }
 
-            var maxLineLength = GetMaximumLineLength(builder, sectionIndex);
+            int maxLineLength = GetMaximumLineLength(builder, sectionIndex);
             builder.Insert(sectionIndex, GetSeperator("Networks", maxLineLength));
 
             void Format(string key, object value)
@@ -631,7 +629,7 @@ namespace Easy.Common
 
         private static void WrapInTable(StringBuilder builder, IReadOnlyList<string> columnHeaders, IReadOnlyList<string[]> values)
         {
-            foreach (var row in values)
+            foreach (string[] row in values)
             {
                 if (row.Length != columnHeaders.Count)
                 {
@@ -640,18 +638,18 @@ namespace Easy.Common
             }
 
             // initialize cellLengths first based on length of the headers
-            var cellLengths = new int[columnHeaders.Count];
+            int[] cellLengths = new int[columnHeaders.Count];
             for (var i = 0; i < columnHeaders.Count; i++)
             {
                 var headerLength = columnHeaders[i].Length;
                 cellLengths[i] = headerLength;
             }
 
-            foreach (var row in values) 
+            foreach (string[] row in values)
             {
-                for (var i = 0; i < columnHeaders.Count; i++)
+                for (int i = 0; i < columnHeaders.Count; i++)
                 {
-                    var cellVal = row[i];
+                    string cellVal = row[i];
                     if (cellVal.Length > cellLengths[i])
                     {
                         cellLengths[i] = cellVal.Length;
@@ -659,44 +657,44 @@ namespace Easy.Common
                 }
             }
 
-            for (var i = 0; i < cellLengths.Length; i++)
+            for (int i = 0; i < cellLengths.Length; i++)
             {
                 cellLengths[i] = cellLengths[i] + 2;
             }
 
-            var headerBuilder = StringBuilderCache.Acquire();
+            StringBuilder headerBuilder = StringBuilderCache.Acquire();
 
             // insert headers
             headerBuilder.Append(LinePrefix);
-            for (var i = 0; i < columnHeaders.Count; i++)
+            for (int i = 0; i < columnHeaders.Count; i++)
             {
-                var headerVal = columnHeaders[i];
-                var formatter = "{0} {1,-" + (cellLengths[i] - 2).ToString() + "} ";
+                string headerVal = columnHeaders[i];
+                string formatter = "{0} {1,-" + (cellLengths[i] - 2).ToString() + "} ";
                 headerBuilder.AppendFormat(formatter, Pipe.ToString(), headerVal);
             }
             headerBuilder.Append(Pipe).AppendLine();
 
             // insert headers underline
             headerBuilder.Append(LinePrefix);
-            for (var i = 0; i < columnHeaders.Count; i++)
+            for (int i = 0; i < columnHeaders.Count; i++)
             {
                 headerBuilder.Append(Pipe).Append(new string(Dash, cellLengths[i]));
             }
-            
-            var maxLineLengthInHeader = GetMaximumLineLength(headerBuilder);
-            var beginAndEnd = $"{LinePrefix} {new string(Dash, maxLineLengthInHeader - LinePrefix.Length - 2)}{NewLine}";
+
+            int maxLineLengthInHeader = GetMaximumLineLength(headerBuilder);
+            string beginAndEnd = $"{LinePrefix} {new string(Dash, maxLineLengthInHeader - LinePrefix.Length - 2)}{NewLine}";
             headerBuilder.Insert(0, beginAndEnd);
 
-            var beginPos = builder.Length;
+            int beginPos = builder.Length;
 
             // insert row values
             builder.Append(Pipe).AppendLine();
-            foreach (var row in values)
+            foreach (string[] row in values)
             {
                 builder.Append(LinePrefix);
-                for (var j = 0; j < row.Length; j++)
+                for (int j = 0; j < row.Length; j++)
                 {
-                    var formatter = "{0} {1,-" + (cellLengths[j] - 2).ToString() + "} ";
+                    string formatter = "{0} {1,-" + (cellLengths[j] - 2).ToString() + "} ";
                     builder.AppendFormat(formatter, Pipe.ToString(), row[j]);
                 }
                 builder.Append(Pipe).AppendLine();
@@ -705,7 +703,7 @@ namespace Easy.Common
             builder.Insert(beginPos, StringBuilderCache.GetStringAndRelease(headerBuilder));
             builder.Append(beginAndEnd);
 
-            var maxLineLength = GetMaximumLineLength(builder, beginPos);
+            int maxLineLength = GetMaximumLineLength(builder, beginPos);
             builder.Insert(beginPos, GetSeperator("Drives", maxLineLength));
         }
 
@@ -714,18 +712,18 @@ namespace Easy.Common
             if (start >= builder.Length) { throw new IndexOutOfRangeException(); }
 
             int maxLength = 0, tmpLength = 0;
-            var prevChar = '\0';
+            char prevChar = '\0';
 
-            for (var i = start; i < builder.Length; i++)
+            for (int i = start; i < builder.Length; i++)
             {
-                var currChar = builder[i];
+                char currChar = builder[i];
 
                 if (currChar == '\n')
                 {
                     if (prevChar == '\r') { --tmpLength; }
                     if (maxLength < tmpLength) { maxLength = tmpLength; }
                     tmpLength = 0;
-                } 
+                }
                 else { tmpLength++; }
 
                 prevChar = currChar;
@@ -735,13 +733,13 @@ namespace Easy.Common
 
         private static bool IsReportEnabled(DiagnosticReportType requestedType, DiagnosticReportType section)
         {
-            var indexOf = Array.IndexOf(ReportSections, section);
+            int indexOf = Array.IndexOf(ReportSections, section);
             return ((int)requestedType & (1 << indexOf)) != 0;
         }
 
         private static string GetProcessorName()
         {
-            var result = "UNKNOWN";
+            string result = "UNKNOWN";
 
             try
             {
@@ -750,7 +748,8 @@ namespace Easy.Common
                 if (ApplicationHelper.IsOSX) { result = GetProcessorNameOSX(); }
 
                 return Regex.Replace(result, @"\s+", " ");
-            } catch (Exception) { return result; }
+            }
+            catch (Exception) { return result; }
         }
 
         /// <summary>
@@ -761,7 +760,7 @@ namespace Easy.Common
         private static string GetProcessorNameWindows()
         {
 #if NETCOREAPP || NETFRAMEWORK || NETSTANDARD2_0
-            var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0\");
+            RegistryKey key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0\");
             return key?.GetValue("ProcessorNameString").ToString() ?? "Not Found";
 #else
             return "<INVALID>"; // This should be unreachable.
@@ -772,13 +771,13 @@ namespace Easy.Common
         {
             // ReSharper disable once InconsistentNaming
             const string CPUFile = "/proc/cpuinfo";
-            var cpuLine = File.ReadLines(CPUFile)
+            string cpuLine = File.ReadLines(CPUFile)
                 .FirstOrDefault(l => l.StartsWith("model name", StringComparison.InvariantCultureIgnoreCase));
 
             if (cpuLine is null) { return "<UNKNOWN>"; }
 
             const string Separator = ": ";
-            var startIdx = cpuLine.IndexOf(Separator, StringComparison.Ordinal) + Separator.Length;
+            int startIdx = cpuLine.IndexOf(Separator, StringComparison.Ordinal) + Separator.Length;
             return cpuLine.Substring(startIdx, cpuLine.Length - startIdx);
         }
 
@@ -794,7 +793,8 @@ namespace Easy.Common
                 if (ApplicationHelper.IsOSX) { return GetInstalledMemoryInGigaBytesOSX(); }
 
                 return 0;
-            } catch (Exception) { return 0; }
+            }
+            catch (Exception) { return 0; }
         }
 
         private static long GetInstalledMemoryInGigaBytesWindows()
@@ -806,23 +806,23 @@ namespace Easy.Common
         private static long GetInstalledMemoryInGigaBytesLinux()
         {
             const string MemFile = "/proc/meminfo";
-            var memLine = File.ReadLines(MemFile)
+            string memLine = File.ReadLines(MemFile)
                 .FirstOrDefault(l => l.StartsWith("MemTotal:", StringComparison.InvariantCultureIgnoreCase));
 
             if (memLine is null) { return -1; }
-            
+
             const string BeginSeparator = ":";
             const string EndSeparator = "kB";
-            var startIdx = memLine.IndexOf(BeginSeparator, StringComparison.Ordinal) + BeginSeparator.Length;
-            var endIdx = memLine.IndexOf(EndSeparator, StringComparison.Ordinal);
-            var memStr = memLine.Substring(startIdx, endIdx - startIdx);
+            int startIdx = memLine.IndexOf(BeginSeparator, StringComparison.Ordinal) + BeginSeparator.Length;
+            int endIdx = memLine.IndexOf(EndSeparator, StringComparison.Ordinal);
+            string memStr = memLine.Substring(startIdx, endIdx - startIdx);
             return long.Parse(memStr) / 1000_000;
         }
 
         // ReSharper disable once InconsistentNaming
         private static long GetInstalledMemoryInGigaBytesOSX()
         {
-            var memStr = AsBashCommand("sysctl -n hw.memsize");
+            string memStr = AsBashCommand("sysctl -n hw.memsize");
             return long.Parse(memStr) / 1000_000_000;
         }
 
@@ -833,7 +833,8 @@ namespace Easy.Common
                 if (ApplicationHelper.IsWindows) { return GetUptimeWindows(); }
                 if (ApplicationHelper.IsLinux) { return GetUptimeLinux(); }
                 return TimeSpan.MinValue;
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 return TimeSpan.MinValue;
             }
@@ -841,28 +842,28 @@ namespace Easy.Common
 
         private static TimeSpan GetUptimeWindows()
         {
-            var start = Stopwatch.StartNew();
+            Stopwatch start = Stopwatch.StartNew();
             return TimeSpan.FromMilliseconds(GetTickCount64()).Subtract(start.Elapsed);
         }
 
         private static TimeSpan GetUptimeLinux()
         {
             const string UptimeFile = "/proc/uptime";
-            var upTimeStr = File.ReadAllText(UptimeFile);
+            string upTimeStr = File.ReadAllText(UptimeFile);
 
-            var stopIdx = upTimeStr.IndexOf(Space);
-            var upTimeSecStr = upTimeStr.Substring(0, stopIdx);
-            var upTimeSec = double.Parse(upTimeSecStr);
+            int stopIdx = upTimeStr.IndexOf(Space);
+            string upTimeSecStr = upTimeStr.Substring(0, stopIdx);
+            double upTimeSec = double.Parse(upTimeSecStr);
             return TimeSpan.FromSeconds(upTimeSec);
         }
 
-        private static string GetSeperator(string title, int count) => 
+        private static string GetSeperator(string title, int count) =>
             $"{Pipe.ToString()}{NewLine}{Pipe.ToString()}{title}{Pipe.ToString()}{new string(Dot, count - title.Length)}{NewLine}{Pipe.ToString()}{NewLine}";
 
         private static string AsBashCommand(string command)
         {
-            var escapedArgs = command.Replace("\"", "\\\"");
-            using var p = new Process
+            string escapedArgs = command.Replace("\"", "\\\"");
+            using Process p = new()
             {
                 EnableRaisingEvents = true,
                 StartInfo = new ProcessStartInfo
@@ -884,11 +885,7 @@ namespace Easy.Common
 
         private static string GetOSPlatform()
         {
-            if (ApplicationHelper.OSPlatform == OSPlatform.Windows)
-            {
-                return IsWindowsServer() ? "Windows (Server)" : "Windows (Desktop)";
-            }
-
+            if (ApplicationHelper.OSPlatform == OSPlatform.Windows) { return IsWindowsServer() ? "Windows (Server)" : "Windows (Desktop)"; }
             if (ApplicationHelper.OSPlatform == OSPlatform.Linux) { return "Linux"; }
             if (ApplicationHelper.OSPlatform == OSPlatform.OSX) { return "OSX"; }
 
@@ -906,11 +903,12 @@ namespace Easy.Common
             static Version GetVersionFull()
             {
                 const string REG_KEY = @"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full";
-                using var ndpKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(REG_KEY);
-                
+                using RegistryKey ndpKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(REG_KEY);
+
                 if (ndpKey != null)
                 {
-                    var value = (int)(ndpKey.GetValue("Release") ?? 0);
+                    int value = (int)(ndpKey.GetValue("Release") ?? 0);
+                    if (value >= 528040) { return new Version(4, 8, 0); }
                     if (value >= 461808) { return new Version(4, 7, 2); }
                     if (value >= 461308) { return new Version(4, 7, 1); }
                     if (value >= 460798) { return new Version(4, 7, 0); }
@@ -939,9 +937,9 @@ namespace Easy.Common
             {
                 const string REGEX_PATTERN = @"Microsoft\.NETCore\.App[\\,/](?<version>\d+\.\d+.\d+(.\d+)?)$";
                 
-                var runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location);
+                string runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location);
 
-                var match = Regex.Match(runtimePath, REGEX_PATTERN);
+                Match match = Regex.Match(runtimePath, REGEX_PATTERN);
 
                 if (!match.Success)
                 {
@@ -964,7 +962,7 @@ namespace Easy.Common
 
         [DllImport("shlwapi.dll", SetLastError = true, EntryPoint = "#437")]
         private static extern bool IsOS(int os);
-        // ReSharper disable once InconsistentNaming
+
         private const int OS_ANYSERVER = 29;
     }
 }
