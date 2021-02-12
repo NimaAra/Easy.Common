@@ -1,7 +1,7 @@
 ﻿// See https://stackoverflow.com/a/62656145/1226568
 namespace System.Runtime.CompilerServices
 {
-    public class IsExternalInit { }
+    internal class IsExternalInit { }
 }
 
 // ReSharper disable once CheckNamespace
