@@ -105,7 +105,6 @@
             var instanceBuilder = AccessorBuilder.BuildInstanceCreator<ValueTypeWithCtor>(publicCtor[0]);
             var instance = instanceBuilder(new object[] { "Child", 10 });
 
-            instance.ShouldNotBeNull();
             instance.ShouldBeOfType<ValueTypeWithCtor>();
             instance.ShouldBeAssignableTo<ValueTypeWithCtor>();
             instance.Name.ShouldBe("Child");
@@ -119,7 +118,6 @@
             var instanceBuilder = AccessorBuilder.BuildInstanceCreator<ValueTypeDefaultCtor>();
             var instance = instanceBuilder();
 
-            instance.ShouldNotBeNull();
             instance.ShouldBeOfType<ValueTypeDefaultCtor>();
             instance.ShouldBeAssignableTo<ValueTypeDefaultCtor>();
             instance.Name.ShouldBe("Foo");
