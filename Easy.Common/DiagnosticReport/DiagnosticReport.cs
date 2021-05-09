@@ -5,6 +5,7 @@ namespace Easy.Common
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Net.NetworkInformation;
@@ -15,8 +16,7 @@ namespace Easy.Common
     using System.Text.RegularExpressions;
     using System.Threading;
     using Easy.Common.Extensions;
-    using Microsoft.Win32;
-
+    
     /// <summary>
     /// A helper class for generating a report containing details related to 
     /// <c>System</c>, <c>Process</c>, <c>Assemblies</c>, <c>Networks</c> and <c>Environment</c> 
@@ -105,7 +105,8 @@ namespace Easy.Common
 
         private static readonly string[] AssemblyHeaders =
         {
-            "Name", "GAC", "64Bit", "Optimized", "Framework", "Location", "CodeBase"
+            "FullName", "FileName", "GAC", "64Bit", "Optimized", "Framework", "Location", 
+            "CodeBase", "Version", "FileVersion", "ProductVersion", "ProductName", "CompanyName"
         };
 
         private static readonly string[] NetworkHeaders =
@@ -228,7 +229,7 @@ namespace Easy.Common
 
             using Process p = Process.GetCurrentProcess();
 
-            FileVersionInfo pVerInfo = p.MainModule.FileVersionInfo;
+            FileVersionInfo pVerInfo = p.MainModule?.FileVersionInfo;
 
             ThreadPool.GetMinThreads(out int minWrkrs, out int minComplWrkers);
             ThreadPool.GetMaxThreads(out int maxWrkrs, out int maxComplWrkers);
@@ -245,15 +246,15 @@ namespace Easy.Common
                 IsServerGC = GCSettings.IsServerGC,
                 IsLargeAddressAware = ApplicationHelper.IsProcessLargeAddressAware(),
                 WorkingSetInMegaBytes = UnitConverter.BytesToMegaBytes(Environment.WorkingSet),
-                FileVersion = pVerInfo.FileVersion,
-                ProductVersion = pVerInfo.ProductVersion,
-                Language = pVerInfo.Language,
-                Copyright = pVerInfo.LegalCopyright,
-                OriginalFileName = pVerInfo.OriginalFilename,
-                FileName = pVerInfo.FileName,
-                ModuleName = p.MainModule.ModuleName,
-                ModuleFileName = p.MainModule.FileName,
-                ProductName = pVerInfo.ProductName,
+                FileVersion = pVerInfo?.FileVersion,
+                ProductVersion = pVerInfo?.ProductVersion,
+                Language = pVerInfo?.Language,
+                Copyright = pVerInfo?.LegalCopyright,
+                OriginalFileName = pVerInfo?.OriginalFilename,
+                FileName = pVerInfo?.FileName,
+                ModuleName = p.MainModule?.ModuleName,
+                ModuleFileName = p.MainModule?.FileName,
+                ProductName = pVerInfo?.ProductName,
                 CommandLine = Environment.GetCommandLineArgs(),
                 ThreadPoolMinCompletionPortCount = (uint)minComplWrkers,
                 ThreadPoolMaxCompletionPortCount = (uint)maxComplWrkers,
@@ -322,15 +323,34 @@ namespace Easy.Common
             return AppDomain.CurrentDomain.GetAssemblies()
                 .Where(ass => !ass.IsDynamic)
                 .OrderByDescending(o => o.GlobalAssemblyCache)
-                .Select(ass => new AssemblyDetails
+                .Select(ass =>
                 {
-                    Name = ass.FullName,
-                    IsGAC = ass.GlobalAssemblyCache,
-                    Is64Bit = !ass.Is32Bit(),
-                    IsOptimized = ass.IsOptimized(),
-                    Framework = ass.GetFrameworkVersion(),
-                    Location = ass.Location,
-                    CodeBase = new Uri(ass.CodeBase)
+                    string assLoc = ass.Location;
+                    if (assLoc.IsNullOrEmptyOrWhiteSpace())
+                    {
+                        Uri uri = new (ass.CodeBase);
+                        assLoc = uri.LocalPath;
+                    }
+
+                    string version = ass.GetName().Version.ToString();
+                    FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(assLoc);
+                    
+                    return new AssemblyDetails
+                    {
+                        FullName = ass.FullName,
+                        FileName = versionInfo.OriginalFilename,
+                        IsGAC = ass.GlobalAssemblyCache,
+                        Is64Bit = !ass.Is32Bit(),
+                        IsOptimized = ass.IsOptimized(),
+                        Framework = ass.GetFrameworkVersion(),
+                        Location = ass.Location,
+                        CodeBase = new Uri(ass.CodeBase),
+                        Version = version,
+                        FileVersion = versionInfo.FileVersion,
+                        ProductVersion = versionInfo.ProductVersion,
+                        ProductName = versionInfo.ProductName,
+                        CompanyName = versionInfo.CompanyName
+                    };
                 })
                 .ToArray();
         }
@@ -375,9 +395,9 @@ namespace Easy.Common
                 }
             }
 
-            builder.Insert(0, $"/{NewLine}{Pipe.ToString()}Diagnostic Report generated at: " +
+            builder.Insert(0, $"/{NewLine}{Pipe}Diagnostic Report generated at: " +
                               $"{report.Timestamp.ToString("dd-MM-yyyy HH:mm:ss.fff (zzzz)")} in: " +
-                              $"{report.TimeTaken.TotalMilliseconds.ToString()} milliseconds.{NewLine}")
+                              $"{report.TimeTaken.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)} milliseconds.{NewLine}")
                 .Append('\\');
 
             return StringBuilderCache.GetStringAndRelease(builder);
@@ -511,14 +531,20 @@ namespace Easy.Common
                 .OrderByDescending(a => a.IsGAC)
                 .ForEach(ass =>
                 {
-                    builder.AppendFormat(nameFormatter, LinePrefix, assCounter.ToString(), Pipe.ToString(), AssemblyHeaders[0], ass.Name, NewLine);
+                    builder.AppendFormat(nameFormatter, LinePrefix, assCounter.ToString(), Pipe.ToString(), AssemblyHeaders[0], ass.FullName, NewLine);
 
-                    Format(AssemblyHeaders[1], ass.IsGAC.ToString());
-                    Format(AssemblyHeaders[2], ass.Is64Bit.ToString());
-                    Format(AssemblyHeaders[3], ass.IsOptimized.ToString());
-                    Format(AssemblyHeaders[4], ass.Framework);
-                    Format(AssemblyHeaders[5], ass.Location);
-                    Format(AssemblyHeaders[6], ass.CodeBase);
+                    Format(AssemblyHeaders[1], ass.FileName.ToString());
+                    Format(AssemblyHeaders[2], ass.IsGAC.ToString());
+                    Format(AssemblyHeaders[3], ass.Is64Bit.ToString());
+                    Format(AssemblyHeaders[4], ass.IsOptimized.ToString());
+                    Format(AssemblyHeaders[5], ass.Framework);
+                    Format(AssemblyHeaders[6], ass.Location);
+                    Format(AssemblyHeaders[7], ass.CodeBase);
+                    Format(AssemblyHeaders[8], ass.Version);
+                    Format(AssemblyHeaders[9], ass.FileVersion);
+                    Format(AssemblyHeaders[10], ass.ProductVersion);
+                    Format(AssemblyHeaders[11], ass.ProductName);
+                    Format(AssemblyHeaders[12], ass.CompanyName);
 
                     if (assCounter != report.Assemblies.Length)
                     {
@@ -760,7 +786,7 @@ namespace Easy.Common
         private static string GetProcessorNameWindows()
         {
 #if NETCOREAPP || NETFRAMEWORK || NETSTANDARD2_0
-            RegistryKey key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0\");
+            Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0\");
             return key?.GetValue("ProcessorNameString").ToString() ?? "Not Found";
 #else
             return "<INVALID>"; // This should be unreachable.
@@ -903,7 +929,7 @@ namespace Easy.Common
             static Version GetVersionFull()
             {
                 const string REG_KEY = @"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full";
-                using RegistryKey ndpKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(REG_KEY);
+                using Microsoft.Win32.RegistryKey ndpKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(REG_KEY);
 
                 if (ndpKey != null)
                 {

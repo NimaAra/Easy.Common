@@ -11,7 +11,12 @@ namespace Easy.Common
         /// <summary>
         /// Gets the full name of the assembly.
         /// </summary>
-        public string Name { get; init; }
+        public string FullName { get; init; }
+        
+        /// <summary>
+        /// Gets the file name of the assembly.
+        /// </summary>
+        public string FileName { get; init; }
 
         /// <summary>
         /// Gets the flag indicating whether the assembly has been loaded from the <c>GAC</c>.
@@ -46,5 +51,30 @@ namespace Easy.Common
         /// </remarks> 
         /// </summary>
         public Uri CodeBase { get; init; }
+
+        /// <summary>
+        /// Gets the version of the assembly.
+        /// </summary>
+        public string Version { get; init; }
+        
+        /// <summary>
+        /// Gets the file version of the assembly.
+        /// </summary>
+        public string FileVersion { get; init; }
+        
+        /// <summary>
+        /// Gets the production version of the assembly.
+        /// </summary>
+        public string ProductVersion { get; init; }
+        
+        /// <summary>
+        /// Gets the product name of the assembly.
+        /// </summary>
+        public string ProductName { get; init; }
+
+        /// <summary>
+        /// Gets the company name of the assembly.
+        /// </summary>
+        public string CompanyName { get; init; }
     }
 }
