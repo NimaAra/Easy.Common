@@ -533,7 +533,7 @@ namespace Easy.Common
                 {
                     builder.AppendFormat(nameFormatter, LinePrefix, assCounter.ToString(), Pipe.ToString(), AssemblyHeaders[0], ass.FullName, NewLine);
 
-                    Format(AssemblyHeaders[1], ass.FileName.ToString());
+                    Format(AssemblyHeaders[1], ass.FileName);
                     Format(AssemblyHeaders[2], ass.IsGAC.ToString());
                     Format(AssemblyHeaders[3], ass.Is64Bit.ToString());
                     Format(AssemblyHeaders[4], ass.IsOptimized.ToString());
