@@ -288,24 +288,28 @@ namespace Easy.Common
             return DriveInfo.GetDrives()
                 .Select(d =>
                 {
-                    string dashString = Dash.ToString();
-                    string driveFormat = string.Empty, volumeLabel = string.Empty;
+                    string driveName = "Unknown", driveType = "Unknown", driveFormat = "Unknown", volumeLabel = "Unknown";
                     double capacity = 0, free = 0, available = 0;
 
-                    if (d.IsReady)
+                    try
                     {
-                        // ReSharper disable once ConstantNullCoalescingCondition
-                        driveFormat = d.DriveFormat ?? dashString;
-                        volumeLabel = d.VolumeLabel ?? dashString;
-                        capacity = UnitConverter.BytesToGigaBytes(d.TotalSize);
-                        free = UnitConverter.BytesToGigaBytes(d.TotalFreeSpace);
-                        available = UnitConverter.BytesToGigaBytes(d.AvailableFreeSpace);
-                    }
+                        driveName = d.Name;
+                        driveType = d.DriveType.ToString();
+
+                        if (d.IsReady)
+                        {
+                            driveFormat = d.DriveFormat;
+                            volumeLabel = d.VolumeLabel;
+                            capacity = UnitConverter.BytesToGigaBytes(d.TotalSize);
+                            free = UnitConverter.BytesToGigaBytes(d.TotalFreeSpace);
+                            available = UnitConverter.BytesToGigaBytes(d.AvailableFreeSpace);
+                        }
+                    } catch (Exception) { /* ignored */ }
 
                     return new DriveDetails
                     {
-                        Name = d.Name,
-                        Type = d.DriveType.ToString(),
+                        Name = driveName,
+                        Type = driveType,
                         Format = driveFormat,
                         Label = volumeLabel,
                         TotalCapacityInGigaBytes = capacity,

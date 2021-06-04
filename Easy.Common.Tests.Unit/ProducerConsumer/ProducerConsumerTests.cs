@@ -177,15 +177,15 @@
             queue.PendingCount.ShouldBe<uint>(0);
 
             queue.TryAdd("Foo").ShouldBeTrue();
-            Thread.Sleep(100);
+            Thread.Sleep(200);
             queue.PendingCount.ShouldBe<uint>(0, "Because the worker has already removed the item from the queue.");
 
             queue.TryAdd("Bar").ShouldBeTrue();
-            Thread.Sleep(100);
+            Thread.Sleep(200);
             queue.PendingCount.ShouldBe<uint>(1, "Because the worker is now blocked so no more item can be removed from the queue.");
 
             queue.TryAdd("Yaboo").ShouldBeTrue();
-            Thread.Sleep(100);
+            Thread.Sleep(200);
             queue.PendingCount.ShouldBe<uint>(2);
 
             queue.TryAdd("Baboo").ShouldBeFalse("Because the bounded capacity has been reached.");
@@ -194,7 +194,7 @@
             queue.TryAdd("Taboo").ShouldBeFalse();
             queue.PendingCount.ShouldBe<uint>(2);
 
-            using (exceptionsThrown.Lock(100.Milliseconds()))
+            using (exceptionsThrown.Lock(200.Milliseconds()))
             {
                 exceptionsThrown.ShouldBeEmpty();
             }
