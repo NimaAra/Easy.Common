@@ -203,7 +203,7 @@ namespace Easy.Common.Extensions
         /// As part of the Lock extension method on <c>object</c>s 
         /// it provides a timeout mechanism for acquiring locks.
         /// </summary>
-        public struct Locker : IDisposable
+        public readonly struct Locker : IDisposable
         {
             private readonly object _obj;
 
