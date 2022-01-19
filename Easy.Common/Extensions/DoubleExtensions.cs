@@ -10,8 +10,6 @@
         /// <summary>
         /// Returns the number of decimal places for a given <paramref name="value"/>.
         /// </summary>
-        /// <param name="value">The double value</param>
-        /// <returns>The number of decimal places</returns>
         public static uint GetDecimalPlaces(this double value)
         {
             Ensure.Not(
@@ -29,9 +27,6 @@
         /// <summary>
         /// Returns the Floor of the given <paramref name="value"/> to the specified <paramref name="decimalPlaces"/> decimal places.
         /// </summary>
-        /// <param name="value">The double value</param>
-        /// <param name="decimalPlaces">The number of decimal places</param>
-        /// <returns>The Floor as double value</returns>
         public static double Floor(this double value, uint decimalPlaces)
         {
             if (decimalPlaces == 0 
@@ -53,9 +48,6 @@
         /// <summary>
         /// Returns the Ceiling of the given <paramref name="value"/> to the specified <paramref name="decimalPlaces"/> decimal places.
         /// </summary>
-        /// <param name="value">The double value</param>
-        /// <param name="decimalPlaces">The number of decimal places</param>
-        /// <returns>The Ceiling as double value</returns>
         public static double Ceiling(this double value, uint decimalPlaces)
         {
             if (decimalPlaces == 0 
@@ -77,10 +69,6 @@
         /// <summary>
         /// Determines if two double values are almost equal based on a specified tolerance.
         /// </summary>
-        /// <param name="left">The left double</param>
-        /// <param name="right">The right double</param>
-        /// <param name="epsilon">The tolerance</param>
-        /// <returns>Result of equality</returns>
         public static bool EqualsFuzzy(this double left, double right, double epsilon = 0.00001)
         {
             if (left.Equals(right)) { return true; }
@@ -97,5 +85,10 @@
             if (diff < epsilon) { return true; }
             return false;
         }
+
+        /// <summary>
+        /// Determines if the given <paramref name="value"/> is finite.
+        /// </summary>
+        public static bool IsFinite(this double value) => !double.IsNaN(value) && !double.IsInfinity(value);
     }
 }

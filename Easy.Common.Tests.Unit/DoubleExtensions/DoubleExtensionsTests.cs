@@ -256,5 +256,22 @@
         {
             left.EqualsFuzzy(right, epsilon).ShouldBe(expectedResult);
         }
+
+        [TestCase(0, true)]
+        [TestCase(-1, true)]
+        [TestCase(1, true)]
+        [TestCase(0.1, true)]
+        [TestCase(-0.0001, true)]
+        [TestCase(double.Epsilon, true)]
+        [TestCase(double.MaxValue, true)]
+        [TestCase(double.MinValue, true)]
+        
+        [TestCase(double.NaN, false)]
+        [TestCase(double.NegativeInfinity, false)]
+        [TestCase(double.PositiveInfinity, false)]
+        public void When_checking_if_doubles_are_finite(double value, bool expectedResult)
+        {
+            value.IsFinite().ShouldBe(expectedResult);
+        }
     }
 }
