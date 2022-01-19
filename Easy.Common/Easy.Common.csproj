@@ -4,7 +4,7 @@
     <PackageId>Easy.Common</PackageId>
     <Description>A set of useful methods used across Easy.* projects.</Description>
     <Authors>Nima Ara</Authors>
-    <Copyright>2021 Nima Ara</Copyright>
+    <Copyright>2022 Nima Ara</Copyright>
     <Title>Easy Common</Title>
     <PackageTags>Easy;Common</PackageTags>
     <PackageProjectUrl>https://github.com/NimaAra/Easy.Common</PackageProjectUrl>
@@ -15,7 +15,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <TargetFrameworks>net45;net471;net472;netcoreapp2.1;netcoreapp3.1;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net471;net472;netcoreapp3.1;netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <AssemblyTitle>Easy Common</AssemblyTitle>
     <AssemblyName>Easy.Common</AssemblyName>
@@ -23,7 +23,7 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>    
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net471' Or '$(TargetFramework)' == 'net472' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net471' Or '$(TargetFramework)' == 'net472' ">
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression.FileSystem" />
@@ -43,7 +43,7 @@
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netcoreapp3.1'">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>
 
