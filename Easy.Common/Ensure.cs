@@ -24,7 +24,7 @@
         [DebuggerStepThrough]
         public static void That<TException>(bool condition, string message = "The given condition is false.") where TException : Exception
         {
-            if (!condition) { throw (TException)Activator.CreateInstance(typeof(TException), message); }
+            if (!condition) { throw ((TException)Activator.CreateInstance(typeof(TException), message))!; }
         }
 
         /// <summary>
