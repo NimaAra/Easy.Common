@@ -11,7 +11,7 @@
         [Test]
         public void When_initializing_a_list_with_multiple_items()
         {
-            var list = new List<int>
+            List<int> list = new ()
             {
                 1,
                 new[] {2, 3, 4, 5},

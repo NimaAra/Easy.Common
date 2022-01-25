@@ -15,7 +15,7 @@
         [DebuggerStepThrough]
         public static void Add<T>(this IList<T> list, IEnumerable<T> items)
         {
-            foreach (var item in items)
+            foreach (T item in items)
             {
                 list.Add(item);
             }

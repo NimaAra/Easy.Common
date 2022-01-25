@@ -194,7 +194,11 @@
             try
             {
                 file = new FileInfo(Path.GetTempFileName());
+#pragma warning disable SYSLIB0001
+#pragma warning disable CS0618
                 using(var writer = new StreamWriter(File.OpenWrite(file.FullName), Encoding.UTF7))
+#pragma warning restore CS0618
+#pragma warning restore SYSLIB0001
                 {
                     writer.WriteLine("A");
                     writer.WriteLine("B");

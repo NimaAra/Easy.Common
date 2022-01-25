@@ -1,4 +1,6 @@
-﻿namespace Easy.Common.Tests.Unit.RestClient
+﻿#pragma warning disable CS0618
+#pragma warning disable SYSLIB0014
+namespace Easy.Common.Tests.Unit.RestClient
 {
     using System;
     using System.Collections.Generic;
@@ -20,17 +22,17 @@
     {
         const string ExpectedMessage = "Hello There!";
         
-        public HttpResponseMessage StringResponseMessage => new HttpResponseMessage(HttpStatusCode.OK)
+        public HttpResponseMessage StringResponseMessage => new (HttpStatusCode.OK)
         {
             Content = new StringContent(ExpectedMessage)
         };
         
-        public HttpResponseMessage BytesResponseMessage => new HttpResponseMessage(HttpStatusCode.OK)
+        public HttpResponseMessage BytesResponseMessage => new (HttpStatusCode.OK)
         {
             Content = new ByteArrayContent(Encoding.UTF8.GetBytes(ExpectedMessage))
         };
         
-        public HttpResponseMessage StreamResponseMessage => new HttpResponseMessage(HttpStatusCode.OK)
+        public HttpResponseMessage StreamResponseMessage => new (HttpStatusCode.OK)
         {
             Content = new StreamContent(new MemoryStream(Encoding.UTF8.GetBytes(ExpectedMessage)))
         };

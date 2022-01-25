@@ -141,33 +141,6 @@
         }
 
         /// <summary>
-        /// Returns all the distinct elements of the given source where <c>distictness</c> is determined
-        /// via a projection and the <see cref="EqualityComparer{TKey}.Default"/> for the given <paramref name="sequence"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, Func<T, TKey> selector) => 
-            DistinctBy(sequence, selector, EqualityComparer<TKey>.Default);
-
-        /// <summary>
-        /// Returns all the distinct elements of the given source where <c>distictness</c> is determined
-        /// via a projection and the <paramref name="comparer"/> and the given <paramref name="comparer"/>.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> sequence, 
-            Func<T, TKey> selector, 
-            IEqualityComparer<TKey> comparer)
-        {
-            var keys = new HashSet<TKey>(comparer);
-            foreach (var item in sequence)
-            {
-                if (keys.Add(selector(item)))
-                {
-                    yield return item;
-                }
-            }
-        }
-
-        /// <summary>
         /// Returns a <see cref="EasyDictionary{TKey,TValue}"/> for the given <paramref name="sequence"/>
         /// based on the <paramref name="keySelector"/>.
         /// </summary>

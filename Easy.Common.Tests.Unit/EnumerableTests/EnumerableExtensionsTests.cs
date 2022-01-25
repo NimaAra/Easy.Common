@@ -90,7 +90,7 @@
         [Test]
         public void When_selecting_a_random_element_from_a_sequence()
         {
-            var input = Enumerable.Range(1, 50).ToArray();
+            var input = Enumerable.Range(1, 500).ToArray();
 
             var collection = input.ToList();
             collection.ShouldBe(input);
@@ -188,22 +188,6 @@
             Enumerable.Empty<int>().IsNotNullOrEmpty().ShouldBeFalse();
 
             ((IEnumerable<int>)null).IsNotNullOrEmpty().ShouldBeFalse();
-        }
-
-        [Test]
-        public void When_getting_distinct_elements_by_given_key_default_comparer()
-        {
-            string[] source = { "one", "two", "three", "four", "five" };
-            var distinct = source.DistinctBy(word => word.Length);
-            distinct.ShouldBe(new[] { "one", "three", "four" });
-        }
-
-        [Test]
-        public void When_getting_distinct_elements_by_given_key_with_comparer()
-        {
-            string[] source = { "one", "two", "three", "four", "five" };
-            var distinct = source.DistinctBy(word => word.Length, EqualityComparer<int>.Default);
-            distinct.ShouldBe(new[] { "one", "three", "four" });
         }
 
 #if NETSTANDARD2_0 || NET45 || NET471

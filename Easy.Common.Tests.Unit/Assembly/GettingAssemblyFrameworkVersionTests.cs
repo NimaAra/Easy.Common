@@ -12,7 +12,7 @@
     [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     public sealed class GettingAssemblyFrameworkVersionTests
     {
-        private readonly string _currentDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+        private readonly string _currentDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().Location).LocalPath);
 
         [Test]
         public void When_getting_framework_version_for_a_dot_net_2_assembly()
