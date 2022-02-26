@@ -35,6 +35,16 @@
         TValue this[TKey key] { get; }
 
         /// <summary>
+        /// Returns the items stored in this instance as <see cref="IDictionary{TKey,TValue}"/>.
+        /// </summary>
+        IDictionary<TKey, TValue> ToDictionary();
+        
+        /// <summary>
+        /// Returns the items stored in this instance as <see cref="IDictionary{TKey,TValue}"/>.
+        /// </summary>
+        IDictionary<TKey, TValue> ToDictionary(IEqualityComparer<TKey> comparer);
+
+        /// <summary>
         /// Determines whether the given <paramref name="key"/> exists.
         /// </summary>
         bool ContainsKey(TKey key);

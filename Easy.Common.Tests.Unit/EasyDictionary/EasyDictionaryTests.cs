@@ -3,12 +3,15 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+    using Easy.Common.Interfaces;
     using NUnit.Framework;
     using Shouldly;
     using HashHelper = Easy.Common.HashHelper;
 
     [TestFixture]
+    [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
     internal sealed class EasyDictionaryTests
     {
         [Test]
@@ -121,7 +124,7 @@
         [Test]
         public void When_creating_easy_dictionary_with_key_selector_and_sequence()
         {
-            var seq = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n));
+            var seq = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n)).ToArray();
             Func<Person, string> selector = p => p.Id;
             EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector, seq);
 
@@ -147,7 +150,7 @@
         [Test]
         public void When_creating_easy_dictionary_with_key_selector_comparer_and_sequence()
         {
-            var seq = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n));
+            var seq = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n)).ToArray();
             var comparer = StringComparer.OrdinalIgnoreCase;
             Func<Person, string> selector = p => p.Id;
             EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
@@ -567,12 +570,12 @@
 
             enumerator.MoveNext().ShouldBeTrue();
 
-            ((KeyValuePair<string, Person>)enumerator.Current).Key.ShouldBe("A");
+            ((KeyValuePair<string, Person>)enumerator.Current!).Key.ShouldBe("A");
             ((KeyValuePair<string, Person>)enumerator.Current).Value.ShouldBe(p1);
 
             enumerator.MoveNext().ShouldBeTrue();
 
-            ((KeyValuePair<string, Person>)enumerator.Current).Key.ShouldBe("B");
+            ((KeyValuePair<string, Person>)enumerator.Current!).Key.ShouldBe("B");
             ((KeyValuePair<string, Person>)enumerator.Current).Value.ShouldBe(p2);
 
             enumerator.MoveNext().ShouldBeFalse();
@@ -674,6 +677,51 @@
             dic.Clear();
 
             dic.Count.ShouldBe(0);
+        }
+
+        [Test]
+        public void When_converting_to_dictionary()
+        {
+            var p1 = new Person("A", 1);
+            var p2 = new Person("B", 2);
+
+            IEasyDictionary<string, Person> easyDic = new EasyDictionary<string, Person>(x => x.Id)
+            {
+                p1, p2
+            };
+
+            IDictionary<string, Person> dic = easyDic.ToDictionary();
+
+            dic.Count.ShouldBe(easyDic.Count);
+            dic["A"].ShouldBe(easyDic["A"]);
+            dic["B"].ShouldBe(easyDic["B"]);
+
+            easyDic.Clear();
+
+            dic.Count.ShouldBe(2);
+        }
+
+        [Test]
+        public void When_converting_to_dictionary_and_specifying_comparer()
+        {
+            var p1 = new Person("A", 1);
+            var p2 = new Person("B", 2);
+
+            var comparer = StringComparer.Ordinal;
+            IEasyDictionary<string, Person> easyDic = new EasyDictionary<string, Person>(x => x.Id, comparer: comparer)
+            {
+                p1, p2
+            };
+
+            IDictionary<string, Person> dicWithSameComparerAsSource = easyDic.ToDictionary();
+
+            dicWithSameComparerAsSource.ContainsKey("A").ShouldBeTrue();
+            dicWithSameComparerAsSource.ContainsKey("a").ShouldBeFalse();
+
+            IDictionary<string, Person> dicWithOwnComparer = easyDic.ToDictionary(StringComparer.OrdinalIgnoreCase);
+
+            dicWithOwnComparer.ContainsKey("A").ShouldBeTrue();
+            dicWithOwnComparer.ContainsKey("a").ShouldBeTrue();
         }
 
         private sealed class Person : Equatable<Person>

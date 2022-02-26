@@ -150,6 +150,17 @@
         public TValue this[TKey key] => _dictionary[key];
 
         /// <summary>
+        /// Returns the items stored in this instance as <see cref="IDictionary{TKey,TValue}"/>.
+        /// </summary>
+        public IDictionary<TKey, TValue> ToDictionary() => new Dictionary<TKey, TValue>(_dictionary, Comparer);
+        
+        /// <summary>
+        /// Returns the items stored in this instance as <see cref="IDictionary{TKey,TValue}"/>.
+        /// </summary>
+        public IDictionary<TKey, TValue> ToDictionary(IEqualityComparer<TKey> comparer) => 
+            new Dictionary<TKey, TValue>(_dictionary, comparer);
+
+        /// <summary>
         /// Adds the given <paramref name="value"/> to the dictionary.
         /// </summary>
         public void Add(TValue value) => _dictionary.Add(KeySelector(value), value);
@@ -179,7 +190,7 @@
         /// </summary>
         public bool Contains(TValue value) => 
             _dictionary.ContainsKey(KeySelector(value)) && _dictionary.ContainsValue(value);
-
+        
         /// <summary>
         /// Determines whether the given <paramref name="key"/> exists.
         /// </summary>
