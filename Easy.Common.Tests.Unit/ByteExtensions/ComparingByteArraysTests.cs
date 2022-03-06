@@ -33,13 +33,21 @@
 
             left = null;
             Should.Throw<ArgumentNullException>(() => left.Compare(right))
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: left");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'left')");
+#endif
 
             left = new byte[] {1};
             right = null;
 
             Should.Throw<ArgumentNullException>(() => left.Compare(right))
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: right");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'right')");
+#endif
 
             left = new byte[0];
             right = new byte[0];

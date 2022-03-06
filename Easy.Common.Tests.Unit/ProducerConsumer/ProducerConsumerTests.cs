@@ -38,7 +38,11 @@
             };
 
             action.ShouldThrow<ArgumentNullException>()
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: consumer");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'consumer')");
+#endif
         }
 
         [Test]

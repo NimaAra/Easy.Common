@@ -139,7 +139,11 @@
                 ((string) null).TryParseAsBool(out result).ShouldBeFalse();
                 result.ShouldBeFalse();
             })
-            .Message.ShouldBe("Value cannot be null. (Parameter 'value')");
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: value");
+#else
+                .Message.ShouldBe("Value cannot be null. (Parameter 'value')");
+#endif
         }
 
         [TestCase("")]
@@ -273,10 +277,18 @@
         public void When_truncating_strings()
         {
             Should.Throw<ArgumentNullException>(() => ((string)null).Truncate(1))
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: input");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'input')");
+#endif
 
             Should.Throw<ArgumentNullException>(() => "someText".Truncate(2, null))
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: suffix");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'suffix')");
+#endif
 
             string.Empty.Truncate(1).ShouldBe(string.Empty);
             "1".Truncate(-1).ShouldBe("1");
@@ -303,7 +315,11 @@
         public void When_removing_new_lines()
         {
             Should.Throw<ArgumentNullException>(() => ((string)null).RemoveNewLines())
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: input");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'input')");
+#endif
 
             string.Empty.RemoveNewLines().ShouldBe(string.Empty);
             "hello".RemoveNewLines().ShouldBe("hello");
@@ -322,7 +338,11 @@
         public void When_checking_if_a_string_is_a_palindrome()
         {
             Should.Throw<ArgumentNullException>(() => ((string)null).IsPalindrome())
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: input");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'input')");
+#endif
 
             string.Empty.IsPalindrome().ShouldBeTrue();
             "1".IsPalindrome().ShouldBeTrue();
@@ -350,7 +370,11 @@
             string result;
 
             Should.Throw<ArgumentNullException>(() => ((string)null).TryExtractValueFromTag("foo", out result))
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: input");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'input')");
+#endif
 
             string.Empty.TryExtractValueFromTag("foo", out result).ShouldBeFalse();
             result.ShouldBeNull();
@@ -431,11 +455,17 @@
             "MyFile/".IsValidPathName().ShouldBeTrue();
             "\\MyFile".IsValidPathName().ShouldBeTrue();
 
+#if NET471_OR_GREATER
+            "MyFile>".IsValidPathName().ShouldBeFalse();
+            "<MyFile>".IsValidPathName().ShouldBeFalse();
+            "<MyFile".IsValidPathName().ShouldBeFalse();
+            "<".IsValidPathName().ShouldBeFalse();
+#else
             "MyFile>".IsValidPathName().ShouldBeTrue();
             "<MyFile>".IsValidPathName().ShouldBeTrue();
             "<MyFile".IsValidPathName().ShouldBeTrue();
             "<".IsValidPathName().ShouldBeTrue();
-
+#endif
             "".IsValidPathName().ShouldBeFalse();
             " ".IsValidPathName().ShouldBeFalse();
             "  ".IsValidPathName().ShouldBeFalse();

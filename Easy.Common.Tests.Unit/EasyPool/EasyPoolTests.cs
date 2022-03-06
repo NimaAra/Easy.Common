@@ -12,7 +12,11 @@
         public void When_creating_a_pool_with_null_factory()
         {
             var ex = Should.Throw<ArgumentNullException>(() => new EasyPool<string>(null, null, 10));
+#if NET471_OR_GREATER
+            ex.Message.ShouldBe("Value cannot be null.\r\nParameter name: factory");
+#else
             ex.Message.ShouldBe("Value cannot be null. (Parameter 'factory')");
+#endif
             ex.ParamName.ShouldBe("factory");
         }
 

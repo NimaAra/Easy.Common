@@ -19,8 +19,12 @@
             {
                 ((Type) null).TryGetGenericArguments(out result);
             });
-
+#if NET471_OR_GREATER
+            e.Message.ShouldBe("Value cannot be null.\r\nParameter name: type");
+#else
             e.Message.ShouldBe("Value cannot be null. (Parameter 'type')");
+#endif
+
             e.ParamName.ShouldBe("type");
         }
 

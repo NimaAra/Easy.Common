@@ -19,31 +19,55 @@
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person, string>(nullPropInfo))
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
+#endif
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person, string>(nullStr))
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person, string>(nullPropInfo))
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
+#endif
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person>(nullStr))
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person>(nullPropInfo))
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
+#endif
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person>(nullStr))
                 .Message.ShouldBe("String must not be null, empty or whitespace.");
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person>(nullPropInfo))
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
+#endif
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter(nullPropInfo))
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
+#endif
 
             Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter(nullPropInfo))
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: propertyInfo");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
+#endif
         }
 
         [Test]

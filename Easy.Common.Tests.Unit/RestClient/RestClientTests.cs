@@ -85,7 +85,11 @@ namespace Easy.Common.Tests.Unit.RestClient
             client.SendAsync(new HttpRequestMessage(HttpMethod.Get, endpoint));
 
             ServicePointManager.FindServicePoint(endpoint).ConnectionLeaseTimeout
+#if NET471_OR_GREATER
+                .ShouldBe(60_000);
+#else
                 .ShouldBe(-1);
+#endif
         }
 
         [Test]
@@ -99,7 +103,11 @@ namespace Easy.Common.Tests.Unit.RestClient
             client.SendAsync(new HttpRequestMessage(HttpMethod.Get, Endpoint));
 
             ServicePointManager.FindServicePoint(endpointUri).ConnectionLeaseTimeout
+#if NET471_OR_GREATER
+                .ShouldBe(60_000);
+#else
                 .ShouldBe(-1);
+#endif
         }
 
         [Test]

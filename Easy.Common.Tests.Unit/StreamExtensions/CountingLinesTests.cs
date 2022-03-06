@@ -14,9 +14,13 @@
         public void When_processing_null_stream()
         {
             Should.Throw<ArgumentNullException>(() => ((MemoryStream) null).CountLines())
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Value cannot be null.\r\nParameter name: stream");
+#else
                 .Message.ShouldBe("Value cannot be null. (Parameter 'stream')");
+#endif
         }
-        
+
         [Test]
         public void When_processing_empty_stream()
         {

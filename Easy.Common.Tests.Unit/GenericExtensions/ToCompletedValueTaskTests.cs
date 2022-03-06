@@ -1,9 +1,10 @@
-﻿namespace Easy.Common.Tests.Unit.GenericExtensions
-{
+﻿#if NETCOREAPP || NETSTANDARD2_1
+namespace Easy.Common.Tests.Unit.GenericExtensions;
+
     using Easy.Common.Extensions;
     using NUnit.Framework;
     using Shouldly;
-
+    
     [TestFixture]
     internal sealed class ToCompletedValueTaskTests
     {
@@ -43,4 +44,4 @@
             task.Result.ShouldBe(SOURCE);
         }
     }
-}
+#endif

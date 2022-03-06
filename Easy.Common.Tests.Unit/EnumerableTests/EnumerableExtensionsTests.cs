@@ -190,79 +190,6 @@
             ((IEnumerable<int>)null).IsNotNullOrEmpty().ShouldBeFalse();
         }
 
-#if NETSTANDARD2_0 || NET45 || NET471
-        [Test]
-        public void When_converting_sequence_to_hashset_with_default_comparer()
-        {
-            var sequence = new[] { "A", "B", "C", "B", "C", "C", "D" };
-
-            sequence.Count(x => x == "A").ShouldBe(1);
-            sequence.Count(x => x == "B").ShouldBe(2);
-            sequence.Count(x => x == "C").ShouldBe(3);
-            sequence.Count(x => x == "D").ShouldBe(1);
-
-            var hashSet = EnumerableExtensions.ToHashSet(sequence);
-
-            hashSet.Count.ShouldBe(4);
-
-            hashSet.Count(x => x == "A").ShouldBe(1);
-            hashSet.Count(x => x == "B").ShouldBe(1);
-            hashSet.Count(x => x == "C").ShouldBe(1);
-            hashSet.Count(x => x == "D").ShouldBe(1);
-
-            hashSet.Contains("A").ShouldBeTrue();
-            hashSet.Contains("a").ShouldBeFalse();
-
-            hashSet.Contains("B").ShouldBeTrue();
-            hashSet.Contains("b").ShouldBeFalse();
-
-            hashSet.Contains("C").ShouldBeTrue();
-            hashSet.Contains("c").ShouldBeFalse();
-
-            hashSet.Contains("D").ShouldBeTrue();
-            hashSet.Contains("d").ShouldBeFalse();
-
-            hashSet.Contains("E").ShouldBeFalse();
-            hashSet.Contains("e").ShouldBeFalse();
-        }
-
-        [Test]
-        public void When_converting_sequence_to_hashset_with_non_default_comparer()
-        {
-            var sequence = new[] { "A", "B", "C", "B", "C", "C", "D" };
-
-            sequence.Count(x => x == "A").ShouldBe(1);
-            sequence.Count(x => x == "B").ShouldBe(2);
-            sequence.Count(x => x == "C").ShouldBe(3);
-            sequence.Count(x => x == "D").ShouldBe(1);
-
-            var hashSet = EnumerableExtensions.ToHashSet(sequence, StringComparer.OrdinalIgnoreCase);
-
-            hashSet.Count.ShouldBe(4);
-
-            hashSet.Count(x => x == "A").ShouldBe(1);
-            hashSet.Count(x => x == "B").ShouldBe(1);
-            hashSet.Count(x => x == "C").ShouldBe(1);
-            hashSet.Count(x => x == "D").ShouldBe(1);
-
-            hashSet.Contains("A").ShouldBeTrue();
-            hashSet.Contains("a").ShouldBeTrue();
-
-            hashSet.Contains("B").ShouldBeTrue();
-            hashSet.Contains("b").ShouldBeTrue();
-
-            hashSet.Contains("C").ShouldBeTrue();
-            hashSet.Contains("c").ShouldBeTrue();
-
-            hashSet.Contains("D").ShouldBeTrue();
-            hashSet.Contains("d").ShouldBeTrue();
-
-            hashSet.Contains("E").ShouldBeFalse();
-            hashSet.Contains("e").ShouldBeFalse();
-        }
-
-#endif
-
         [Test]
         public void When_converting_sequence_to_easy_dictionary_with_default_comparer()
         {
@@ -275,7 +202,12 @@
             Should.Throw<KeyNotFoundException>(() =>
             {
                 var _ = keyedCollection["name-10"];
-            }).Message.ShouldBe("The given key 'name-10' was not present in the dictionary.");
+            })
+#if NET471_OR_GREATER
+                .Message.ShouldBe("The given key was not present in the dictionary.");
+#else
+                .Message.ShouldBe("The given key 'name-10' was not present in the dictionary.");
+#endif
         }
 
         [Test]
@@ -293,7 +225,11 @@
         [Test]
         public void When_creating_batch_from_list_with_buckets_of_size_zero() =>
             Should.Throw<ArgumentOutOfRangeException>(() => new List<int>().Batch(0).ToArray())
+#if NET471_OR_GREATER
+                .Message.ShouldBe("Specified argument was out of the range of valid values.\r\nParameter name: size");
+#else
                 .Message.ShouldBe("Specified argument was out of the range of valid values. (Parameter 'size')");
+#endif
 
         [Test]
         public void When_creating_batch_from_empty_list()
