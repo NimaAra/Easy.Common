@@ -135,5 +135,21 @@
 
             return ApplicationHelper.IsLargeAddressAware(assembly.Location);
         }
+
+        /// <summary>
+        /// Gets the <see cref="FileVersionInfo"/> for the given <paramref name="assembly"/>.
+        /// </summary>
+        public static FileVersionInfo GetFileVersionInfo(this Assembly assembly)
+        {
+            string assLoc = assembly.Location;
+            if (assLoc.IsNotNullOrEmptyOrWhiteSpace())
+            {
+                return FileVersionInfo.GetVersionInfo(assLoc);
+            }
+
+            Uri uri = new(assembly.CodeBase);
+            assLoc = uri.LocalPath;
+            return FileVersionInfo.GetVersionInfo(assLoc);
+        }
     }
 }

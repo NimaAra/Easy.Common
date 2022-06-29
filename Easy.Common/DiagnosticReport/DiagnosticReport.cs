@@ -16,7 +16,7 @@ namespace Easy.Common
     using System.Text.RegularExpressions;
     using System.Threading;
     using Easy.Common.Extensions;
-    
+
     /// <summary>
     /// A helper class for generating a report containing details related to 
     /// <c>System</c>, <c>Process</c>, <c>Assemblies</c>, <c>Networks</c> and <c>Environment</c> 
@@ -105,7 +105,7 @@ namespace Easy.Common
 
         private static readonly string[] AssemblyHeaders =
         {
-            "FullName", "FileName", "GAC", "64Bit", "Optimized", "Framework", "Location", 
+            "FullName", "FileName", "GAC", "64Bit", "Optimized", "Framework", "Location",
             "CodeBase", "Version", "FileVersion", "ProductVersion", "ProductName", "CompanyName"
         };
 
@@ -229,7 +229,19 @@ namespace Easy.Common
 
             using Process p = Process.GetCurrentProcess();
 
-            FileVersionInfo pVerInfo = p.MainModule?.FileVersionInfo;
+            string processName = p.ProcessName;
+            FileVersionInfo pVerInfo;
+            
+            Assembly assembly = Assembly.GetEntryAssembly();
+            if (p.ProcessName.Equals("dotnet", StringComparison.OrdinalIgnoreCase) && assembly is not null)
+            {
+                pVerInfo = assembly.GetFileVersionInfo();
+                processName = pVerInfo.ProductName;
+            }
+            else
+            {
+                pVerInfo = p.MainModule?.FileVersionInfo;
+            }
 
             ThreadPool.GetMinThreads(out int minWrkrs, out int minComplWrkers);
             ThreadPool.GetMaxThreads(out int maxWrkrs, out int maxComplWrkers);
@@ -237,7 +249,7 @@ namespace Easy.Common
             return new()
             {
                 PID = p.Id,
-                Name = p.ProcessName,
+                Name = processName,
                 Started = p.StartTime,
                 LoadedIn = ApplicationHelper.GetProcessStartupDuration(),
                 IsInteractive = Environment.UserInteractive,
@@ -304,7 +316,8 @@ namespace Easy.Common
                             free = UnitConverter.BytesToGigaBytes(d.TotalFreeSpace);
                             available = UnitConverter.BytesToGigaBytes(d.AvailableFreeSpace);
                         }
-                    } catch (Exception) { /* ignored */ }
+                    }
+                    catch (Exception) { /* ignored */ }
 
                     return new DriveDetails
                     {
@@ -332,13 +345,13 @@ namespace Easy.Common
                     string assLoc = ass.Location;
                     if (assLoc.IsNullOrEmptyOrWhiteSpace())
                     {
-                        Uri uri = new (ass.CodeBase);
+                        Uri uri = new(ass.CodeBase);
                         assLoc = uri.LocalPath;
                     }
 
                     string version = ass.GetName().Version.ToString();
                     FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(assLoc);
-                    
+
                     return new AssemblyDetails
                     {
                         FullName = ass.FullName,
