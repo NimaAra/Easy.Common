@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net471;net6.0</TargetFrameworks>
+        <TargetFrameworks>net472;net6.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
@@ -17,6 +17,10 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Easy.Common\Easy.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+        <Reference Include="System.Net.Http" />
     </ItemGroup>
 
     <ItemGroup>
@@ -58,4 +62,5 @@
     <ItemGroup>
       <Folder Include="TypeLookup\" />
     </ItemGroup>
+
 </Project>

@@ -15,7 +15,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <TargetFrameworks>net471;net472;netcoreapp3.1;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp3.1;netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <AssemblyTitle>Easy Common</AssemblyTitle>
     <AssemblyName>Easy.Common</AssemblyName>
