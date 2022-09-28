@@ -24,7 +24,7 @@
             var isSequence = Property.PropertyType.IsSequence(out SequenceType _);
 
             if (LeftValue is null) { return RightValue != null; }
-            if (RightValue is null) { return false; }
+            if (RightValue is null) { return true; }
 
             if (!isSequence) { return !Equals(LeftValue, RightValue); }
 

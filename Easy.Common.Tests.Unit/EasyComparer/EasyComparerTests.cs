@@ -21,6 +21,28 @@
         }
 
         [Test]
+        public void When_comparing_a_non_null_with_null()
+        {
+            var left = new SomeClass { Bytes = Array.Empty<byte>() };
+            var right = new SomeClass { Bytes = null };
+
+            EasyComparer.Instance.Compare(left, right, false, false, out var result).ShouldBeFalse();
+            
+            result.Count.ShouldBe(11);
+
+            foreach (Variance item in result)
+            {
+                if (item.Property.Name == "Bytes")
+                {
+                    item.Varies.ShouldBeTrue();
+                } else
+                {
+                    item.Varies.ShouldBeFalse();
+                }
+            }
+        }
+
+        [Test]
         public void When_comparing_a_reference_object_to_itself_including_base_excluding_privates()
         {
             var obj = new SomeClass();
@@ -114,11 +136,11 @@
                 Id = 6,
                 Age = 1,
                 Stopwatch = new Stopwatch(),
-                Bytes = new byte[] {1, 2, 0},
+                Bytes = new byte[] { 1, 2, 0 },
                 Name = "Foo",
-                SomeArray = new [] {1, 2, 3},
+                SomeArray = new[] { 1, 2, 3 },
                 SomeList = new List<int> { 7, 8, 9 },
-                SomeCollection = new Collection<int> { 4, 5, 6},
+                SomeCollection = new Collection<int> { 4, 5, 6 },
                 SomeEnumerable = Enumerable.Range(1, 4),
                 SomeDictionary = new Dictionary<int, string> { [0] = "Bar" },
                 SomeNullable = 42,
@@ -256,8 +278,8 @@
 
             var varriedProperty = result.Single(p => p.Property.Name == "Bytes");
             varriedProperty.Varies.ShouldBeTrue();
-            varriedProperty.LeftValue.ShouldBe(new byte[] {1, 2, 0});
-            varriedProperty.RightValue.ShouldBe(new byte[] {0, 1, 2});
+            varriedProperty.LeftValue.ShouldBe(new byte[] { 1, 2, 0 });
+            varriedProperty.RightValue.ShouldBe(new byte[] { 0, 1, 2 });
         }
 
         [Test]
