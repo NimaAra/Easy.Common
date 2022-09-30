@@ -275,13 +275,7 @@ namespace Easy.Common
                 ThreadCount = (uint)p.Threads.OfType<ProcessThread>().Count()
             };
 
-            static string IsOptimized()
-            {
-                var executingAssembly = Assembly.GetEntryAssembly();
-                return executingAssembly is null
-                    ? "N/A - Assembly was called from Unmanaged code."
-                    : executingAssembly.IsOptimized().ToString();
-            }
+            static bool IsOptimized() => Assembly.GetEntryAssembly()?.IsOptimized() ?? false;
         }
 
         private static Dictionary<string, string> GetEnvironmentVariables(DiagnosticReportType type)
@@ -472,7 +466,7 @@ namespace Easy.Common
             Format(ProcessHeaders[2], report.ProcessDetails.Started.ToString("dd-MM-yyyy HH:mm:ss.fff (zzzz)"));
             Format(ProcessHeaders[3], report.ProcessDetails.LoadedIn.ToString());
             Format(ProcessHeaders[17], report.ProcessDetails.IsInteractive.ToString());
-            Format(ProcessHeaders[4], report.ProcessDetails.IsOptimized);
+            Format(ProcessHeaders[4], report.ProcessDetails.IsOptimized.ToString());
             Format(ProcessHeaders[5], report.ProcessDetails.Is64Bit.ToString());
             Format(ProcessHeaders[19], report.ProcessDetails.IsServerGC.ToString());
             Format(ProcessHeaders[6], report.ProcessDetails.IsLargeAddressAware.ToString());

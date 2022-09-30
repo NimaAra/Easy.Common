@@ -32,7 +32,7 @@ namespace Easy.Common
         /// <summary>
         /// Gets the flag indicating whether the application has been compiled in <c>Release</c> mode.
         /// </summary>
-        public string IsOptimized { get; init; }
+        public bool IsOptimized { get; init; }
 
         /// <summary>
         /// Gets the flag indicating whether the process is <c>64-bit</c>.
