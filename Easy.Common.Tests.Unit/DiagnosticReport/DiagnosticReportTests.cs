@@ -25,7 +25,7 @@
             report.Assemblies.ShouldNotBeEmpty();
             report.EnvironmentVariables.ShouldNotBeNull();
             report.EnvironmentVariables.ShouldNotBeEmpty();
-            report.NetworkingDetails.ShouldNotBeNull();
+            report.NetworkDetails.ShouldNotBeNull();
 
             report.SystemDetails.CPU.ShouldNotBe("<INVALID>");
 
@@ -61,7 +61,7 @@
             report.Assemblies.ShouldNotBeEmpty();
             report.EnvironmentVariables.ShouldNotBeNull();
             report.EnvironmentVariables.ShouldNotBeEmpty();
-            report.NetworkingDetails.ShouldNotBeNull();
+            report.NetworkDetails.ShouldNotBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -92,7 +92,7 @@
             report.DriveDetails.ShouldBeNull();
             report.Assemblies.ShouldBeNull();
             report.EnvironmentVariables.ShouldBeNull();
-            report.NetworkingDetails.ShouldBeNull();
+            report.NetworkDetails.ShouldBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -122,7 +122,7 @@
             report.DriveDetails.ShouldBeNull();
             report.Assemblies.ShouldBeNull();
             report.EnvironmentVariables.ShouldBeNull();
-            report.NetworkingDetails.ShouldBeNull();
+            report.NetworkDetails.ShouldBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -153,7 +153,7 @@
             report.DriveDetails.ShouldNotBeEmpty();
             report.Assemblies.ShouldBeNull();
             report.EnvironmentVariables.ShouldBeNull();
-            report.NetworkingDetails.ShouldBeNull();
+            report.NetworkDetails.ShouldBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -184,7 +184,7 @@
             report.Assemblies.ShouldNotBeNull();
             report.Assemblies.ShouldNotBeEmpty();
             report.EnvironmentVariables.ShouldBeNull();
-            report.NetworkingDetails.ShouldBeNull();
+            report.NetworkDetails.ShouldBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -215,7 +215,7 @@
             report.Assemblies.ShouldBeNull();
             report.EnvironmentVariables.ShouldNotBeNull();
             report.EnvironmentVariables.ShouldNotBeEmpty();
-            report.NetworkingDetails.ShouldBeNull();
+            report.NetworkDetails.ShouldBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -245,7 +245,7 @@
             report.DriveDetails.ShouldBeNull();
             report.Assemblies.ShouldBeNull();
             report.EnvironmentVariables.ShouldBeNull();
-            report.NetworkingDetails.ShouldNotBeNull();
+            report.NetworkDetails.ShouldNotBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -278,7 +278,7 @@
             report.DriveDetails.ShouldBeNull();
             report.Assemblies.ShouldBeNull();
             report.EnvironmentVariables.ShouldBeNull();
-            report.NetworkingDetails.ShouldBeNull();
+            report.NetworkDetails.ShouldBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -312,7 +312,7 @@
             report.DriveDetails.ShouldNotBeEmpty();
             report.Assemblies.ShouldBeNull();
             report.EnvironmentVariables.ShouldBeNull();
-            report.NetworkingDetails.ShouldBeNull();
+            report.NetworkDetails.ShouldBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -346,7 +346,7 @@
             report.Assemblies.ShouldNotBeNull();
             report.Assemblies.ShouldNotBeEmpty();
             report.EnvironmentVariables.ShouldBeNull();
-            report.NetworkingDetails.ShouldBeNull();
+            report.NetworkDetails.ShouldBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -380,7 +380,7 @@
             report.Assemblies.ShouldBeNull();
             report.EnvironmentVariables.ShouldNotBeNull();
             report.EnvironmentVariables.ShouldNotBeEmpty();
-            report.NetworkingDetails.ShouldBeNull();
+            report.NetworkDetails.ShouldBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -413,7 +413,7 @@
             report.DriveDetails.ShouldBeNull();
             report.Assemblies.ShouldBeNull();
             report.EnvironmentVariables.ShouldBeNull();
-            report.NetworkingDetails.ShouldNotBeNull();
+            report.NetworkDetails.ShouldNotBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -453,7 +453,7 @@
             report.Assemblies.ShouldNotBeEmpty();
             report.EnvironmentVariables.ShouldNotBeNull();
             report.EnvironmentVariables.ShouldNotBeEmpty();
-            report.NetworkingDetails.ShouldNotBeNull();
+            report.NetworkDetails.ShouldNotBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -488,7 +488,7 @@
             report.Assemblies.ShouldNotBeNull();
             report.Assemblies.ShouldNotBeEmpty();
             report.EnvironmentVariables.ShouldBeNull();
-            report.NetworkingDetails.ShouldNotBeNull();
+            report.NetworkDetails.ShouldNotBeNull();
 
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();
@@ -526,7 +526,7 @@
             report.Assemblies.ShouldNotBeEmpty();
             report.EnvironmentVariables.ShouldNotBeNull();
             report.EnvironmentVariables.ShouldNotBeEmpty();
-            report.NetworkingDetails.ShouldNotBeNull();
+            report.NetworkDetails.ShouldNotBeNull();
             
             var formattedReport = report.ToString();
             formattedReport.ShouldNotBeNull();

@@ -130,7 +130,7 @@ namespace Easy.Common
             DriveDetails = GetDriveDetails(type);
             Assemblies = GetAssemblies(type);
             EnvironmentVariables = GetEnvironmentVariables(type);
-            NetworkingDetails = GetNetworkDetails(type);
+            NetworkDetails = GetNetworkDetails(type);
 
             TimeTaken = sw.Elapsed;
         }
@@ -178,7 +178,7 @@ namespace Easy.Common
         /// <summary>
         /// Gets the information relating to the <c>Networks</c>.
         /// </summary>
-        public NetworkDetails NetworkingDetails { get; }
+        public NetworkDetails NetworkDetails { get; }
 
         /// <summary>
         /// Generates and returns an instance of <see cref="DiagnosticReport"/>.
@@ -594,7 +594,7 @@ namespace Easy.Common
 
         private static void AddNetwork(StringBuilder builder, DiagnosticReport report)
         {
-            NetworkDetails net = report.NetworkingDetails;
+            NetworkDetails net = report.NetworkDetails;
 
             int sectionIndex = builder.Length;
 
