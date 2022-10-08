@@ -203,24 +203,23 @@ namespace Easy.Common
         private static SystemDetails GetSystemDetails(DiagnosticReportType type)
         {
             if (!IsReportEnabled(type, DiagnosticReportType.System)) { return default; }
-
-            return new SystemDetails
-            {
-                OSName = RuntimeInformation.OSDescription,
-                OSType = GetOSPlatform(),
-                Is64BitOS = Environment.Is64BitOperatingSystem,
-                DotNetFrameworkVersion = GetDotNetFrameworkVersion(),
-                MachineName = Environment.MachineName,
-                FQDN = NetworkHelper.GetFQDN(),
-                User = Environment.UserDomainName + "\\" + Environment.UserName,
-                CPU = GetProcessorName(),
-                CPUCoreCount = (uint)Environment.ProcessorCount,
-                InstalledRAMInGigaBytes = GetInstalledMemoryInGigaBytes(),
-                SystemDirectory = Environment.SystemDirectory,
-                CurrentDirectory = Environment.CurrentDirectory,
-                RuntimeDirectory = RuntimeEnvironment.GetRuntimeDirectory(),
-                Uptime = GetUptime()
-            };
+            
+            return new SystemDetails(
+                RuntimeInformation.OSDescription,
+                GetOSPlatform(),
+                Environment.Is64BitOperatingSystem,
+                GetDotNetFrameworkVersion(),
+                Environment.MachineName,
+                NetworkHelper.GetFQDN(),
+                Environment.UserDomainName + "\\" + Environment.UserName,
+                GetProcessorName(),
+                (uint)Environment.ProcessorCount,
+                GetInstalledMemoryInGigaBytes(),
+                Environment.SystemDirectory,
+                Environment.CurrentDirectory,
+                RuntimeEnvironment.GetRuntimeDirectory(),
+                GetUptime()
+            );
         }
 
         private static ProcessDetails GetProcessDetails(DiagnosticReportType type)
@@ -246,34 +245,32 @@ namespace Easy.Common
             ThreadPool.GetMinThreads(out int minWrkrs, out int minComplWrkers);
             ThreadPool.GetMaxThreads(out int maxWrkrs, out int maxComplWrkers);
 
-            return new()
-            {
-                PID = p.Id,
-                Name = processName,
-                Started = p.StartTime,
-                LoadedIn = ApplicationHelper.GetProcessStartupDuration(),
-                IsInteractive = Environment.UserInteractive,
-                IsOptimized = IsOptimized(),
-                Is64Bit = Environment.Is64BitProcess,
-                IsServerGC = GCSettings.IsServerGC,
-                IsLargeAddressAware = ApplicationHelper.IsProcessLargeAddressAware(),
-                WorkingSetInMegaBytes = UnitConverter.BytesToMegaBytes(Environment.WorkingSet),
-                FileVersion = pVerInfo?.FileVersion,
-                ProductVersion = pVerInfo?.ProductVersion,
-                Language = pVerInfo?.Language,
-                Copyright = pVerInfo?.LegalCopyright,
-                OriginalFileName = pVerInfo?.OriginalFilename,
-                FileName = pVerInfo?.FileName,
-                ModuleName = p.MainModule?.ModuleName,
-                ModuleFileName = p.MainModule?.FileName,
-                ProductName = pVerInfo?.ProductName,
-                CommandLine = Environment.GetCommandLineArgs(),
-                ThreadPoolMinCompletionPortCount = (uint)minComplWrkers,
-                ThreadPoolMaxCompletionPortCount = (uint)maxComplWrkers,
-                ThreadPoolMinWorkerCount = (uint)minWrkrs,
-                ThreadPoolMaxWorkerCount = (uint)maxWrkrs,
-                ThreadCount = (uint)p.Threads.OfType<ProcessThread>().Count()
-            };
+            return new ProcessDetails(
+                p.Id,
+                processName,
+                p.StartTime,
+                ApplicationHelper.GetProcessStartupDuration(),
+                IsOptimized(),
+                Environment.Is64BitProcess,
+                GCSettings.IsServerGC,
+                ApplicationHelper.IsProcessLargeAddressAware(),
+                (uint)p.Threads.OfType<ProcessThread>().Count(),
+                (uint)minWrkrs,
+                (uint)maxWrkrs,
+                (uint)minComplWrkers,
+                (uint)maxComplWrkers,
+                p.MainModule?.ModuleName,
+                p.MainModule?.FileName,
+                pVerInfo?.ProductName,
+                pVerInfo?.OriginalFilename,
+                pVerInfo?.FileName,
+                pVerInfo?.FileVersion,
+                pVerInfo?.ProductVersion,
+                pVerInfo?.Language,
+                pVerInfo?.LegalCopyright,
+                UnitConverter.BytesToMegaBytes(Environment.WorkingSet),
+                Environment.UserInteractive,
+                Environment.GetCommandLineArgs());
 
             static bool IsOptimized() => Assembly.GetEntryAssembly()?.IsOptimized() ?? false;
         }
@@ -313,16 +310,7 @@ namespace Easy.Common
                     }
                     catch (Exception) { /* ignored */ }
 
-                    return new DriveDetails
-                    {
-                        Name = driveName,
-                        Type = driveType,
-                        Format = driveFormat,
-                        Label = volumeLabel,
-                        TotalCapacityInGigaBytes = capacity,
-                        FreeCapacityInGigaBytes = free,
-                        AvailableCapacityInGigaBytes = available
-                    };
+                    return new DriveDetails(driveName, driveType, driveFormat, volumeLabel, capacity, free, available);
                 })
                 .ToArray();
         }
@@ -346,22 +334,20 @@ namespace Easy.Common
                     string version = ass.GetName().Version.ToString();
                     FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(assLoc);
 
-                    return new AssemblyDetails
-                    {
-                        FullName = ass.FullName,
-                        FileName = versionInfo.OriginalFilename,
-                        IsGAC = ass.GlobalAssemblyCache,
-                        Is64Bit = !ass.Is32Bit(),
-                        IsOptimized = ass.IsOptimized(),
-                        Framework = ass.GetFrameworkVersion(),
-                        Location = ass.Location,
-                        CodeBase = new Uri(ass.CodeBase),
-                        Version = version,
-                        FileVersion = versionInfo.FileVersion,
-                        ProductVersion = versionInfo.ProductVersion,
-                        ProductName = versionInfo.ProductName,
-                        CompanyName = versionInfo.CompanyName
-                    };
+                    return new AssemblyDetails(
+                        ass.FullName,
+                        versionInfo.OriginalFilename,
+                        ass.GlobalAssemblyCache,
+                        !ass.Is32Bit(),
+                        ass.IsOptimized(),
+                        ass.GetFrameworkVersion(),
+                        ass.Location,
+                        new Uri(ass.CodeBase),
+                        version,
+                        versionInfo.FileVersion,
+                        versionInfo.ProductVersion,
+                        versionInfo.ProductName,
+                        versionInfo.CompanyName);
                 })
                 .ToArray();
         }
@@ -370,35 +356,41 @@ namespace Easy.Common
         {
             if (!IsReportEnabled(type, DiagnosticReportType.Networks)) { return default; }
 
-            IPGlobalProperties globalProps = IPGlobalProperties.GetIPGlobalProperties();
+            NetworkInterfaceDetails[] interfaces = NetworkInterface.GetAllNetworkInterfaces()
+                .Select(nic =>
+                {
+                    byte[] macAsBytes = nic.GetPhysicalAddress().GetAddressBytes();
+                    string macAddress = string.Join(":", macAsBytes.Select(b => b.ToString("X2")));
+                    IPAddressDetails[] addresses = NetworkHelper.GetLocalIPAddresses(nic).Select(IPAddressDetails.From).ToArray();
+                    return new NetworkInterfaceDetails(
+                        nic.Id,
+                        macAddress, 
+                        nic.Name, 
+                        nic.Description, 
+                        nic.NetworkInterfaceType.ToString(),
+                        nic.Speed, 
+                        nic.IsReceiveOnly, 
+                        nic.SupportsMulticast, 
+                        nic.OperationalStatus.ToString(), 
+                        addresses);
+                })
+                .ToArray();
 
-            return new NetworkDetails
-            {
-                DHCPScope = ApplicationHelper.IsWindows ? globalProps.DhcpScopeName : string.Empty,
-                Domain = globalProps.DomainName,
-                Host = globalProps.HostName,
-                IsWINSProxy = ApplicationHelper.IsWindows && globalProps.IsWinsProxy,
-                NodeType = globalProps.NodeType.ToString(),
-                InterfaceDetails = NetworkInterface.GetAllNetworkInterfaces()
-                    .Select(nic =>
-                    {
-                        var macAsBytes = nic.GetPhysicalAddress().GetAddressBytes();
-                        return new NetworkInterfaceDetails
-                        {
-                            Interface = nic,
-                            Addresses = NetworkHelper.GetLocalIPAddresses(nic).Select(IPAddressDetails.From).ToArray(),
-                            MAC = string.Join(":", macAsBytes.Select(b => b.ToString("X2")))
-                        };
-                    })
-                    .ToArray()
-            };
+            IPGlobalProperties globalProps = IPGlobalProperties.GetIPGlobalProperties();
+            return new NetworkDetails(
+                ApplicationHelper.IsWindows ? globalProps.DhcpScopeName : string.Empty,
+                globalProps.DomainName,
+                globalProps.HostName,
+                ApplicationHelper.IsWindows && globalProps.IsWinsProxy,
+                globalProps.NodeType.ToString(),
+                interfaces);
         }
 
         private static string GenerateImpl(DiagnosticReport report)
         {
             StringBuilder builder = StringBuilderCache.Acquire();
 
-            foreach (var section in ReportSections)
+            foreach (DiagnosticReportType section in ReportSections)
             {
                 if (IsReportEnabled(report.Type, section))
                 {
@@ -628,21 +620,21 @@ namespace Easy.Common
             {
                 builder.Append(LinePrefix)
                     .Append(Dot).Append(Space)
-                    .AppendLine(item.Interface.Description)
+                    .AppendLine(item.Description)
                     .Append(LinePrefix)
                     .Append(Space).Append(Space)
-                    .AppendLine(new string('-', item.Interface.Description.Length + 1));
+                    .AppendLine(new string('-', item.Description.Length + 1));
 
-                Format(NetworkHeaders[5], item.Interface.Name);
+                Format(NetworkHeaders[5], item.Name);
                 Format(NetworkHeaders[6], item.MAC);
-                Format(NetworkHeaders[7], item.Interface.NetworkInterfaceType);
-                Format(NetworkHeaders[8], item.Interface.OperationalStatus);
-                Format(NetworkHeaders[10], item.Interface.SupportsMulticast.ToString());
+                Format(NetworkHeaders[7], item.Type);
+                Format(NetworkHeaders[8], item.OperationalStatus);
+                Format(NetworkHeaders[10], item.SupportsMulticast.ToString());
 
                 if (ApplicationHelper.IsWindows)
                 {
-                    Format(NetworkHeaders[9], item.Interface.IsReceiveOnly.ToString());
-                    Format(NetworkHeaders[11], (item.Interface.Speed / 1000000).ToString("N0") + " Mbit/s");
+                    Format(NetworkHeaders[9], item.IsReceiveOnly.ToString());
+                    Format(NetworkHeaders[11], (item.Speed / 1000000).ToString("N0") + " Mbit/s");
                 }
 
                 if (item.Addresses.Any())
