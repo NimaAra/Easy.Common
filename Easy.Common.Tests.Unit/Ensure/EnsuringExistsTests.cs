@@ -11,18 +11,17 @@
         [Test]
         public void When_ensuring_directoryInfo_exists()
         {
-            var nonExistingDirectoryPath = Path.GetRandomFileName();
-            var nonExistingDirInfo = new DirectoryInfo(nonExistingDirectoryPath);
+            string nonExistingDirectoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            DirectoryInfo nonExistingDirInfo = new DirectoryInfo(nonExistingDirectoryPath);
 
             Should.Throw<DirectoryNotFoundException>(() => Ensure.Exists(nonExistingDirInfo))
                 .Message.ShouldBe($"Cannot find: '{nonExistingDirInfo.FullName}'.");
 
             nonExistingDirInfo.Create();
 
-            var existingDirInfo = nonExistingDirInfo;
+            DirectoryInfo existingDirInfo = nonExistingDirInfo;
 
-            Should.NotThrow(() => Ensure.Exists(existingDirInfo));
-            Ensure.Exists(existingDirInfo).ShouldBe(existingDirInfo);
+            Should.NotThrow(() => Ensure.Exists(existingDirInfo)).ShouldBe(existingDirInfo);
 
             try
             {
@@ -33,24 +32,25 @@
         [Test]
         public void When_ensuring_fileInfo_exists()
         {
-            var nonExistingFilePath = Path.GetRandomFileName();
-            var nonExistingFileInfo = new FileInfo(nonExistingFilePath);
+            string nonExistingFilePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            FileInfo nonExistingFileInfo = new FileInfo(nonExistingFilePath);
 
             Should.Throw<FileNotFoundException>(() => Ensure.Exists(nonExistingFileInfo))
                 .Message.ShouldBe($"Cannot find: '{nonExistingFileInfo.FullName}'.");
 
             nonExistingFileInfo.Create();
 
-            var existingFileInfo = nonExistingFileInfo;
+            FileInfo existingFileInfo = nonExistingFileInfo;
 
-            Should.NotThrow(() => Ensure.Exists(existingFileInfo));
-            Ensure.Exists(existingFileInfo).ShouldBe(existingFileInfo);
+            Should.NotThrow(() => Ensure.Exists(existingFileInfo)).ShouldBe(existingFileInfo);
 
             try
             {
                 existingFileInfo.Delete();
+            } catch
+            {
+                /* ignored */
             }
-            catch { /* ignored */ }
         }
     }
 }
