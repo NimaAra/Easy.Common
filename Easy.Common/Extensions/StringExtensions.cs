@@ -501,18 +501,16 @@
         [DebuggerStepThrough]
         public static int GetSize(this string input) => input.Length * sizeof(char);
 
-#if NETSTANDARD2_1
         /// <summary>
         /// Obfuscates the given <paramref name="input"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static string Obfuscate(string input, char fillWith) =>
+        public static string Obfuscate(this string input, char fillWith = '*') =>
             string.Create(input.Length, input, (buffer, v) =>
             {
                 int prefixLength = input.Length * 25 / 100;
                 v.AsSpan(0, prefixLength).CopyTo(buffer);
                 buffer[prefixLength..].Fill(fillWith);
             });
-#endif
     }
 }

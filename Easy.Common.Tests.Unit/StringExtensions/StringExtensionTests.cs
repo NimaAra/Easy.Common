@@ -555,5 +555,16 @@
             Should.Throw<NullReferenceException>(() => ((string) null).GetSize())
                 .Message.ShouldBe("Object reference not set to an instance of an object.");
         }
+
+        [Test]
+        public void When_obfuscating_a_string()
+        {
+            string.Empty.Obfuscate().ShouldBeEmpty();
+            
+            "!".Obfuscate().ShouldBe("*");
+            "!".Obfuscate('!').ShouldBe("!");
+            "some-input".Obfuscate().ShouldBe("so********");
+            "some-other-input".Obfuscate('!').ShouldBe("some!!!!!!!!!!!!");
+        }
     }
 }
