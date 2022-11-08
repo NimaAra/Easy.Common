@@ -76,7 +76,7 @@
         {
             Ensure.NotNull(assembly, nameof(assembly));
 
-            var uri = new Uri(assembly.CodeBase);
+            var uri = new Uri(assembly.Location);
             // ReSharper disable once AssignNullToNotNullAttribute
             return new DirectoryInfo(Path.GetDirectoryName(uri.LocalPath));
         }
@@ -116,7 +116,7 @@
             Ensure.NotNull(assembly, nameof(assembly));
             
             var location = assembly.Location;
-            if (location.IsNullOrEmptyOrWhiteSpace()) { location = assembly.CodeBase; }
+            if (location.IsNullOrEmptyOrWhiteSpace()) { location = assembly.Location; }
             
             var uri = new Uri(location);
             Ensure.That(uri.IsFile, "Assembly location is not a file.");
@@ -147,7 +147,7 @@
                 return FileVersionInfo.GetVersionInfo(assLoc);
             }
 
-            Uri uri = new(assembly.CodeBase);
+            Uri uri = new(assembly.Location);
             assLoc = uri.LocalPath;
             return FileVersionInfo.GetVersionInfo(assLoc);
         }

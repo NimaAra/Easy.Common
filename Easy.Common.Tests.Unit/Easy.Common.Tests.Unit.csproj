@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net472;net6.0</TargetFrameworks>
+        <TargetFramework>net6.0</TargetFramework>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
@@ -17,10 +17,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Easy.Common\Easy.Common.csproj" />
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-        <Reference Include="System.Net.Http" />
     </ItemGroup>
 
     <ItemGroup>
@@ -49,9 +45,6 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="Assembly\DotNet461.dll">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="ConfigReader\Configuration.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="XML\Sample.xml">
