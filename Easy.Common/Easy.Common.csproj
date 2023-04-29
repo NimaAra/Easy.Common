@@ -11,7 +11,12 @@
         <PackageReleaseNotes>-</PackageReleaseNotes>
         <RepositoryUrl>https://github.com/NimaAra/Easy.Common</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
