@@ -1,9 +1,9 @@
 ﻿namespace Easy.Common.Tests.Unit.Ensure;
 
-using System;
+using Easy.Common;
 using NUnit.Framework;
 using Shouldly;
-using Easy.Common;
+using System;
 
 [TestFixture]
 public class EnsuringNotNullTests
@@ -45,6 +45,6 @@ public class EnsuringNotNullTests
     {
         object nullObject = null;
         Should.Throw<ArgumentException>(() => Ensure.NotNull(nullObject, null))
-            .Message.ShouldBe("Value cannot be null. (Parameter 'Invalid')");
+            .Message.ShouldBe("Value cannot be null.");
     }
 }

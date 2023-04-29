@@ -85,12 +85,12 @@ public sealed class EasyProcess : IDisposable
     /// <summary>
     /// Raised on every process output line.
     /// </summary>
-    public event EventHandler<string> OnOutput;
+    public event EventHandler<string>? OnOutput;
     
     /// <summary>
     /// Raised on every process error line.
     /// </summary>
-    public event EventHandler<string> OnError;
+    public event EventHandler<string>? OnError;
 
     /// <summary>
     /// Starts the process and publishes output and error lines if any as events.

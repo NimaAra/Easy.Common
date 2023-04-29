@@ -42,7 +42,7 @@ public sealed class TypeLookup<TValue>
     /// <summary>
     /// Attempts to resolve the value stored against the given <typeparamref name="TKey"/> if any.
     /// </summary>
-    public bool TryGet<TKey>(out TValue value)
+    public bool TryGet<TKey>(out TValue? value)
     {
         int id = TypeKey<TKey>.Id;
         if (id >= _values.Length)

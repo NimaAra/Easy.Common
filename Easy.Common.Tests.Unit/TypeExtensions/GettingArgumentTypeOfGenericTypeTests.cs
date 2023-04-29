@@ -1,11 +1,11 @@
 ﻿namespace Easy.Common.Tests.Unit.TypeExtensions;
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Easy.Common.Extensions;
 using NUnit.Framework;
 using Shouldly;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 [TestFixture]
 public sealed class GettingArgumentTypeOfGenericTypeTests
@@ -13,29 +13,28 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     [Test]
     public void When_checking_type_of_null()
     {
-        ArgumentNullException e = Should.Throw<ArgumentNullException>(() =>
+        NullReferenceException e = Should.Throw<NullReferenceException>(() =>
         {
             ((Type) null).TryGetGenericArguments(out _);
         });
-        e.Message.ShouldBe("Value cannot be null. (Parameter 'type')");
-        e.ParamName.ShouldBe("type");
+        e.Message.ShouldBe("Object reference not set to an instance of an object.");
     }
 
     [Test]
     public void When_checking_type_of_non_generic_class()
     {
         typeof(NonGenericType)
-            .TryGetGenericArguments(out Type[] result)
+            .TryGetGenericArguments(out Type?[] result)
             .ShouldBeFalse();
 
-        result.ShouldBeNull();
+        result.ShouldBeEmpty();
     }
 
     [Test]
     public void When_checking_type_of_generic_class_with_single_argument()
     {
         typeof(SingleGenericType<string>)
-            .TryGetGenericArguments(out Type[] result)
+            .TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.ShouldNotBeNull();
@@ -47,7 +46,7 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     public void When_checking_type_of_generic_class_with_double_arguments()
     {
         typeof(DoubleGenericType<int, string>)
-            .TryGetGenericArguments(out Type[] result)
+            .TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.ShouldNotBeNull();
@@ -60,7 +59,7 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     public void When_checking_type_of_generic_class_with_multiple_arguments()
     {
         typeof(MultipleGenericType<int, string, DateTime, string, short>)
-            .TryGetGenericArguments(out Type[] result)
+            .TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.ShouldNotBeNull();
@@ -75,7 +74,7 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     [Test]
     public void When_checking_type_of_generic_array()
     {
-        typeof(int[]).TryGetGenericArguments(out Type[] result)
+        typeof(int[]).TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.Length.ShouldBe(1);
@@ -85,7 +84,7 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     [Test]
     public void When_checking_type_of_generic_list()
     {
-        typeof(List<byte>).TryGetGenericArguments(out Type[] result)
+        typeof(List<byte>).TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.Length.ShouldBe(1);
@@ -95,7 +94,7 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     [Test]
     public void When_checking_type_of_generic_queue()
     {
-        typeof(Queue<DateTime>).TryGetGenericArguments(out Type[] result)
+        typeof(Queue<DateTime>).TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.Length.ShouldBe(1);
@@ -105,7 +104,7 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     [Test]
     public void When_checking_type_of_generic_stack()
     {
-        typeof(Stack<DateTime>).TryGetGenericArguments(out Type[] result)
+        typeof(Stack<DateTime>).TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.Length.ShouldBe(1);
@@ -115,7 +114,7 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     [Test]
     public void When_checking_type_of_generic_collection()
     {
-        typeof(Collection<DateTime>).TryGetGenericArguments(out Type[] result)
+        typeof(Collection<DateTime>).TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.Length.ShouldBe(1);
@@ -125,7 +124,7 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     [Test]
     public void When_checking_type_of_generic_hash_set()
     {
-        typeof(HashSet<DateTime>).TryGetGenericArguments(out Type[] result)
+        typeof(HashSet<DateTime>).TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.Length.ShouldBe(1);
@@ -135,7 +134,7 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     [Test]
     public void When_checking_type_of_generic_linked_list()
     {
-        typeof(LinkedList<DateTime>).TryGetGenericArguments(out Type[] result)
+        typeof(LinkedList<DateTime>).TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.Length.ShouldBe(1);
@@ -145,7 +144,7 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     [Test]
     public void When_checking_type_of_generic_dictionary()
     {
-        typeof(Dictionary<DateTime, TimeSpan>).TryGetGenericArguments(out Type[] result)
+        typeof(Dictionary<DateTime, TimeSpan>).TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.Length.ShouldBe(2);
@@ -156,7 +155,7 @@ public sealed class GettingArgumentTypeOfGenericTypeTests
     [Test]
     public void When_checking_type_of_generic_collection_of_key_value()
     {
-        typeof(ICollection<KeyValuePair<DateTime, TimeSpan>>).TryGetGenericArguments(out Type[] result)
+        typeof(ICollection<KeyValuePair<DateTime, TimeSpan>>).TryGetGenericArguments(out Type?[] result)
             .ShouldBeTrue();
 
         result.Length.ShouldBe(1);

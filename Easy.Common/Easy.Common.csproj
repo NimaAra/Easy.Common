@@ -3,7 +3,7 @@
         <PackageId>Easy.Common</PackageId>
         <Description>A set of useful methods used across Easy.* projects.</Description>
         <Authors>Nima Ara</Authors>
-        <Copyright>2022 Nima Ara</Copyright>
+        <Copyright>2023 Nima Ara</Copyright>
         <Title>Easy Common</Title>
         <PackageTags>Easy;Common</PackageTags>
         <PackageProjectUrl>https://github.com/NimaAra/Easy.Common</PackageProjectUrl>
@@ -20,6 +20,7 @@
         <AssemblyName>Easy.Common</AssemblyName>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

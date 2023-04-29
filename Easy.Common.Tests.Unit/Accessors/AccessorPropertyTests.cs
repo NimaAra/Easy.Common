@@ -1,255 +1,254 @@
-﻿namespace Easy.Common.Tests.Unit.Accessors
+﻿namespace Easy.Common.Tests.Unit.Accessors;
+
+using Easy.Common.Extensions;
+using NUnit.Framework;
+using Shouldly;
+using System;
+using System.Reflection;
+
+[TestFixture]
+public class AccessorPropertyTests
 {
-    using System;
-    using System.Reflection;
-    using Easy.Common.Extensions;
-    using NUnit.Framework;
-    using Shouldly;
-
-    [TestFixture]
-    public class AccessorPropertyTests
+    [Test]
+    public void When_checking_invalid_input()
     {
-        [Test]
-        public void When_checking_invalid_input()
-        {
-            string nullStr = null;
-            PropertyInfo nullPropInfo = null;
-
-            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person, string>(nullStr))
-                .Message.ShouldBe("String must not be null, empty or whitespace.");
+        string? nullStr = null;
+        PropertyInfo? nullPropInfo = null;
 
-            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person, string>(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
+        Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person, string>(nullStr))
+            .Message.ShouldBe("String must not be null, empty or whitespace.");
 
-            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person, string>(nullStr))
-                .Message.ShouldBe("String must not be null, empty or whitespace.");
-
-            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person, string>(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
-
-            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person>(nullStr))
-                .Message.ShouldBe("String must not be null, empty or whitespace.");
-
-            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person>(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
+        Should.Throw<NullReferenceException>(() => AccessorBuilder.BuildSetter<Person, string>(nullPropInfo))
+            .Message.ShouldBe("Object reference not set to an instance of an object.");
 
-            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person>(nullStr))
-                .Message.ShouldBe("String must not be null, empty or whitespace.");
+        Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person, string>(nullStr))
+            .Message.ShouldBe("String must not be null, empty or whitespace.");
 
-            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person>(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
+        Should.Throw<NullReferenceException>(() => AccessorBuilder.BuildGetter<Person, string>(nullPropInfo))
+            .Message.ShouldBe("Object reference not set to an instance of an object.");
 
-            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
+        Should.Throw<ArgumentException>(() => AccessorBuilder.BuildSetter<Person>(nullStr))
+            .Message.ShouldBe("String must not be null, empty or whitespace.");
+
+        Should.Throw<NullReferenceException>(() => AccessorBuilder.BuildSetter<Person>(nullPropInfo))
+            .Message.ShouldBe("Object reference not set to an instance of an object.");
 
-            Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter(nullPropInfo))
-                .Message.ShouldBe("Value cannot be null. (Parameter 'propertyInfo')");
-        }
+        Should.Throw<ArgumentException>(() => AccessorBuilder.BuildGetter<Person>(nullStr))
+            .Message.ShouldBe("String must not be null, empty or whitespace.");
 
-        [Test]
-        public void When_getting_getters_class()
-        {
-            var nameGetterOne = AccessorBuilder.BuildGetter<Person, string>("Name");
-            var nameGetterTwo = AccessorBuilder.BuildGetter<Person, string>("Name");
+        Should.Throw<NullReferenceException>(() => AccessorBuilder.BuildGetter<Person>(nullPropInfo))
+            .Message.ShouldBe("Object reference not set to an instance of an object.");
 
-            nameGetterOne.ShouldNotBeSameAs(nameGetterTwo);
+        Should.Throw<NullReferenceException>(() => AccessorBuilder.BuildSetter(nullPropInfo))
+            .Message.ShouldBe("Object reference not set to an instance of an object.");
 
-            var jobGetter = AccessorBuilder.BuildGetter<Person, string>("Job", true);
+        Should.Throw<NullReferenceException>(() => AccessorBuilder.BuildGetter(nullPropInfo))
+            .Message.ShouldBe("Object reference not set to an instance of an object.");
+    }
 
-            jobGetter.ShouldNotBe(nameGetterOne);
-            jobGetter.ShouldNotBe(nameGetterTwo);
-        }
+    [Test]
+    public void When_getting_getters_class()
+    {
+        var nameGetterOne = AccessorBuilder.BuildGetter<Person, string>("Name");
+        var nameGetterTwo = AccessorBuilder.BuildGetter<Person, string>("Name");
 
-        [Test]
-        public void When_getting_setters_class()
-        {
-            var nameSetterOne = AccessorBuilder.BuildSetter<Person, string>("Name");
-            var nameSetterTwo = AccessorBuilder.BuildSetter<Person, string>("Name");
+        nameGetterOne.ShouldNotBeSameAs(nameGetterTwo);
 
-            nameSetterOne.ShouldNotBeSameAs(nameSetterTwo);
+        var jobGetter = AccessorBuilder.BuildGetter<Person, string>("Job", true);
 
-            var jobSetter = AccessorBuilder.BuildSetter<Person, string>("Job", true);
+        jobGetter.ShouldNotBe(nameGetterOne);
+        jobGetter.ShouldNotBe(nameGetterTwo);
+    }
 
-            jobSetter.ShouldNotBe(nameSetterOne);
-            jobSetter.ShouldNotBe(nameSetterTwo);
-        }
+    [Test]
+    public void When_getting_setters_class()
+    {
+        var nameSetterOne = AccessorBuilder.BuildSetter<Person, string>("Name");
+        var nameSetterTwo = AccessorBuilder.BuildSetter<Person, string>("Name");
 
-        [Test]
-        public void When_setting_properties_of_known_instance_and_property_type_class()
-        {
-            var instance = new Person();
-            instance.Name.ShouldBeNull();
+        nameSetterOne.ShouldNotBeSameAs(nameSetterTwo);
 
-            var nameSetter = AccessorBuilder.BuildSetter<Person, string>("Name");
-            nameSetter(instance, "A");
-            instance.Name.ShouldBe("A");
+        var jobSetter = AccessorBuilder.BuildSetter<Person, string>("Job", true);
 
-            var jobSetter = AccessorBuilder.BuildSetter<Person, string>("Job", true);
-            jobSetter(instance, "job");
-            instance.GetJob().ShouldBe("job");
-        }
+        jobSetter.ShouldNotBe(nameSetterOne);
+        jobSetter.ShouldNotBe(nameSetterTwo);
+    }
 
-        [Test]
-        public void When_setting_properties_of_unknown_instance_and_property_type_class()
-        {
-            var instance = new Person();
-            instance.Name.ShouldBeNull();
+    [Test]
+    public void When_setting_properties_of_known_instance_and_property_type_class()
+    {
+        var instance = new Person();
+        instance.Name.ShouldBeNull();
 
-            PropertyInfo nameProp;
-            typeof(Person).TryGetInstanceProperty("Name", out nameProp).ShouldBeTrue();
+        var nameSetter = AccessorBuilder.BuildSetter<Person, string>("Name");
+        nameSetter(instance, "A");
+        instance.Name.ShouldBe("A");
 
-            var nameSetter = AccessorBuilder.BuildSetter(nameProp);
-            nameSetter(instance, "A");
-            instance.Name.ShouldBe("A");
+        var jobSetter = AccessorBuilder.BuildSetter<Person, string>("Job", true);
+        jobSetter(instance, "job");
+        instance.GetJob().ShouldBe("job");
+    }
 
-            PropertyInfo jobProp;
-            typeof(Person).TryGetInstanceProperty("Job", out jobProp).ShouldBeTrue();
-            var jobSetter = AccessorBuilder.BuildSetter(jobProp, true);
-            jobSetter(instance, "job");
-            instance.GetJob().ShouldBe("job");
-        }
+    [Test]
+    public void When_setting_properties_of_unknown_instance_and_property_type_class()
+    {
+        var instance = new Person();
+        instance.Name.ShouldBeNull();
 
-        [Test]
-        public void When_setting_properties_of_known_instance_but_unknown_property_type()
-        {
-            var instance = new Person();
-            instance.Name.ShouldBeNull();
+        PropertyInfo nameProp;
+        typeof(Person).TryGetInstanceProperty("Name", out nameProp).ShouldBeTrue();
 
-            var nameSetter = AccessorBuilder.BuildSetter<Person>("Name");
-            nameSetter(instance, "A");
-            instance.Name.ShouldBe("A");
+        var nameSetter = AccessorBuilder.BuildSetter(nameProp);
+        nameSetter(instance, "A");
+        instance.Name.ShouldBe("A");
 
-            var jobSetter = AccessorBuilder.BuildSetter<Person>("Job", true);
-            jobSetter(instance, "job");
-            instance.GetJob().ShouldBe("job");
-        }
+        PropertyInfo jobProp;
+        typeof(Person).TryGetInstanceProperty("Job", out jobProp).ShouldBeTrue();
+        var jobSetter = AccessorBuilder.BuildSetter(jobProp, true);
+        jobSetter(instance, "job");
+        instance.GetJob().ShouldBe("job");
+    }
 
-        [Test]
-        public void When_getting_properties_of_known_instance_and_property_type()
-        {
-            var instance = new Person();
-            instance.Name.ShouldBeNull();
+    [Test]
+    public void When_setting_properties_of_known_instance_but_unknown_property_type()
+    {
+        var instance = new Person();
+        instance.Name.ShouldBeNull();
 
-            instance.Name = "Foo";
+        var nameSetter = AccessorBuilder.BuildSetter<Person>("Name");
+        nameSetter(instance, "A");
+        instance.Name.ShouldBe("A");
 
-            instance.Name.ShouldBe("Foo");
+        var jobSetter = AccessorBuilder.BuildSetter<Person>("Job", true);
+        jobSetter(instance, "job");
+        instance.GetJob().ShouldBe("job");
+    }
 
-            var nameGetter = AccessorBuilder.BuildGetter<Person, string>("Name");
-            nameGetter(instance);
+    [Test]
+    public void When_getting_properties_of_known_instance_and_property_type()
+    {
+        var instance = new Person();
+        instance.Name.ShouldBeNull();
 
-            instance.Name.ShouldBe("Foo");
+        instance.Name = "Foo";
 
-            var jobSetter = AccessorBuilder.BuildSetter<Person, string>("Job", true);
-            jobSetter(instance, "Baz");
+        instance.Name.ShouldBe("Foo");
 
-            instance.GetJob().ShouldBe("Baz");
+        var nameGetter = AccessorBuilder.BuildGetter<Person, string>("Name");
+        nameGetter(instance);
 
-            var jobGetter = AccessorBuilder.BuildGetter<Person, string>("Job", true);
-            jobGetter(instance).ShouldBe("Baz");
-        }
+        instance.Name.ShouldBe("Foo");
 
-        [Test]
-        public void When_getting_properties_of_unknown_instance_and_property_type()
-        {
-            var instance = new Person();
-            instance.Name.ShouldBeNull();
+        var jobSetter = AccessorBuilder.BuildSetter<Person, string>("Job", true);
+        jobSetter(instance, "Baz");
 
-            instance.Name = "Foo";
+        instance.GetJob().ShouldBe("Baz");
 
-            instance.Name.ShouldBe("Foo");
+        var jobGetter = AccessorBuilder.BuildGetter<Person, string>("Job", true);
+        jobGetter(instance).ShouldBe("Baz");
+    }
 
-            PropertyInfo nameProp;
-            typeof(Person).TryGetInstanceProperty("Name", out nameProp).ShouldBeTrue();
+    [Test]
+    public void When_getting_properties_of_unknown_instance_and_property_type()
+    {
+        var instance = new Person();
+        instance.Name.ShouldBeNull();
 
-            var nameGetter = AccessorBuilder.BuildGetter(nameProp);
-            nameGetter(instance).ShouldBe("Foo");
+        instance.Name = "Foo";
 
-            instance.Name.ShouldBe("Foo");
+        instance.Name.ShouldBe("Foo");
 
-            instance.GetJob().ShouldBeNull();
+        PropertyInfo nameProp;
+        typeof(Person).TryGetInstanceProperty("Name", out nameProp).ShouldBeTrue();
 
-            PropertyInfo jobProp;
-            typeof(Person).TryGetInstanceProperty("Job", out jobProp).ShouldBeTrue();
-            var jobSetter = AccessorBuilder.BuildSetter(jobProp, true);
+        var nameGetter = AccessorBuilder.BuildGetter(nameProp);
+        nameGetter(instance).ShouldBe("Foo");
 
-            jobSetter(instance, "Baz");
-            instance.GetJob().ShouldBe("Baz");
+        instance.Name.ShouldBe("Foo");
 
-            var jobGetter = AccessorBuilder.BuildGetter(jobProp, true);
-            jobGetter(instance).ShouldBe("Baz");
-        }
+        instance.GetJob().ShouldBeNull();
 
-        [Test]
-        public void When_getting_properties_of_known_instance_but_unknown_property_type()
-        {
-            var instance = new Person();
-            instance.Name.ShouldBeNull();
+        PropertyInfo jobProp;
+        typeof(Person).TryGetInstanceProperty("Job", out jobProp).ShouldBeTrue();
+        var jobSetter = AccessorBuilder.BuildSetter(jobProp, true);
 
-            instance.Name = "Foo";
+        jobSetter(instance, "Baz");
+        instance.GetJob().ShouldBe("Baz");
 
-            instance.Name.ShouldBe("Foo");
+        var jobGetter = AccessorBuilder.BuildGetter(jobProp, true);
+        jobGetter(instance).ShouldBe("Baz");
+    }
 
-            var nameGetter = AccessorBuilder.BuildGetter<Person>("Name");
-            nameGetter(instance).ShouldBe("Foo");
+    [Test]
+    public void When_getting_properties_of_known_instance_but_unknown_property_type()
+    {
+        var instance = new Person();
+        instance.Name.ShouldBeNull();
 
-            instance.Name.ShouldBe("Foo");
+        instance.Name = "Foo";
 
-            instance.GetJob().ShouldBeNull();
+        instance.Name.ShouldBe("Foo");
 
-            var jobSetter = AccessorBuilder.BuildSetter<Person>("Job", true);
+        var nameGetter = AccessorBuilder.BuildGetter<Person>("Name");
+        nameGetter(instance).ShouldBe("Foo");
 
-            jobSetter(instance, "Baz");
-            instance.GetJob().ShouldBe("Baz");
+        instance.Name.ShouldBe("Foo");
 
-            var jobGetter = AccessorBuilder.BuildGetter<Person>("Job", true);
-            jobGetter(instance).ShouldBe("Baz");
-        }
+        instance.GetJob().ShouldBeNull();
 
-        [Test]
-        public void When_getting_properties_of_unknown_instance_and_property_type_of_a_struct()
-        {
-            var instance = new Struct();
-            instance.SomeString.ShouldBeNull();
+        var jobSetter = AccessorBuilder.BuildSetter<Person>("Job", true);
 
-            instance.SomeString = "Foo";
+        jobSetter(instance, "Baz");
+        instance.GetJob().ShouldBe("Baz");
 
-            instance.SomeString.ShouldBe("Foo");
+        var jobGetter = AccessorBuilder.BuildGetter<Person>("Job", true);
+        jobGetter(instance).ShouldBe("Baz");
+    }
 
-            PropertyInfo nameProp;
-            typeof(Struct).TryGetInstanceProperty("SomeString", out nameProp).ShouldBeTrue();
+    [Test]
+    public void When_getting_properties_of_unknown_instance_and_property_type_of_a_struct()
+    {
+        var instance = new Struct();
+        instance.SomeString.ShouldBeNull();
 
-            var nameGetter = AccessorBuilder.BuildGetter(nameProp);
-            nameGetter(instance).ShouldBe("Foo");
-            instance.SomeString.ShouldBe("Foo");
-        }
+        instance.SomeString = "Foo";
 
-        [Test]
-        public void When_getting_properties_of_known_instance_but_unkonnown_property_type_of_a_struct()
-        {
-            var instance = new Struct();
-            instance.SomeString.ShouldBeNull();
+        instance.SomeString.ShouldBe("Foo");
 
-            instance.SomeString = "Foo";
+        PropertyInfo nameProp;
+        typeof(Struct).TryGetInstanceProperty("SomeString", out nameProp).ShouldBeTrue();
 
-            instance.SomeString.ShouldBe("Foo");
+        var nameGetter = AccessorBuilder.BuildGetter(nameProp);
+        nameGetter(instance).ShouldBe("Foo");
+        instance.SomeString.ShouldBe("Foo");
+    }
 
-            var propGetter = AccessorBuilder.BuildGetter<Struct>("SomeString");
-            propGetter(instance).ShouldBe("Foo");
-            instance.SomeString.ShouldBe("Foo");
-        }
+    [Test]
+    public void When_getting_properties_of_known_instance_but_unkonnown_property_type_of_a_struct()
+    {
+        var instance = new Struct();
+        instance.SomeString.ShouldBeNull();
 
-        private sealed class Person
-        {
-            public string Name { get; set; }
-            public int Age { get; set; }
-            private string Job { get; set; }
+        instance.SomeString = "Foo";
 
-            public string GetJob() => Job;
-        }
+        instance.SomeString.ShouldBe("Foo");
 
-        private struct Struct
-        {
-            public string SomeString { get; set; }
-        }
+        var propGetter = AccessorBuilder.BuildGetter<Struct>("SomeString");
+        propGetter(instance).ShouldBe("Foo");
+        instance.SomeString.ShouldBe("Foo");
+    }
+
+    private sealed class Person
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        private string Job { get; set; }
+
+        public string GetJob() => Job;
+    }
+
+    private struct Struct
+    {
+        public string SomeString { get; set; }
     }
 }

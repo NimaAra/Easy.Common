@@ -1,14 +1,14 @@
 ﻿namespace Easy.Common.Tests.Unit.TypeExtensions;
 
+using Easy.Common.Extensions;
+using NUnit.Framework;
+using Shouldly;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using Easy.Common.Extensions;
-using NUnit.Framework;
-using Shouldly;
 
 [TestFixture]
 public sealed class CheckingIfTypeIsASequenceTests
@@ -16,15 +16,13 @@ public sealed class CheckingIfTypeIsASequenceTests
     [Test]
     public void When_checking_type_of_null()
     {
-        var e = Should.Throw<ArgumentNullException>(() =>
+        var e = Should.Throw<NullReferenceException>(() =>
         {
             Type nullType = null;
             // ReSharper disable once ExpressionIsAlwaysNull
             nullType.IsSequence(out _);
         });
-        e.Message.ShouldBe("Value cannot be null. (Parameter 'type')");
-
-        e.ParamName.ShouldBe("type");
+        e.Message.ShouldBe("Object reference not set to an instance of an object.");
     }
 
     [Test]

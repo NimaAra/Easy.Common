@@ -1,113 +1,112 @@
-﻿namespace Easy.Common.Tests.Unit.AsyncLazy
+﻿namespace Easy.Common.Tests.Unit.AsyncLazy;
+
+using System.Threading.Tasks;
+using NUnit.Framework;
+using Shouldly;
+using static System.Threading.Tasks.Task;
+
+[TestFixture]
+internal sealed class AsyncLazyTests
 {
-    using System.Threading.Tasks;
-    using NUnit.Framework;
-    using Shouldly;
-    using static System.Threading.Tasks.Task;
-
-    [TestFixture]
-    internal sealed class AsyncLazyTests
+    [Test]
+    public async Task When_creating_an_instance_with_a_factory()
     {
-        [Test]
-        public async Task When_creating_an_instance_with_a_factory()
+        int counter = 0;
+
+        int Factory()
         {
-            int counter = 0;
+            counter++;
+            return 42;
+        }
 
-            int Factory()
-            {
-                counter++;
-                return 42;
-            }
+        AsyncLazy<int> lazy = new (Factory);
 
-            var lazy = new AsyncLazy<int>(Factory);
+        int lazyResult = await lazy;
 
-            var lazyResult = await lazy;
+        lazy.IsValueCreated.ShouldBeTrue();
 
-            lazy.IsValueCreated.ShouldBeTrue();
-
-            lazyResult.ShouldBe(42);
-            lazy.Value.Result.ShouldBe(42);
+        lazyResult.ShouldBe(42);
+        lazy.Value.Result.ShouldBe(42);
             
-            counter.ShouldBe(1);
+        counter.ShouldBe(1);
+    }
+
+    [Test]
+    public async Task When_creating_an_instance_with_a_factory_and_getting_value_multiple_times()
+    {
+        int counter = 0;
+
+        int Factory()
+        {
+            counter++;
+            return 42;
         }
 
-        [Test]
-        public async Task When_creating_an_instance_with_a_factory_and_getting_value_multiple_times()
+        AsyncLazy<int> lazy = new (Factory);
+
+        int lazyResultOne = await lazy;
+        Task<int> lazyResultTwo = lazy.Value;
+        int lazyResultThree = await lazy;
+
+        lazyResultOne.ShouldBe(42);
+        lazyResultTwo.Result.ShouldBe(42);
+        lazyResultThree.ShouldBe(42);
+
+        lazy.Value.Result.ShouldBe(42);
+
+        counter.ShouldBe(1);
+    }
+
+    [Test]
+    public async Task When_creating_an_instance_with_a_factory_returning_task()
+    {
+        int counter = 0;
+
+        async Task<int> Factory()
         {
-            int counter = 0;
-
-            int Factory()
-            {
-                counter++;
-                return 42;
-            }
-
-            var lazy = new AsyncLazy<int>(Factory);
-
-            var lazyResultOne = await lazy;
-            var lazyResultTwo = lazy.Value;
-            var lazyResultThree = await lazy;
-
-            lazyResultOne.ShouldBe(42);
-            lazyResultTwo.Result.ShouldBe(42);
-            lazyResultThree.ShouldBe(42);
-
-            lazy.Value.Result.ShouldBe(42);
-
-            counter.ShouldBe(1);
-        }
-
-        [Test]
-        public async Task When_creating_an_instance_with_a_factory_returning_task()
-        {
-            int counter = 0;
-
-            async Task<int> Factory()
-            {
-                await Delay(1);
+            await Delay(1);
                 
-                counter++;
-                return 42;
-            }
-
-            var lazy = new AsyncLazy<int>(Factory);
-
-            var lazyResult = await lazy;
-
-            lazy.IsValueCreated.ShouldBeTrue();
-
-            lazyResult.ShouldBe(42);
-            lazy.Value.Result.ShouldBe(42);
-
-            counter.ShouldBe(1);
+            counter++;
+            return 42;
         }
 
-        [Test]
-        public async Task When_creating_an_instance_with_a_factory_returning_task_and_getting_value_multiple_times()
+        AsyncLazy<int> lazy = new (Factory);
+
+        int lazyResult = await lazy;
+
+        lazy.IsValueCreated.ShouldBeTrue();
+
+        lazyResult.ShouldBe(42);
+        lazy.Value.Result.ShouldBe(42);
+
+        counter.ShouldBe(1);
+    }
+
+    [Test]
+    public async Task When_creating_an_instance_with_a_factory_returning_task_and_getting_value_multiple_times()
+    {
+        int counter = 0;
+
+        async Task<int> Factory()
         {
-            int counter = 0;
+            await Delay(1);
 
-            async Task<int> Factory()
-            {
-                await Delay(1);
-
-                counter++;
-                return 42;
-            }
-
-            var lazy = new AsyncLazy<int>(Factory);
-
-            var lazyResultOne = await lazy;
-            var lazyResultTwo = lazy.Value;
-            var lazyResultThree = await lazy;
-
-            lazyResultOne.ShouldBe(42);
-            lazyResultTwo.Result.ShouldBe(42);
-            lazyResultThree.ShouldBe(42);
-
-            lazy.Value.Result.ShouldBe(42);
-
-            counter.ShouldBe(1);
+            counter++;
+            return 42;
         }
+
+        AsyncLazy<int> lazy = new (Factory);
+
+        int lazyResultOne = await lazy;
+        Task<int> lazyResultTwo = lazy.Value;
+        int lazyResultThree = await lazy;
+
+        lazyResultOne.ShouldBe(42);
+        lazyResultTwo.Result.ShouldBe(42);
+        lazyResultThree.ShouldBe(42);
+
+        lazy.Value.Result.ShouldBe(42);
+
+        counter.ShouldBe(1);
     }
 }

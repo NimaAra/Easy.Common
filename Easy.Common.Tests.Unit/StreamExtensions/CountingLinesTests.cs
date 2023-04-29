@@ -1,11 +1,11 @@
 ﻿namespace Easy.Common.Tests.Unit.StreamExtensions;
 
-using System;
-using System.IO;
-using System.Text;
 using Easy.Common.Extensions;
 using NUnit.Framework;
 using Shouldly;
+using System;
+using System.IO;
+using System.Text;
 
 [TestFixture]
 internal sealed class CountingLinesTests
@@ -13,8 +13,8 @@ internal sealed class CountingLinesTests
     [Test]
     public void When_processing_null_stream()
     {
-        Should.Throw<ArgumentNullException>(() => ((MemoryStream) null).CountLines())
-            .Message.ShouldBe("Value cannot be null. (Parameter 'stream')");
+        Should.Throw<NullReferenceException>(() => ((MemoryStream) null).CountLines())
+            .Message.ShouldBe("Object reference not set to an instance of an object.");
     }
 
     [Test]

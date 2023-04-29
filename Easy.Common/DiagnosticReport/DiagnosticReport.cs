@@ -17,6 +17,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Easy.Common.Extensions;
 
+#nullable disable
+
 /// <summary>
 /// A helper class for generating a report containing details related to 
 /// <c>System</c>, <c>Process</c>, <c>Assemblies</c>, <c>Networks</c> and <c>Environment</c> 
@@ -968,3 +970,5 @@ public sealed class DiagnosticReport
 
     private const int OS_ANYSERVER = 29;
 }
+
+#nullable restore

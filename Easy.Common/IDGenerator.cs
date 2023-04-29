@@ -15,9 +15,9 @@
         private static long _lastId = DateTime.UtcNow.Ticks;
 
         private static readonly ThreadLocal<char[]> _charBufferThreadLocal =
-            new ThreadLocal<char[]>(() =>
+            new(() =>
             {
-                var buffer = new char[20];
+                char[] buffer = new char[20];
                 buffer[0] = _prefix[0];
                 buffer[1] = _prefix[1];
                 buffer[2] = _prefix[2];
@@ -43,7 +43,7 @@
 
         private static string GenerateImpl(long id)
         {
-            var buffer = _charBufferThreadLocal.Value;
+            char[] buffer = _charBufferThreadLocal.Value!;
 
             buffer[7] = Encode_32_Chars[(int)(id >> 60) & 31];
             buffer[8] = Encode_32_Chars[(int)(id >> 55) & 31];
@@ -64,18 +64,20 @@
 
         private static void PopulatePrefix()
         {
-            var machineHash = Math.Abs(Environment.MachineName.GetHashCode());
-            var machineEncoded = Base36.Encode(machineHash);
-            
-            var i = _prefix.Length - 1;
-            var j = 0;
+            int machineHash = Math.Abs(Environment.MachineName.GetHashCode());
+            string machineEncoded = Base36.Encode(machineHash);
+
+            int i = _prefix.Length - 1;
+            int j = 0;
             while (i >= 0)
             {
                 if (j < machineEncoded.Length)
                 {
-                    _prefix[i] = machineEncoded[j];			
+                    _prefix[i] = machineEncoded[j];
                     j++;
-                } else {
+                }
+                else
+                {
                     _prefix[i] = '0';
                 }
                 i--;

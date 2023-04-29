@@ -1,9 +1,9 @@
 ﻿namespace Easy.Common.Tests.Unit.ByteExtensions;
 
-using System;
 using Easy.Common.Extensions;
 using NUnit.Framework;
 using Shouldly;
+using System;
 
 [TestFixture]
 internal sealed class ComparingByteArraysTests

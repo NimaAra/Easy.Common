@@ -1,5 +1,7 @@
 ﻿namespace Easy.Common;
 
+using Easy.Common.Extensions;
+using Easy.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,8 +10,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Easy.Common.Extensions;
-using Easy.Common.Interfaces;
 
 /// <summary>
 /// An abstraction over <see cref="HttpClient"/> to address the following issues:
@@ -30,9 +30,9 @@ public sealed class RestClient : IRestClient
     /// Creates an instance of the <see cref="RestClient"/>.
     /// </summary>
     public RestClient(
-        IDictionary<string, IEnumerable<string>> defaultRequestHeaders = null,
-        HttpMessageHandler handler = null,
-        Uri baseAddress = null,
+        IDictionary<string, IEnumerable<string>>? defaultRequestHeaders = default,
+        HttpMessageHandler? handler = default,
+        Uri? baseAddress = default,
         bool disposeHandler = true,
         TimeSpan? timeout = null,
         ulong? maxResponseContentBufferSize = null)
@@ -75,7 +75,7 @@ public sealed class RestClient : IRestClient
     /// <summary>
     /// Gets the base address of Uniform Resource Identifier (URI) of the Internet resource used when sending requests.
     /// </summary>
-    public Uri BaseAddress => _client.BaseAddress;
+    public Uri? BaseAddress => _client.BaseAddress;
 
     /// <summary>
     /// Sends the given <paramref name="request"/>.
@@ -501,14 +501,14 @@ public sealed class RestClient : IRestClient
         ServicePointManager.DefaultConnectionLimit = MAX_CONNECTION_PER_SERVER;
     }
 
-    private void AddBaseAddress(Uri uri)
+    private void AddBaseAddress(Uri? uri)
     {
         if (uri is null) { return; }
 
         _client.BaseAddress = uri;
     }
 
-    private void AddDefaultHeaders(IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers)
+    private void AddDefaultHeaders(IEnumerable<KeyValuePair<string, IEnumerable<string>>>? headers)
     {
         if (headers is null) { return; }
 

@@ -58,18 +58,16 @@
         /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property.</remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static bool TryGetInstanceProperty(this Type type, string propertyName, out PropertyInfo property, bool inherit = true)
+        public static bool TryGetInstanceProperty(this Type type, string propertyName, [NotNullWhen(true)] out PropertyInfo? property, bool inherit = true)
         {
-            Ensure.NotNull(type, nameof(type));
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
             var flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
             if (!inherit) { flags = flags | BindingFlags.DeclaredOnly; }
 
-            property = type.GetProperties(flags)
-                .FirstOrDefault(p => p.Name.Equals(propertyName, StringComparison.Ordinal));
+            property = type.GetProperties(flags).FirstOrDefault(p => p.Name.Equals(propertyName, StringComparison.Ordinal));
 
-            return property != null;
+            return property is not null;
         }
 
         /// <summary>
@@ -77,11 +75,8 @@
         /// <remarks>This method can be used to return both a <c>public</c> or <c>non-public</c> property.</remarks>
         /// </summary>
         [DebuggerStepThrough]
-        public static PropertyInfo[] GetInstanceProperties(this Type type, bool inherit = true, bool includePrivate = true)
-        {
-            Ensure.NotNull(type, nameof(type));
-            return GetInstanceProperties(type.GetTypeInfo(), inherit, includePrivate);
-        }
+        public static PropertyInfo[] GetInstanceProperties(this Type type, bool inherit = true,
+            bool includePrivate = true) => GetInstanceProperties(type.GetTypeInfo(), inherit, includePrivate);
 
         /// <summary>
         /// Returns all <c>instance</c> properties of the given <paramref name="typeInfo"/>.
@@ -90,9 +85,7 @@
         [DebuggerStepThrough]
         public static PropertyInfo[] GetInstanceProperties(this TypeInfo typeInfo, bool inherit, bool includePrivate)
         {
-            Ensure.NotNull(typeInfo, nameof(typeInfo));
-
-            var flags = BindingFlags.Instance | BindingFlags.Public;
+            BindingFlags flags = BindingFlags.Instance | BindingFlags.Public;
             if (includePrivate) { flags = flags | BindingFlags.NonPublic; }
             if (!inherit) { flags = flags | BindingFlags.DeclaredOnly; }
 
@@ -108,12 +101,8 @@
         /// <param name="inherit">If <c>true</c> it also searches the ancestors for the <typeparamref name="T"/>.</param>
         /// <returns>A sequence containing properties decorated with <typeparamref name="T"/>.</returns>
         [DebuggerStepThrough]
-        public static IEnumerable<PropertyInfo> GetPropertiesWithAttribute<T>(this Type type, bool inherit = true) where T : Attribute
-        {
-            Ensure.NotNull(type, nameof(type));
-            return type.GetProperties()
-                .Where(prop => Attribute.IsDefined(prop, typeof(T)) && (prop.DeclaringType == type || inherit));
-        }
+        public static IEnumerable<PropertyInfo> GetPropertiesWithAttribute<T>(this Type type, bool inherit = true) where T : Attribute =>
+            type.GetProperties().Where(prop => Attribute.IsDefined(prop, typeof(T)) && (prop.DeclaringType == type || inherit));
 
         /// <summary>
         /// Returns a mapping of <typeparamref name="T"/> attribute to <see cref="PropertyInfo"/> for a given <paramref name="type"/>.
@@ -125,17 +114,16 @@
         [DebuggerStepThrough]
         public static Dictionary<T, PropertyInfo> GetAttributeToPropertyMapping<T>(this Type type, bool inherit = true) where T : Attribute
         {
-            Ensure.NotNull(type, nameof(type));
-
-            var properties = type.GetProperties();
-            var result = new Dictionary<T, PropertyInfo>(properties.Length);
-            foreach (var property in properties)
+            PropertyInfo[] properties = type.GetProperties();
+            Dictionary<T, PropertyInfo> result = new(properties.Length);
+            
+            foreach (PropertyInfo prop in properties)
             {
-                var attributes = property.GetCustomAttributes<T>(inherit);
-                var attr = attributes.FirstOrDefault();
+                IEnumerable<T> attributes = prop.GetCustomAttributes<T>(inherit);
+                T? attr = attributes.FirstOrDefault();
                 if (attr is null) { continue; }
 
-                result[attr] = property;
+                result[attr] = prop;
             }
             return result;
         }
@@ -149,13 +137,13 @@
         /// <param name="inherit">If <c>true</c> it also searches the ancestors for the <typeparamref name="T"/>.</param>
         /// <returns><c>True</c> if successful otherwise <c>False</c></returns>
         [DebuggerStepThrough]
-        public static bool TryGetAttributes<T>(this Type type, out T[] attributes, bool inherit = true) where T : Attribute
+        public static bool TryGetAttributes<T>(this Type type, [NotNullWhen(true)] out T[]? attributes, bool inherit = true) where T : Attribute
         {
             var result = Attribute.GetCustomAttributes(type, typeof(T), inherit);
 
             if (result.Length > 0)
             {
-                attributes = result as T[];
+                attributes = (T[])result;
                 return true;
             }
 
@@ -171,10 +159,8 @@
         /// <param name="genericArguments">The result</param>
         /// <returns><see langword="true"/> if generic types can be retrieved otherwise <see langword="false"/></returns>
         [DebuggerStepThrough]
-        public static bool TryGetGenericArguments(this Type type, out Type[] genericArguments)
+        public static bool TryGetGenericArguments(this Type type, out Type?[] genericArguments)
         {
-            Ensure.NotNull(type, nameof(type));
-
             if (type.IsArray)
             {
                 genericArguments = new[] { type.GetElementType() };
@@ -183,7 +169,7 @@
 
             if (!type.IsGenericType)
             {
-                genericArguments = null;
+                genericArguments = Array.Empty<Type>();
                 return false;
             }
 
@@ -200,128 +186,127 @@
         [DebuggerStepThrough]
         public static bool IsSequence(this Type type, out SequenceType sequenceType)
         {
-            Ensure.NotNull(type, nameof(type));
-
             if (type.IsArray)
             {
                 sequenceType = SequenceType.Array;
                 return true;
             }
 
-            if (NonGenericCollectionsToSequenceTypeMapping.TryGetValue(type.FullName, out sequenceType))
+            string typeFullName = type.FullName!;
+            if (NonGenericCollectionsToSequenceTypeMapping.TryGetValue(typeFullName, out sequenceType))
             {
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.List`1", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.List`1", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericList;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.HashSet`1", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.HashSet`1", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericHashSet;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.ObjectModel.Collection`1", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.ObjectModel.Collection`1", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericCollection;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.LinkedList`1", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.LinkedList`1", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericLinkedList;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.Stack`1", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.Stack`1", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericStack;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.Queue`1", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.Queue`1", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericQueue;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.IList`1", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.IList`1", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericIList;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.ICollection`1[[System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.ICollection`1[[System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericICollectionKeyValue;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.ICollection`1", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.ICollection`1", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericICollection;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.IEnumerable`1[[System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.IEnumerable`1[[System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericIEnumerableKeyValue;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.IEnumerable`1", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.IEnumerable`1", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericIEnumerable;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericDictionary;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.SortedDictionary`2", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.SortedDictionary`2", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericSortedDictionary;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.SortedList`2", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.SortedList`2", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericSortedList;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.IDictionary`2", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.IDictionary`2", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericIDictionary;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Generic.ICollection`2", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Generic.ICollection`2", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericIDictionary;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Concurrent.BlockingCollection`1", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Concurrent.BlockingCollection`1", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericBlockingCollection;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Concurrent.ConcurrentBag`1", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Concurrent.ConcurrentBag`1", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericConcurrentBag;
                 return true;
             }
 
-            if (type.FullName.StartsWith("System.Collections.Concurrent.ConcurrentDictionary`2[[", StringComparison.Ordinal))
+            if (typeFullName.StartsWith("System.Collections.Concurrent.ConcurrentDictionary`2[[", StringComparison.Ordinal))
             {
                 sequenceType = SequenceType.GenericConcurrentDictionary;
                 return true;
@@ -401,7 +386,7 @@
         {
             if (!type.IsGenericType) { return false; }
 
-            var typeDef = type.GetGenericTypeDefinition();
+            Type typeDef = type.GetGenericTypeDefinition();
 
             if (typeDef == typeof(List<>) || typeDef == typeof(IList<>)) { return true; }
 
@@ -414,9 +399,7 @@
         [DebuggerStepThrough]
         public static bool IsNumeric(this Type type)
         {
-            if (type is null) { return false; }
-
-            var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+            Type underlyingType = Nullable.GetUnderlyingType(type) ?? type;
             if (underlyingType.GetTypeInfo().IsEnum) { return false; }
 
             // ReSharper disable once SwitchStatementMissingSomeCases
