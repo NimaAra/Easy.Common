@@ -64,6 +64,6 @@ public sealed class EasyPool<T> : IEasyPool<T> where T : class
     /// </summary>
     public void Dispose()
     {
-        while (_pool.TryTake(out T _)) { /* ignore */ }
+        while (_pool.TryTake(out T? _)) { /* ignore */ }
     }
 }

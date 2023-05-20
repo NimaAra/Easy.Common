@@ -205,7 +205,7 @@ public sealed class DiagnosticReport
     private static SystemDetails GetSystemDetails(DiagnosticReportType type)
     {
         if (!IsReportEnabled(type, DiagnosticReportType.System)) { return default; }
-            
+
         return new SystemDetails(
             RuntimeInformation.OSDescription,
             GetOSPlatform(),
@@ -232,7 +232,7 @@ public sealed class DiagnosticReport
 
         string processName = p.ProcessName;
         FileVersionInfo pVerInfo;
-            
+
         Assembly assembly = Assembly.GetEntryAssembly();
         if (p.ProcessName.Equals("dotnet", StringComparison.OrdinalIgnoreCase) && assembly is not null)
         {
@@ -365,14 +365,14 @@ public sealed class DiagnosticReport
                 IPAddressDetails[] addresses = NetworkHelper.GetLocalIPAddresses(nic).Select(IPAddressDetails.From).ToArray();
                 return new NetworkInterfaceDetails(
                     nic.Id,
-                    macAddress, 
-                    nic.Name, 
-                    nic.Description, 
+                    macAddress,
+                    nic.Name,
+                    nic.Description,
                     nic.NetworkInterfaceType.ToString(),
-                    nic.Speed, 
-                    nic.IsReceiveOnly, 
-                    nic.SupportsMulticast, 
-                    nic.OperationalStatus.ToString(), 
+                    nic.Speed,
+                    nic.IsReceiveOnly,
+                    nic.SupportsMulticast,
+                    nic.OperationalStatus.ToString(),
                     addresses);
             })
             .ToArray();
@@ -532,7 +532,7 @@ public sealed class DiagnosticReport
 
         int assCounter = 1;
         report.Assemblies
-            .OrderByDescending(a => a.IsGAC)
+            .OrderBy(a => a.FileName)
             .ForEach(ass =>
             {
                 builder.AppendFormat(nameFormatter, LinePrefix, assCounter.ToString(), Pipe.ToString(), AssemblyHeaders[0], ass.FullName, NewLine);
@@ -574,14 +574,15 @@ public sealed class DiagnosticReport
 
     private static void AddEnvironmentVariables(StringBuilder builder, DiagnosticReport report)
     {
-        Dictionary<string, string> envKeyVals = report.EnvironmentVariables
+        var envKeyVals = report.EnvironmentVariables
+            .Select(kv => new { kv.Key, kv.Value })
             .OrderBy(kv => kv.Key)
-            .ToDictionary(kv => kv.Key, kv => kv.Value);
+            .ToArray();
 
         int sectionIndex = builder.Length;
 
         int envVarCounter = 1;
-        int maxKeyLength = envKeyVals.Keys.Max(key => key.Length);
+        int maxKeyLength = envKeyVals.Max(kv => kv.Key.Length);
         string format = "{0}{1:D3}{2} {3,-" + maxKeyLength + "} : {4}{5}";
         envKeyVals.ForEach(kv =>
         {
@@ -929,7 +930,8 @@ public sealed class DiagnosticReport
         try
         {
             return ".NET Core " + GetVersionCore();
-        } catch (NotSupportedException)
+        }
+        catch (NotSupportedException)
         {
             return RuntimeInformation.FrameworkDescription + " (Self Contained)";
         }
@@ -937,14 +939,14 @@ public sealed class DiagnosticReport
         static Version GetVersionCore()
         {
             const string REGEX_PATTERN = @"Microsoft\.NETCore\.App[\\,/](?<version>\d+\.\d+.\d+(.\d+)?)$";
-                
+
             string runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location);
 
             if (runtimePath is null)
             {
                 throw new NotSupportedException("Unable to detect a DotNet Core version");
             }
-                
+
             Match match = Regex.Match(runtimePath, REGEX_PATTERN);
 
             if (!match.Success)
