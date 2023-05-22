@@ -115,13 +115,15 @@ public static class AssemblyExtensions
     {
         Ensure.NotNull(assembly, nameof(assembly));
             
-        var location = assembly.Location;
-        if (location.IsNullOrEmptyOrWhiteSpace()) { location = assembly.Location; }
+        string location = assembly.Location;
+#pragma warning disable SYSLIB0012
+        if (location.IsNullOrEmptyOrWhiteSpace()) { location = assembly.CodeBase!; }
+#pragma warning restore SYSLIB0012
             
-        var uri = new Uri(location);
+        Uri uri = new(location);
         Ensure.That(uri.IsFile, "Assembly location is not a file.");
 
-        var assemblyName = AssemblyName.GetAssemblyName(uri.LocalPath);
+        AssemblyName assemblyName = AssemblyName.GetAssemblyName(uri.LocalPath);
         return assemblyName.ProcessorArchitecture == ProcessorArchitecture.X86;
     }
 

@@ -175,7 +175,7 @@ public sealed class DiagnosticReport
     /// <summary>
     /// Gets the <c>Environment Variables</c>.
     /// </summary>
-    public IDictionary<string, string> EnvironmentVariables { get; }
+    public IReadOnlyDictionary<string, string> EnvironmentVariables { get; }
 
     /// <summary>
     /// Gets the information relating to the <c>Networks</c>.
@@ -277,13 +277,15 @@ public sealed class DiagnosticReport
         static bool IsOptimized() => Assembly.GetEntryAssembly()?.IsOptimized() ?? false;
     }
 
-    private static Dictionary<string, string> GetEnvironmentVariables(DiagnosticReportType type)
+    private static IReadOnlyDictionary<string, string> GetEnvironmentVariables(DiagnosticReportType type)
     {
         if (!IsReportEnabled(type, DiagnosticReportType.EnvironmentVariables)) { return default; }
 
-        return Environment.GetEnvironmentVariables()
+        return new SortedList<string, string>(
+            Environment.GetEnvironmentVariables()
             .Cast<DictionaryEntry>()
-            .ToDictionary(kv => kv.Key.ToString(), kv => kv.Value?.ToString());
+            .ToDictionary(kv => kv.Key.ToString(), kv => kv.Value?.ToString())
+        );
     }
 
     private static DriveDetails[] GetDriveDetails(DiagnosticReportType type)
@@ -328,7 +330,9 @@ public sealed class DiagnosticReport
                 string assLoc = ass.Location;
                 if (assLoc.IsNullOrEmptyOrWhiteSpace())
                 {
-                    Uri uri = new(ass.Location);
+#pragma warning disable SYSLIB0012
+                    Uri uri = new(ass.CodeBase!);
+#pragma warning restore SYSLIB0012
                     assLoc = uri.LocalPath;
                 }
 
@@ -343,13 +347,14 @@ public sealed class DiagnosticReport
                     ass.IsOptimized(),
                     ass.GetFrameworkVersion(),
                     ass.Location,
-                    new Uri(ass.Location),
+                    new Uri(assLoc),
                     version,
                     versionInfo.FileVersion,
                     versionInfo.ProductVersion,
                     versionInfo.ProductName,
                     versionInfo.CompanyName);
             })
+            .OrderBy(a => a.FileName)
             .ToArray();
     }
 
@@ -375,6 +380,7 @@ public sealed class DiagnosticReport
                     nic.OperationalStatus.ToString(),
                     addresses);
             })
+            .OrderBy(x => x.Description)
             .ToArray();
 
         IPGlobalProperties globalProps = IPGlobalProperties.GetIPGlobalProperties();
@@ -532,7 +538,6 @@ public sealed class DiagnosticReport
 
         int assCounter = 1;
         report.Assemblies
-            .OrderBy(a => a.FileName)
             .ForEach(ass =>
             {
                 builder.AppendFormat(nameFormatter, LinePrefix, assCounter.ToString(), Pipe.ToString(), AssemblyHeaders[0], ass.FullName, NewLine);
@@ -576,7 +581,6 @@ public sealed class DiagnosticReport
     {
         var envKeyVals = report.EnvironmentVariables
             .Select(kv => new { kv.Key, kv.Value })
-            .OrderBy(kv => kv.Key)
             .ToArray();
 
         int sectionIndex = builder.Length;
