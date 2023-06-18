@@ -1,11 +1,12 @@
 ﻿namespace Easy.Common;
 
+using Easy.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Easy.Common.Extensions;
 
 /// <summary>
 /// Helper class that will <see langword="throw"/> exceptions when conditions are not satisfied.
@@ -22,7 +23,7 @@ public static class Ensure
     ///     Thrown when <cref>TException</cref> <paramref name="condition"/> is <see langword="false"/>.
     /// </exception>
     [DebuggerStepThrough]
-    public static void That<TException>(bool condition, string message = "The given condition is false.") where TException : Exception
+    public static void That<TException>([DoesNotReturnIf(false)] bool condition, string message = "The given condition is false.") where TException : Exception
     {
         if (!condition) { throw (TException)Activator.CreateInstance(typeof(TException), message)!; }
     }
@@ -36,7 +37,7 @@ public static class Ensure
     ///     Thrown when <paramref name="condition"/> is <see langword="false"/>.
     /// </exception>
     [DebuggerStepThrough]
-    public static void That(bool condition, string message = "The given condition is false.") => 
+    public static void That([DoesNotReturnIf(false)] bool condition, string message = "The given condition is false.") =>
         That<ArgumentException>(condition, message);
 
     /// <summary>
@@ -49,7 +50,7 @@ public static class Ensure
     ///     Thrown when <paramref name="condition"/> is <see langword="false"/>.
     /// </exception>
     [DebuggerStepThrough]
-    public static void Not<TException>(bool condition, string message = "The given condition is true.") where TException : Exception => 
+    public static void Not<TException>([DoesNotReturnIf(true)] bool condition, string message = "The given condition is true.") where TException : Exception =>
         That<TException>(!condition, message);
 
     /// <summary>
@@ -61,7 +62,7 @@ public static class Ensure
     ///     Thrown when <paramref name="condition"/> is <see langword="false"/>.
     /// </exception>
     [DebuggerStepThrough]
-    public static void Not(bool condition, string message = "The given condition is true.") => 
+    public static void Not([DoesNotReturnIf(true)] bool condition, string message = "The given condition is true.") =>
         Not<ArgumentException>(condition, message);
 
     /// <summary>
@@ -93,9 +94,9 @@ public static class Ensure
     /// </exception>
     /// <remarks>Null values will cause an exception to be thrown</remarks>
     [DebuggerStepThrough]
-    public static void Equal<T>(T left, T right, string message = "Values must be equal.") => 
+    public static void Equal<T>(T left, T right, string message = "Values must be equal.") =>
         That<ArgumentException>(Comparer<T>.Default.Compare(left, right) == 0, message);
-        
+
     /// <summary>
     /// Ensures given objects are not equal.
     /// </summary>
@@ -108,7 +109,7 @@ public static class Ensure
     /// </exception>
     /// <remarks>Null values will cause an exception to be thrown</remarks>
     [DebuggerStepThrough]
-    public static void NotEqual<T>(T left, T right, string message = "Values must not be equal.") => 
+    public static void NotEqual<T>(T left, T right, string message = "Values must not be equal.") =>
         That<ArgumentException>(Comparer<T>.Default.Compare(left, right) != 0, message);
 
     /// <summary>
