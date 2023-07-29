@@ -62,8 +62,8 @@
         {
             Ensure.NotNullOrEmptyOrWhiteSpace(propertyName);
 
-            var flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-            if (!inherit) { flags = flags | BindingFlags.DeclaredOnly; }
+            BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            if (!inherit) { flags |= BindingFlags.DeclaredOnly; }
 
             property = type.GetProperties(flags).FirstOrDefault(p => p.Name.Equals(propertyName, StringComparison.Ordinal));
 
@@ -334,11 +334,25 @@
         /// Determines whether the <paramref name="type"/> implements <typeparamref name="T"/>.
         /// </summary>
         [DebuggerStepThrough]
-        public static bool Implements<T>(this Type type)
-        {
-            Ensure.NotNull(type, nameof(type));
-            return typeof(T).IsAssignableFrom(type);
-        }
+        public static bool Implements<T>(this Type type) => type.Implements(typeof(T));
+
+        /// <summary>
+        /// Determines whether the <paramref name="type"/> implements <paramref name="other"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static bool Implements(this Type type, Type other) => other.IsAssignableFrom(type);
+
+        /// <summary>
+        /// Determines whether the <paramref name="type"/> is a base type of <typeparamref name="T"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static bool IsBaseTypeOf<T>(this Type type) => type.IsBaseTypeOf(typeof(T));
+
+        /// <summary>
+        /// Determines whether the <paramref name="type"/> is a base type of <paramref name="other"/>.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static bool IsBaseTypeOf(this Type type, Type other) => other.Implements(type);
 
         /// <summary>
         /// Determines whether the given <paramref name="type"/> has a default constructor.
@@ -346,11 +360,7 @@
         /// <param name="type">Type to check.</param>
         /// <returns><c>True</c> if <paramref name="type"/> has a default constructor, <c>False</c> otherwise.</returns>
         [DebuggerStepThrough]
-        public static bool HasDefaultConstructor(this Type type)
-        {
-            Ensure.NotNull(type, nameof(type));
-            return type.IsValueType || type.GetConstructor(Type.EmptyTypes) != null;
-        }
+        public static bool HasDefaultConstructor(this Type type) => type.IsValueType || type.GetConstructor(Type.EmptyTypes) is not null;
 
         /// <summary>
         /// Determines whether the given <paramref name="type"/> is of simple type.
@@ -360,7 +370,6 @@
         [DebuggerStepThrough]
         public static bool IsSimpleType(this Type type)
         {
-            Ensure.NotNull(type, nameof(type));
             var underlyingType = Nullable.GetUnderlyingType(type);
             type = underlyingType ?? type;
 
@@ -388,9 +397,7 @@
 
             Type typeDef = type.GetGenericTypeDefinition();
 
-            if (typeDef == typeof(List<>) || typeDef == typeof(IList<>)) { return true; }
-
-            return false;
+            return typeDef == typeof(List<>) || typeDef == typeof(IList<>);
         }
 
         /// <summary>
@@ -403,23 +410,21 @@
             if (underlyingType.GetTypeInfo().IsEnum) { return false; }
 
             // ReSharper disable once SwitchStatementMissingSomeCases
-            switch (underlyingType.GetTypeCode())
+            return underlyingType.GetTypeCode() switch
             {
-                case TypeCode.Byte:
-                case TypeCode.Decimal:
-                case TypeCode.Double:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.SByte:
-                case TypeCode.Single:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                    return true;
-                default:
-                    return false;
-            }
+                TypeCode.Byte => true,
+                TypeCode.Decimal => true,
+                TypeCode.Double => true,
+                TypeCode.Int16 => true,
+                TypeCode.Int32 => true,
+                TypeCode.Int64 => true,
+                TypeCode.SByte => true,
+                TypeCode.Single => true,
+                TypeCode.UInt16 => true,
+                TypeCode.UInt32 => true,
+                TypeCode.UInt64 => true,
+                _ => false
+            };
         }
 
         /// <summary>
