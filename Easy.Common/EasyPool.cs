@@ -32,24 +32,13 @@ public sealed class EasyPool<T> : IEasyPool<T> where T : class
         _pool = new ConcurrentBag<T>();
     }
 
-    /// <summary>
-    /// Gets the count of items in the pool.
-    /// </summary>
+    /// <inheritdoc/>
     public uint Count => (uint)_pool.Count;
 
-    /// <summary>
-    /// Gets an item from the pool or creates a new one if none exists.
-    /// </summary>
+    /// <inheritdoc/>
     public T Rent() => _pool.TryTake(out T? item) ? item : _factory();
 
-    /// <summary>
-    /// Returns an item to the pool.
-    /// </summary>
-    /// <param name="item">The item to pool.</param>
-    /// <param name="reset">
-    /// The flag indicating whether the pool should reset the item to its default state.
-    /// </param>
-    /// <returns><c>True</c> if added or <c>False</c> if discarded</returns>
+    /// <inheritdoc/>
     public bool Return(T item, bool reset = true)
     {
         if (reset) { _reset?.Invoke(item); }
@@ -59,9 +48,6 @@ public sealed class EasyPool<T> : IEasyPool<T> where T : class
         return true;
     }
 
-    /// <summary>
-    /// Clears the pool.
-    /// </summary>
     public void Dispose()
     {
         while (_pool.TryTake(out T? _)) { /* ignore */ }

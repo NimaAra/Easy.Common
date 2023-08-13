@@ -24,19 +24,13 @@ public sealed class TimerClock : ITimerClock
         }
     }
 
-    /// <summary>
-    /// Gets the clock used by this instance of <see cref="TimerClock"/>.
-    /// </summary>
+    /// <inheritdoc/>
     public IClock Clock { get; }
 
-    /// <summary>
-    /// The event is raised at every clock tick specified by the <see cref="TickInterval"/>.
-    /// </summary>
+    /// <inheritdoc/>
     public event EventHandler<EventArgs>? Tick;
 
-    /// <summary>
-    /// Gets the interval at which to raise the <see cref="Tick"/> event.
-    /// </summary>
+    /// <inheritdoc/>
     public TimeSpan TickInterval { get; }
 
     /// <summary>
@@ -66,21 +60,15 @@ public sealed class TimerClock : ITimerClock
         set => NextSchedule = value ? Clock.Now.Add(TickInterval) : DateTimeOffset.MaxValue;
     }
 
-    /// <summary>
-    /// The dispose
-    /// </summary>
+    /// <inheritdoc/>
     public void Dispose()
     {
         NextSchedule = DateTimeOffset.MaxValue;
         InternalTimer.Tick -= OnTick;
     }
 
-    /// <summary>
-    /// Converts the value of the <see cref="TimerClock"/> to its equivalent <see cref="string"/>.
-    /// </summary>
-    /// <returns>The <see cref="string"/> representation of the <see cref="TimerClock"/></returns>
-    public override string ToString() => 
-        $"Interval: {TickInterval.ToString()} - DateTime: {Clock.Now.ToString("yyyy-MM-dd HH:mm.ss.fff")}";
+    /// <inheritdoc/>
+    public override string ToString() => $"Interval: {TickInterval.ToString()} - DateTime: {Clock.Now.ToString("yyyy-MM-dd HH:mm.ss.fff")}";
 
     private void OnTick(object? sender, EventArgs args)
     {
@@ -103,7 +91,7 @@ public sealed class TimerClock : ITimerClock
             AsyncFlowControl flowControl = ExecutionContext.SuppressFlow();
             new Thread(() =>
                 {
-                    var spinner = new SpinWait();
+                    SpinWait spinner = new();
                     while (true)
                     {
                         spinner.SpinOnce();

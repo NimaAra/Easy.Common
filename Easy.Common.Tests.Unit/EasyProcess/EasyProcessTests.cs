@@ -53,7 +53,7 @@ internal sealed class EasyProcessTests
     [Test]
     public async Task When_starting_a_process_with_errors()
     {
-        using EasyProcess easyProc = new("dir", "localhost");
+        using EasyProcess easyProc = new("dotnet", "run foo");
         
         easyProc.OnOutput += (_, s) => _outputLines.Add(s);
         easyProc.OnError += (_, s) => _errorLines.Add(s);
@@ -67,13 +67,13 @@ internal sealed class EasyProcessTests
         _outputLines.ShouldBeEmpty();
         _errorLines.Count.ShouldBe(1);
 
-        _errorLines[0].ShouldBe("dir: cannot access 'localhost': No such file or directory");
+        _errorLines[0].ShouldStartWith("Couldn't find a project to run.");
 
         easyProc.HasExited.ShouldBeTrue();
         easyProc.StartTime.ShouldBeInRange(startTime, endTime);
         easyProc.ExitTime.ShouldBeInRange(startTime, endTime);
         easyProc.ExecutionTime.ShouldBeInRange(1.Milliseconds(), 1.Minutes());
-        easyProc.ExitCode.ShouldBe(2);
+        easyProc.ExitCode.ShouldBe(1);
         easyProc.Id.ShouldBeGreaterThan(0);
     }
 

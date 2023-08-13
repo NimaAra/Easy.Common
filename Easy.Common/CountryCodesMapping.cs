@@ -18,7 +18,7 @@ public static class CountryCodesMapping
     /// <remarks>The mappings use the <see cref="StringComparer.OrdinalIgnoreCase"/></remarks>
     /// </summary>
     public static Dictionary<string, string> Mappings => 
-        new Dictionary<string, string>(CountryCodeMapping, StringComparer.OrdinalIgnoreCase);
+        new(CountryCodeMapping, StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Returns the country name for the given three-letter country code.

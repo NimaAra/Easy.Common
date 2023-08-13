@@ -103,125 +103,76 @@ public sealed class EasyDictionary<TKey, TValue> : IEasyDictionary<TKey, TValue>
         _dictionary = new Dictionary<TKey, TValue>((int)capacity, comparer);
     }
 
-    /// <summary>
-    /// Gets the delegate used to select the key against which the item will be stored.
-    /// </summary>
+    /// <inheritdoc/>
     public Func<TValue, TKey> KeySelector { get; }
 
-    /// <summary>
-    /// Gets the count of items in the collection.
-    /// </summary>
+    /// <inheritdoc cref="ICollection" />
     public int Count => _dictionary.Count;
 
-    /// <summary>
-    /// Gets the flag indicating whether the <see cref="ICollection{TValue}"/> is read-only.
-    /// </summary>
+    /// <inheritdoc/>
     public bool IsReadOnly => false;
 
-    /// <summary>
-    /// Gets the <see cref="IEqualityComparer{TKey}"/> that is used to determine 
-    /// equality of keys for the dictionary.
-    /// </summary>
+    /// <inheritdoc/>
     public IEqualityComparer<TKey> Comparer => _dictionary.Comparer;
 
-    /// <summary>
-    /// Gets the keys stored in the dictionary.
-    /// </summary>
+    /// <inheritdoc/>
     public ICollection<TKey> Keys => _dictionary.Keys;
 
-    /// <summary>
-    /// Gets the items stored as values stored in the dictionary.
-    /// </summary>
+    /// <inheritdoc/>
     public ICollection<TValue> Values => _dictionary.Values;
 
-    /// <summary>
-    /// Gets the keys stored in the dictionary.
-    /// </summary>
+    /// <inheritdoc/>
     IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => _dictionary.Keys;
 
-    /// <summary>
-    /// Gets the items stored as values stored in the dictionary.
-    /// </summary>
+    /// <inheritdoc/>
     IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => _dictionary.Values;
 
-    /// <summary>
-    /// Gets the value associated with the given <paramref name="key"/>.
-    /// </summary>
+    /// <inheritdoc cref="IDictionary{TKey, TValue}" />
     public TValue this[TKey key] => _dictionary[key];
 
-    /// <summary>
-    /// Returns the items stored in this instance as <see cref="IDictionary{TKey,TValue}"/>.
-    /// </summary>
+    /// <inheritdoc/>
     public IDictionary<TKey, TValue> ToDictionary() => new Dictionary<TKey, TValue>(_dictionary, Comparer);
         
-    /// <summary>
-    /// Returns the items stored in this instance as <see cref="IDictionary{TKey,TValue}"/>.
-    /// </summary>
+    /// <inheritdoc/>
     public IDictionary<TKey, TValue> ToDictionary(IEqualityComparer<TKey> comparer) => 
         new Dictionary<TKey, TValue>(_dictionary, comparer);
 
-    /// <summary>
-    /// Adds the given <paramref name="value"/> to the dictionary.
-    /// </summary>
+    /// <inheritdoc/>
     public void Add(TValue value) => _dictionary.Add(KeySelector(value), value);
 
-    /// <summary>
-    /// Adds the <paramref name="value"/> if it does not already exist or replaces the existing value.
-    /// </summary>
+    /// <inheritdoc/>
     public void AddOrReplace(TValue value) => _dictionary[KeySelector(value)] = value;
 
-    /// <summary>
-    /// Removes the given <paramref name="key"/> from the dictionary.
-    /// </summary>
+    /// <inheritdoc/>
     public bool Remove(TKey key) => _dictionary.Remove(key);
 
-    /// <summary>
-    /// Removes the given <paramref name="value"/> from the dictionary.
-    /// </summary>
+    /// <inheritdoc/>
     public bool Remove(TValue value) => _dictionary.Remove(KeySelector(value));
 
-    /// <summary>
-    /// Removes all items from the dictionary.
-    /// </summary>
+    /// <inheritdoc/>
     public void Clear() => _dictionary.Clear();
 
-    /// <summary>
-    /// Determines whether the given <paramref name="value"/> exists.
-    /// </summary>
+    /// <inheritdoc/>
     public bool Contains(TValue value) => 
         _dictionary.ContainsKey(KeySelector(value)) && _dictionary.ContainsValue(value);
         
-    /// <summary>
-    /// Determines whether the given <paramref name="key"/> exists.
-    /// </summary>
+    /// <inheritdoc cref="IDictionary{TKey, TValue}" />
     public bool ContainsKey(TKey key) => _dictionary.ContainsKey(key);
 
-    /// <summary>
-    /// Attempts to get the value associated with the specified <paramref name="key"/>.
-    /// </summary>
+    /// <inheritdoc cref="IDictionary{TKey, TValue}" />
     public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue? value) => _dictionary.TryGetValue(key, out value!);
 
-    /// <summary>
-    /// Copies the elements of the <see cref="ICollection{TValue}"/> to 
-    /// the given <paramref name="array"/> starting at the given <paramref name="startIndex"/>.
-    /// </summary>
+    /// <inheritdoc/>
     public void CopyTo(TValue[] array, int startIndex) => _dictionary.Values.CopyTo(array, startIndex);
 
-    /// <summary>
-    /// Return an enumerator that iterates through the dictionary.
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc/>
     IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => 
         _dictionary.GetEnumerator();
 
-    /// <summary>
-    /// Returns an enumerator that iterates through the collection.
-    /// </summary>
+    /// <inheritdoc/>
     public IEnumerator<TValue> GetEnumerator() => _dictionary.Values.GetEnumerator();
 
-    /// <summary>
-    /// Returns an enumerator that iterates through the sequence.
-    /// </summary>
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
 
     [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
