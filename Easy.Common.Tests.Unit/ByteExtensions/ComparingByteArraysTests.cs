@@ -11,15 +11,15 @@ internal sealed class ComparingByteArraysTests
     [Test]
     public void When_comparing_byte_arrays()
     {
-        var left = new byte[] {1, 2, 3};
-        var right = new byte[] {1, 2, 3};
+        byte[] left = { 1, 2, 3 };
+        byte[] right = { 1, 2, 3 };
 
         left.Compare(left).ShouldBeTrue();
 
         left.Compare(right).ShouldBeTrue();
         right.Compare(left).ShouldBeTrue();
 
-        right = new byte[] {1, 3, 2};
+        right = new byte[] { 1, 3, 2 };
         left.Compare(right).ShouldBeFalse();
         right.Compare(left).ShouldBeFalse();
 
@@ -31,18 +31,13 @@ internal sealed class ComparingByteArraysTests
         left.Compare(right).ShouldBeFalse();
         right.Compare(left).ShouldBeFalse();
 
-        left = null;
-        Should.Throw<ArgumentNullException>(() => left.Compare(right))
-            .Message.ShouldBe("Value cannot be null. (Parameter 'left')");
+        ((byte[]) null).Compare(right).ShouldBeFalse();
 
-        left = new byte[] {1};
-        right = null;
+        left = new byte[] { 1 };
+        left.Compare(null).ShouldBeFalse();
 
-        Should.Throw<ArgumentNullException>(() => left.Compare(right))
-            .Message.ShouldBe("Value cannot be null. (Parameter 'right')");
-
-        left = new byte[0];
-        right = new byte[0];
+        left = Array.Empty<byte>();
+        right = Array.Empty<byte>();
 
         left.Compare(right).ShouldBeTrue();
         right.Compare(left).ShouldBeTrue();
