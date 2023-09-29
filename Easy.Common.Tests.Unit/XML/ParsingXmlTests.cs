@@ -15,48 +15,44 @@
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"XML\Sample.xml");
 
         [Test]
-        public void When_parsing_xml_from_file_case_insensetive()
+        public void When_parsing_xml_from_file_case_insensitive()
         {
-            using (var reader = XmlReader.Create(_pathToXml))
-            {
-                reader.GetEelements("book").Count().ShouldBe(12);
-            }
+            using XmlReader reader = XmlReader.Create(_pathToXml);
+            reader.GetElements("book").Count().ShouldBe(12);
         }
 
         [Test]
         public void When_parsing_xml_from_file_case_sensitive()
         {
-            using (var reader = XmlReader.Create(_pathToXml))
-            {
-                reader.GetEelements("booK", false).Count().ShouldBe(0);
-            }
+            using XmlReader reader = XmlReader.Create(_pathToXml);
+            reader.GetElements("booK", false).Count().ShouldBe(0);
         }
 
         [Test]
-        public void When_parsing_xml_from_text_fragment_case_insensetive()
+        public void When_parsing_xml_from_text_fragment_case_insensitive()
         {
-            var xml = File.ReadAllText(_pathToXml);
+            string xml = File.ReadAllText(_pathToXml);
             xml.GetElements("book").Count().ShouldBe(12);
         }
 
         [Test]
-        public void When_parsing_xml_from_text_fragment_case_sensetive()
+        public void When_parsing_xml_from_text_fragment_case_sensitive()
         {
-            var xml = File.ReadAllText(_pathToXml);
+            string xml = File.ReadAllText(_pathToXml);
             xml.GetElements("booK", false).Count().ShouldBe(0);
         }
 
         [Test]
-        public void When_parsing_xml_from_stream_case_insensetive()
+        public void When_parsing_xml_from_stream_case_insensitive()
         {
-            var stream = File.Open(_pathToXml, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            FileStream stream = File.Open(_pathToXml, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             stream.GetElements("book").Count().ShouldBe(12);
         }
 
         [Test]
-        public void When_parsing_xml_from_stream_case_sensetive()
+        public void When_parsing_xml_from_stream_case_sensitive()
         {
-            var stream = File.Open(_pathToXml, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            FileStream stream = File.Open(_pathToXml, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             stream.GetElements("booK", false).Count().ShouldBe(0);
         }
     }

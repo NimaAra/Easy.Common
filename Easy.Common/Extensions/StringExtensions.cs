@@ -326,7 +326,7 @@ public static class StringExtensions
     /// The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/>.
     /// </returns>
     [DebuggerStepThrough]
-    public static IEnumerable<XElement> GetElements(this string xmlInput, XName name, bool ignoreCase = true) =>
+    public static IEnumerable<XElement> GetElements(this string xmlInput, string name, bool ignoreCase = true) =>
         xmlInput.GetElements(name, new XmlReaderSettings(), ignoreCase);
 
     /// <summary>
@@ -340,12 +340,12 @@ public static class StringExtensions
     /// The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/>.
     /// </returns>
     [DebuggerStepThrough]
-    public static IEnumerable<XElement> GetElements(this string xmlInput, XName name, XmlReaderSettings settings, bool ignoreCase = true)
+    public static IEnumerable<XElement> GetElements(this string xmlInput, string name, XmlReaderSettings settings, bool ignoreCase = true)
     {
         using StringReader stringReader = new (xmlInput);
         using XmlReader xmlReader = XmlReader.Create(stringReader, settings);
 
-        foreach (var xElement in xmlReader.GetEelements(name, ignoreCase))
+        foreach (var xElement in xmlReader.GetElements(name, ignoreCase))
         {
             yield return xElement;
         }

@@ -36,7 +36,7 @@
         /// <param name="name">The name of the elements to return</param>
         /// <param name="ignoreCase">The flag indicating whether the name should be looked up in a case sensitive manner</param>
         /// <returns>The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/></returns>
-        public static IEnumerable<XElement> GetEelements(this XmlReader reader, XName name, bool ignoreCase = true)
+        public static IEnumerable<XElement> GetElements(this XmlReader reader, string name, bool ignoreCase = true)
         {
             Ensure.NotNull(reader, nameof(reader));
             Ensure.NotNull(name, nameof(name));
@@ -48,13 +48,13 @@
             reader.MoveToElement();
             while (reader.Read())
             {
-                while (reader.NodeType == XmlNodeType.Element && reader.Name.Equals(name.LocalName, compPolicy))
+                while (reader.NodeType == XmlNodeType.Element && reader.Name.Equals(name, compPolicy))
                 {
                     yield return (XElement)XNode.ReadFrom(reader);
                 }
             }
         }
-        
+
         /// <summary>
         /// Converts the content of the given <paramref name="reader"/> to <see cref="DynamicDictionary"/>.
         /// </summary>

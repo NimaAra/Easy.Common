@@ -95,7 +95,7 @@ public static class StreamExtensions
     /// <param name="ignoreCase">The flag indicating whether the name should be looked up in a case sensitive manner</param>
     /// <returns>The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/></returns>
     [DebuggerStepThrough]
-    public static IEnumerable<XElement> GetElements(this Stream stream, XName name, bool ignoreCase = true) =>
+    public static IEnumerable<XElement> GetElements(this Stream stream, string name, bool ignoreCase = true) =>
         stream.GetElements(name, new XmlReaderSettings(), ignoreCase);
 
     /// <summary>
@@ -107,10 +107,10 @@ public static class StreamExtensions
     /// <param name="ignoreCase">The flag indicating whether the name should be looked up in a case sensitive manner</param>
     /// <returns>The sequence containing all the elements <see cref="XElement"/> matching the <paramref name="name"/></returns>
     [DebuggerStepThrough]
-    public static IEnumerable<XElement> GetElements(this Stream stream, XName name, XmlReaderSettings settings, bool ignoreCase = true)
+    public static IEnumerable<XElement> GetElements(this Stream stream, string name, XmlReaderSettings settings, bool ignoreCase = true)
     {
         using XmlReader reader = XmlReader.Create(stream, settings);
-        foreach (var xElement in reader.GetEelements(name, ignoreCase))
+        foreach (var xElement in reader.GetElements(name, ignoreCase))
         {
             yield return xElement;
         }
