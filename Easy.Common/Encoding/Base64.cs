@@ -1,4 +1,4 @@
-﻿namespace Easy.Common;
+﻿namespace Easy.Common.Encoding;
 
 using System;
 using System.IO;
@@ -45,11 +45,11 @@ public static class Base64
         switch (s.Length % 4)
         {
             case 0: break; // No pad chars in this case
-            case 2: 
-                s += "=="; 
+            case 2:
+                s += "==";
                 break; // Two pad chars
-            case 3: 
-                s += "="; 
+            case 3:
+                s += "=";
                 break; // One pad char
             default: throw new InvalidDataException("Invalid Base64UrlSafe encoded string.");
         }

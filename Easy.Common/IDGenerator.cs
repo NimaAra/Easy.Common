@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using Easy.Common.Encoding;
 
 /// <summary>
 /// Inspired by <see href="https://github.com/aspnet/KestrelHttpServer/blob/6fde01a825cffc09998d3f8a49464f7fbe40f9c4/src/Kestrel.Core/Internal/Infrastructure/CorrelationIdGenerator.cs"/>,

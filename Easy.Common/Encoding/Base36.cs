@@ -1,8 +1,9 @@
-﻿namespace Easy.Common;
+﻿namespace Easy.Common.Encoding;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Easy.Common;
 
 /// <summary>
 /// A Base36 Encoder and Decoder

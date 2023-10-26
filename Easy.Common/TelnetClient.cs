@@ -82,7 +82,7 @@ public sealed class TelnetClient
     {
         if (!_client.Connected) { return; }
 
-        byte[] buffer = Encoding.ASCII.GetBytes(command.Replace("\0xFF", "\0xFF\0xFF"));
+        byte[] buffer = System.Text.Encoding.ASCII.GetBytes(command.Replace("\0xFF", "\0xFF\0xFF"));
         await _client.GetStream().WriteAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
     }
 
