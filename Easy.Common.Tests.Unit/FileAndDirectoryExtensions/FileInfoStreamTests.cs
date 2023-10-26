@@ -1,184 +1,183 @@
-﻿namespace Easy.Common.Tests.Unit.FileAndDirectoryExtensions
+﻿namespace Easy.Common.Tests.Unit.FileAndDirectoryExtensions;
+
+using System.IO;
+using Easy.Common.Extensions;
+using NUnit.Framework;
+using Shouldly;
+
+[TestFixture]
+internal sealed class FileInfoStreamTests
 {
-    using System.IO;
-    using Easy.Common.Extensions;
-    using NUnit.Framework;
-    using Shouldly;
-
-    [TestFixture]
-    internal sealed class FileInfoStreamTests
+    [Test]
+    public void When_opening_or_creating_sequential_read_stream_for_a_non_existing_file()
     {
-        [Test]
-        public void When_opening_or_creating_sequential_read_stream_for_a_non_existing_file()
+        FileInfo file = null;
+        try
         {
-            FileInfo file = null;
-            try
-            {
-                file = new FileInfo(Path.GetRandomFileName());
-                file.Exists.ShouldBeFalse();
+            file = new FileInfo(Path.GetRandomFileName());
+            file.Exists.ShouldBeFalse();
 
-                using (var stream = file.OpenOrCreateSequentialRead())
-                {
-                    file.Refresh();
-                    file.Exists.ShouldBeTrue();
-                    stream.CanRead.ShouldBeTrue();
-                    stream.CanWrite.ShouldBeFalse();
-                    stream.Position.ShouldBe(0);
-                }
-            } finally
+            using (var stream = file.OpenOrCreateSequentialRead())
             {
-                file?.Delete();
-            }
-        }
-
-        [Test]
-        public void When_opening_or_creating_sequential_read_stream_for_an_existing_file()
-        {
-            FileInfo file = null;
-            try
-            {
-                file = new FileInfo(Path.GetTempFileName());
+                file.Refresh();
                 file.Exists.ShouldBeTrue();
-
-                using (var stream = file.OpenOrCreateSequentialRead())
-                {
-                    file.Refresh();
-                    file.Exists.ShouldBeTrue();
-                    stream.CanRead.ShouldBeTrue();
-                    stream.CanWrite.ShouldBeFalse();
-                    stream.Position.ShouldBe(0);
-                }
-            } finally
-            {
-                file?.Delete();
+                stream.CanRead.ShouldBeTrue();
+                stream.CanWrite.ShouldBeFalse();
+                stream.Position.ShouldBe(0);
             }
-        }
-
-        [Test]
-        public void When_opening_or_creating_sequential_write_stream_for_a_non_existing_file()
+        } finally
         {
-            FileInfo file = null;
-            try
-            {
-                file = new FileInfo(Path.GetRandomFileName());
-                file.Exists.ShouldBeFalse();
-
-                using (var stream = file.OpenOrCreateSequentialWrite())
-                {
-                    file.Refresh();
-                    file.Exists.ShouldBeTrue();
-                    stream.CanRead.ShouldBeFalse();
-                    stream.CanWrite.ShouldBeTrue();
-                    stream.Position.ShouldBe(0);
-                }
-            } finally
-            {
-                file?.Delete();
-            }
+            file?.Delete();
         }
+    }
 
-        [Test]
-        public void When_opening_or_creating_sequential_write_stream_for_an_existing_file()
+    [Test]
+    public void When_opening_or_creating_sequential_read_stream_for_an_existing_file()
+    {
+        FileInfo file = null;
+        try
         {
-            FileInfo file = null;
-            try
+            file = new FileInfo(Path.GetTempFileName());
+            file.Exists.ShouldBeTrue();
+
+            using (var stream = file.OpenOrCreateSequentialRead())
             {
-                file = new FileInfo(Path.GetTempFileName());
+                file.Refresh();
                 file.Exists.ShouldBeTrue();
-
-                using (var stream = file.OpenOrCreateSequentialWrite())
-                {
-                    file.Refresh();
-                    file.Exists.ShouldBeTrue();
-                    stream.CanRead.ShouldBeFalse();
-                    stream.CanWrite.ShouldBeTrue();
-                    stream.Position.ShouldBe(0);
-                }
-            } finally
-            {
-                file?.Delete();
+                stream.CanRead.ShouldBeTrue();
+                stream.CanWrite.ShouldBeFalse();
+                stream.Position.ShouldBe(0);
             }
-        }
-
-        [Test]
-        public void When_opening_or_creating_sequential_read_and_write_stream_for_a_non_existing_file()
+        } finally
         {
-            FileInfo file = null;
-            try
-            {
-                file = new FileInfo(Path.GetRandomFileName());
-                file.Exists.ShouldBeFalse();
-
-                using (var stream = file.OpenOrCreateSequentialReadWrite())
-                {
-                    file.Refresh();
-                    file.Exists.ShouldBeTrue();
-                    stream.CanRead.ShouldBeTrue();
-                    stream.CanWrite.ShouldBeTrue();
-                    stream.Position.ShouldBe(0);
-                }
-            } finally
-            {
-                file?.Delete();
-            }
+            file?.Delete();
         }
+    }
 
-        [Test]
-        public void When_opening_or_creating_sequential_read_and_write_stream_for_an_existing_file()
+    [Test]
+    public void When_opening_or_creating_sequential_write_stream_for_a_non_existing_file()
+    {
+        FileInfo file = null;
+        try
         {
-            FileInfo file = null;
-            try
+            file = new FileInfo(Path.GetRandomFileName());
+            file.Exists.ShouldBeFalse();
+
+            using (var stream = file.OpenOrCreateSequentialWrite())
             {
-                file = new FileInfo(Path.GetTempFileName());
+                file.Refresh();
                 file.Exists.ShouldBeTrue();
-
-                using (var stream = file.OpenOrCreateSequentialReadWrite())
-                {
-                    file.Refresh();
-                    file.Exists.ShouldBeTrue();
-                    stream.CanRead.ShouldBeTrue();
-                    stream.CanWrite.ShouldBeTrue();
-                    stream.Position.ShouldBe(0);
-                }
-            } finally
-            {
-                file?.Delete();
+                stream.CanRead.ShouldBeFalse();
+                stream.CanWrite.ShouldBeTrue();
+                stream.Position.ShouldBe(0);
             }
-        }
-
-        [Test]
-        public void When_opening_sequential_read_stream_for_a_non_existing_file()
+        } finally
         {
-            var file = new FileInfo(Path.GetRandomFileName());
-            Should.Throw<FileNotFoundException>(() =>
+            file?.Delete();
+        }
+    }
+
+    [Test]
+    public void When_opening_or_creating_sequential_write_stream_for_an_existing_file()
+    {
+        FileInfo file = null;
+        try
+        {
+            file = new FileInfo(Path.GetTempFileName());
+            file.Exists.ShouldBeTrue();
+
+            using (var stream = file.OpenOrCreateSequentialWrite())
+            {
+                file.Refresh();
+                file.Exists.ShouldBeTrue();
+                stream.CanRead.ShouldBeFalse();
+                stream.CanWrite.ShouldBeTrue();
+                stream.Position.ShouldBe(0);
+            }
+        } finally
+        {
+            file?.Delete();
+        }
+    }
+
+    [Test]
+    public void When_opening_or_creating_sequential_read_and_write_stream_for_a_non_existing_file()
+    {
+        FileInfo file = null;
+        try
+        {
+            file = new FileInfo(Path.GetRandomFileName());
+            file.Exists.ShouldBeFalse();
+
+            using (var stream = file.OpenOrCreateSequentialReadWrite())
+            {
+                file.Refresh();
+                file.Exists.ShouldBeTrue();
+                stream.CanRead.ShouldBeTrue();
+                stream.CanWrite.ShouldBeTrue();
+                stream.Position.ShouldBe(0);
+            }
+        } finally
+        {
+            file?.Delete();
+        }
+    }
+
+    [Test]
+    public void When_opening_or_creating_sequential_read_and_write_stream_for_an_existing_file()
+    {
+        FileInfo file = null;
+        try
+        {
+            file = new FileInfo(Path.GetTempFileName());
+            file.Exists.ShouldBeTrue();
+
+            using (var stream = file.OpenOrCreateSequentialReadWrite())
+            {
+                file.Refresh();
+                file.Exists.ShouldBeTrue();
+                stream.CanRead.ShouldBeTrue();
+                stream.CanWrite.ShouldBeTrue();
+                stream.Position.ShouldBe(0);
+            }
+        } finally
+        {
+            file?.Delete();
+        }
+    }
+
+    [Test]
+    public void When_opening_sequential_read_stream_for_a_non_existing_file()
+    {
+        var file = new FileInfo(Path.GetRandomFileName());
+        Should.Throw<FileNotFoundException>(() =>
             {
                 file.Exists.ShouldBeFalse();
                 file.OpenSequentialRead();
             })
             .Message.ShouldBe($"Could not find file '{file.FullName}'.");
-        }
+    }
 
-        [Test]
-        public void When_opening_sequential_read_stream_for_an_existing_file()
+    [Test]
+    public void When_opening_sequential_read_stream_for_an_existing_file()
+    {
+        FileInfo file = null;
+        try
         {
-            FileInfo file = null;
-            try
-            {
-                file = new FileInfo(Path.GetTempFileName());
-                file.Exists.ShouldBeTrue();
+            file = new FileInfo(Path.GetTempFileName());
+            file.Exists.ShouldBeTrue();
 
-                using (var stream = file.OpenSequentialRead())
-                {
-                    file.Refresh();
-                    file.Exists.ShouldBeTrue();
-                    stream.CanRead.ShouldBeTrue();
-                    stream.CanWrite.ShouldBeFalse();
-                    stream.Position.ShouldBe(0);
-                }
-            } finally
+            using (var stream = file.OpenSequentialRead())
             {
-                file?.Delete();
+                file.Refresh();
+                file.Exists.ShouldBeTrue();
+                stream.CanRead.ShouldBeTrue();
+                stream.CanWrite.ShouldBeFalse();
+                stream.Position.ShouldBe(0);
             }
+        } finally
+        {
+            file?.Delete();
         }
     }
 }

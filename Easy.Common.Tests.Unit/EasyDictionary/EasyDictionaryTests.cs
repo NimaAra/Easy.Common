@@ -1,741 +1,740 @@
-﻿namespace Easy.Common.Tests.Unit.EasyDictionary
+﻿namespace Easy.Common.Tests.Unit.EasyDictionary;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Easy.Common.Interfaces;
+using NUnit.Framework;
+using Shouldly;
+using HashHelper = Easy.Common.HashHelper;
+
+[TestFixture]
+[SuppressMessage("ReSharper", "ConvertToLocalFunction")]
+internal sealed class EasyDictionaryTests
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using Easy.Common.Interfaces;
-    using NUnit.Framework;
-    using Shouldly;
-    using HashHelper = Easy.Common.HashHelper;
-
-    [TestFixture]
-    [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
-    internal sealed class EasyDictionaryTests
+    [Test]
+    public void When_creating_easy_dictionary_with_key_selector()
     {
-        [Test]
-        public void When_creating_easy_dictionary_with_key_selector()
-        {
-            Func<Person, string> selector = p => p.Id;
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector);
+        Func<Person, string> selector = p => p.Id;
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector);
 
-            dic.ShouldNotBeNull();
-            dic.KeySelector.ShouldBe(selector);
-            dic.Count.ShouldBe(0);
-            dic.Keys.ShouldBeEmpty();
-            dic.Values.ShouldBeEmpty();
-            dic.IsReadOnly.ShouldBeFalse();
-            dic.Comparer.ShouldBe(EqualityComparer<string>.Default);
-        }        
+        dic.ShouldNotBeNull();
+        dic.KeySelector.ShouldBe(selector);
+        dic.Count.ShouldBe(0);
+        dic.Keys.ShouldBeEmpty();
+        dic.Values.ShouldBeEmpty();
+        dic.IsReadOnly.ShouldBeFalse();
+        dic.Comparer.ShouldBe(EqualityComparer<string>.Default);
+    }        
 
-        [Test]
-        public void When_creating_easy_dictionary_with_key_selector_and_capacity()
-        {
-            Func<Person, string> selector = p => p.Id;
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector, 10);
+    [Test]
+    public void When_creating_easy_dictionary_with_key_selector_and_capacity()
+    {
+        Func<Person, string> selector = p => p.Id;
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector, 10);
 
-            dic.ShouldNotBeNull();
-            dic.KeySelector.ShouldBe(selector);
-            dic.Count.ShouldBe(0);
-            dic.Keys.ShouldBeEmpty();
-            dic.Values.ShouldBeEmpty();
-            dic.IsReadOnly.ShouldBeFalse();
-            dic.Comparer.ShouldBe(EqualityComparer<string>.Default);
-        }
+        dic.ShouldNotBeNull();
+        dic.KeySelector.ShouldBe(selector);
+        dic.Count.ShouldBe(0);
+        dic.Keys.ShouldBeEmpty();
+        dic.Values.ShouldBeEmpty();
+        dic.IsReadOnly.ShouldBeFalse();
+        dic.Comparer.ShouldBe(EqualityComparer<string>.Default);
+    }
 
-        [Test]
-        public void When_creating_easy_dictionary_with_key_selector_capacity_and_comparer()
-        {
-            var comparer = StringComparer.OrdinalIgnoreCase;
-            Func<Person, string> selector = p => p.Id;
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
-                selector, 10, comparer);
+    [Test]
+    public void When_creating_easy_dictionary_with_key_selector_capacity_and_comparer()
+    {
+        var comparer = StringComparer.OrdinalIgnoreCase;
+        Func<Person, string> selector = p => p.Id;
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
+            selector, 10, comparer);
 
-            dic.ShouldNotBeNull();
-            dic.KeySelector.ShouldBe(selector);
-            dic.Count.ShouldBe(0);
-            dic.Keys.ShouldBeEmpty();
-            dic.Values.ShouldBeEmpty();
-            dic.IsReadOnly.ShouldBeFalse();
-            dic.Comparer.ShouldNotBe(EqualityComparer<string>.Default);
-            dic.Comparer.ShouldBe(comparer);
-        }
+        dic.ShouldNotBeNull();
+        dic.KeySelector.ShouldBe(selector);
+        dic.Count.ShouldBe(0);
+        dic.Keys.ShouldBeEmpty();
+        dic.Values.ShouldBeEmpty();
+        dic.IsReadOnly.ShouldBeFalse();
+        dic.Comparer.ShouldNotBe(EqualityComparer<string>.Default);
+        dic.Comparer.ShouldBe(comparer);
+    }
 
-        [Test]
-        public void When_creating_easy_dictionary_with_key_selector_and_dictionary()
-        {
-            var somePerson = new Person("A", 1);
-            var someDic = new Dictionary<string, Person> {["B"] = somePerson};
+    [Test]
+    public void When_creating_easy_dictionary_with_key_selector_and_dictionary()
+    {
+        var somePerson = new Person("A", 1);
+        var someDic = new Dictionary<string, Person> {["B"] = somePerson};
             
-            Func<Person, string> selector = p => p.Id;
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector, someDic);
+        Func<Person, string> selector = p => p.Id;
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector, someDic);
 
-            dic.ShouldNotBeNull();
-            dic.KeySelector.ShouldBe(selector);
-            dic.Count.ShouldBe(1);
-            dic.Keys.ShouldNotBeEmpty();
-            dic.Values.ShouldNotBeEmpty();
-            dic.IsReadOnly.ShouldBeFalse();
-            dic.Comparer.ShouldBe(EqualityComparer<string>.Default);
+        dic.ShouldNotBeNull();
+        dic.KeySelector.ShouldBe(selector);
+        dic.Count.ShouldBe(1);
+        dic.Keys.ShouldNotBeEmpty();
+        dic.Values.ShouldNotBeEmpty();
+        dic.IsReadOnly.ShouldBeFalse();
+        dic.Comparer.ShouldBe(EqualityComparer<string>.Default);
             
-            dic.Keys.ShouldBe(new [] {"A"});
-            dic.Values.ShouldBe(new[] { somePerson });
+        dic.Keys.ShouldBe(new [] {"A"});
+        dic.Values.ShouldBe(new[] { somePerson });
             
-            dic.ContainsKey("A").ShouldBeTrue();
-            dic.Contains(somePerson).ShouldBeTrue();
+        dic.ContainsKey("A").ShouldBeTrue();
+        dic.Contains(somePerson).ShouldBeTrue();
 
-            dic.ContainsKey("B").ShouldBeFalse();
+        dic.ContainsKey("B").ShouldBeFalse();
             
-            dic["A"].Age.ShouldBe(1);
-        }
+        dic["A"].Age.ShouldBe(1);
+    }
 
-        [Test]
-        public void When_creating_easy_dictionary_with_key_selector_comparer_and_dictionary()
-        {
-            var comparer = StringComparer.OrdinalIgnoreCase;
-            var somePerson = new Person("A", 1);
-            var someDic = new Dictionary<string, Person> { ["B"] = somePerson };
+    [Test]
+    public void When_creating_easy_dictionary_with_key_selector_comparer_and_dictionary()
+    {
+        var comparer = StringComparer.OrdinalIgnoreCase;
+        var somePerson = new Person("A", 1);
+        var someDic = new Dictionary<string, Person> { ["B"] = somePerson };
 
-            Func<Person, string> selector = p => p.Id;
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
-                selector, someDic, comparer);
+        Func<Person, string> selector = p => p.Id;
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
+            selector, someDic, comparer);
 
-            dic.ShouldNotBeNull();
-            dic.KeySelector.ShouldBe(selector);
-            dic.Count.ShouldBe(1);
-            dic.Keys.ShouldNotBeEmpty();
-            dic.Values.ShouldNotBeEmpty();
-            dic.IsReadOnly.ShouldBeFalse();
-            dic.Comparer.ShouldNotBe(EqualityComparer<string>.Default);
-            dic.Comparer.ShouldBe(comparer);
+        dic.ShouldNotBeNull();
+        dic.KeySelector.ShouldBe(selector);
+        dic.Count.ShouldBe(1);
+        dic.Keys.ShouldNotBeEmpty();
+        dic.Values.ShouldNotBeEmpty();
+        dic.IsReadOnly.ShouldBeFalse();
+        dic.Comparer.ShouldNotBe(EqualityComparer<string>.Default);
+        dic.Comparer.ShouldBe(comparer);
 
-            dic.Keys.ShouldBe(new[] { "A" });
-            dic.Values.ShouldBe(new[] { somePerson });
+        dic.Keys.ShouldBe(new[] { "A" });
+        dic.Values.ShouldBe(new[] { somePerson });
 
-            dic.ContainsKey("A").ShouldBeTrue();
-            dic.Contains(somePerson).ShouldBeTrue();
+        dic.ContainsKey("A").ShouldBeTrue();
+        dic.Contains(somePerson).ShouldBeTrue();
 
-            dic.ContainsKey("B").ShouldBeFalse();
+        dic.ContainsKey("B").ShouldBeFalse();
 
-            dic["A"].Age.ShouldBe(1);
-        }
+        dic["A"].Age.ShouldBe(1);
+    }
 
-        [Test]
-        public void When_creating_easy_dictionary_with_key_selector_and_sequence()
-        {
-            var seq = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n)).ToArray();
-            Func<Person, string> selector = p => p.Id;
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector, seq);
+    [Test]
+    public void When_creating_easy_dictionary_with_key_selector_and_sequence()
+    {
+        var seq = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n)).ToArray();
+        Func<Person, string> selector = p => p.Id;
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector, seq);
 
-            dic.ShouldNotBeNull();
-            dic.KeySelector.ShouldBe(selector);
-            dic.Count.ShouldBe(5);
-            dic.Keys.ShouldNotBeEmpty();
-            dic.Values.ShouldNotBeEmpty();
-            dic.IsReadOnly.ShouldBeFalse();
-            dic.Comparer.ShouldBe(EqualityComparer<string>.Default);
+        dic.ShouldNotBeNull();
+        dic.KeySelector.ShouldBe(selector);
+        dic.Count.ShouldBe(5);
+        dic.Keys.ShouldNotBeEmpty();
+        dic.Values.ShouldNotBeEmpty();
+        dic.IsReadOnly.ShouldBeFalse();
+        dic.Comparer.ShouldBe(EqualityComparer<string>.Default);
 
-            dic.Keys.ShouldBe(new[] { "1", "2", "3", "4", "5" });
-            dic.Values.ShouldBe(seq);
+        dic.Keys.ShouldBe(new[] { "1", "2", "3", "4", "5" });
+        dic.Values.ShouldBe(seq);
 
-            dic.ContainsKey("1").ShouldBeTrue();
-            dic.Contains(seq.First()).ShouldBeTrue();
+        dic.ContainsKey("1").ShouldBeTrue();
+        dic.Contains(seq.First()).ShouldBeTrue();
 
-            dic["1"].Age.ShouldBe(1);
+        dic["1"].Age.ShouldBe(1);
 
-            dic.ContainsKey("0").ShouldBeFalse();
-        }
+        dic.ContainsKey("0").ShouldBeFalse();
+    }
 
-        [Test]
-        public void When_creating_easy_dictionary_with_key_selector_comparer_and_sequence()
-        {
-            var seq = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n)).ToArray();
-            var comparer = StringComparer.OrdinalIgnoreCase;
-            Func<Person, string> selector = p => p.Id;
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
-                selector, seq, comparer);
+    [Test]
+    public void When_creating_easy_dictionary_with_key_selector_comparer_and_sequence()
+    {
+        var seq = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n)).ToArray();
+        var comparer = StringComparer.OrdinalIgnoreCase;
+        Func<Person, string> selector = p => p.Id;
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
+            selector, seq, comparer);
 
-            dic.ShouldNotBeNull();
-            dic.KeySelector.ShouldBe(selector);
-            dic.Count.ShouldBe(5);
-            dic.Keys.ShouldNotBeEmpty();
-            dic.Values.ShouldNotBeEmpty();
-            dic.IsReadOnly.ShouldBeFalse();
-            dic.Comparer.ShouldNotBe(EqualityComparer<string>.Default);
-            dic.Comparer.ShouldBe(comparer);
+        dic.ShouldNotBeNull();
+        dic.KeySelector.ShouldBe(selector);
+        dic.Count.ShouldBe(5);
+        dic.Keys.ShouldNotBeEmpty();
+        dic.Values.ShouldNotBeEmpty();
+        dic.IsReadOnly.ShouldBeFalse();
+        dic.Comparer.ShouldNotBe(EqualityComparer<string>.Default);
+        dic.Comparer.ShouldBe(comparer);
 
-            dic.Keys.ShouldBe(new[] { "1", "2", "3", "4", "5" });
-            dic.Values.ShouldBe(seq);
+        dic.Keys.ShouldBe(new[] { "1", "2", "3", "4", "5" });
+        dic.Values.ShouldBe(seq);
 
-            dic.ContainsKey("1").ShouldBeTrue();
-            dic.Contains(seq.First()).ShouldBeTrue();
+        dic.ContainsKey("1").ShouldBeTrue();
+        dic.Contains(seq.First()).ShouldBeTrue();
 
-            dic["1"].Age.ShouldBe(1);
+        dic["1"].Age.ShouldBe(1);
 
-            dic.ContainsKey("0").ShouldBeFalse();
-        }
+        dic.ContainsKey("0").ShouldBeFalse();
+    }
 
-        [Test]
-        public void When_creating_easy_dictionary_with_key_selector_and_collection()
-        {
-            var collection = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n)).ToList();
-            Func<Person, string> selector = p => p.Id;
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector, collection);
+    [Test]
+    public void When_creating_easy_dictionary_with_key_selector_and_collection()
+    {
+        var collection = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n)).ToList();
+        Func<Person, string> selector = p => p.Id;
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector, collection);
 
-            dic.ShouldNotBeNull();
-            dic.KeySelector.ShouldBe(selector);
-            dic.Count.ShouldBe(5);
-            dic.Keys.ShouldNotBeEmpty();
-            dic.Values.ShouldNotBeEmpty();
-            dic.IsReadOnly.ShouldBeFalse();
-            dic.Comparer.ShouldBe(EqualityComparer<string>.Default);
+        dic.ShouldNotBeNull();
+        dic.KeySelector.ShouldBe(selector);
+        dic.Count.ShouldBe(5);
+        dic.Keys.ShouldNotBeEmpty();
+        dic.Values.ShouldNotBeEmpty();
+        dic.IsReadOnly.ShouldBeFalse();
+        dic.Comparer.ShouldBe(EqualityComparer<string>.Default);
 
-            dic.Keys.ShouldBe(new[] { "1", "2", "3", "4", "5" });
-            dic.Values.ShouldBe(collection);
+        dic.Keys.ShouldBe(new[] { "1", "2", "3", "4", "5" });
+        dic.Values.ShouldBe(collection);
 
-            dic.ContainsKey("1").ShouldBeTrue();
-            dic.Contains(collection[0]).ShouldBeTrue();
+        dic.ContainsKey("1").ShouldBeTrue();
+        dic.Contains(collection[0]).ShouldBeTrue();
 
-            dic["1"].Age.ShouldBe(1);
+        dic["1"].Age.ShouldBe(1);
 
-            dic.ContainsKey("0").ShouldBeFalse();
-        }
+        dic.ContainsKey("0").ShouldBeFalse();
+    }
 
-        [Test]
-        public void When_creating_easy_dictionary_with_key_selector_comparer_and_collection()
-        {
-            var collection = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n)).ToList();
-            var comparer = StringComparer.OrdinalIgnoreCase;
-            Func<Person, string> selector = p => p.Id;
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
-                selector, collection, comparer);
+    [Test]
+    public void When_creating_easy_dictionary_with_key_selector_comparer_and_collection()
+    {
+        var collection = Enumerable.Range(1, 5).Select(n => new Person(n.ToString(), n)).ToList();
+        var comparer = StringComparer.OrdinalIgnoreCase;
+        Func<Person, string> selector = p => p.Id;
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
+            selector, collection, comparer);
 
-            dic.ShouldNotBeNull();
-            dic.KeySelector.ShouldBe(selector);
-            dic.Count.ShouldBe(5);
-            dic.Keys.ShouldNotBeEmpty();
-            dic.Values.ShouldNotBeEmpty();
-            dic.IsReadOnly.ShouldBeFalse();
-            dic.Comparer.ShouldNotBe(EqualityComparer<string>.Default);
-            dic.Comparer.ShouldBe(comparer);
+        dic.ShouldNotBeNull();
+        dic.KeySelector.ShouldBe(selector);
+        dic.Count.ShouldBe(5);
+        dic.Keys.ShouldNotBeEmpty();
+        dic.Values.ShouldNotBeEmpty();
+        dic.IsReadOnly.ShouldBeFalse();
+        dic.Comparer.ShouldNotBe(EqualityComparer<string>.Default);
+        dic.Comparer.ShouldBe(comparer);
 
-            dic.Keys.ShouldBe(new[] { "1", "2", "3", "4", "5" });
-            dic.Values.ShouldBe(collection);
+        dic.Keys.ShouldBe(new[] { "1", "2", "3", "4", "5" });
+        dic.Values.ShouldBe(collection);
 
-            dic.ContainsKey("1").ShouldBeTrue();
-            dic.Contains(collection[0]).ShouldBeTrue();
+        dic.ContainsKey("1").ShouldBeTrue();
+        dic.Contains(collection[0]).ShouldBeTrue();
 
-            dic["1"].Age.ShouldBe(1);
+        dic["1"].Age.ShouldBe(1);
 
-            dic.ContainsKey("0").ShouldBeFalse();
-        }
+        dic.ContainsKey("0").ShouldBeFalse();
+    }
 
-        [Test]
-        public void When_adding_and_removing_items()
-        {
-            Func<Person, string> selector = p => p.Id;
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector);
+    [Test]
+    public void When_adding_and_removing_items()
+    {
+        Func<Person, string> selector = p => p.Id;
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(selector);
 
-            var p1 = new Person("A", 1);
-            var p2 = new Person("B", 2);
+        var p1 = new Person("A", 1);
+        var p2 = new Person("B", 2);
 
-            dic.Contains(p1).ShouldBeFalse();
-            dic.ContainsKey("A").ShouldBeFalse();
-            dic.ContainsKey("a").ShouldBeFalse();
+        dic.Contains(p1).ShouldBeFalse();
+        dic.ContainsKey("A").ShouldBeFalse();
+        dic.ContainsKey("a").ShouldBeFalse();
 
-            dic.Contains(p2).ShouldBeFalse();
-            dic.ContainsKey("B").ShouldBeFalse();
-            dic.ContainsKey("b").ShouldBeFalse();
+        dic.Contains(p2).ShouldBeFalse();
+        dic.ContainsKey("B").ShouldBeFalse();
+        dic.ContainsKey("b").ShouldBeFalse();
 
-            dic.Add(p1);
-            dic.Count.ShouldBe(1);
+        dic.Add(p1);
+        dic.Count.ShouldBe(1);
 
-            dic.Keys.Count.ShouldBe(1);
-            dic.Values.Count.ShouldBe(1);
+        dic.Keys.Count.ShouldBe(1);
+        dic.Values.Count.ShouldBe(1);
 
-            dic.Contains(p1).ShouldBeTrue();
-            dic.ContainsKey("A").ShouldBeTrue();
-            dic.ContainsKey("a").ShouldBeFalse();
+        dic.Contains(p1).ShouldBeTrue();
+        dic.ContainsKey("A").ShouldBeTrue();
+        dic.ContainsKey("a").ShouldBeFalse();
 
-            dic.TryGetValue("A", out var pA).ShouldBeTrue();
-            pA.ShouldBe(pA);
+        dic.TryGetValue("A", out var pA).ShouldBeTrue();
+        pA.ShouldBe(pA);
 
-            dic["A"].ShouldBe(pA);
-            Should.Throw<KeyNotFoundException>(() => dic["a"].ToString());
+        dic["A"].ShouldBe(pA);
+        Should.Throw<KeyNotFoundException>(() => dic["a"].ToString());
 
-            dic.Contains(p2).ShouldBeFalse();
-            dic.ContainsKey("B").ShouldBeFalse();
-            dic.ContainsKey("b").ShouldBeFalse();
+        dic.Contains(p2).ShouldBeFalse();
+        dic.ContainsKey("B").ShouldBeFalse();
+        dic.ContainsKey("b").ShouldBeFalse();
 
-            dic.TryGetValue("B", out var pB).ShouldBeFalse();
+        dic.TryGetValue("B", out var pB).ShouldBeFalse();
             
-            dic.Add(p2);
-            dic.Count.ShouldBe(2);
+        dic.Add(p2);
+        dic.Count.ShouldBe(2);
 
-            dic.Keys.Count.ShouldBe(2);
-            dic.Values.Count.ShouldBe(2);
+        dic.Keys.Count.ShouldBe(2);
+        dic.Values.Count.ShouldBe(2);
 
-            dic.Contains(p1).ShouldBeTrue();
-            dic.ContainsKey("A").ShouldBeTrue();
-            dic.ContainsKey("a").ShouldBeFalse();
+        dic.Contains(p1).ShouldBeTrue();
+        dic.ContainsKey("A").ShouldBeTrue();
+        dic.ContainsKey("a").ShouldBeFalse();
 
-            dic.Contains(p2).ShouldBeTrue();
-            dic.ContainsKey("B").ShouldBeTrue();
-            dic.ContainsKey("b").ShouldBeFalse();
+        dic.Contains(p2).ShouldBeTrue();
+        dic.ContainsKey("B").ShouldBeTrue();
+        dic.ContainsKey("b").ShouldBeFalse();
 
-            dic.TryGetValue("B", out pB).ShouldBeTrue();
-            pB.ShouldBe(p2);
+        dic.TryGetValue("B", out pB).ShouldBeTrue();
+        pB.ShouldBe(p2);
 
-            dic["B"].ShouldBe(pB);
-            Should.Throw<KeyNotFoundException>(() => dic["b"].ToString());
+        dic["B"].ShouldBe(pB);
+        Should.Throw<KeyNotFoundException>(() => dic["b"].ToString());
 
-            dic.Remove("C").ShouldBeFalse();
-            dic.Remove("c").ShouldBeFalse();
-            dic.Remove(new Person("C", 3)).ShouldBeFalse();
+        dic.Remove("C").ShouldBeFalse();
+        dic.Remove("c").ShouldBeFalse();
+        dic.Remove(new Person("C", 3)).ShouldBeFalse();
 
-            dic.Keys.Count.ShouldBe(2);
-            dic.Values.Count.ShouldBe(2);
+        dic.Keys.Count.ShouldBe(2);
+        dic.Values.Count.ShouldBe(2);
 
-            dic.Remove("a").ShouldBeFalse();
-            dic.Remove("A").ShouldBeTrue();
+        dic.Remove("a").ShouldBeFalse();
+        dic.Remove("A").ShouldBeTrue();
 
-            dic.Keys.Count.ShouldBe(1);
-            dic.Values.Count.ShouldBe(1);
+        dic.Keys.Count.ShouldBe(1);
+        dic.Values.Count.ShouldBe(1);
 
-            dic.Contains(p1).ShouldBeFalse();
-            dic.ContainsKey("A").ShouldBeFalse();
-            dic.ContainsKey("a").ShouldBeFalse();
+        dic.Contains(p1).ShouldBeFalse();
+        dic.ContainsKey("A").ShouldBeFalse();
+        dic.ContainsKey("a").ShouldBeFalse();
 
-            dic.Contains(p2).ShouldBeTrue();
-            dic.ContainsKey("B").ShouldBeTrue();
-            dic.ContainsKey("b").ShouldBeFalse();
+        dic.Contains(p2).ShouldBeTrue();
+        dic.ContainsKey("B").ShouldBeTrue();
+        dic.ContainsKey("b").ShouldBeFalse();
 
-            dic.Remove(p2).ShouldBeTrue();
+        dic.Remove(p2).ShouldBeTrue();
 
-            dic.Keys.Count.ShouldBe(0);
-            dic.Values.Count.ShouldBe(0);
+        dic.Keys.Count.ShouldBe(0);
+        dic.Values.Count.ShouldBe(0);
 
-            dic.Contains(p1).ShouldBeFalse();
-            dic.ContainsKey("A").ShouldBeFalse();
-            dic.ContainsKey("a").ShouldBeFalse();
+        dic.Contains(p1).ShouldBeFalse();
+        dic.ContainsKey("A").ShouldBeFalse();
+        dic.ContainsKey("a").ShouldBeFalse();
 
-            dic.Contains(p2).ShouldBeFalse();
-            dic.ContainsKey("B").ShouldBeFalse();
-            dic.ContainsKey("b").ShouldBeFalse();
-        }
+        dic.Contains(p2).ShouldBeFalse();
+        dic.ContainsKey("B").ShouldBeFalse();
+        dic.ContainsKey("b").ShouldBeFalse();
+    }
 
-        [Test]
-        public void When_adding_and_removing_items_with_comparer()
+    [Test]
+    public void When_adding_and_removing_items_with_comparer()
+    {
+        var comparer = StringComparer.OrdinalIgnoreCase;
+        Func<Person, string> selector = p => p.Id;
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
+            selector, comparer: comparer);
+
+        var p1 = new Person("A", 1);
+        var p2 = new Person("B", 2);
+
+        dic.Contains(p1).ShouldBeFalse();
+        dic.ContainsKey("A").ShouldBeFalse();
+        dic.ContainsKey("a").ShouldBeFalse();
+
+        dic.Contains(p2).ShouldBeFalse();
+        dic.ContainsKey("B").ShouldBeFalse();
+        dic.ContainsKey("b").ShouldBeFalse();
+
+        dic.Add(p1);
+        dic.Count.ShouldBe(1);
+
+        dic.Keys.Count.ShouldBe(1);
+        dic.Values.Count.ShouldBe(1);
+
+        dic.Contains(p1).ShouldBeTrue();
+        dic.ContainsKey("A").ShouldBeTrue();
+        dic.ContainsKey("a").ShouldBeTrue();
+
+        dic.TryGetValue("A", out var pA).ShouldBeTrue();
+        pA.ShouldBe(pA);
+
+        dic["A"].ShouldBe(pA);
+        dic["a"].ShouldBe(pA);
+
+        dic.Contains(p2).ShouldBeFalse();
+        dic.ContainsKey("B").ShouldBeFalse();
+        dic.ContainsKey("b").ShouldBeFalse();
+
+        dic.TryGetValue("B", out var pB).ShouldBeFalse();
+
+        dic.Add(p2);
+        dic.Count.ShouldBe(2);
+
+        dic.Keys.Count.ShouldBe(2);
+        dic.Values.Count.ShouldBe(2);
+
+        dic.Contains(p1).ShouldBeTrue();
+        dic.ContainsKey("A").ShouldBeTrue();
+        dic.ContainsKey("a").ShouldBeTrue();
+
+        dic.Contains(p2).ShouldBeTrue();
+        dic.ContainsKey("B").ShouldBeTrue();
+        dic.ContainsKey("b").ShouldBeTrue();
+
+        dic.TryGetValue("B", out pB).ShouldBeTrue();
+        pB.ShouldBe(p2);
+
+        dic["B"].ShouldBe(pB);
+        dic["b"].ShouldBe(pB);
+
+        dic.Remove("C").ShouldBeFalse();
+        dic.Remove("c").ShouldBeFalse();
+        dic.Remove(new Person("C", 3)).ShouldBeFalse();
+
+        dic.Keys.Count.ShouldBe(2);
+        dic.Values.Count.ShouldBe(2);
+
+        dic.Remove("a").ShouldBeTrue();
+
+        dic.Keys.Count.ShouldBe(1);
+        dic.Values.Count.ShouldBe(1);
+
+        dic.Contains(p1).ShouldBeFalse();
+        dic.ContainsKey("A").ShouldBeFalse();
+        dic.ContainsKey("a").ShouldBeFalse();
+
+        dic.Contains(p2).ShouldBeTrue();
+        dic.ContainsKey("B").ShouldBeTrue();
+        dic.ContainsKey("b").ShouldBeTrue();
+
+        dic.Remove(p2).ShouldBeTrue();
+
+        dic.Keys.Count.ShouldBe(0);
+        dic.Values.Count.ShouldBe(0);
+
+        dic.Contains(p1).ShouldBeFalse();
+        dic.ContainsKey("A").ShouldBeFalse();
+        dic.ContainsKey("a").ShouldBeFalse();
+
+        dic.Contains(p2).ShouldBeFalse();
+        dic.ContainsKey("B").ShouldBeFalse();
+        dic.ContainsKey("b").ShouldBeFalse();
+    }
+
+    [Test]
+    public void When_clearing_dictionary()
+    {
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id)
         {
-            var comparer = StringComparer.OrdinalIgnoreCase;
-            Func<Person, string> selector = p => p.Id;
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
-                selector, comparer: comparer);
+            new Person("A", 1), 
+            new Person("B", 2)
+        };
 
-            var p1 = new Person("A", 1);
-            var p2 = new Person("B", 2);
+        dic.ShouldNotBeNull();
+        dic.Count.ShouldBe(2);
 
-            dic.Contains(p1).ShouldBeFalse();
-            dic.ContainsKey("A").ShouldBeFalse();
-            dic.ContainsKey("a").ShouldBeFalse();
+        dic.ContainsKey("A").ShouldBeTrue();
+        dic.ContainsKey("B").ShouldBeTrue();
 
-            dic.Contains(p2).ShouldBeFalse();
-            dic.ContainsKey("B").ShouldBeFalse();
-            dic.ContainsKey("b").ShouldBeFalse();
+        dic.Clear();
 
-            dic.Add(p1);
-            dic.Count.ShouldBe(1);
+        dic.Count.ShouldBe(0);
 
-            dic.Keys.Count.ShouldBe(1);
-            dic.Values.Count.ShouldBe(1);
+        dic.ContainsKey("A").ShouldBeFalse();
+        dic.ContainsKey("B").ShouldBeFalse();
+    }
 
-            dic.Contains(p1).ShouldBeTrue();
-            dic.ContainsKey("A").ShouldBeTrue();
-            dic.ContainsKey("a").ShouldBeTrue();
+    [Test]
+    public void When_adding_or_replacing_items()
+    {
+        var p1 = new Person("A", 1);
+        var p2 = new Person("A", 11);
 
-            dic.TryGetValue("A", out var pA).ShouldBeTrue();
-            pA.ShouldBe(pA);
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id);
 
-            dic["A"].ShouldBe(pA);
-            dic["a"].ShouldBe(pA);
+        dic.Count.ShouldBe(0);
 
-            dic.Contains(p2).ShouldBeFalse();
-            dic.ContainsKey("B").ShouldBeFalse();
-            dic.ContainsKey("b").ShouldBeFalse();
+        dic.AddOrReplace(p1);
 
-            dic.TryGetValue("B", out var pB).ShouldBeFalse();
+        dic.Count.ShouldBe(1);
+        dic["A"].ShouldBe(p1);
 
-            dic.Add(p2);
-            dic.Count.ShouldBe(2);
+        dic.AddOrReplace(p1);
 
-            dic.Keys.Count.ShouldBe(2);
-            dic.Values.Count.ShouldBe(2);
+        dic.Count.ShouldBe(1);
+        dic["A"].ShouldBe(p1);
 
-            dic.Contains(p1).ShouldBeTrue();
-            dic.ContainsKey("A").ShouldBeTrue();
-            dic.ContainsKey("a").ShouldBeTrue();
+        dic.AddOrReplace(p2);
 
-            dic.Contains(p2).ShouldBeTrue();
-            dic.ContainsKey("B").ShouldBeTrue();
-            dic.ContainsKey("b").ShouldBeTrue();
+        dic.Count.ShouldBe(1);
+        dic["A"].ShouldNotBe(p1);
+        dic["A"].ShouldBe(p2);
+    }
 
-            dic.TryGetValue("B", out pB).ShouldBeTrue();
-            pB.ShouldBe(p2);
+    [Test]
+    public void When_copying_values()
+    {
+        var p1 = new Person("A", 1);
+        var p2 = new Person("B", 2);
 
-            dic["B"].ShouldBe(pB);
-            dic["b"].ShouldBe(pB);
-
-            dic.Remove("C").ShouldBeFalse();
-            dic.Remove("c").ShouldBeFalse();
-            dic.Remove(new Person("C", 3)).ShouldBeFalse();
-
-            dic.Keys.Count.ShouldBe(2);
-            dic.Values.Count.ShouldBe(2);
-
-            dic.Remove("a").ShouldBeTrue();
-
-            dic.Keys.Count.ShouldBe(1);
-            dic.Values.Count.ShouldBe(1);
-
-            dic.Contains(p1).ShouldBeFalse();
-            dic.ContainsKey("A").ShouldBeFalse();
-            dic.ContainsKey("a").ShouldBeFalse();
-
-            dic.Contains(p2).ShouldBeTrue();
-            dic.ContainsKey("B").ShouldBeTrue();
-            dic.ContainsKey("b").ShouldBeTrue();
-
-            dic.Remove(p2).ShouldBeTrue();
-
-            dic.Keys.Count.ShouldBe(0);
-            dic.Values.Count.ShouldBe(0);
-
-            dic.Contains(p1).ShouldBeFalse();
-            dic.ContainsKey("A").ShouldBeFalse();
-            dic.ContainsKey("a").ShouldBeFalse();
-
-            dic.Contains(p2).ShouldBeFalse();
-            dic.ContainsKey("B").ShouldBeFalse();
-            dic.ContainsKey("b").ShouldBeFalse();
-        }
-
-        [Test]
-        public void When_clearing_dictionary()
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id)
         {
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id)
-            {
-                new Person("A", 1), 
-                new Person("B", 2)
-            };
+            p1,
+            p2
+        };
 
-            dic.ShouldNotBeNull();
-            dic.Count.ShouldBe(2);
+        dic.Count.ShouldBe(2);
 
-            dic.ContainsKey("A").ShouldBeTrue();
-            dic.ContainsKey("B").ShouldBeTrue();
+        var copy = new Person[3];
+        dic.CopyTo(copy, 1);
 
-            dic.Clear();
-
-            dic.Count.ShouldBe(0);
-
-            dic.ContainsKey("A").ShouldBeFalse();
-            dic.ContainsKey("B").ShouldBeFalse();
-        }
-
-        [Test]
-        public void When_adding_or_replacing_items()
-        {
-            var p1 = new Person("A", 1);
-            var p2 = new Person("A", 11);
-
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id);
-
-            dic.Count.ShouldBe(0);
-
-            dic.AddOrReplace(p1);
-
-            dic.Count.ShouldBe(1);
-            dic["A"].ShouldBe(p1);
-
-            dic.AddOrReplace(p1);
-
-            dic.Count.ShouldBe(1);
-            dic["A"].ShouldBe(p1);
-
-            dic.AddOrReplace(p2);
-
-            dic.Count.ShouldBe(1);
-            dic["A"].ShouldNotBe(p1);
-            dic["A"].ShouldBe(p2);
-        }
-
-        [Test]
-        public void When_copying_values()
-        {
-            var p1 = new Person("A", 1);
-            var p2 = new Person("B", 2);
-
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id)
-            {
-                p1,
-                p2
-            };
-
-            dic.Count.ShouldBe(2);
-
-            var copy = new Person[3];
-            dic.CopyTo(copy, 1);
-
-            copy.Length.ShouldBe(3);
-            copy[0].ShouldBeNull();
+        copy.Length.ShouldBe(3);
+        copy[0].ShouldBeNull();
             
-            copy[1].ShouldBe(p1);
-            copy[2].ShouldBe(p2);
-        }
+        copy[1].ShouldBe(p1);
+        copy[2].ShouldBe(p2);
+    }
 
-        [Test]
-        public void When_getting_enumerator_as_key_value_pair()
+    [Test]
+    public void When_getting_enumerator_as_key_value_pair()
+    {
+        var p1 = new Person("A", 1);
+        var p2 = new Person("B", 2);
+
+        IEnumerable<KeyValuePair<string, Person>> dic = new EasyDictionary<string, Person>(p => p.Id)
         {
-            var p1 = new Person("A", 1);
-            var p2 = new Person("B", 2);
+            p1,
+            p2
+        };
 
-            IEnumerable<KeyValuePair<string, Person>> dic = new EasyDictionary<string, Person>(p => p.Id)
-            {
-                p1,
-                p2
-            };
-
-            using (var enumerator = dic.GetEnumerator())
-            {
-                enumerator.ShouldNotBeNull();
-
-                enumerator.MoveNext().ShouldBeTrue();
-
-                enumerator.Current.Key.ShouldBe("A");
-                enumerator.Current.Value.ShouldBe(p1);
-
-                enumerator.MoveNext().ShouldBeTrue();
-
-                enumerator.Current.Key.ShouldBe("B");
-                enumerator.Current.Value.ShouldBe(p2);
-
-                enumerator.MoveNext().ShouldBeFalse();
-            }
-        }
-
-        [Test]
-        public void When_getting_enumerator_as_easy_dictionary()
+        using (var enumerator = dic.GetEnumerator())
         {
-            var p1 = new Person("A", 1);
-            var p2 = new Person("B", 2);
-
-            EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id)
-            {
-                p1,
-                p2
-            };
-
-            using (var enumerator = dic.GetEnumerator())
-            {
-                enumerator.ShouldNotBeNull();
-
-                enumerator.MoveNext().ShouldBeTrue();
-
-                enumerator.Current.ShouldBe(p1);
-
-                enumerator.MoveNext().ShouldBeTrue();
-
-                enumerator.Current.ShouldBe(p2);
-
-                enumerator.MoveNext().ShouldBeFalse();
-            }
-        }
-
-        [Test]
-        public void When_getting_enumerator_as_ienumerable()
-        {
-            var p1 = new Person("A", 1);
-            var p2 = new Person("B", 2);
-
-            IEnumerable dic = new EasyDictionary<string, Person>(p => p.Id)
-            {
-                p1,
-                p2
-            };
-
-            var enumerator = dic.GetEnumerator();
-
             enumerator.ShouldNotBeNull();
 
             enumerator.MoveNext().ShouldBeTrue();
 
-            ((KeyValuePair<string, Person>)enumerator.Current!).Key.ShouldBe("A");
-            ((KeyValuePair<string, Person>)enumerator.Current).Value.ShouldBe(p1);
+            enumerator.Current.Key.ShouldBe("A");
+            enumerator.Current.Value.ShouldBe(p1);
 
             enumerator.MoveNext().ShouldBeTrue();
 
-            ((KeyValuePair<string, Person>)enumerator.Current!).Key.ShouldBe("B");
-            ((KeyValuePair<string, Person>)enumerator.Current).Value.ShouldBe(p2);
+            enumerator.Current.Key.ShouldBe("B");
+            enumerator.Current.Value.ShouldBe(p2);
 
             enumerator.MoveNext().ShouldBeFalse();
         }
+    }
 
-        [Test]
-        public void When_getting_key_and_values_as_ienumerable()
+    [Test]
+    public void When_getting_enumerator_as_easy_dictionary()
+    {
+        var p1 = new Person("A", 1);
+        var p2 = new Person("B", 2);
+
+        EasyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id)
         {
-            var p1 = new Person("A", 1);
-            var p2 = new Person("B", 2);
+            p1,
+            p2
+        };
 
-            IReadOnlyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id)
-            {
-                p1,
-                p2
-            };
+        using (var enumerator = dic.GetEnumerator())
+        {
+            enumerator.ShouldNotBeNull();
 
-            dic.Count.ShouldBe(2);
-            dic.Keys.ShouldBe(new [] { "A", "B" });
-            dic.Values.ShouldBe(new [] { p1, p2 });
+            enumerator.MoveNext().ShouldBeTrue();
+
+            enumerator.Current.ShouldBe(p1);
+
+            enumerator.MoveNext().ShouldBeTrue();
+
+            enumerator.Current.ShouldBe(p2);
+
+            enumerator.MoveNext().ShouldBeFalse();
         }
+    }
 
-        [Test]
-        public void When_using_as_readonly_dictionary()
+    [Test]
+    public void When_getting_enumerator_as_ienumerable()
+    {
+        var p1 = new Person("A", 1);
+        var p2 = new Person("B", 2);
+
+        IEnumerable dic = new EasyDictionary<string, Person>(p => p.Id)
         {
-            var p1 = new Person("A", 1);
-            var p2 = new Person("B", 2);
+            p1,
+            p2
+        };
 
-            var comparer = StringComparer.OrdinalIgnoreCase;
-            Func<Person, string> selector = p => p.Id;
-            IReadOnlyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
-                selector, 10, comparer)
-            {
-                p1,
-                p2
-            };
+        var enumerator = dic.GetEnumerator();
 
-            dic.ShouldNotBeNull();
-            dic.Count.ShouldBe(2);
+        enumerator.ShouldNotBeNull();
+
+        enumerator.MoveNext().ShouldBeTrue();
+
+        ((KeyValuePair<string, Person>)enumerator.Current!).Key.ShouldBe("A");
+        ((KeyValuePair<string, Person>)enumerator.Current).Value.ShouldBe(p1);
+
+        enumerator.MoveNext().ShouldBeTrue();
+
+        ((KeyValuePair<string, Person>)enumerator.Current!).Key.ShouldBe("B");
+        ((KeyValuePair<string, Person>)enumerator.Current).Value.ShouldBe(p2);
+
+        enumerator.MoveNext().ShouldBeFalse();
+    }
+
+    [Test]
+    public void When_getting_key_and_values_as_ienumerable()
+    {
+        var p1 = new Person("A", 1);
+        var p2 = new Person("B", 2);
+
+        IReadOnlyDictionary<string, Person> dic = new EasyDictionary<string, Person>(p => p.Id)
+        {
+            p1,
+            p2
+        };
+
+        dic.Count.ShouldBe(2);
+        dic.Keys.ShouldBe(new [] { "A", "B" });
+        dic.Values.ShouldBe(new [] { p1, p2 });
+    }
+
+    [Test]
+    public void When_using_as_readonly_dictionary()
+    {
+        var p1 = new Person("A", 1);
+        var p2 = new Person("B", 2);
+
+        var comparer = StringComparer.OrdinalIgnoreCase;
+        Func<Person, string> selector = p => p.Id;
+        IReadOnlyDictionary<string, Person> dic = new EasyDictionary<string, Person>(
+            selector, 10, comparer)
+        {
+            p1,
+            p2
+        };
+
+        dic.ShouldNotBeNull();
+        dic.Count.ShouldBe(2);
             
-            dic.Keys.ShouldBe(new [] { "A", "B" });
-            dic.Values.ShouldBe(new [] { p1, p2 });
+        dic.Keys.ShouldBe(new [] { "A", "B" });
+        dic.Values.ShouldBe(new [] { p1, p2 });
 
-            dic.ContainsKey("A").ShouldBeTrue();
-            dic.ContainsKey("a").ShouldBeTrue();
+        dic.ContainsKey("A").ShouldBeTrue();
+        dic.ContainsKey("a").ShouldBeTrue();
 
-            dic.ContainsKey("B").ShouldBeTrue();
-            dic.ContainsKey("b").ShouldBeTrue();
+        dic.ContainsKey("B").ShouldBeTrue();
+        dic.ContainsKey("b").ShouldBeTrue();
             
-            dic.ContainsKey("C").ShouldBeFalse();
-            dic.ContainsKey("c").ShouldBeFalse();
+        dic.ContainsKey("C").ShouldBeFalse();
+        dic.ContainsKey("c").ShouldBeFalse();
 
-            Person found;
-            dic.TryGetValue("A", out found).ShouldBeTrue();
-            found.ShouldBe(p1);
+        Person found;
+        dic.TryGetValue("A", out found).ShouldBeTrue();
+        found.ShouldBe(p1);
 
-            dic.TryGetValue("a", out found).ShouldBeTrue();
-            found.ShouldBe(p1);
+        dic.TryGetValue("a", out found).ShouldBeTrue();
+        found.ShouldBe(p1);
 
-            dic.TryGetValue("B", out found).ShouldBeTrue();
-            found.ShouldBe(p2);
+        dic.TryGetValue("B", out found).ShouldBeTrue();
+        found.ShouldBe(p2);
 
-            dic.TryGetValue("b", out found).ShouldBeTrue();
-            found.ShouldBe(p2);
-        }
+        dic.TryGetValue("b", out found).ShouldBeTrue();
+        found.ShouldBe(p2);
+    }
 
-        [Test]
-        public void When_using_as_collection()
+    [Test]
+    public void When_using_as_collection()
+    {
+        var p1 = new Person("A", 1);
+        var p2 = new Person("B", 2);
+
+        var comparer = StringComparer.OrdinalIgnoreCase;
+        Func<Person, string> selector = p => p.Id;
+        ICollection<Person> dic = new EasyDictionary<string, Person>(
+            selector, 10, comparer)
         {
-            var p1 = new Person("A", 1);
-            var p2 = new Person("B", 2);
+            p1,
+            p2
+        };
 
-            var comparer = StringComparer.OrdinalIgnoreCase;
-            Func<Person, string> selector = p => p.Id;
-            ICollection<Person> dic = new EasyDictionary<string, Person>(
-                selector, 10, comparer)
-            {
-                p1,
-                p2
-            };
+        dic.ShouldNotBeNull();
+        dic.Count.ShouldBe(2);
 
-            dic.ShouldNotBeNull();
-            dic.Count.ShouldBe(2);
+        dic.Contains(p1).ShouldBeTrue();
+        dic.Contains(p2).ShouldBeTrue();
 
-            dic.Contains(p1).ShouldBeTrue();
-            dic.Contains(p2).ShouldBeTrue();
+        var p3 = new Person("C", 3);
+        dic.Add(p3);
 
-            var p3 = new Person("C", 3);
-            dic.Add(p3);
+        dic.Contains(p3).ShouldBeTrue();
 
-            dic.Contains(p3).ShouldBeTrue();
+        dic.Remove(p1).ShouldBeTrue();
 
-            dic.Remove(p1).ShouldBeTrue();
+        dic.Count.ShouldBe(2);
 
-            dic.Count.ShouldBe(2);
+        dic.Contains(p1).ShouldBeFalse();
 
-            dic.Contains(p1).ShouldBeFalse();
+        dic.Clear();
 
-            dic.Clear();
+        dic.Count.ShouldBe(0);
+    }
 
-            dic.Count.ShouldBe(0);
-        }
+    [Test]
+    public void When_converting_to_dictionary()
+    {
+        var p1 = new Person("A", 1);
+        var p2 = new Person("B", 2);
 
-        [Test]
-        public void When_converting_to_dictionary()
+        IEasyDictionary<string, Person> easyDic = new EasyDictionary<string, Person>(x => x.Id)
         {
-            var p1 = new Person("A", 1);
-            var p2 = new Person("B", 2);
+            p1, p2
+        };
 
-            IEasyDictionary<string, Person> easyDic = new EasyDictionary<string, Person>(x => x.Id)
-            {
-                p1, p2
-            };
+        IDictionary<string, Person> dic = easyDic.ToDictionary();
 
-            IDictionary<string, Person> dic = easyDic.ToDictionary();
+        dic.Count.ShouldBe(easyDic.Count);
+        dic["A"].ShouldBe(easyDic["A"]);
+        dic["B"].ShouldBe(easyDic["B"]);
 
-            dic.Count.ShouldBe(easyDic.Count);
-            dic["A"].ShouldBe(easyDic["A"]);
-            dic["B"].ShouldBe(easyDic["B"]);
+        easyDic.Clear();
 
-            easyDic.Clear();
+        dic.Count.ShouldBe(2);
+    }
 
-            dic.Count.ShouldBe(2);
-        }
+    [Test]
+    public void When_converting_to_dictionary_and_specifying_comparer()
+    {
+        var p1 = new Person("A", 1);
+        var p2 = new Person("B", 2);
 
-        [Test]
-        public void When_converting_to_dictionary_and_specifying_comparer()
+        var comparer = StringComparer.Ordinal;
+        IEasyDictionary<string, Person> easyDic = new EasyDictionary<string, Person>(x => x.Id, comparer: comparer)
         {
-            var p1 = new Person("A", 1);
-            var p2 = new Person("B", 2);
+            p1, p2
+        };
 
-            var comparer = StringComparer.Ordinal;
-            IEasyDictionary<string, Person> easyDic = new EasyDictionary<string, Person>(x => x.Id, comparer: comparer)
-            {
-                p1, p2
-            };
+        IDictionary<string, Person> dicWithSameComparerAsSource = easyDic.ToDictionary();
 
-            IDictionary<string, Person> dicWithSameComparerAsSource = easyDic.ToDictionary();
+        dicWithSameComparerAsSource.ContainsKey("A").ShouldBeTrue();
+        dicWithSameComparerAsSource.ContainsKey("a").ShouldBeFalse();
 
-            dicWithSameComparerAsSource.ContainsKey("A").ShouldBeTrue();
-            dicWithSameComparerAsSource.ContainsKey("a").ShouldBeFalse();
+        IDictionary<string, Person> dicWithOwnComparer = easyDic.ToDictionary(StringComparer.OrdinalIgnoreCase);
 
-            IDictionary<string, Person> dicWithOwnComparer = easyDic.ToDictionary(StringComparer.OrdinalIgnoreCase);
+        dicWithOwnComparer.ContainsKey("A").ShouldBeTrue();
+        dicWithOwnComparer.ContainsKey("a").ShouldBeTrue();
+    }
 
-            dicWithOwnComparer.ContainsKey("A").ShouldBeTrue();
-            dicWithOwnComparer.ContainsKey("a").ShouldBeTrue();
-        }
-
-        private sealed class Person : Equatable<Person>
+    private sealed class Person : Equatable<Person>
+    {
+        public Person(string id, int age)
         {
-            public Person(string id, int age)
-            {
-                Id = id;
-                Age = age;
-            }
+            Id = id;
+            Age = age;
+        }
             
-            public string Id { get; }
-            public int Age { get; }
+        public string Id { get; }
+        public int Age { get; }
             
-            public override int GetHashCode() => HashHelper.GetHashCode(Id, Age);
-        }
+        public override int GetHashCode() => HashHelper.GetHashCode(Id, Age);
     }
 }

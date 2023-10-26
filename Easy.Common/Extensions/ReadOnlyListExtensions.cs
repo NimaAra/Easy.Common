@@ -1,29 +1,28 @@
-﻿namespace Easy.Common.Extensions
+﻿namespace Easy.Common.Extensions;
+
+using System.Collections.Generic;
+
+/// <summary>
+/// Extension methods for <see cref="IReadOnlyList{T}"/>
+/// </summary>
+public static class ReadOnlyListExtensions
 {
-    using System.Collections.Generic;
-
     /// <summary>
-    /// Extension methods for <see cref="IReadOnlyList{T}"/>
+    /// Searches for the specified <paramref name="element"/> and returns the index of
+    /// its first occurrence in <paramref name="self"/>.
     /// </summary>
-    public static class ReadOnlyListExtensions
+    public static int IndexOf<T>(this IReadOnlyList<T> self, T element)
     {
-        /// <summary>
-        /// Searches for the specified <paramref name="element"/> and returns the index of
-        /// its first occurrence in <paramref name="self"/>.
-        /// </summary>
-        public static int IndexOf<T>(this IReadOnlyList<T> self, T element)
+        EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+        for (var i = 0; i < self.Count; i++)
         {
-            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
-            for (var i = 0; i < self.Count; i++)
+            T item = self[i];
+            if (comparer.Equals(item, element))
             {
-                T item = self[i];
-                if (comparer.Equals(item, element))
-                {
-                    return i;
-                }
+                return i;
             }
-
-            return -1;
         }
+
+        return -1;
     }
 }

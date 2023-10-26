@@ -1,15 +1,14 @@
-﻿namespace Easy.Common.Tests.Unit.BaseEncoding
-{
-    using NUnit.Framework;
-    using Shouldly;
+﻿namespace Easy.Common.Tests.Unit.BaseEncoding;
 
-    [TestFixture]
-    public class Base36Tests
-    {
-        [TestCase]
-        public void When_encoding() => Base36.Encode(10).ShouldBe("A");
+using NUnit.Framework;
+using Shouldly;
+
+[TestFixture]
+public class Base36Tests
+{
+    [TestCase]
+    public void When_encoding() => Base36.Encode(10).ShouldBe("A");
         
-        [TestCase]
-        public void When_decoding()  => Base36.Decode("A").ShouldBe(10);
-    }
+    [TestCase]
+    public void When_decoding()  => Base36.Decode("A").ShouldBe(10);
 }

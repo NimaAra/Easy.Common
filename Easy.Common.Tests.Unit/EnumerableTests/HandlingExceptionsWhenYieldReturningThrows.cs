@@ -1,32 +1,31 @@
-﻿namespace Easy.Common.Tests.Unit.EnumerableTests
+﻿namespace Easy.Common.Tests.Unit.EnumerableTests;
+
+using System;
+using NUnit.Framework;
+using Shouldly;
+
+[TestFixture]
+public class HandlingExceptionsWhenYieldReturningThrows : Context
 {
-    using System;
-    using NUnit.Framework;
-    using Shouldly;
+    private Action _action;
 
-    [TestFixture]
-    public class HandlingExceptionsWhenYieldReturningThrows : Context
+    [OneTimeSetUp]
+    public void SetUp()
     {
-        private Action _action;
+        Given_a_sequence_of_integers_with_exception_handled_and_wrapped();
 
-        [OneTimeSetUp]
-        public void SetUp()
-        {
-            Given_a_sequence_of_integers_with_exception_handled_and_wrapped();
+        _action = When_enumerating_the_sequence;
+    }
 
-            _action = When_enumerating_the_sequence;
-        }
-
-        [Test]
-        public void Then_it_should_throw_the_correct_exception()
-        {
-            var exception = Should.Throw<InvalidOperationException>(_action);
+    [Test]
+    public void Then_it_should_throw_the_correct_exception()
+    {
+        var exception = Should.Throw<InvalidOperationException>(_action);
                 
-            exception.Message.ShouldBe("Custom message");
-            exception.InnerException.ShouldBeOfType<DivideByZeroException>()
-                .Message.ShouldBe("Attempted to divide by zero.");
+        exception.Message.ShouldBe("Custom message");
+        exception.InnerException.ShouldBeOfType<DivideByZeroException>()
+            .Message.ShouldBe("Attempted to divide by zero.");
             
-            Result.ShouldBeNull();
-        }
+        Result.ShouldBeNull();
     }
 }
