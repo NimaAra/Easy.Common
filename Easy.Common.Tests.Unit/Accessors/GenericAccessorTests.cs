@@ -2,6 +2,7 @@ namespace Easy.Common.Tests.Unit.Accessors;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using NUnit.Framework;
 using Shouldly;
 
@@ -21,10 +22,10 @@ public sealed class GenericAccessorTests
 
         parentAccessor.ShouldNotBeNull();
         parentAccessor.Properties.ShouldNotBeNull();
-        parentAccessor.Properties.Count.ShouldBe(2);
+        parentAccessor.Properties.Length.ShouldBe(2);
 
-        parentAccessor.Properties["Name"].PropertyType.ShouldBe(typeof(string));
-        parentAccessor.Properties["Age"].PropertyType.ShouldBe(typeof(int));
+        parentAccessor.Properties.Single(x => x.Name == "Name").PropertyType.ShouldBe(typeof(string));
+        parentAccessor.Properties.Single(x => x.Name == "Age").PropertyType.ShouldBe(typeof(int));
 
         parentAccessor[parent, "Name"].ShouldBeNull();
         parentAccessor[parent, "Name"] = "Foo";
@@ -43,11 +44,11 @@ public sealed class GenericAccessorTests
 
         childAccessor.ShouldNotBeNull();
         childAccessor.Properties.ShouldNotBeNull();
-        childAccessor.Properties.Count.ShouldBe(3);
+        childAccessor.Properties.Length.ShouldBe(3);
 
-        childAccessor.Properties["ChildName"].PropertyType.ShouldBe(typeof(string));
-        childAccessor.Properties["Name"].PropertyType.ShouldBe(typeof(string));
-        childAccessor.Properties["Age"].PropertyType.ShouldBe(typeof(int));
+        childAccessor.Properties.Single(x => x.Name == "ChildName").PropertyType.ShouldBe(typeof(string));
+        childAccessor.Properties.Single(x => x.Name == "Name").PropertyType.ShouldBe(typeof(string));
+        childAccessor.Properties.Single(x => x.Name == "Age").PropertyType.ShouldBe(typeof(int));
 
         childAccessor[child, "ChildName"].ShouldBe("Bar");
         childAccessor[child, "ChildName"] = "BarBar";
@@ -70,11 +71,11 @@ public sealed class GenericAccessorTests
 
         parentAccessor.ShouldNotBeNull();
         parentAccessor.Properties.ShouldNotBeNull();
-        parentAccessor.Properties.Count.ShouldBe(3);
+        parentAccessor.Properties.Length.ShouldBe(3);
 
-        parentAccessor.Properties["Name"].PropertyType.ShouldBe(typeof(string));
-        parentAccessor.Properties["Age"].PropertyType.ShouldBe(typeof(int));
-        parentAccessor.Properties["Job"].PropertyType.ShouldBe(typeof(string));
+        parentAccessor.Properties.Single(x => x.Name == "Name").PropertyType.ShouldBe(typeof(string));
+        parentAccessor.Properties.Single(x => x.Name == "Age").PropertyType.ShouldBe(typeof(int));
+        parentAccessor.Properties.Single(x => x.Name == "Job").PropertyType.ShouldBe(typeof(string));
 
         parentAccessor[parent, "Name"].ShouldBeNull();
         parentAccessor[parent, "Name"] = "Foo";
@@ -101,11 +102,11 @@ public sealed class GenericAccessorTests
 
         childAccessor.ShouldNotBeNull();
         childAccessor.Properties.ShouldNotBeNull();
-        childAccessor.Properties.Count.ShouldBe(3);
+        childAccessor.Properties.Length.ShouldBe(3);
 
-        childAccessor.Properties["ChildName"].PropertyType.ShouldBe(typeof(string));
-        childAccessor.Properties["Name"].PropertyType.ShouldBe(typeof(string));
-        childAccessor.Properties["Age"].PropertyType.ShouldBe(typeof(int));
+        childAccessor.Properties.Single(x => x.Name == "ChildName").PropertyType.ShouldBe(typeof(string));
+        childAccessor.Properties.Single(x => x.Name == "Name").PropertyType.ShouldBe(typeof(string));
+        childAccessor.Properties.Single(x => x.Name == "Age").PropertyType.ShouldBe(typeof(int));
 
         childAccessor[child, "ChildName"].ShouldBe("Bar");
         childAccessor[child, "ChIldNAme"] = "BarBar";
@@ -144,7 +145,7 @@ public sealed class GenericAccessorTests
         accessor.IncludesNonPublic.ShouldBe(false);
 
         accessor.Properties.ShouldNotBeNull();
-        accessor.Properties.Count.ShouldBe(2);
+        accessor.Properties.Length.ShouldBe(2);
 
         var instance = new Parent();
 
@@ -181,9 +182,9 @@ public sealed class GenericAccessorTests
         accessor.ShouldBeOfType<GenericAccessor<SpecialCase>>();
         accessor.Type.ShouldBe(typeof(SpecialCase));
         accessor.IgnoreCase.ShouldBe(false);
-        accessor.Properties.Count.ShouldBe(2);
-        accessor.Properties.ShouldContain(x => x.Key == "GetterOnly");
-        accessor.Properties.ShouldContain(x => x.Key == "SetterOnly");
+        accessor.Properties.Length.ShouldBe(2);
+        accessor.Properties.ShouldContain(x => x.Name == "GetterOnly");
+        accessor.Properties.ShouldContain(x => x.Name == "SetterOnly");
 
         var instance = new SpecialCase();
 

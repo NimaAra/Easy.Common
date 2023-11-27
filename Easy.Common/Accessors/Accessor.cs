@@ -2,7 +2,6 @@
 namespace Easy.Common;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -32,18 +31,13 @@ public abstract class Accessor
 
         Comparer = IgnoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
 
-        var flags = BindingFlags.Public | BindingFlags.Instance;
+        BindingFlags flags = BindingFlags.Public | BindingFlags.Instance;
         if (IncludesNonPublic) 
         {
-            flags = flags | BindingFlags.NonPublic;
+            flags |= BindingFlags.NonPublic;
         }
 
-        var props = Type.GetProperties(flags);
-        Properties = new SortedList<string, PropertyInfo>(props.Length, Comparer);
-        foreach (var prop in props)
-        {
-            Properties[prop.Name] = prop;
-        }
+        Properties = Type.GetProperties(flags);
     }
 
     /// <summary>
@@ -70,7 +64,7 @@ public abstract class Accessor
     /// <summary>
     /// Gets the properties to which this instance can provide access to.
     /// </summary>
-    public SortedList<string, PropertyInfo> Properties { get; }
+    public PropertyInfo[] Properties { get; }
 
     /// <summary>
     /// Builds an <see cref="ObjectAccessor"/> which provides easy access to all of 
@@ -100,6 +94,5 @@ public abstract class Accessor
     /// </summary>
     [DebuggerStepThrough]
     public static GenericAccessor<TInstance> Build<TInstance>(
-        bool ignoreCase = false, bool includeNonPublic = false) where TInstance : class
-        => new GenericAccessor<TInstance>(ignoreCase, includeNonPublic);
+        bool ignoreCase = false, bool includeNonPublic = false) where TInstance : class => new(ignoreCase, includeNonPublic);
 }

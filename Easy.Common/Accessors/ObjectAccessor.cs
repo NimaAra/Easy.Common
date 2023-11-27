@@ -18,13 +18,12 @@ public class ObjectAccessor : Accessor
     internal ObjectAccessor(IReflect type, bool ignoreCase, bool includeNonPublic) 
         : base(type, ignoreCase, includeNonPublic)
     {
-        _objectGettersCache = new Hashtable(Properties.Count, Comparer);
-        _objectSettersCache = new Hashtable(Properties.Count, Comparer);
+        _objectGettersCache = new Hashtable(Properties.Length, Comparer);
+        _objectSettersCache = new Hashtable(Properties.Length, Comparer);
 
-        foreach (var pair in Properties)
+        foreach (PropertyInfo prop in Properties)
         {
-            var propName = pair.Key;
-            var prop = pair.Value;
+            string propName = prop.Name;
 
             if (prop.CanRead)
             {

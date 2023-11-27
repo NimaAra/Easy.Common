@@ -14,25 +14,28 @@ using System.Runtime.CompilerServices;
 /// </summary>
 public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance : class
 {
-    private readonly Hashtable 
-        _genericInstanceGettersCache, 
-        _genericInstanceSettersCache, 
-        _genericPropertiesGettersCache, 
+    private readonly SortedList<string, PropertyInfo> _propDic;
+
+    private readonly Hashtable
+        _genericInstanceGettersCache,
+        _genericInstanceSettersCache,
+        _genericPropertiesGettersCache,
         _genericPropertiesSettersCache;
 
     [DebuggerStepThrough]
-    internal GenericAccessor(bool ignoreCase, bool includeNonPublic) 
+    internal GenericAccessor(bool ignoreCase, bool includeNonPublic)
         : base(typeof(TInstance), ignoreCase, includeNonPublic)
     {
-        _genericPropertiesGettersCache = new Hashtable(Properties.Count, Comparer);
-        _genericPropertiesSettersCache = new Hashtable(Properties.Count, Comparer);
-        _genericInstanceGettersCache = new Hashtable(Properties.Count, Comparer);
-        _genericInstanceSettersCache = new Hashtable(Properties.Count, Comparer);
+        _propDic = new SortedList<string, PropertyInfo>(Properties.Length, Comparer);
 
-        foreach (KeyValuePair<string, PropertyInfo> pair in Properties)
+        _genericPropertiesGettersCache = new Hashtable(Properties.Length, Comparer);
+        _genericPropertiesSettersCache = new Hashtable(Properties.Length, Comparer);
+        _genericInstanceGettersCache = new Hashtable(Properties.Length, Comparer);
+        _genericInstanceSettersCache = new Hashtable(Properties.Length, Comparer);
+
+        foreach (PropertyInfo prop in Properties)
         {
-            string propName = pair.Key;
-            PropertyInfo prop = pair.Value;
+            string propName = prop.Name;
 
             if (prop.CanRead)
             {
@@ -43,6 +46,8 @@ public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance 
             {
                 _genericPropertiesSettersCache[propName] = AccessorBuilder.BuildSetter<TInstance>(prop, IncludesNonPublic);
             }
+
+            _propDic[propName] = prop;
         }
     }
 
@@ -66,7 +71,8 @@ public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance 
             if (_genericPropertiesSettersCache[propertyName] is Action<TInstance, object> setter)
             {
                 setter(instance, value);
-            } else
+            }
+            else
             {
                 throw new ArgumentException($"Type: `{instance.GetType().FullName}` does not have a property named: `{propertyName}` that supports writing.");
             }
@@ -85,12 +91,12 @@ public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance 
         Func<TInstance, TProperty>? getter = cache[propertyName] as Func<TInstance, TProperty>;
         if (getter is null)
         {
-            if (!Properties.TryGetValue(propertyName, out var prop))
+            if (!_propDic.TryGetValue(propertyName, out PropertyInfo? prop))
             {
                 value = default;
                 return false;
             }
-                
+
             lock (cache)
             {
                 getter = cache[propertyName] as Func<TInstance, TProperty>;
@@ -100,7 +106,8 @@ public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance 
                     {
                         getter = AccessorBuilder.BuildGetter<TInstance, TProperty>(prop.Name, IncludesNonPublic);
                         cache[prop.Name] = getter;
-                    } catch (ArgumentException)
+                    }
+                    catch (ArgumentException)
                     {
                         value = default;
                         return false;
@@ -121,12 +128,12 @@ public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance 
     public bool TrySet<TProperty>(TInstance instance, string propertyName, TProperty value)
     {
         Hashtable cache = _genericInstanceSettersCache;
-            
+
         Action<TInstance, TProperty>? setter = cache[propertyName] as Action<TInstance, TProperty>;
         if (setter is null)
         {
-            if (!Properties.TryGetValue(propertyName, out var prop)) { return false; }
-                
+            if (!_propDic.TryGetValue(propertyName, out PropertyInfo? prop)) { return false; }
+
             lock (cache)
             {
                 setter = cache[propertyName] as Action<TInstance, TProperty>;
@@ -136,7 +143,8 @@ public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance 
                     {
                         setter = AccessorBuilder.BuildSetter<TInstance, TProperty>(prop.Name, IncludesNonPublic);
                         cache[prop.Name] = setter;
-                    } catch (ArgumentException)
+                    }
+                    catch (ArgumentException)
                     {
                         return false;
                     }
