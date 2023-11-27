@@ -8,9 +8,10 @@ using Shouldly;
 public sealed class GettingUninitializedInstanceTests
 {
     [Test]
+    [Obsolete("Obsolete")]
     public void Run()
     {
-        var classA = Extensions.GenericExtensions.GetUninitializedInstance<ClassA>();
+        ClassA classA = Extensions.GenericExtensions.GetUninitializedInstance<ClassA>();
         classA.Age.ShouldBe(0);
         classA.Name.ShouldBeNull();
         classA.Number.ShouldBe(29);
@@ -28,7 +29,7 @@ public sealed class GettingUninitializedInstanceTests
         classC.Age.ShouldBe(0);
         classC.Name.ShouldBeNull();
 
-        Should.Throw<MemberAccessException>(() => Extensions.GenericExtensions.GetUninitializedInstance<ClassD>())
+        Should.Throw<MemberAccessException>(Extensions.GenericExtensions.GetUninitializedInstance<ClassD>)
             .Message.ShouldBe("Cannot create an abstract class.");
 
         var classE = Extensions.GenericExtensions.GetUninitializedInstance<ClassE>();

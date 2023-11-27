@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -223,11 +222,4 @@ public sealed class ProducerConsumerQueueException : Exception
     /// <param name="message">The message for the <see cref="Exception"/></param>
     /// <param name="innerException">The inner exception</param>
     internal ProducerConsumerQueueException(string message, Exception innerException) : base(message, innerException) { }
-
-    /// <summary>
-    /// Creates an instance of the <see cref="ProducerConsumerQueueException"/>.
-    /// </summary>
-    /// <param name="info">The serialization information</param>
-    /// <param name="context">The streaming context</param>
-    internal ProducerConsumerQueueException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }

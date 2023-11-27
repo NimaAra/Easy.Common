@@ -473,13 +473,13 @@ public sealed class ProducerConsumerQueueTests
         exceptions.ShouldBeEmpty();
 
         Should.Throw<ObjectDisposedException>(() => pcq.Capacity.ShouldBe(-1))
-            .Message.ShouldBe("The collection has been disposed.\r\nObject name: 'BlockingCollection'.");
+            .Message.ShouldBe("Cannot access a disposed object.\r\nObject name: 'System.Collections.Concurrent.BlockingCollection`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.");
 
         Should.Throw<ObjectDisposedException>(() => pcq.PendingCount.ShouldBe((uint)2))
-            .Message.ShouldBe("The collection has been disposed.\r\nObject name: 'BlockingCollection'.");
-
+            .Message.ShouldBe("Cannot access a disposed object.\r\nObject name: 'System.Collections.Concurrent.BlockingCollection`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.");
+        
         Should.Throw<ObjectDisposedException>(() => pcq.PendingItems.ShouldBe(new[] { 2, 3 }))
-            .Message.ShouldBe("The collection has been disposed.\r\nObject name: 'BlockingCollection'.");
+            .Message.ShouldBe("Cannot access a disposed object.\r\nObject name: 'System.Collections.Concurrent.BlockingCollection`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.");
     }
 
     private class MyClass

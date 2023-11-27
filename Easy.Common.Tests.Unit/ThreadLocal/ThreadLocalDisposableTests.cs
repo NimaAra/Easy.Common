@@ -22,7 +22,7 @@ internal sealed class ThreadLocalDisposableTests
         threadLocal.ToString().ShouldStartWith("Substitute.IDisposable|");
         threadLocal.Dispose();
         Should.Throw<ObjectDisposedException>(() => threadLocal.Value.ShouldBe(someDisposable))
-            .Message.ShouldBe("Cannot access a disposed object.\r\nObject name: 'The ThreadLocal object has been disposed.'.");
+            .Message.ShouldBe("Cannot access a disposed object.\r\nObject name: 'System.Threading.ThreadLocal`1[[System.IDisposable, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.");
         someDisposable.DidNotReceive().Dispose();
 
         var threadLocalDisposable = new ThreadLocalDisposable<IDisposable>(() => someDisposable);
@@ -32,7 +32,7 @@ internal sealed class ThreadLocalDisposableTests
         threadLocalDisposable.ToString().ShouldStartWith("Substitute.IDisposable|");
         threadLocalDisposable.Dispose();
         Should.Throw<ObjectDisposedException>(() => threadLocalDisposable.Value.ShouldBe(someDisposable))
-            .Message.ShouldBe("Cannot access a disposed object.\r\nObject name: 'The ThreadLocal object has been disposed.'.");
+            .Message.ShouldBe("Cannot access a disposed object.\r\nObject name: 'System.Threading.ThreadLocal`1[[System.IDisposable, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.");
         someDisposable.Received(1).Dispose();
     }
 }

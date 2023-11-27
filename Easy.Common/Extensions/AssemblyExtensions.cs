@@ -124,7 +124,9 @@ public static class AssemblyExtensions
         Ensure.That(uri.IsFile, "Assembly location is not a file.");
 
         AssemblyName assemblyName = AssemblyName.GetAssemblyName(uri.LocalPath);
+#pragma warning disable SYSLIB0037
         return assemblyName.ProcessorArchitecture == ProcessorArchitecture.X86;
+#pragma warning restore SYSLIB0037
     }
 
     /// <summary>

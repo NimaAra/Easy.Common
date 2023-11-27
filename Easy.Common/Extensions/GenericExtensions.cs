@@ -61,6 +61,7 @@ public static class GenericExtensions
     /// with all its <c>non-static</c> fields initialized to its default value.
     /// </returns>
     [DebuggerStepThrough]
+    [Obsolete("Obsolete")]
     public static T GetUninitializedInstance<T>() => (T)FormatterServices.GetUninitializedObject(typeof(T));
 
     /// <summary>

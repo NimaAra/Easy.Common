@@ -68,9 +68,7 @@ public static class DictionaryExtensions
     /// Returns a <see cref="NameValueCollection"/> as a Dictionary
     /// </summary>
     public static Dictionary<string, string> ToDictionary(this NameValueCollection namedValueCollection) =>
-#pragma warning disable CS8714
-        namedValueCollection.AllKeys.ToDictionary(key => key, key => namedValueCollection[key])!;
-#pragma warning restore CS8714
+        namedValueCollection.AllKeys.ToDictionary(key => key!, key => namedValueCollection[key]!);
 
     /// <summary>
     /// Returns a <see cref="ConcurrentDictionary{TKey,TValue}"/> from an <see cref="IDictionary{TKey,TValue}"/>.
