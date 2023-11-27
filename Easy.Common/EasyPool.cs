@@ -48,6 +48,7 @@ public sealed class EasyPool<T> : IEasyPool<T> where T : class
         return true;
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
         while (_pool.TryTake(out T? _)) { /* ignore */ }
