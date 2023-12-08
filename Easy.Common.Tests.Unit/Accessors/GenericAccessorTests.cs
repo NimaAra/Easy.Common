@@ -7,13 +7,12 @@ using NUnit.Framework;
 using Shouldly;
 
 [TestFixture]
-[SuppressMessage("ReSharper", "RedundantTypeArgumentsOfMethod")]
 public sealed class GenericAccessorTests
 {
     [Test]
     public void When_creating_generic_accessor_with_default_flags()
     {
-        var parent = new Parent();
+        Parent parent = new();
         GenericAccessor<Parent> parentAccessor = Accessor.Build<Parent>();
         parentAccessor.ShouldBeOfType<GenericAccessor<Parent>>();
         parentAccessor.Type.ShouldBe(typeof(Parent));
@@ -35,7 +34,7 @@ public sealed class GenericAccessorTests
         parentAccessor[parent, "Age"] = 10;
         parentAccessor[parent, "Age"].ShouldBe(10);
 
-        var child = new Child();
+        Child child = new();
         GenericAccessor<Child> childAccessor = Accessor.Build<Child>();
         childAccessor.ShouldBeOfType<GenericAccessor<Child>>();
         childAccessor.Type.ShouldBe(typeof(Child));
@@ -62,7 +61,7 @@ public sealed class GenericAccessorTests
     [Test]
     public void When_creating_generic_accessor_with_custom_flags()
     {
-        var parent = new Parent();
+        Parent parent = new();
         GenericAccessor<Parent> parentAccessor = Accessor.Build<Parent>(true, true);
         parentAccessor.ShouldBeOfType<GenericAccessor<Parent>>();
         parentAccessor.Type.ShouldBe(typeof(Parent));
@@ -93,7 +92,7 @@ public sealed class GenericAccessorTests
         parentAccessor[parent, "name"] = "Foo Foo";
         parentAccessor[parent, "naME"].ShouldBe("Foo Foo");
 
-        var child = new Child();
+        Child child = new();
         GenericAccessor<Child> childAccessor = Accessor.Build<Child>(true, true);
         childAccessor.ShouldBeOfType<GenericAccessor<Child>>();
         childAccessor.Type.ShouldBe(typeof(Child));
@@ -126,7 +125,7 @@ public sealed class GenericAccessorTests
         parentAccessor.IgnoreCase.ShouldBe(false);
         parentAccessor.IncludesNonPublic.ShouldBe(false);
 
-        var child = new Child();
+        Child child = new();
 
         Should.Throw<ArgumentException>(() => { var _ = parentAccessor[child, "ChildName"]; })
             .Message.ShouldBe("Type: `Easy.Common.Tests.Unit.Accessors.GenericAccessorTests+Child` does not have a property named: `ChildName` that supports reading.");
@@ -147,7 +146,7 @@ public sealed class GenericAccessorTests
         accessor.Properties.ShouldNotBeNull();
         accessor.Properties.Length.ShouldBe(2);
 
-        var instance = new Parent();
+        Parent instance = new();
 
         accessor[instance, "Name"] = "John";
         instance.Name.ShouldBe("John");
@@ -186,7 +185,7 @@ public sealed class GenericAccessorTests
         accessor.Properties.ShouldContain(x => x.Name == "GetterOnly");
         accessor.Properties.ShouldContain(x => x.Name == "SetterOnly");
 
-        var instance = new SpecialCase();
+        SpecialCase instance = new();
 
         Should.Throw<ArgumentException>(() => { var _ = accessor[instance, "SetterOnly"]; })
             .Message.ShouldBe("Type: `Easy.Common.Tests.Unit.Accessors.GenericAccessorTests+SpecialCase` does not have a property named: `SetterOnly` that supports reading.");
@@ -196,10 +195,10 @@ public sealed class GenericAccessorTests
 
         accessor.TrySet(instance, "GetterOnly", (object) "Baz").ShouldBeFalse();
 
-        accessor.TryGet(instance, "SetterOnly", out object tmpResult1).ShouldBeFalse();
+        accessor.TryGet(instance, "SetterOnly", out object? tmpResult1).ShouldBeFalse();
         tmpResult1.ShouldBeNull();
 
-        accessor.TryGet(instance, "SetterOnly", out string tmpResult2).ShouldBeFalse();
+        accessor.TryGet(instance, "SetterOnly", out string? tmpResult2).ShouldBeFalse();
         tmpResult2.ShouldBeNull();
 
         accessor.TrySet(instance, "GetterOnly", "Boo").ShouldBeFalse();

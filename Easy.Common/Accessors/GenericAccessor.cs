@@ -5,11 +5,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
 /// <summary>
-/// An abstraction for gaining fast access to all of the <see cref="PropertyInfo"/> of 
+/// An abstraction for gaining fast access to all the <see cref="PropertyInfo"/> of 
 /// the given <typeparamref name="TInstance"/>.
 /// </summary>
 public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance : class
@@ -55,20 +56,21 @@ public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance 
     /// Gets or sets the value of the given <paramref name="propertyName"/> for 
     /// the given <paramref name="instance"/>.
     /// </summary>
-    public object this[TInstance instance, string propertyName]
+    public object? this[TInstance instance, string propertyName]
     {
         get
         {
-            if (_genericPropertiesGettersCache[propertyName] is Func<TInstance, object> getter)
+            if (_genericPropertiesGettersCache[propertyName] is Func<TInstance, object?> getter)
             {
                 return getter(instance);
             }
+
             throw new ArgumentException($"Type: `{instance.GetType().FullName}` does not have a property named: `{propertyName}` that supports reading.");
         }
 
         set
         {
-            if (_genericPropertiesSettersCache[propertyName] is Action<TInstance, object> setter)
+            if (_genericPropertiesSettersCache[propertyName] is Action<TInstance, object?> setter)
             {
                 setter(instance, value);
             }
@@ -84,7 +86,7 @@ public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance 
     /// for the given <paramref name="instance"/>.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGet<TProperty>(TInstance instance, string propertyName, out TProperty? value)
+    public bool TryGet<TProperty>(TInstance instance, string propertyName, [NotNullWhen(true)]out TProperty? value)
     {
         Hashtable cache = _genericInstanceGettersCache;
 
@@ -117,7 +119,7 @@ public sealed class GenericAccessor<TInstance> : ObjectAccessor where TInstance 
         }
 
         value = getter(instance);
-        return true;
+        return value is not null;
     }
 
     /// <summary>

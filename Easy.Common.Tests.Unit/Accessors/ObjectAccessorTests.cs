@@ -12,7 +12,7 @@ public sealed class ObjectAccessorTests
     [Test]
     public void When_creating_object_accessor_with_default_flags()
     {
-        var parent = new Parent();
+        Parent parent = new();
         ObjectAccessor parentAccessor = Accessor.Build(parent);
         parentAccessor.ShouldBeOfType<ObjectAccessor>();
         parentAccessor.Type.ShouldBe(typeof(Parent));
@@ -34,7 +34,7 @@ public sealed class ObjectAccessorTests
         parentAccessor[parent, "Age"] = 10;
         parentAccessor[parent, "Age"].ShouldBe(10);
 
-        var child = new Child();
+        Child child = new();
         ObjectAccessor childAccessor = Accessor.Build(child);
         childAccessor.ShouldBeOfType<ObjectAccessor>();
         childAccessor.Type.ShouldBe(typeof(Child));
@@ -61,7 +61,7 @@ public sealed class ObjectAccessorTests
     [Test]
     public void When_creating_object_accessor_with_custom_flags()
     {
-        var parent = new Parent();
+        Parent parent = new();
         ObjectAccessor parentAccessor = Accessor.Build(parent, true, true);
         parentAccessor.ShouldBeOfType<ObjectAccessor>();
         parentAccessor.Type.ShouldBe(typeof(Parent));
@@ -92,7 +92,7 @@ public sealed class ObjectAccessorTests
         parentAccessor[parent, "name"] = "Foo Foo";
         parentAccessor[parent, "naME"].ShouldBe("Foo Foo");
 
-        var child = new Child();
+        Child child = new();
         ObjectAccessor childAccessor = Accessor.Build(typeof(Child), true, true);
         childAccessor.ShouldBeOfType<ObjectAccessor>();
         childAccessor.Type.ShouldBe(typeof(Child));
@@ -119,13 +119,13 @@ public sealed class ObjectAccessorTests
     [Test]
     public void When_using_parent_accessor_to_access_child_properties()
     {
-        var parent = new Parent();
+        Parent parent = new();
         ObjectAccessor parentAccessor = Accessor.Build(parent);
         parentAccessor.Type.ShouldBe(typeof(Parent));
         parentAccessor.IgnoreCase.ShouldBe(false);
         parentAccessor.IncludesNonPublic.ShouldBe(false);
 
-        var child = new Child();
+        Child child = new();
 
         Should.Throw<ArgumentException>(() => { var _ = parentAccessor[child, "ChildName"]; })
             .Message.ShouldBe("Type: `Easy.Common.Tests.Unit.Accessors.ObjectAccessorTests+Child` does not have a property named: `ChildName` that supports reading.");
@@ -137,13 +137,13 @@ public sealed class ObjectAccessorTests
     [Test]
     public void When_using_child_accessor_to_access_parent_properties()
     {
-        var child = new Child();
+        Child child = new();
         ObjectAccessor childAccessor = Accessor.Build(child);
         childAccessor.Type.ShouldBe(typeof(Child));
         childAccessor.IgnoreCase.ShouldBe(false);
         childAccessor.IncludesNonPublic.ShouldBe(false);
 
-        var parent = new Parent();
+        Parent parent = new();
 
         Should.Throw<NullReferenceException>(() => { var _ = childAccessor[parent, "Name"]; });
     }
@@ -151,9 +151,9 @@ public sealed class ObjectAccessorTests
     [Test]
     public void When_setting_invalid_values()
     {
-        var instance = new Parent();
+        Parent instance = new();
 
-        var accessor = Accessor.Build(instance);
+        ObjectAccessor accessor = Accessor.Build(instance);
         accessor.Type.ShouldBe(typeof(Parent));
         accessor.IgnoreCase.ShouldBe(false);
         accessor.IncludesNonPublic.ShouldBe(false);
@@ -167,7 +167,7 @@ public sealed class ObjectAccessorTests
     [Test]
     public void When_testing_special_cases()
     {
-        var instance = new SpecialCase();
+        SpecialCase instance = new();
 
         ObjectAccessor accessor = Accessor.Build(instance);
         accessor.Type.ShouldBe(typeof(SpecialCase));
@@ -189,8 +189,8 @@ public sealed class ObjectAccessorTests
     [Test]
     public void When_reusing_object_accessor_on_different_instances_of_the_same_type()
     {
-        var instanceOne = new Parent();
-        var instanceTwo = new Parent();
+        Parent instanceOne = new();
+        Parent instanceTwo = new();
 
         ObjectAccessor accessor = Accessor.Build(instanceOne);
         instanceOne.Name.ShouldBeNull();
