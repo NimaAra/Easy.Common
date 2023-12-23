@@ -1,5 +1,6 @@
 ﻿namespace Easy.Common.Tests.Unit.StopwatchHelper;
 
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -14,11 +15,11 @@ internal sealed class StopwatchHelperTests
     {
         const int DELAY_DURATION = 150;
             
-        var start = Stopwatch.GetTimestamp();
+        long start = Stopwatch.GetTimestamp();
 
         await Task.Delay(150).ConfigureAwait(false);
 
-        var duration = StopwatchHelper.GetDurationInMillisecondsSince(start);
+        double duration = StopwatchHelper.GetDurationInMillisecondsSince(start);
         duration.ShouldBeGreaterThanOrEqualTo(DELAY_DURATION);
     }
 
@@ -27,11 +28,11 @@ internal sealed class StopwatchHelperTests
     {
         const int DELAY_DURATION = 1;
             
-        var start = Stopwatch.GetTimestamp();
+        long start = Stopwatch.GetTimestamp();
 
         await Task.Delay(DELAY_DURATION * 1000).ConfigureAwait(false);
 
-        var duration = StopwatchHelper.GetDurationInSecondsSince(start);
+        double duration = StopwatchHelper.GetDurationInSecondsSince(start);
         duration.ShouldBeGreaterThanOrEqualTo(DELAY_DURATION);
     }
 
@@ -40,11 +41,11 @@ internal sealed class StopwatchHelperTests
     {
         const int DELAY_DURATION = 200;
             
-        var start = Stopwatch.GetTimestamp();
+        long start = Stopwatch.GetTimestamp();
 
         await Task.Delay(DELAY_DURATION).ConfigureAwait(false);
 
-        var duration = StopwatchHelper.GetDurationSince(start);
+        TimeSpan duration = StopwatchHelper.GetDurationSince(start);
         duration.TotalMilliseconds.ShouldBeGreaterThanOrEqualTo(DELAY_DURATION);
     }
 
@@ -53,13 +54,13 @@ internal sealed class StopwatchHelperTests
     {
         const int DELAY_DURATION = 150;
             
-        var start = Stopwatch.GetTimestamp();
+        long start = Stopwatch.GetTimestamp();
 
-        await Task.Delay(150).ConfigureAwait(false);
+        await Task.Delay(DELAY_DURATION).ConfigureAwait(false);
 
-        var end = Stopwatch.GetTimestamp();
+        long end = Stopwatch.GetTimestamp();
 
-        var duration = StopwatchHelper.GetDurationInMilliseconds(start, end);
+        double duration = StopwatchHelper.GetDurationInMilliseconds(start, end);
         duration.ShouldBeGreaterThanOrEqualTo(DELAY_DURATION);
     }
 
@@ -68,11 +69,11 @@ internal sealed class StopwatchHelperTests
     {
         const int DELAY_DURATION = 1;
             
-        var start = Stopwatch.GetTimestamp();
+        long start = Stopwatch.GetTimestamp();
 
         await Task.Delay(DELAY_DURATION * 1000).ConfigureAwait(false);
 
-        var end = Stopwatch.GetTimestamp();
+        long end = Stopwatch.GetTimestamp();
 
         var duration = StopwatchHelper.GetDurationInSeconds(start, end);
         duration.ShouldBeGreaterThanOrEqualTo(DELAY_DURATION);
@@ -83,11 +84,11 @@ internal sealed class StopwatchHelperTests
     {
         const int DELAY_DURATION = 200;
             
-        var start = Stopwatch.GetTimestamp();
+        long start = Stopwatch.GetTimestamp();
 
         await Task.Delay(DELAY_DURATION).ConfigureAwait(false);
 
-        var end = Stopwatch.GetTimestamp();
+        long end = Stopwatch.GetTimestamp();
 
         var duration = StopwatchHelper.GetDuration(start, end);
         duration.TotalMilliseconds.ShouldBeGreaterThanOrEqualTo(DELAY_DURATION);

@@ -21,6 +21,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Update="Assembly\DotNet2.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
