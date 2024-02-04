@@ -11,7 +11,7 @@ public interface IEnum
     int Id { get; }
     
     /// <summary>
-    /// Gets the name.
+    /// Gets the Name.
     /// </summary>
     string Name { get; }
 }

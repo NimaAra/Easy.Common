@@ -1,6 +1,7 @@
 ﻿namespace Easy.Common.Tests.Unit.Enum;
 
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Easy.Common.Interfaces;
 using NUnit.Framework;
 using Shouldly;
@@ -31,11 +32,17 @@ internal sealed class EnumTests
         values.ShouldBe(new[] { MyEnum.OptionA, MyEnum.OptionB }, ignoreOrder: true);
     }
 
+    [Test]
+    public void When_calling_toString()
+    {
+        MyEnum.OptionB.ToString().ShouldBe("[1] OptionB");
+    }
+
     sealed record class MyEnum : Enum<MyEnum>
     {
-        public static readonly MyEnum OptionA = new(0, nameof(OptionA));
-        public static readonly MyEnum OptionB = new(1, nameof(OptionB));
+        public static readonly MyEnum OptionA = new(0);
+        public static readonly MyEnum OptionB = new(1);
 
-        private MyEnum(int id, string name) : base(id, name) { }
+        private MyEnum(int id, [CallerMemberName] string name = default!) : base(id, name!) { }
     }
 }
