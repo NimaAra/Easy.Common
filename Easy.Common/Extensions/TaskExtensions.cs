@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 /// </summary>
 public static class TaskExtensions
 {
+    private static readonly Action<Task> IgnoreTaskContinuation = t => _ = t.Exception;
+
     /// <summary>
     /// Ensures that the given <paramref name="task"/> finishes before a timeout <see cref="Task"/> 
     /// with the given <paramref name="timeout"/>.
@@ -35,8 +37,7 @@ public static class TaskExtensions
     /// Thrown when any of the <paramref name="tasks"/> times out.
     /// </exception>
     [DebuggerStepThrough]
-    public static async Task<IEnumerable<Task<T>>> TimeoutAfter<T>(
-        this IEnumerable<Task<T>> tasks, TimeSpan timeout)
+    public static async Task<IEnumerable<Task<T>>> TimeoutAfter<T>(this IEnumerable<Task<T>> tasks, TimeSpan timeout)
     {
         await TimeoutAfterImpl(tasks, timeout).ConfigureAwait(false);
         return tasks;
@@ -50,8 +51,7 @@ public static class TaskExtensions
     /// Thrown the <paramref name="task"/> times out.
     /// </exception>
     [DebuggerStepThrough]
-    public static async Task TimeoutAfter(this Task task, TimeSpan timeout) => 
-        await TimeoutAfterImpl(task, timeout).ConfigureAwait(false);
+    public static async Task TimeoutAfter(this Task task, TimeSpan timeout) => await TimeoutAfterImpl(task, timeout).ConfigureAwait(false);
 
     /// <summary>
     /// Ensures that every task in the given <paramref name="tasks"/> finishes before a timeout 
@@ -61,8 +61,7 @@ public static class TaskExtensions
     /// Thrown when any of the <paramref name="tasks"/> times out.
     /// </exception>
     [DebuggerStepThrough]
-    public static async Task TimeoutAfter(this IEnumerable<Task> tasks, TimeSpan timeout) => 
-        await TimeoutAfterImpl(tasks, timeout).ConfigureAwait(false);
+    public static async Task TimeoutAfter(this IEnumerable<Task> tasks, TimeSpan timeout) => await TimeoutAfterImpl(tasks, timeout).ConfigureAwait(false);
 
     /// <summary>
     /// Executes the given action on each of the tasks in turn, in the order of
@@ -72,11 +71,12 @@ public static class TaskExtensions
     public static async Task ForEachInOrder<T>(this IEnumerable<Task<T>> tasks, Action<T> action)
     {
         if (tasks is null) { throw new ArgumentNullException(nameof(tasks)); }
+        
         Ensure.NotNull(action, nameof(action));
 
-        foreach (var task in tasks)
+        foreach (Task<T> task in tasks)
         {
-            var value = await task.ConfigureAwait(false);
+            T value = await task.ConfigureAwait(false);
             action(value);
         }
     }
@@ -89,9 +89,10 @@ public static class TaskExtensions
     public static async Task ForEachInOrder(this IEnumerable<Task> tasks, Action<Task> action)
     {
         if (tasks is null) { throw new ArgumentNullException(nameof(tasks)); }
+        
         Ensure.NotNull(action, nameof(action));
 
-        foreach (var task in tasks)
+        foreach (Task task in tasks)
         {
             await task.ConfigureAwait(false);
             action(task);
@@ -99,18 +100,16 @@ public static class TaskExtensions
     }
 
     /// <summary>
-    /// Awaits all of the given <paramref name="tasks"/>.
+    /// Awaits all the given <paramref name="tasks"/>.
     /// </summary>
     [DebuggerStepThrough]
-    public static TaskAwaiter<T[]> GetAwaiter<T>(this IEnumerable<Task<T>> tasks) => 
-        Task.WhenAll(tasks).GetAwaiter();
+    public static TaskAwaiter<T[]> GetAwaiter<T>(this IEnumerable<Task<T>> tasks) => Task.WhenAll(tasks).GetAwaiter();
 
     /// <summary>
-    /// Awaits all of the given <paramref name="tasks"/>.
+    /// Awaits all the given <paramref name="tasks"/>.
     /// </summary>
     [DebuggerStepThrough]
-    public static TaskAwaiter GetAwaiter(this IEnumerable<Task> tasks) => 
-        Task.WhenAll(tasks).GetAwaiter();
+    public static TaskAwaiter GetAwaiter(this IEnumerable<Task> tasks) => Task.WhenAll(tasks).GetAwaiter();
 
     #region Exception Handling
     /// <summary>
@@ -118,13 +117,11 @@ public static class TaskExtensions
     /// that would otherwise re-raise the exception on the finalizer thread.
     /// </summary>
     /// <param name="task">The Task to be monitored</param>
-    /// <returns>The original task</returns>
     [DebuggerStepThrough]
-    public static Task<Task<T>> IgnoreExceptions<T>(this Task<Task<T>> task)
+    public static void IgnoreExceptions<T>(this Task<Task<T>> task)
     {
         Ensure.NotNull(task, nameof(task));
         task.Unwrap().IgnoreExceptions();
-        return task;
     }
         
     /// <summary>
@@ -132,13 +129,11 @@ public static class TaskExtensions
     /// that would otherwise re-raise the exception on the finalizer thread.
     /// </summary>
     /// <param name="task">The Task to be monitored</param>
-    /// <returns>The original task</returns>
     [DebuggerStepThrough]
-    public static Task<Task> IgnoreExceptions(this Task<Task> task)
+    public static void IgnoreExceptions(this Task<Task> task)
     {
         Ensure.NotNull(task, nameof(task));
         task.Unwrap().IgnoreExceptions();
-        return task;
     }
 
     /// <summary>
@@ -146,18 +141,23 @@ public static class TaskExtensions
     /// that would otherwise re-raise the exception on the finalizer thread.
     /// </summary>
     /// <param name="task">The Task to be monitored</param>
-    /// <returns>The original task</returns>
     [DebuggerStepThrough]
-    public static Task IgnoreExceptions(this Task task)
+    public static void IgnoreExceptions(this Task task)
     {
         Ensure.NotNull(task, nameof(task));
 
-        task.ContinueWith(t => { var _ = t.Exception; },
-            CancellationToken.None,
-            TaskContinuationOptions.ExecuteSynchronously,
-            TaskScheduler.Default);
-
-        return task;
+        if (task.IsCompleted)
+        {
+            _ = task.Exception;
+        }
+        else
+        {
+            task.ContinueWith(
+                IgnoreTaskContinuation,
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
+        }
     }
 
     /// <summary>
@@ -174,7 +174,7 @@ public static class TaskExtensions
 
         return task.ContinueWith(t =>
             {
-                var aggEx = t.Exception;
+                AggregateException? aggEx = t.Exception;
 
                 if (aggEx is null) { return; }
 
@@ -198,8 +198,7 @@ public static class TaskExtensions
     /// <param name="exceptionHandler">The handler to which every exception is passed</param>
     /// <returns>The continuation task added to the <paramref name="task"/></returns>
     [DebuggerStepThrough]
-    public static Task HandleExceptions(
-        this Task task, Func<Exception, bool> exceptionPredicate, Action<Exception> exceptionHandler)
+    public static Task HandleExceptions(this Task task, Func<Exception, bool> exceptionPredicate, Action<Exception> exceptionHandler)
     {
         Ensure.NotNull(task, nameof(task));
         Ensure.NotNull(exceptionPredicate, nameof(exceptionPredicate));
@@ -207,7 +206,7 @@ public static class TaskExtensions
 
         return task.ContinueWith(t =>
             {
-                var aggEx = t.Exception;
+                AggregateException? aggEx = t.Exception;
 
                 if (aggEx is null) { return; }
 
@@ -235,15 +234,14 @@ public static class TaskExtensions
     /// <param name="exceptionHandler">The handler to which every exception is passed</param>
     /// <returns>The continuation task added to the <paramref name="task"/></returns>
     [DebuggerStepThrough]
-    public static Task HandleException<T>(this Task task, Action<T> exceptionHandler)
-        where T : Exception
+    public static Task HandleException<T>(this Task task, Action<T> exceptionHandler) where T : Exception
     {
         Ensure.NotNull(task, nameof(task));
         Ensure.NotNull(exceptionHandler, nameof(exceptionHandler));
 
         return task.ContinueWith(t =>
             {
-                var aggEx = t.Exception;
+                AggregateException? aggEx = t.Exception;
 
                 if (aggEx is null) { return; }
 
@@ -268,10 +266,10 @@ public static class TaskExtensions
     {
         if (task is null) { throw new ArgumentNullException(nameof(task)); }
 
-        using var cts = new CancellationTokenSource();
+        using CancellationTokenSource cts = new();
             
-        var timeoutTask = Task.Delay(timeoutPeriod, cts.Token);
-        var finishedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+        Task timeoutTask = Task.Delay(timeoutPeriod, cts.Token);
+        Task finishedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
                 
         if (finishedTask == timeoutTask)
         {
@@ -285,15 +283,15 @@ public static class TaskExtensions
     {
         if (tasks is null) { throw new ArgumentNullException(nameof(tasks)); }
 
-        using var cts = new CancellationTokenSource();
+        using CancellationTokenSource cts = new();
             
-        var cToken = cts.Token;
-        var timeoutTask = Task.Delay(timeoutPeriod, cToken);
-        var tasksList = new List<Task>(tasks) { timeoutTask };
+        CancellationToken cToken = cts.Token;
+        Task timeoutTask = Task.Delay(timeoutPeriod, cToken);
+        List<Task> tasksList = [..tasks, timeoutTask];
                 
         while (tasksList.Count > 0)
         {
-            var finishedTask = await Task.WhenAny(tasksList).ConfigureAwait(false);
+            Task finishedTask = await Task.WhenAny(tasksList).ConfigureAwait(false);
 
             if (finishedTask == timeoutTask)
             {

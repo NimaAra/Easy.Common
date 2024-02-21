@@ -73,10 +73,10 @@ public sealed class TimerClockTests
 
         Thread.Sleep(100.Milliseconds());
 
-        Assert.AreEqual(0, counter);
-
+        counter.ShouldBe(0);
+        
         Thread.Sleep(1.Seconds());
 
-        Assert.AreEqual(666, counter);
+        counter.ShouldBe(666);
     }
 }
