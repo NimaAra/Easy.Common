@@ -8,7 +8,7 @@ public interface IEnum
     /// <summary>
     /// Gets the Id.
     /// </summary>
-    int Id { get; }
+    uint Id { get; }
     
     /// <summary>
     /// Gets the Name.

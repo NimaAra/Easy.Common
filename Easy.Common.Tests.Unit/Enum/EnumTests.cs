@@ -20,7 +20,7 @@ internal sealed class EnumTests
 
         theEnum.ShouldNotBeNull();
 
-        theEnum.Id.ShouldBe(0);
+        theEnum.Id.ShouldBe((uint)0);
         theEnum.Name.ShouldBe("OptionA");
     }
 
@@ -29,7 +29,7 @@ internal sealed class EnumTests
     {
         IReadOnlyList<MyEnum> values = MyEnum.Values();
         values.ShouldNotBeEmpty();
-        values.ShouldBe(new[] { MyEnum.OptionA, MyEnum.OptionB }, ignoreOrder: true);
+        values.ShouldBe([MyEnum.OptionA, MyEnum.OptionB], ignoreOrder: true);
     }
 
     [Test]
@@ -40,9 +40,9 @@ internal sealed class EnumTests
 
     sealed record class MyEnum : Enum<MyEnum>
     {
-        public static readonly MyEnum OptionA = new(0);
-        public static readonly MyEnum OptionB = new(1);
+        public static readonly MyEnum OptionA = new();
+        public static readonly MyEnum OptionB = new();
 
-        private MyEnum(int id, [CallerMemberName] string name = default!) : base(id, name!) { }
+        private MyEnum([CallerMemberName] string name = default!) : base(name!) { }
     }
 }
