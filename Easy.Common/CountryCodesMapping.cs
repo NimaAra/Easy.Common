@@ -2,23 +2,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 /// <summary>
-/// Maps three letter country codes to country names
+/// Maps three-letter country codes to country names
 /// </summary>
 public static class CountryCodesMapping
 {
-    private static readonly Dictionary<string, string> CountryCodeMapping;
-
-    static CountryCodesMapping() => CountryCodeMapping = InitializeMapping();
+    static CountryCodesMapping() => Mappings = InitializeMapping();
 
     /// <summary>
     /// Returns a copy of the Country-Code mappings.
     /// <remarks>The mappings use the <see cref="StringComparer.OrdinalIgnoreCase"/></remarks>
     /// </summary>
-    public static Dictionary<string, string> Mappings => 
-        new(CountryCodeMapping, StringComparer.OrdinalIgnoreCase);
+    public static ImmutableDictionary<string, string> Mappings { get; }
 
     /// <summary>
     /// Returns the country name for the given three-letter country code.
@@ -32,11 +30,11 @@ public static class CountryCodesMapping
     public static bool TryGetCountryName(string code, [NotNullWhen(true)] out string? countryName)
     {
         Ensure.NotNullOrEmptyOrWhiteSpace(code);
-        return CountryCodeMapping.TryGetValue(code, out countryName);
+        return Mappings.TryGetValue(code, out countryName);
     }
 
-    private static Dictionary<string, string> InitializeMapping() => 
-        new(StringComparer.OrdinalIgnoreCase)
+    private static ImmutableDictionary<string, string> InitializeMapping() => 
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "AFG", "Afghanistan" },
             { "ALB", "Albania" },
@@ -164,5 +162,6 @@ public static class CountryCodesMapping
             { "YEM", "Yemen" },
             { "ZAF", "South Africa" },
             { "ZWE", "Zimbabwe" }
-        };
+        }
+        .ToImmutableDictionary(StringComparer.OrdinalIgnoreCase);
 }
