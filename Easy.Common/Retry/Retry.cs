@@ -138,8 +138,8 @@ public static class Retry
     public static async Task On(
         Func<Task> func, Func<Exception, bool> exceptionPredicate, params TimeSpan[] delays)
     {
-        var hasDelays = delays.Length > 0;
-        var retryCount = hasDelays ?  delays.Length : DEFAULT_RETRY_COUNT;
+        bool hasDelays = delays.Length > 0;
+        int retryCount = hasDelays ?  delays.Length : DEFAULT_RETRY_COUNT;
             
         for (var i = 0; i <= retryCount; i++)
         {
@@ -174,7 +174,7 @@ public static class Retry
     public static async Task On(
         Func<Task> func,
         Func<Exception, bool> exceptionPredicate, 
-        Func<uint, TimeSpan> delayFactory,
+        Func<Exception, uint, TimeSpan> delayFactory,
         CancellationToken cToken)
     {
         uint failureCount = 0;
@@ -189,7 +189,7 @@ public static class Retry
             {
                 try
                 {
-                    await Task.Delay(delayFactory(failureCount), cToken).ConfigureAwait(false);
+                    await Task.Delay(delayFactory(e, failureCount), cToken).ConfigureAwait(false);
                 } catch (TaskCanceledException)
                 {
                     throw new RetryException(failureCount - 1, e);
@@ -330,10 +330,10 @@ public static class Retry
     public static async Task<TResult> On<TResult>(
         Func<Task<TResult>> func, Func<Exception, bool> exceptionPredicate, params TimeSpan[] delays)
     {
-        var hasDelays = delays.Length > 0;
-        var retryCount = hasDelays ?  delays.Length : DEFAULT_RETRY_COUNT;
+        bool hasDelays = delays.Length > 0;
+        int retryCount = hasDelays ?  delays.Length : DEFAULT_RETRY_COUNT;
             
-        for (var i = 0; i <= retryCount; i++)
+        for (int i = 0; i <= retryCount; i++)
         {
             try
             {
@@ -366,8 +366,8 @@ public static class Retry
     [DebuggerStepThrough]
     public static async Task<TResult> On<TResult>(
         Func<Task<TResult>> func,
-        Func<Exception, bool> exceptionPredicate, 
-        Func<uint, TimeSpan> delayFactory,
+        Func<Exception, bool> exceptionPredicate,
+        Func<Exception, uint, TimeSpan> delayFactory,
         CancellationToken cToken)
     {
         uint failureCount = 0;
@@ -381,7 +381,7 @@ public static class Retry
             {
                 try
                 {
-                    await Task.Delay(delayFactory(failureCount), cToken).ConfigureAwait(false);
+                    await Task.Delay(delayFactory(e, failureCount), cToken).ConfigureAwait(false);
                 } catch (TaskCanceledException)
                 {
                     throw new RetryException(failureCount - 1, e);
