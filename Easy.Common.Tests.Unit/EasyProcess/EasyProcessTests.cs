@@ -1,20 +1,20 @@
 ﻿namespace Easy.Common.Tests.Unit.EasyProcess;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Easy.Common.Extensions;
 using NUnit.Framework;
 using Shouldly;
+using System;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EasyProcess = Easy.Common.EasyProcess;
 
 [TestFixture]
 internal sealed class EasyProcessTests
 {
-    private readonly List<string> _outputLines = new();
-    private readonly List<string> _errorLines = new();
+    private readonly ConcurrentBag<string> _outputLines = new();
+    private readonly ConcurrentBag<string> _errorLines = new();
     
     [SetUp]
     public void TestSetUp()
@@ -67,7 +67,7 @@ internal sealed class EasyProcessTests
         _outputLines.ShouldBeEmpty();
         _errorLines.Count.ShouldBe(1);
 
-        _errorLines[0].ShouldStartWith("Couldn't find a project to run.");
+        _errorLines.First().ShouldStartWith("Couldn't find a project to run.");
 
         easyProc.HasExited.ShouldBeTrue();
         easyProc.StartTime.ShouldBeInRange(startTime, endTime);

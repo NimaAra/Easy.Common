@@ -55,7 +55,7 @@ internal sealed class AsyncSemaphoreTests
         async Task GetWorker()
         {
             using IDisposable _ = await locker.Acquire(timeoutDuration);
-            await Task.Delay(TimeSpan.FromMilliseconds(70));
+            await Task.Delay(TimeSpan.FromMilliseconds(150));
         }
     }
 }

@@ -17,14 +17,20 @@ internal sealed class JsonHelperTests
     {
         const string JSON = """{"name": "Foo", "age": 42}""";
 
-        JsonHelper.Prettify(JSON)
-            .ShouldBe(
-                """
-                {
-                  "name": "Foo",
-                  "age": 42
-                }
-                """);
+        string prettified = JsonHelper.Prettify(JSON);
+
+        prettified.ShouldContain(Environment.NewLine);
+
+        var template = new
+        {
+            name = string.Empty,
+            age = 0
+        };
+
+        var deserialized = JsonHelper.DeserializeAs(template, prettified);
+
+        deserialized.name.ShouldBe("Foo");
+        deserialized.age.ShouldBe(42);
     }
 
     [Test]

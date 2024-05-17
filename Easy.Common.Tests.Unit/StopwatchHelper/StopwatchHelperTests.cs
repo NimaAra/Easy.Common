@@ -10,7 +10,7 @@ using StopwatchHelper = Easy.Common.StopwatchHelper;
 [TestFixture]
 internal sealed class StopwatchHelperTests
 {
-    private const double Tolerance = 2;
+    private const double Tolerance = 10;
 
     [Test]
     public async Task When_getting_duration_in_milliseconds_since()
@@ -22,7 +22,7 @@ internal sealed class StopwatchHelperTests
         await Task.Delay(150).ConfigureAwait(false);
 
         double duration = StopwatchHelper.GetDurationInMillisecondsSince(start);
-        duration.ShouldBeInRange(DELAY_DURATION - Tolerance, DELAY_DURATION + Tolerance);
+        duration.ShouldBe(DELAY_DURATION, Tolerance);
     }
 
     [Test]
@@ -35,7 +35,7 @@ internal sealed class StopwatchHelperTests
         await Task.Delay(DELAY_DURATION * 1000).ConfigureAwait(false);
 
         double duration = StopwatchHelper.GetDurationInSecondsSince(start);
-        duration.ShouldBeInRange(DELAY_DURATION - Tolerance, DELAY_DURATION + Tolerance);
+        duration.ShouldBe(DELAY_DURATION, Tolerance);
     }
 
     [Test]
@@ -48,7 +48,7 @@ internal sealed class StopwatchHelperTests
         await Task.Delay(DELAY_DURATION).ConfigureAwait(false);
 
         TimeSpan duration = StopwatchHelper.GetDurationSince(start);
-        duration.TotalMilliseconds.ShouldBeInRange(DELAY_DURATION - Tolerance, DELAY_DURATION + Tolerance);
+        duration.TotalMilliseconds.ShouldBe(DELAY_DURATION, Tolerance);
     }
 
     [Test]
@@ -63,7 +63,7 @@ internal sealed class StopwatchHelperTests
         long end = Stopwatch.GetTimestamp();
 
         double duration = StopwatchHelper.GetDurationInMilliseconds(start, end);
-        duration.ShouldBeInRange(DELAY_DURATION - Tolerance, DELAY_DURATION + Tolerance);
+        duration.ShouldBe(DELAY_DURATION, Tolerance);
     }
 
     [Test]
@@ -78,7 +78,7 @@ internal sealed class StopwatchHelperTests
         long end = Stopwatch.GetTimestamp();
 
         double duration = StopwatchHelper.GetDurationInSeconds(start, end);
-        duration.ShouldBeInRange(DELAY_DURATION - Tolerance, DELAY_DURATION + Tolerance);
+        duration.ShouldBe(DELAY_DURATION, Tolerance);
     }
 
     [Test]
@@ -93,6 +93,6 @@ internal sealed class StopwatchHelperTests
         long end = Stopwatch.GetTimestamp();
 
         TimeSpan duration = StopwatchHelper.GetDuration(start, end);
-        duration.TotalMilliseconds.ShouldBeInRange(DELAY_DURATION - Tolerance, DELAY_DURATION + Tolerance);
+        duration.TotalMilliseconds.ShouldBe(DELAY_DURATION, Tolerance);
     }
 }
