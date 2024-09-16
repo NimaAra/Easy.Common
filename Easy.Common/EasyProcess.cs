@@ -1,6 +1,7 @@
 ﻿namespace Easy.Common;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -12,20 +13,29 @@ using System.Threading.Tasks;
 public sealed class EasyProcess : IDisposable
 {
     private readonly Process _process;
-    
-    private EasyProcess(ProcessStartInfo startInfo)
+
+    private EasyProcess(ProcessStartInfo startInfo, IReadOnlyDictionary<string, string>? envVars)
     {
         startInfo.UseShellExecute = false;
         startInfo.CreateNoWindow = true;
         startInfo.RedirectStandardOutput = true;
         startInfo.RedirectStandardError = true;
-        
+
+        if (envVars is not null)
+        {
+            startInfo.Environment.Clear();
+            foreach (var item in envVars)
+            {
+                startInfo.Environment.Add(item.Key, item.Value);
+            }
+        }
+
         _process = new()
         {
             EnableRaisingEvents = true,
             StartInfo = startInfo
         };
-    
+
         _process.OutputDataReceived += OnOutputData;
         _process.ErrorDataReceived += OnErrorData;
     }
@@ -33,20 +43,22 @@ public sealed class EasyProcess : IDisposable
     /// <summary>
     /// Creates an instance of the <see cref="EasyProcess"/>.
     /// </summary>
-    public EasyProcess(string processPath, string args) : this(new ProcessStartInfo(processPath, args)) =>
-        Ensure.NotNullOrEmptyOrWhiteSpace(processPath);
+    public EasyProcess(string processPath, string args, IReadOnlyDictionary<string, string>? envVars = null) :
+        this(new ProcessStartInfo(processPath, args), envVars) =>
+            Ensure.NotNullOrEmptyOrWhiteSpace(processPath);
 
     /// <summary>
     /// Creates an instance of the <see cref="EasyProcess"/>.
     /// </summary>
-    public EasyProcess(FileInfo processPath, string args) : this(new ProcessStartInfo(processPath.FullName, args)) =>
-        Ensure.NotNull(processPath, nameof(processPath));
+    public EasyProcess(FileInfo processPath, string args, IReadOnlyDictionary<string, string>? envVars = null) :
+        this(new ProcessStartInfo(processPath.FullName, args), envVars) =>
+            Ensure.NotNull(processPath, nameof(processPath));
 
     /// <summary>
     /// Creates an instance of the <see cref="EasyProcess"/>.
     /// </summary>
-    public EasyProcess(FileInfo processPath, DirectoryInfo workingDirectory, string args) : 
-        this(new ProcessStartInfo(processPath.FullName, args) { WorkingDirectory = workingDirectory.FullName })
+    public EasyProcess(FileInfo processPath, DirectoryInfo workingDirectory, string args, IReadOnlyDictionary<string, string>? envVars = null) :
+        this(new ProcessStartInfo(processPath.FullName, args) { WorkingDirectory = workingDirectory.FullName }, envVars)
     {
         ArgumentNullException.ThrowIfNull(processPath, nameof(processPath));
         ArgumentNullException.ThrowIfNull(workingDirectory, nameof(workingDirectory));
@@ -71,7 +83,7 @@ public sealed class EasyProcess : IDisposable
     /// Gets the time that the associated process was started.
     /// </summary>
     public DateTime StartTime => _process.StartTime;
-    
+
     /// <summary>
     /// Gets a value indicating whether the associated process has been terminated.
     /// </summary>
@@ -86,7 +98,7 @@ public sealed class EasyProcess : IDisposable
     /// Raised on every process output line.
     /// </summary>
     public event EventHandler<string>? OnOutput;
-    
+
     /// <summary>
     /// Raised on every process error line.
     /// </summary>
@@ -104,7 +116,8 @@ public sealed class EasyProcess : IDisposable
         try
         {
             await _process.WaitForExitAsync(cToken).ConfigureAwait(false);
-        } catch (TaskCanceledException)
+        }
+        catch (TaskCanceledException)
         {
             _process.Kill(true);
         }
