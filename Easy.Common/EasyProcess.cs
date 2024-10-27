@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 public sealed class EasyProcess : IDisposable
 {
     private readonly Process _process;
+    private readonly Channel<ProcessOutputLine> _outputChannel;
 
     private EasyProcess(ProcessStartInfo startInfo, IReadOnlyDictionary<string, string>? envVars)
     {
@@ -29,6 +31,13 @@ public sealed class EasyProcess : IDisposable
                 startInfo.Environment.Add(item.Key, item.Value);
             }
         }
+
+        _outputChannel = Channel.CreateUnbounded<ProcessOutputLine>(new UnboundedChannelOptions()
+        {
+            SingleReader = false,
+            SingleWriter = true,
+            AllowSynchronousContinuations = false
+        });
 
         _process = new()
         {
@@ -95,49 +104,44 @@ public sealed class EasyProcess : IDisposable
     public TimeSpan ExecutionTime => _process.ExitTime - _process.StartTime;
 
     /// <summary>
-    /// Raised on every process output line.
-    /// </summary>
-    public event EventHandler<string>? OnOutput;
-
-    /// <summary>
-    /// Raised on every process error line.
-    /// </summary>
-    public event EventHandler<string>? OnError;
-
-    /// <summary>
     /// Starts the process and publishes output and error lines if any as events.
     /// </summary>
-    public async Task Start(CancellationToken cToken = default)
+    public ChannelReader<ProcessOutputLine> Start(CancellationToken cToken = default)
     {
         _process.Start();
         _process.BeginOutputReadLine();
         _process.BeginErrorReadLine();
 
-        try
+        _ = Task.Run(async () =>
         {
-            await _process.WaitForExitAsync(cToken).ConfigureAwait(false);
-        }
-        catch (TaskCanceledException)
-        {
-            _process.Kill(true);
-        }
+            try
+            {
+                await _process.WaitForExitAsync(cToken).ConfigureAwait(false);
+            }
+            catch (TaskCanceledException)
+            {
+                _process.Kill(true);
+            }
+            finally
+            {
+                _outputChannel.Writer.Complete();
+            }
+        }, cToken);
+
+        return _outputChannel.Reader;
     }
 
     /// <summary>
     /// Releases all the resources used by this instance.
     /// </summary>
-    public void Dispose()
-    {
-        _process.OutputDataReceived -= OnOutputData;
-        _process.ErrorDataReceived -= OnErrorData;
-        _process.Dispose();
-    }
+    public void Dispose() => _process.Dispose();
 
     private void OnOutputData(object sender, DataReceivedEventArgs e)
     {
         if (e.Data is not null)
         {
-            OnOutput?.Invoke(this, e.Data);
+            ProcessOutputLine line = new(DateTimeOffset.Now, e.Data, false);
+            _outputChannel.Writer.TryWrite(line);
         }
     }
 
@@ -145,7 +149,13 @@ public sealed class EasyProcess : IDisposable
     {
         if (e.Data is not null)
         {
-            OnError?.Invoke(this, e.Data);
+            ProcessOutputLine line = new(DateTimeOffset.Now, e.Data, true);
+            _outputChannel.Writer.TryWrite(line);
         }
     }
 }
+
+/// <summary>
+/// An abstraction for representing the output of a process started by <see cref="EasyProcess"/>.
+/// </summary>
+public readonly record struct ProcessOutputLine(DateTimeOffset Timestamp, string Line, bool IsError);
