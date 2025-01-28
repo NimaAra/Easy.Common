@@ -25,10 +25,9 @@ public sealed class EasyProcess : IDisposable
 
         if (envVars is not null)
         {
-            startInfo.Environment.Clear();
-            foreach (var item in envVars)
+            foreach (var pair in envVars)
             {
-                startInfo.Environment.Add(item.Key, item.Value);
+                startInfo.Environment[pair.Key] = pair.Value;
             }
         }
 
@@ -120,11 +119,14 @@ public sealed class EasyProcess : IDisposable
             }
             catch (TaskCanceledException)
             {
-                _process.Kill(true);
+                if (!_process.HasExited)
+                {
+                    _process.Kill(true);
+                }
             }
             finally
             {
-                _outputChannel.Writer.Complete();
+                _outputChannel.Writer.TryComplete();
             }
         }, cToken);
 
@@ -134,7 +136,11 @@ public sealed class EasyProcess : IDisposable
     /// <summary>
     /// Releases all the resources used by this instance.
     /// </summary>
-    public void Dispose() => _process.Dispose();
+    public void Dispose()
+    {
+        _process.Dispose();
+        _outputChannel.Writer.TryComplete();
+    }
 
     private void OnOutputData(object sender, DataReceivedEventArgs e)
     {
