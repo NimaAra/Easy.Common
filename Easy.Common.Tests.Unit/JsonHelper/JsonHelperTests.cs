@@ -167,6 +167,26 @@ internal sealed class JsonHelperTests
     }
 
     [Test]
+    public void GivenJson_WhenDeserializingFromJsonElementWithTemplate_ThenShouldSucceed()
+    {
+        const string JSON = """{"name": "Foo", "age": 42}""";
+
+        JsonElement jsonElement = JsonSerializer.Deserialize<JsonElement>(JSON);
+
+        var template = new
+        {
+            name = string.Empty,
+            age = 0
+        };
+
+        var result = JsonHelper.DeserializeAs(template, jsonElement);
+
+        result.ShouldNotBeNull();
+        result.name.ShouldBe("Foo");
+        result.age.ShouldBe(42);
+    }
+
+    [Test]
     public async Task GivenJson_WhenSerializingAndCompressingAndDeserializingFromCompressed_ThenShouldSucceed()
     {
         var payload = new

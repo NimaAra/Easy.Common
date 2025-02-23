@@ -25,6 +25,12 @@ public static class JsonHelper
     }
 
     /// <summary>
+    /// Deserializes payload from the given <paramref name="jsonElement"/> based on the given <paramref name="template"/>.
+    /// </summary>
+    public static T? DeserializeAs<T>(T template, JsonElement jsonElement, JsonSerializerOptions? options = null) =>
+        jsonElement.Deserialize<T>(options);
+
+    /// <summary>
     /// Deserializes payload from the given <paramref name="json"/> based on the given <paramref name="template"/>.
     /// </summary>
     public static T? DeserializeAs<T>(T template, string json, JsonSerializerOptions? options = null) =>
