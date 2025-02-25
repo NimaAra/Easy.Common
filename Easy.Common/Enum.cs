@@ -8,31 +8,8 @@ using System.Reflection;
 /// <summary>
 /// An abstraction for representing a class based enum.
 /// </summary>
-public abstract record class Enum<T> : IEnum where T : IEnum
+public abstract record class Enum<T, TId>(TId Id) : IEnum<TId> where T : IEnum<TId>
 {
-    // ReSharper disable once StaticMemberInGenericType
-    private static uint _id;
-
-    /// <summary>
-    /// Creates an instance of the <see cref="Enum{T}"/> class.
-    /// </summary>
-    /// <param name="name"></param>
-    protected Enum(string name)
-    {
-        Id = _id++;
-        Name = name;
-    }
-
-    /// <summary>
-    /// Gets the Id.
-    /// </summary>
-    public uint Id { get; }
-	
-    /// <summary>
-    /// Gets the Name.
-    /// </summary>
-    public string Name { get; }
-
     /// <summary>
     /// Retrieves a list of the values of the constants in a specified enumeration of type <typeparamref name="T"/>.
     /// </summary>
@@ -40,10 +17,21 @@ public abstract record class Enum<T> : IEnum where T : IEnum
         typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
             .Select(f => f.GetValue(null))
             .Cast<T>()
-            .ToList();
+            .ToArray();
+}
+
+/// <summary>
+/// An abstraction for representing a class based enum.
+/// </summary>
+public abstract record class Enum<T>(uint Id, string Name) : Enum<T, uint>(Id), IEnum where T : IEnum
+{
+    // ReSharper disable once StaticMemberInGenericType
+    private static uint _counter;
 
     /// <summary>
-    /// Returns the textual representation of the enum.
+    /// Creates an instance of the <see cref="Enum{T}"/> class.
     /// </summary>
-    public sealed override string ToString() => $"[{Id}] {Name}";
+    protected Enum(string name) : this(_counter++, name)
+    {
+    }
 }
