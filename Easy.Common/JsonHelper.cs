@@ -55,6 +55,12 @@ public static class JsonHelper
         JsonSerializer.Deserialize<T>(json, options);
 
     /// <summary>
+    /// Deserializes payload from the given <paramref name="reader"/> based on the given <paramref name="template"/>.
+    /// </summary>
+    public static T? DeserializeAs<T>(T template, ref Utf8JsonReader reader, JsonSerializerOptions? options = null) =>
+        JsonSerializer.Deserialize<T>(ref reader, options);
+
+    /// <summary>
     /// Deserializes payload from the given <paramref name="json"/> based on the given <paramref name="template"/>.
     /// </summary>
     public static T? DeserializeAs<T>(T template, ReadOnlyMemory<byte> json, JsonSerializerOptions? options = null) =>
@@ -73,7 +79,7 @@ public static class JsonHelper
     {
         await using GZipStream decompressor = new(json, CompressionMode.Decompress);
         using MemoryStream decompressed = new();
-        await decompressor.CopyToAsync(decompressed);
+        await decompressor.CopyToAsync(decompressed).ConfigureAwait(false);
         decompressed.Position = 0;
 
         return await JsonSerializer.DeserializeAsync<T>(decompressed, options);

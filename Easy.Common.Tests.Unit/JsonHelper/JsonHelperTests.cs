@@ -1,12 +1,12 @@
 ﻿namespace Easy.Common.Tests.Unit.JsonHelper;
 
+using NUnit.Framework;
+using Shouldly;
 using System;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using NUnit.Framework;
-using Shouldly;
 using JsonHelper = Easy.Common.JsonHelper;
 
 [TestFixture]
@@ -180,6 +180,27 @@ internal sealed class JsonHelperTests
         };
 
         var result = JsonHelper.DeserializeAs(template, jsonElement);
+
+        result.ShouldNotBeNull();
+        result.name.ShouldBe("Foo");
+        result.age.ShouldBe(42);
+    }
+
+    [Test]
+    public void GivenJson_WhenDeserializingFromUtf8JsonReaderWithTemplate_ThenShouldSucceed()
+    {
+        const string JSON = """{"name": "Foo", "age": 42}""";
+        ReadOnlySpan<byte> jsonSpan = Encoding.UTF8.GetBytes(JSON).AsSpan();
+        
+        Utf8JsonReader reader = new Utf8JsonReader(jsonSpan);
+
+        var template = new
+        {
+            name = string.Empty,
+            age = 0
+        };
+
+        var result = JsonHelper.DeserializeAs(template, ref reader);
 
         result.ShouldNotBeNull();
         result.name.ShouldBe("Foo");
