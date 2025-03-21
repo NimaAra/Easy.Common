@@ -77,26 +77,13 @@ internal sealed class EnumTests
 
         JsonSerializerOptions options = new()
         {
-            WriteIndented = true,
+            WriteIndented = false,
             Converters = { new MyEnumConverter() }
         };
         string json = JsonSerializer.Serialize(enums, options);
-        json.ShouldBe("""
-[
-  {
-    "Age": 12,
-    "Name": "OptionA",
-    "Id": 0
-  },
-  {
-    "Age": 42,
-    "Name": "OptionB",
-    "Id": 1
-  }
-]
-""");
-    } 
-    
+        json.ShouldBe("""[{"Age":12,"Name":"OptionA","Id":0},{"Age":42,"Name":"OptionB","Id":1}]""");
+    }
+
     [Test]
     public void When_serializing_explicit()
     {
@@ -104,16 +91,11 @@ internal sealed class EnumTests
 
         JsonSerializerOptions options = new()
         {
-            WriteIndented = true,
+            WriteIndented = false,
             Converters = { new MyOtherEnumConverter() }
         };
         string json = JsonSerializer.Serialize(enums, options);
-        json.ShouldBe("""
-[
-  "OptionA",
-  "OptionB"
-]
-""");
+        json.ShouldBe("""["OptionA","OptionB"]""");
     }
 
     [Test]
@@ -148,15 +130,10 @@ internal sealed class EnumTests
     {
         JsonSerializerOptions options = new()
         {
-            WriteIndented = true,
+            WriteIndented = false,
             Converters = { new MyOtherEnumConverter() }
         };
-        string json = """
-[
-    "OptionA",
-    "OptionB"
-]
-""";
+        string json = """["OptionA","OptionB"]""";
         MyOtherEnum[] enums = JsonSerializer.Deserialize<MyOtherEnum[]>(json, options);
         enums.ShouldNotBeNull();
         enums.ShouldBe([MyOtherEnum.OptionA, MyOtherEnum.OptionB]);
@@ -225,7 +202,7 @@ internal sealed class EnumTests
             JsonSerializer.Serialize(writer, value, _options);
         }
     }
-    
+
     sealed class MyOtherEnumConverter : JsonConverter<MyOtherEnum>
     {
         public override MyOtherEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -245,7 +222,7 @@ internal sealed class EnumTests
             throw new ArgumentOutOfRangeException($"Invalid value: {idValue}");
         }
 
-        public override void Write(Utf8JsonWriter writer, MyOtherEnum value, JsonSerializerOptions options) => 
+        public override void Write(Utf8JsonWriter writer, MyOtherEnum value, JsonSerializerOptions options) =>
             writer.WriteStringValue(value.Id);
     }
 }
