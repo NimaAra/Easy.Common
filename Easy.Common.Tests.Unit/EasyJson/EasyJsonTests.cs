@@ -1,23 +1,23 @@
-﻿namespace Easy.Common.Tests.Unit.JsonHelper;
+﻿namespace Easy.Common.Tests.Unit.EasyJson;
 
-using NUnit.Framework;
-using Shouldly;
 using System;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using JsonHelper = Easy.Common.JsonHelper;
+using NUnit.Framework;
+using Shouldly;
+using EasyJson = Easy.Common.EasyJson;
 
 [TestFixture]
-internal sealed class JsonHelperTests
+internal sealed class EasyJsonTests
 {
     [Test]
     public void GivenMinifiedJson_WhenPrettifying_ThenShouldSucceed()
     {
         const string JSON = """{"name": "Foo", "age": 42}""";
 
-        string prettified = JsonHelper.Prettify(JSON);
+        string prettified = EasyJson.Prettify(JSON);
 
         prettified.ShouldContain(Environment.NewLine);
 
@@ -27,7 +27,7 @@ internal sealed class JsonHelperTests
             age = 0
         };
 
-        var deserialized = JsonHelper.DeserializeAs(template, prettified);
+        var deserialized = EasyJson.DeserializeAs(template, prettified);
 
         deserialized.name.ShouldBe("Foo");
         deserialized.age.ShouldBe(42);
@@ -44,7 +44,7 @@ internal sealed class JsonHelperTests
             age = 0
         };
 
-        var result = JsonHelper.DeserializeAs(template, JSON);
+        var result = EasyJson.DeserializeAs(template, JSON);
 
         result.ShouldNotBeNull();
         result.name.ShouldBe("Foo");
@@ -64,7 +64,7 @@ internal sealed class JsonHelperTests
 
         JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
 
-        var result = JsonHelper.DeserializeAs(template, JSON, options);
+        var result = EasyJson.DeserializeAs(template, JSON, options);
 
         result.ShouldNotBeNull();
         result.name.ShouldBe("Foo");
@@ -83,7 +83,7 @@ internal sealed class JsonHelperTests
             age = 0
         };
 
-        var result = JsonHelper.DeserializeAs(template, ms);
+        var result = EasyJson.DeserializeAs(template, ms);
 
         result.ShouldNotBeNull();
         result.name.ShouldBe("Foo");
@@ -102,7 +102,7 @@ internal sealed class JsonHelperTests
             age = 0
         };
 
-        var result = JsonHelper.DeserializeAs(template, jsonSpan);
+        var result = EasyJson.DeserializeAs(template, jsonSpan);
 
         result.ShouldNotBeNull();
         result.name.ShouldBe("Foo");
@@ -121,7 +121,7 @@ internal sealed class JsonHelperTests
             age = 0
         };
 
-        var result = JsonHelper.DeserializeAs(template, jsonSpan);
+        var result = EasyJson.DeserializeAs(template, jsonSpan);
 
         result.ShouldNotBeNull();
         result.name.ShouldBe("Foo");
@@ -140,7 +140,7 @@ internal sealed class JsonHelperTests
             age = 0
         };
 
-        var result = JsonHelper.DeserializeAs(template, jsonMemory);
+        var result = EasyJson.DeserializeAs(template, jsonMemory);
 
         result.ShouldNotBeNull();
         result.name.ShouldBe("Foo");
@@ -159,7 +159,7 @@ internal sealed class JsonHelperTests
             age = 0
         };
 
-        var result = JsonHelper.DeserializeAs(template, jsonMemory);
+        var result = EasyJson.DeserializeAs(template, jsonMemory);
 
         result.ShouldNotBeNull();
         result.name.ShouldBe("Foo");
@@ -179,7 +179,7 @@ internal sealed class JsonHelperTests
             age = 0
         };
 
-        var result = JsonHelper.DeserializeAs(template, jsonElement);
+        var result = EasyJson.DeserializeAs(template, jsonElement);
 
         result.ShouldNotBeNull();
         result.name.ShouldBe("Foo");
@@ -200,7 +200,7 @@ internal sealed class JsonHelperTests
             age = 0
         };
 
-        var result = JsonHelper.DeserializeAs(template, ref reader);
+        var result = EasyJson.DeserializeAs(template, ref reader);
 
         result.ShouldNotBeNull();
         result.name.ShouldBe("Foo");
@@ -217,14 +217,14 @@ internal sealed class JsonHelperTests
         };
 
         using MemoryStream ms = new();
-        await JsonHelper.SerializeAndCompress(ms, payload);
+        await EasyJson.SerializeAndCompress(ms, payload);
         
         ms.Length.ShouldBe(41);
 
         var template = payload;
 
         ms.Position = 0;
-        var deserialized = await JsonHelper.DeserializeFromCompressed(ms, template);
+        var deserialized = await EasyJson.DeserializeFromCompressedAs(ms, template);
         
         deserialized.ShouldNotBeNull();
         deserialized.name.ShouldBe(payload.name);

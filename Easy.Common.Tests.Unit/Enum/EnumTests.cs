@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using JsonHelper = Easy.Common.JsonHelper;
+using EasyJson = Easy.Common.EasyJson;
 
 [TestFixture]
 internal sealed class EnumTests
@@ -203,7 +203,7 @@ internal sealed class EnumTests
         {
             var template = new { Id = 0u, Name = string.Empty, Age = 0u };
 
-            var tmp = JsonHelper.DeserializeAs(template, ref reader, options);
+            var tmp = EasyJson.DeserializeAs(template, ref reader, options);
 
             ArgumentNullException.ThrowIfNull(tmp);
 
