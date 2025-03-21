@@ -15,7 +15,7 @@ public abstract record class Enum<T, TId>(TId Id) : IEnum<TId> where T : IEnum<T
     /// </summary>
     public static IReadOnlyList<T> Values() =>
         typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
-            .Select(f => f.GetValue(null))
+            .Select(static f => f.GetValue(null))
             .Cast<T>()
             .ToArray();
 }
