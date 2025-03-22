@@ -19,6 +19,102 @@ public static class EasyJson
     private static readonly JsonSerializerOptions _prettyOptions = new() { WriteIndented = true };
 
     /// <summary>
+    /// Indicates whether un-configured <see cref="JsonSerializerOptions"/> instances
+    /// should be set to use the reflection-based <see cref="DefaultJsonTypeInfoResolver"/>.
+    /// </summary>
+    public static bool IsReflectionEnabledByDefault => JsonSerializer.IsReflectionEnabledByDefault;
+
+    /// <summary>
+    /// Writes one JSON value (including objects or arrays) to the provided writer.
+    /// </summary>
+    public static void Serialize<TValue>(Utf8JsonWriter writer, TValue value, JsonSerializerOptions? options = null) =>
+        JsonSerializer.Serialize(writer, value, options);
+
+    /// <summary>
+    /// Writes one JSON value (including objects or arrays) to the provided writer.
+    /// </summary>
+    public static void Serialize(Utf8JsonWriter writer, object? value, Type inputType, JsonSerializerOptions? options = null) =>
+        JsonSerializer.Serialize(writer, value, inputType, options);
+
+    /// <summary>
+    /// Writes one JSON value (including objects or arrays) to the provided writer.
+    /// </summary>
+    public static void Serialize<TValue>(Utf8JsonWriter writer, TValue value, JsonTypeInfo<TValue> jsonTypeInfo) =>
+        JsonSerializer.Serialize(writer, value, jsonTypeInfo);
+
+    /// <summary>
+    /// Converts the provided value into a <see cref="string"/>.
+    /// </summary>
+    public static string Serialize<TValue>(TValue value, JsonSerializerOptions? options = null) =>
+        JsonSerializer.Serialize(value, options);
+
+    /// <summary>
+    /// Writes one JSON value (including objects or arrays) to the provided writer.
+    /// </summary>
+    public static void Serialize(Utf8JsonWriter writer, object? value, JsonTypeInfo jsonTypeInfo) =>
+        JsonSerializer.Serialize(writer, value, jsonTypeInfo);
+
+    /// <summary>
+    /// Writes one JSON value (including objects or arrays) to the provided writer.
+    /// </summary>
+    public static void Serialize(Utf8JsonWriter writer, object? value, Type inputType, JsonSerializerContext context) =>
+        JsonSerializer.Serialize(writer, value, inputType, context);
+
+    /// <summary>
+    /// Converts the provided value into a <see cref="byte"/> array.
+    /// </summary>
+    public static byte[] SerializeToUtf8Bytes<TValue>(TValue value, JsonSerializerOptions? options = null) =>
+        JsonSerializer.SerializeToUtf8Bytes(value, options);
+
+    /// <summary>
+    /// Converts the provided value into a <see cref="byte"/> array.
+    /// </summary>
+    public static byte[] SerializeToUtf8Bytes(object? value, Type inputType, JsonSerializerOptions? options = null) =>
+        JsonSerializer.SerializeToUtf8Bytes(value, inputType, options);
+    
+    /// <summary>
+    /// Converts the provided value into a <see cref="byte"/> array.
+    /// </summary>
+    public static byte[] SerializeToUtf8Bytes<TValue>(TValue value, JsonTypeInfo<TValue> jsonTypeInfo) =>
+        JsonSerializer.SerializeToUtf8Bytes(value, jsonTypeInfo);
+
+    /// <summary>
+    /// Converts the provided value into a <see cref="byte"/> array.
+    /// </summary>
+    public static byte[] SerializeToUtf8Bytes(object? value, JsonTypeInfo jsonTypeInfo) =>
+        JsonSerializer.SerializeToUtf8Bytes(value, jsonTypeInfo);
+
+    /// <summary>
+    /// Converts the provided value into a <see cref="byte"/> array.
+    /// </summary>
+    public static byte[] SerializeToUtf8Bytes(object? value, Type inputType, JsonSerializerContext context) =>
+        JsonSerializer.SerializeToUtf8Bytes(value, inputType, context);
+
+    /// <summary>
+    /// Converts the provided value into a <see cref="string"/>.
+    /// </summary>
+    public static string Serialize(object? value, Type inputType, JsonSerializerOptions? options = null) =>
+        JsonSerializer.Serialize(value, inputType, options);
+
+    /// <summary>
+    /// Converts the provided value into a <see cref="string"/>.
+    /// </summary>
+    public static string Serialize<TValue>(TValue value, JsonTypeInfo<TValue> jsonTypeInfo) =>
+        JsonSerializer.Serialize(value, jsonTypeInfo);
+
+    /// <summary>
+    /// Converts the provided value into a <see cref="string"/>.
+    /// </summary>
+    public static string Serialize(object? value, JsonTypeInfo jsonTypeInfo) =>
+        JsonSerializer.Serialize(value, jsonTypeInfo);
+
+    /// <summary>
+    /// Converts the provided value into a <see cref="string"/>.
+    /// </summary>
+    public static string Serialize(object? value, Type inputType, JsonSerializerContext context) =>
+        JsonSerializer.Serialize(value, inputType, context);
+
+    /// <summary>
     /// Converts the provided value to UTF-8 encoded JSON text and write it to the <see cref="System.IO.Stream"/>.
     /// </summary>
     /// <typeparam name="TValue">The type of the value to serialize.</typeparam>
