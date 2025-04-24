@@ -46,7 +46,7 @@ public sealed record class DriveDetails(
 /// <param name="OSName">Gets the name of the operating system.</param>
 /// <param name="OSType">Gets the type of the operating system e.g <c>Windows, Linux or OSX</c>.</param>
 /// <param name="Is64BitOS">Gets the flag indicating whether the operating system is 64-bit capable.</param>
-/// <param name="DotNetFrameworkVersion">Gets the version of the <c>.NET</c> framework.</param>
+/// <param name="DotNetVersion">Gets the version of <c>.NET</c>.</param>
 /// <param name="MachineName">Gets the machine name.</param>
 /// <param name="FQDN">Gets the Fully Qualified Domain Name (FQDN).</param>
 /// <param name="User">Gets the user under which the process is running.</param>
@@ -59,7 +59,7 @@ public sealed record class DriveDetails(
 /// <param name="Uptime">Gets the duration the system has been up.</param>
 /// </summary>
 public sealed record class SystemDetails(
-    string OSName, string OSType, bool Is64BitOS, string DotNetFrameworkVersion, string MachineName,
+    string OSName, string OSType, bool Is64BitOS, string DotNetVersion, string MachineName,
     string FQDN, string User, string CPU, uint CPUCoreCount, long InstalledRAMInGigaBytes,
     string SystemDirectory, string CurrentDirectory, string RuntimeDirectory, TimeSpan Uptime
 );

@@ -60,7 +60,7 @@ public sealed class DiagnosticReport
         "OS - Name",
         "OS - Type",
         "OS - 64Bit",
-        ".NET Framework",
+        ".NET Version",
         "Machine Name",
         "FQDN",
         "Installed RAM",
@@ -422,7 +422,7 @@ public sealed class DiagnosticReport
         Format(SystemHeaders[0], report.SystemDetails.OSName);
         Format(SystemHeaders[1], report.SystemDetails.OSType);
         Format(SystemHeaders[2], report.SystemDetails.Is64BitOS.ToString());
-        Format(SystemHeaders[3], report.SystemDetails.DotNetFrameworkVersion);
+        Format(SystemHeaders[3], report.SystemDetails.DotNetVersion);
         Format(SystemHeaders[4], report.SystemDetails.MachineName);
         Format(SystemHeaders[5], report.SystemDetails.FQDN);
         Format(SystemHeaders[9], report.SystemDetails.User);

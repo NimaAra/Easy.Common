@@ -62,7 +62,7 @@ public static class ApplicationHelper
 
         using FileStream stream = File.Open(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         using BinaryReader reader = new(stream);
-            
+
         //No MZ Header
         if (reader.ReadInt16() != 0x5A4D) { return false; }
 
