@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0</TargetFrameworks>
+        <TargetFrameworks>net10.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <AssemblyTitle>Easy Common</AssemblyTitle>
         <AssemblyName>Easy.Common</AssemblyName>

@@ -219,7 +219,7 @@ internal sealed class EasyJsonTests
         using MemoryStream ms = new();
         await EasyJson.SerializeAndCompress(ms, payload);
         
-        ms.Length.ShouldBe(41);
+        ms.Length.ShouldBe(43);
 
         var template = payload;
 

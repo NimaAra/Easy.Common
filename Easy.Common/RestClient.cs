@@ -24,8 +24,6 @@ public sealed class RestClient : IRestClient
         
     private readonly HttpClient _client;
         
-    static RestClient() => ConfigureServicePointManager();
-
     /// <summary>
     /// Creates an instance of the <see cref="RestClient"/>.
     /// </summary>
@@ -301,15 +299,6 @@ public sealed class RestClient : IRestClient
     /// <inheritdoc/>
     public void Dispose() => _client.Dispose();
         
-    private static void ConfigureServicePointManager()
-    {
-        // Default is 2 minutes, see https://msdn.microsoft.com/en-us/library/system.net.servicepointmanager.dnsrefreshtimeout(v=vs.110).aspx
-        ServicePointManager.DnsRefreshTimeout = (int)ConnectionLifeTime.TotalMilliseconds;
-
-        // Increases the concurrent outbound connections
-        ServicePointManager.DefaultConnectionLimit = MAX_CONNECTION_PER_SERVER;
-    }
-
     private void AddBaseAddress(Uri? uri)
     {
         if (uri is null) { return; }
