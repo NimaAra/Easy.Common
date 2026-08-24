@@ -68,9 +68,9 @@ internal sealed class EnumeratingFilesTests
         result.ShouldContain(f => f.Name == "00.bin");
                 
         result.ShouldContain(f => f.Name == "A_0.bin" && f.DirectoryName.EndsWith("A"));
-        result.ShouldContain(f => f.Name == "A1_0.bin" && f.DirectoryName.EndsWith(@"A\a1"));
-        result.ShouldContain(f => f.Name == "A11_0.bin" && f.DirectoryName.EndsWith(@"A\a1\a1s"));
-        result.ShouldContain(f => f.Name == "B_0.bin" && f.DirectoryName.EndsWith(@"B"));
+        result.ShouldContain(f => f.Name == "A1_0.bin" && f.DirectoryName.EndsWith(Path.Combine("A", "a1")));
+        result.ShouldContain(f => f.Name == "A11_0.bin" && f.DirectoryName.EndsWith(Path.Combine("A", "a1", "a1s")));
+        result.ShouldContain(f => f.Name == "B_0.bin" && f.DirectoryName.EndsWith("B"));
 
     }
 
@@ -98,8 +98,8 @@ internal sealed class EnumeratingFilesTests
         var result = dir.EnumerateFilesSafe("a*", SearchOption.AllDirectories).ToArray();
         result.Length.ShouldBe(3);
         result.ShouldContain(f => f.Name == "A_0.bin" && f.DirectoryName.EndsWith("A"));
-        result.ShouldContain(f => f.Name == "A1_0.bin" && f.DirectoryName.EndsWith(@"A\a1"));
-        result.ShouldContain(f => f.Name == "A11_0.bin" && f.DirectoryName.EndsWith(@"A\a1\a1s"));
+        result.ShouldContain(f => f.Name == "A1_0.bin" && f.DirectoryName.EndsWith(Path.Combine("A", "a1")));
+        result.ShouldContain(f => f.Name == "A11_0.bin" && f.DirectoryName.EndsWith(Path.Combine("A", "a1", "a1s")));
     }
 
     [OneTimeTearDown]

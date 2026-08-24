@@ -377,8 +377,16 @@ public sealed class StringExtensionsTests
         " ".IsValidFileName().ShouldBeFalse();
         "  ".IsValidFileName().ShouldBeFalse();
         "/".IsValidFileName().ShouldBeFalse();
-        "\\".IsValidFileName().ShouldBeFalse();
         "MyFile/".IsValidFileName().ShouldBeFalse();
+
+        if (!OperatingSystem.IsWindows())
+        {
+            // On non-Windows platforms only "/" and control characters
+            // are invalid in a file name.
+            return;
+        }
+
+        "\\".IsValidFileName().ShouldBeFalse();
         "\\MyFile".IsValidFileName().ShouldBeFalse();
         "MyFile>".IsValidFileName().ShouldBeFalse();
         "<MyFile>".IsValidFileName().ShouldBeFalse();

@@ -15,6 +15,8 @@ public sealed class EasyProcess : IDisposable
 {
     private readonly Process _process;
     private readonly Channel<ProcessOutputLine> _outputChannel;
+    private DateTime? _startTime;
+    private DateTime? _exitTime;
 
     private EasyProcess(ProcessStartInfo startInfo, IReadOnlyDictionary<string, string>? envVars)
     {
@@ -85,12 +87,43 @@ public sealed class EasyProcess : IDisposable
     /// <summary>
     /// Gets the time that the associated process exited.
     /// </summary>
-    public DateTime ExitTime => _process.ExitTime;
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the process has not exited yet.
+    /// </exception>
+    /// <remarks>
+    /// On some platforms such as Unix, the exit time cannot be queried once the
+    /// process has exited hence the value is captured when the process exits.
+    /// </remarks>
+    public DateTime ExitTime
+    {
+        get
+        {
+            if (_exitTime is { } captured) { return captured; }
+
+            try
+            {
+                // Covers the case where the process has already exited
+                // but its exit time is yet to be captured.
+                return _process.ExitTime;
+            }
+            catch (Exception e) when (e is InvalidOperationException || e is System.ComponentModel.Win32Exception)
+            {
+                throw new InvalidOperationException("The process has not exited yet.", e);
+            }
+        }
+    }
 
     /// <summary>
     /// Gets the time that the associated process was started.
     /// </summary>
-    public DateTime StartTime => _process.StartTime;
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the process has not been started yet.
+    /// </exception>
+    /// <remarks>
+    /// On some platforms such as Unix, the start time cannot be queried once the process
+    /// has exited hence the value is captured when the process starts.
+    /// </remarks>
+    public DateTime StartTime => _startTime ?? throw new InvalidOperationException("The process has not been started yet.");
 
     /// <summary>
     /// Gets a value indicating whether the associated process has been terminated.
@@ -100,7 +133,7 @@ public sealed class EasyProcess : IDisposable
     /// <summary>
     /// Gets the execution time of the process.
     /// </summary>
-    public TimeSpan ExecutionTime => _process.ExitTime - _process.StartTime;
+    public TimeSpan ExecutionTime => ExitTime - StartTime;
 
     /// <summary>
     /// Starts the process and publishes output and error lines if any as events.
@@ -108,6 +141,7 @@ public sealed class EasyProcess : IDisposable
     public ChannelReader<ProcessOutputLine> Start(CancellationToken cToken = default)
     {
         _process.Start();
+        _startTime = GetStartTime();
         _process.BeginOutputReadLine();
         _process.BeginErrorReadLine();
 
@@ -126,6 +160,7 @@ public sealed class EasyProcess : IDisposable
             }
             finally
             {
+                _exitTime = GetExitTime();
                 _outputChannel.Writer.TryComplete();
             }
         }, cToken);
@@ -157,6 +192,34 @@ public sealed class EasyProcess : IDisposable
         {
             ProcessOutputLine line = new(DateTimeOffset.Now, e.Data, true);
             _outputChannel.Writer.TryWrite(line);
+        }
+    }
+
+    private DateTime GetStartTime()
+    {
+        try
+        {
+            return _process.StartTime;
+        }
+        catch (Exception e) when (e is InvalidOperationException || e is System.ComponentModel.Win32Exception)
+        {
+            // On some platforms such as Unix the start time cannot be queried
+            // once the process has exited which can happen for short-lived processes.
+            return DateTime.Now;
+        }
+    }
+
+    private DateTime GetExitTime()
+    {
+        try
+        {
+            return _process.ExitTime;
+        }
+        catch (Exception e) when (e is InvalidOperationException || e is System.ComponentModel.Win32Exception)
+        {
+            // On some platforms such as Unix the exit time cannot be queried
+            // once the process has exited.
+            return DateTime.Now;
         }
     }
 }

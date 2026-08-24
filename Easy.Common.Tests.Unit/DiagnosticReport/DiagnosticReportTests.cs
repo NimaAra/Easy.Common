@@ -9,6 +9,8 @@ using DiagnosticReport = Easy.Common.DiagnosticReport;
 [TestFixture]
 internal sealed class DiagnosticReportTests
 {
+    private static readonly string NewLine = Environment.NewLine;
+
     [Test]
     public void When_generating_full_report()
     {
@@ -33,14 +35,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(1000);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -67,14 +69,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(1000);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -98,14 +100,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(100);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldNotContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldNotContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -128,14 +130,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(100);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldNotContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldNotContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldNotContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -159,14 +161,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(100);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldNotContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldNotContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldNotContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -190,14 +192,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(100);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldNotContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldNotContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldNotContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -221,14 +223,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(100);
             
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldNotContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldNotContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldNotContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -251,14 +253,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(100);
             
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldNotContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -284,14 +286,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(100);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldNotContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldNotContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -318,14 +320,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(100);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldNotContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldNotContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -352,14 +354,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(100);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldNotContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldNotContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -386,14 +388,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(100);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldNotContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldNotContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -419,14 +421,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(100);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
         
@@ -459,14 +461,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(1000);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -494,14 +496,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(500);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldNotContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldNotContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldNotContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 
@@ -532,14 +534,14 @@ internal sealed class DiagnosticReportTests
         formattedReport.ShouldNotBeNull();
         formattedReport.Length.ShouldBeGreaterThan(1000);
 
-        formattedReport.ShouldStartWith("/\r\n|Diagnostic Report generated at:");
-        formattedReport.ShouldContain("\r\n|\r\n|System|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Process|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Drives|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Assemblies|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Environment-Variables|...");
-        formattedReport.ShouldContain("\r\n|\r\n|Networks|...");
-        formattedReport.ShouldContain("|\r\n|\t. Windows IP Configuration\r\n|");
+        formattedReport.ShouldStartWith($"/{NewLine}|Diagnostic Report generated at:");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|System|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Process|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Drives|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Assemblies|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Environment-Variables|...");
+        formattedReport.ShouldContain($"{NewLine}|{NewLine}|Networks|...");
+        formattedReport.ShouldContain($"|{NewLine}|\t. Windows IP Configuration{NewLine}|");
         formattedReport.ShouldEndWith("\\");
     }
 }

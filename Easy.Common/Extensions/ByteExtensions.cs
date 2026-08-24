@@ -1,5 +1,6 @@
 ﻿namespace Easy.Common.Extensions;
 
+using System;
 using System.Diagnostics;
 
 /// <summary>
@@ -16,9 +17,7 @@ public static class ByteExtensions
     {
         if (left == right) { return true; }
         if (left is null || right is null) { return false; }
-            
-        // Validate buffers are the same length.
-        // This also ensures that the count does not exceed the length of either buffer.  
-        return left.Length == right.Length && NativeMethods.MemoryCompare(left, right, left.Length) == 0;
+
+        return left.AsSpan().SequenceEqual(right);
     }
 }

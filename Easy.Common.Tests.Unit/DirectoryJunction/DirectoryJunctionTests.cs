@@ -2,6 +2,7 @@
 
 using NUnit.Framework;
 using Shouldly;
+using System;
 using System.IO;
 using DirectoryJunction = Easy.Common.DirectoryJunction;
 
@@ -50,6 +51,12 @@ internal sealed class DirectoryJunctionTests
     [Test]
     public void Create_VerifyExists_GetTarget_Delete()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            Assert.Pass("windows only - NTFS junction points");
+            return;
+        }
+
         string targetFolder = Path.Combine(_tempFolder, "ADirectory");
         string junctionPoint = Path.Combine(_tempFolder, "SymLink");
 
@@ -98,6 +105,12 @@ internal sealed class DirectoryJunctionTests
     [Test]
     public void Create_OverwritesIfSpecifiedAndDirectoryExists()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            Assert.Pass("windows only - NTFS junction points");
+            return;
+        }
+
         string targetFolder = Path.Combine(_tempFolder, "ADirectory");
         string junctionPoint = Path.Combine(_tempFolder, "SymLink");
 
@@ -122,6 +135,12 @@ internal sealed class DirectoryJunctionTests
     [Test]
     public void GetTarget_NonExistentJunctionPoint()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            Assert.Pass("windows only - NTFS junction points");
+            return;
+        }
+
         Should.Throw<IOException>(() => DirectoryJunction.GetTarget(Path.Combine(_tempFolder, "SymLink")))
             .Message.ShouldBe("Unable to open reparse point.");
     }
@@ -129,6 +148,12 @@ internal sealed class DirectoryJunctionTests
     [Test]
     public void GetTarget_CalledOnADirectoryThatIsNotAJunctionPoint()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            Assert.Pass("windows only - NTFS junction points");
+            return;
+        }
+
         Should.Throw<IOException>(() => DirectoryJunction.GetTarget(_tempFolder))
             .Message.ShouldBe("Path is not a junction point.");
     }
@@ -136,6 +161,12 @@ internal sealed class DirectoryJunctionTests
     [Test]
     public void GetTarget_CalledOnAFile()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            Assert.Pass("windows only - NTFS junction points");
+            return;
+        }
+
         File.Create(Path.Combine(_tempFolder, "AFile")).Close();
 
         Should.Throw<IOException>(() => DirectoryJunction.GetTarget(Path.Combine(_tempFolder, "AFile")))
@@ -152,6 +183,12 @@ internal sealed class DirectoryJunctionTests
     [Test]
     public void Delete_CalledOnADirectoryThatIsNotAJunctionPoint()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            Assert.Pass("windows only - NTFS junction points");
+            return;
+        }
+
         Should.Throw<IOException>(() => DirectoryJunction.Delete(_tempFolder))
             .Message.ShouldBe("Unable to delete junction point.");
     }

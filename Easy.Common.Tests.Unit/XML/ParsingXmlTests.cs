@@ -12,7 +12,7 @@ using Shouldly;
 public sealed class ParsingXmlTests
 {
     private readonly string _pathToXml = 
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"XML\Sample.xml");
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "XML", "Sample.xml");
 
     [Test]
     public void When_parsing_xml_from_file_case_insensitive()

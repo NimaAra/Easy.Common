@@ -20,8 +20,16 @@ public static class GuidHelper
     {
         const int RpcSOk = 0;
 
-        var result = NativeMethods.UuidCreateSequential(out Guid guid);
-        return result == RpcSOk ? guid : Guid.NewGuid();
+        try
+        {
+            var result = NativeMethods.UuidCreateSequential(out Guid guid);
+            return result == RpcSOk ? guid : Guid.NewGuid();
+        }
+        catch (Exception e) when (e is EntryPointNotFoundException || e is DllNotFoundException)
+        {
+            // UuidCreateSequential is only available on Windows; fall back to a random GUID.
+            return Guid.NewGuid();
+        }
     }
 
     /// <summary>
